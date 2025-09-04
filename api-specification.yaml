@@ -1,0 +1,962 @@
+openapi: 3.0.3
+info:
+  title: Nigerian Multi-Tenant Money Transfer System API
+  description: |
+    Comprehensive API specification for the AI-enhanced multi-tenant Nigerian Money Transfer system.
+    This API provides endpoints for transaction processing, AI services, tenant management, and more.
+    
+    ## Authentication
+    - JWT Bearer tokens for user authentication
+    - API keys for service-to-service communication  
+    - Multi-tenant isolation through tenant context
+    
+    ## Rate Limiting
+    - Basic tier: 100 requests/minute
+    - Premium tier: 500 requests/minute  
+    - Enterprise tier: 1000 requests/minute
+    
+    ## AI Features
+    - Conversational AI assistant
+    - Real-time fraud detection
+    - Voice command processing
+    - Multi-language support (English, Hausa, Yoruba, Igbo)
+    
+    ## Compliance
+    - CBN (Central Bank of Nigeria) compliant
+    - PCI DSS Level 1 certified
+    - ISO 27001 security standards
+    
+  version: 2.0.0
+  contact:
+    name: OrokiiPay API Support
+    email: api-support@orokii.com
+    url: https://docs.orokii.com
+  license:
+    name: Proprietary
+    url: https://orokii.com/license
+  
+servers:
+  - url: https://api.orokii.com/v2
+    description: Production API
+  - url: https://api-staging.orokii.com/v2  
+    description: Staging API
+  - url: https://api-dev.orokii.com/v2
+    description: Development API
+
+security:
+  - BearerAuth: []
+  - ApiKeyAuth: []
+
+paths:
+  # Authentication Endpoints
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: User login with AI-enhanced security
+      description: Authenticate user with multi-factor authentication and AI risk assessment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many login attempts
+        '403':
+          description: Account blocked due to AI risk assessment
+
+  /auth/mfa/verify:
+    post:
+      tags:
+        - Authentication
+      summary: Verify multi-factor authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MfaVerificationRequest'
+      responses:
+        '200':
+          description: MFA verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokenResponse'
+        '400':
+          description: Invalid MFA code
+        '410':
+          description: MFA code expired
+
+  # AI Assistant Endpoints  
+  /ai/chat:
+    post:
+      tags:
+        - AI Assistant
+      summary: Send message to AI assistant
+      description: Process natural language queries with multi-language support
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: AI response generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '400':
+          description: Invalid chat request
+        '429':
+          description: Rate limit exceeded
+
+  /ai/voice-command:
+    post:
+      tags:
+        - AI Assistant
+      summary: Process voice command
+      description: Convert speech to text and process as transaction command
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                audio:
+                  type: string
+                  format: binary
+                  description: Audio file (WAV, MP3)
+                language:
+                  type: string
+                  enum: [en, ha, yo, ig, pcm]
+                  default: en
+                context:
+                  type: string
+                  enum: [transaction, general]
+                  default: general
+      responses:
+        '200':
+          description: Voice command processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoiceCommandResponse'
+        '400':
+          description: Invalid audio format
+        '413':
+          description: Audio file too large
+
+  # Transaction Endpoints
+  /transactions:
+    post:
+      tags:
+        - Transactions
+      summary: Create new transaction with AI fraud detection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+      responses:
+        '201':
+          description: Transaction created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '400':
+          description: Invalid transaction data
+        '403':
+          description: Transaction blocked by fraud detection
+        '422':
+          description: Business rule validation failed
+
+    get:
+      tags:
+        - Transactions
+      summary: Get transaction history with AI insights
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/TransactionType'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/TransactionStatus'
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: include_ai_insights
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Transaction history retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionListResponse'
+
+  /transactions/{transactionId}:
+    get:
+      tags:
+        - Transactions
+      summary: Get transaction details
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Transaction details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionDetail'
+        '404':
+          description: Transaction not found
+
+  # Fraud Detection Endpoints
+  /fraud/assess:
+    post:
+      tags:
+        - Fraud Detection
+      summary: Assess transaction fraud risk
+      description: Real-time AI fraud detection and risk scoring
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FraudAssessmentRequest'
+      responses:
+        '200':
+          description: Fraud assessment completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FraudAssessmentResponse'
+        '400':
+          description: Invalid assessment request
+
+  # Wallet Management
+  /wallets:
+    get:
+      tags:
+        - Wallets
+      summary: Get user wallets with AI insights
+      responses:
+        '200':
+          description: User wallets retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WalletListResponse'
+
+  /wallets/{walletId}/balance:
+    get:
+      tags:
+        - Wallets  
+      summary: Get wallet balance with AI predictions
+      parameters:
+        - name: walletId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Wallet balance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WalletBalanceResponse'
+
+  # Analytics and Insights
+  /analytics/dashboard:
+    get:
+      tags:
+        - Analytics
+      summary: Get AI-powered dashboard analytics
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [day, week, month, quarter, year]
+            default: month
+        - name: include_predictions
+          in: query
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: Dashboard analytics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardAnalytics'
+
+  # Tenant Management (Admin Only)
+  /admin/tenants:
+    post:
+      tags:
+        - Tenant Management
+      summary: Create new tenant
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTenantRequest'
+      responses:
+        '201':
+          description: Tenant created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantResponse'
+        '400':
+          description: Invalid tenant data
+        '403':
+          description: Insufficient permissions
+
+  /admin/tenants/{tenantId}:
+    get:
+      tags:
+        - Tenant Management
+      summary: Get tenant details
+      parameters:
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tenant details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantDetail'
+
+    put:
+      tags:
+        - Tenant Management
+      summary: Update tenant configuration
+      parameters:
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTenantRequest'
+      responses:
+        '200':
+          description: Tenant updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantResponse'
+
+  # Health and Status
+  /health:
+    get:
+      tags:
+        - System
+      summary: Health check endpoint
+      security: []
+      responses:
+        '200':
+          description: System healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /health/ai-services:
+    get:
+      tags:
+        - System
+      summary: AI services health check
+      responses:
+        '200':
+          description: AI services status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIServicesHealthResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  schemas:
+    # Authentication Schemas
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: "agent@bank-a.com"
+        password:
+          type: string
+          format: password
+          minLength: 8
+        deviceInfo:
+          $ref: '#/components/schemas/DeviceInfo'
+        locationInfo:
+          $ref: '#/components/schemas/LocationInfo'
+
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        requiresMfa:
+          type: boolean
+        mfaMethods:
+          type: array
+          items:
+            type: string
+            enum: [sms, email, totp, biometric]
+        tempToken:
+          type: string
+          description: "Temporary token for MFA completion"
+        user:
+          $ref: '#/components/schemas/UserProfile'
+        riskAssessment:
+          $ref: '#/components/schemas/LoginRiskAssessment'
+
+    MfaVerificationRequest:
+      type: object
+      required:
+        - tempToken
+        - method
+        - code
+      properties:
+        tempToken:
+          type: string
+        method:
+          type: string
+          enum: [sms, email, totp, biometric]
+        code:
+          type: string
+        biometricData:
+          type: string
+          description: "Base64 encoded biometric data for biometric MFA"
+
+    AuthTokenResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        expiresIn:
+          type: integer
+          description: "Token expiry in seconds"
+        user:
+          $ref: '#/components/schemas/UserProfile'
+        tenant:
+          $ref: '#/components/schemas/TenantInfo'
+
+    # AI Assistant Schemas
+    ChatRequest:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          maxLength: 1000
+          example: "I want to send ₦5000 to my brother"
+        language:
+          type: string
+          enum: [en, ha, yo, ig, pcm]
+          default: en
+        context:
+          type: object
+          properties:
+            conversationId:
+              type: string
+            userPreferences:
+              type: object
+            previousMessages:
+              type: array
+              items:
+                $ref: '#/components/schemas/ChatMessage'
+
+    ChatResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        conversationId:
+          type: string
+        intent:
+          $ref: '#/components/schemas/Intent'
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        suggestedActions:
+          type: array
+          items:
+            $ref: '#/components/schemas/SuggestedAction'
+        extractedTransaction:
+          $ref: '#/components/schemas/ExtractedTransaction'
+        processingTime:
+          type: number
+          description: "Response time in milliseconds"
+
+    VoiceCommandResponse:
+      type: object
+      properties:
+        transcript:
+          type: string
+          example: "Send five thousand naira to John"
+        confidence:
+          type: number
+          format: float
+        language:
+          type: string
+        intent:
+          $ref: '#/components/schemas/Intent'
+        chatResponse:
+          $ref: '#/components/schemas/ChatResponse'
+
+    # Transaction Schemas
+    TransactionRequest:
+      type: object
+      required:
+        - type
+        - amount
+      properties:
+        type:
+          $ref: '#/components/schemas/TransactionType'
+        amount:
+          type: number
+          format: decimal
+          minimum: 1
+          maximum: 10000000
+          example: 5000.00
+        currency:
+          type: string
+          enum: [NGN]
+          default: NGN
+        recipient:
+          type: string
+          example: "John Doe"
+        recipientAccount:
+          type: string
+          example: "1234567890"
+        recipientBank:
+          type: string
+          example: "Bank A"
+        reference:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 500
+        aiGenerated:
+          type: boolean
+          default: false
+          description: "Whether transaction was generated from AI command"
+        voiceInitiated:
+          type: boolean
+          default: false
+        naturalLanguageCommand:
+          type: string
+          example: "Send five thousand naira to my brother John"
+
+    TransactionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        reference:
+          type: string
+        status:
+          $ref: '#/components/schemas/TransactionStatus'
+        fraudAssessment:
+          $ref: '#/components/schemas/FraudAssessment'
+        estimatedCompletionTime:
+          type: string
+          format: date-time
+        fees:
+          type: number
+          format: decimal
+        aiInsights:
+          $ref: '#/components/schemas/TransactionAIInsights'
+
+    TransactionType:
+      type: string
+      enum:
+        - cash_withdrawal
+        - money_transfer  
+        - bill_payment
+        - airtime_purchase
+        - balance_inquiry
+
+    TransactionStatus:
+      type: string
+      enum:
+        - pending
+        - processing
+        - completed
+        - failed
+        - cancelled
+        - blocked
+
+    # Fraud Detection Schemas
+    FraudAssessmentRequest:
+      type: object
+      required:
+        - transactionData
+        - userBehaviorData
+        - contextualData
+      properties:
+        transactionData:
+          type: object
+          properties:
+            amount:
+              type: number
+            type:
+              $ref: '#/components/schemas/TransactionType'
+            recipient:
+              type: string
+            timestamp:
+              type: string
+              format: date-time
+        userBehaviorData:
+          type: object
+          properties:
+            loginFrequency:
+              type: number
+            transactionPatterns:
+              type: array
+              items:
+                type: object
+            deviceFingerprint:
+              type: string
+            location:
+              $ref: '#/components/schemas/LocationInfo'
+        contextualData:
+          type: object
+          properties:
+            deviceInfo:
+              $ref: '#/components/schemas/DeviceInfo'
+            networkInfo:
+              type: object
+            sessionInfo:
+              type: object
+
+    FraudAssessmentResponse:
+      type: object
+      properties:
+        riskScore:
+          type: number
+          minimum: 0
+          maximum: 100
+          example: 25.5
+        riskLevel:
+          type: string
+          enum: [low, medium, high, critical]
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        factors:
+          type: array
+          items:
+            $ref: '#/components/schemas/RiskFactor'
+        recommendation:
+          type: string
+          enum: [approve, review, decline, additional_auth]
+        explanation:
+          type: string
+        processingTime:
+          type: number
+
+    # Common Schemas
+    DeviceInfo:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [mobile, web, api]
+        os:
+          type: string
+        browser:
+          type: string
+        appVersion:
+          type: string
+        deviceId:
+          type: string
+
+    LocationInfo:
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        country:
+          type: string
+          example: "Nigeria"
+        city:
+          type: string
+          example: "Lagos"
+        ipAddress:
+          type: string
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        role:
+          type: string
+          enum: [admin, super_agent, agent, merchant]
+        status:
+          type: string
+          enum: [active, inactive, suspended]
+        permissions:
+          type: array
+          items:
+            type: string
+        aiPreferences:
+          type: object
+
+    TenantInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        displayName:
+          type: string
+        tier:
+          type: string
+          enum: [basic, premium, enterprise]
+        features:
+          type: object
+        branding:
+          type: object
+
+    Intent:
+      type: object
+      properties:
+        type:
+          type: string
+        confidence:
+          type: number
+          format: float
+        parameters:
+          type: object
+
+    SuggestedAction:
+      type: object
+      properties:
+        type:
+          type: string
+        label:
+          type: string
+        action:
+          type: string
+        data:
+          type: object
+
+    ExtractedTransaction:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/TransactionType'
+        amount:
+          type: number
+        recipient:
+          type: string
+        confidence:
+          type: number
+          format: float
+
+    # Error Response
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+        requestId:
+          type: string
+          format: uuid
+        timestamp:
+          type: string
+          format: date-time
+
+    # Pagination
+    PaginationMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        hasNext:
+          type: boolean
+        hasPrev:
+          type: boolean
+
+  responses:
+    UnauthorizedError:
+      description: Authentication information is missing or invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    
+    ForbiddenError:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    
+    ValidationError:
+      description: Request validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    
+    RateLimitError:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+          description: The maximum number of requests allowed
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+          description: The number of requests remaining
+        X-RateLimit-Reset:
+          schema:
+            type: integer
+          description: The time when the rate limit resets
+
+tags:
+  - name: Authentication
+    description: User authentication and authorization
+  - name: AI Assistant
+    description: Conversational AI and voice processing
+  - name: Transactions
+    description: Transaction processing and management
+  - name: Fraud Detection
+    description: AI-powered fraud detection and risk assessment
+  - name: Wallets
+    description: Wallet management and balance operations
+  - name: Analytics
+    description: AI-powered analytics and insights
+  - name: Tenant Management
+    description: Multi-tenant administration (Admin only)
+  - name: System
+    description: System health and status endpoints

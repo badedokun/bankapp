@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#007bff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="manifest" href="manifest.json">
+    <title>OrokiiPay - Settings & Profile</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        input, button, select {
+            -webkit-appearance: none;
+            touch-action: manipulation;
+            min-height: 44px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            padding-top: env(safe-area-inset-top);
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: var(--tenant-primary, #007bff);
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-title h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header-title p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .save-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .save-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+        }
+
+        .sidebar {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 0;
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        .profile-header {
+            padding: 30px;
+            text-align: center;
+            border-bottom: 1px solid #f1f3f5;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background: var(--tenant-primary, #007bff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            margin: 0 auto 15px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .avatar-upload {
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            width: 30px;
+            height: 30px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .profile-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .profile-email {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .profile-tier {
+            background: rgba(0, 123, 255, 0.1);
+            color: var(--tenant-primary, #007bff);
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .nav-menu {
+            padding: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 16px;
+            color: #666;
+        }
+
+        .nav-item:hover {
+            background: #f8fafc;
+            color: #333;
+        }
+
+        .nav-item.active {
+            background: rgba(0, 123, 255, 0.05);
+            color: var(--tenant-primary, #007bff);
+            border-right: 3px solid var(--tenant-primary, #007bff);
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .content-area {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .content-header {
+            padding: 30px 30px 20px;
+            border-bottom: 1px solid #f1f3f5;
+        }
+
+        .content-header h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .content-header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .content-body {
+            padding: 30px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .form-section {
+            margin-bottom: 40px;
+        }
+
+        .form-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-section h3 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            background: #fafbfc;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--tenant-primary, #007bff);
+            background: white;
+        }
+
+        .form-input::placeholder {
+            color: #999;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        .toggle-input:checked + .toggle-slider {
+            background-color: var(--tenant-primary, #007bff);
+        }
+
+        .toggle-input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 0;
+            border-bottom: 1px solid #f1f3f5;
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-info {
+            flex: 1;
+        }
+
+        .setting-title {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .setting-description {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .language-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .language-option {
+            background: #f8fafc;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .language-option:hover {
+            border-color: var(--tenant-primary, #007bff);
+        }
+
+        .language-option.selected {
+            border-color: var(--tenant-primary, #007bff);
+            background: rgba(0, 123, 255, 0.05);
+        }
+
+        .language-flag {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .language-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .security-method {
+            background: #f8fafc;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .security-method:hover {
+            border-color: var(--tenant-primary, #007bff);
+        }
+
+        .security-method.enabled {
+            border-color: #4caf50;
+            background: rgba(76, 175, 80, 0.05);
+        }
+
+        .security-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .security-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .security-icon {
+            font-size: 24px;
+        }
+
+        .security-details h4 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .security-details p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .security-status {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .security-status.enabled {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .security-status.disabled {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .action-button {
+            background: var(--tenant-primary, #007bff);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+        }
+
+        .action-button.secondary {
+            background: #f8fafc;
+            color: #666;
+            border: 1px solid #e1e5e9;
+        }
+
+        .action-button.secondary:hover {
+            border-color: var(--tenant-primary, #007bff);
+            color: var(--tenant-primary, #007bff);
+            box-shadow: none;
+        }
+
+        .action-button.danger {
+            background: #dc2626;
+        }
+
+        .action-button.danger:hover {
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+
+        .ai-assistant-card {
+            background: linear-gradient(135deg, var(--tenant-primary, #007bff), var(--tenant-secondary, #0056b3));
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .ai-assistant-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .ai-avatar {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .ai-info h3 {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .ai-info p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .ai-preferences {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .ai-pref-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .ai-pref-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .ai-pref-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .ai-pref-desc {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .tenant-bank-a { 
+            --tenant-primary: #007bff; 
+            --tenant-secondary: #0056b3;
+        }
+        .tenant-bank-b { 
+            --tenant-primary: #e31e24; 
+            --tenant-secondary: #b71c1c;
+        }
+        .tenant-bank-c { 
+            --tenant-primary: #00a651; 
+            --tenant-secondary: #00701a;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px 15px;
+            }
+
+            .sidebar {
+                position: static;
+                order: 2;
+            }
+
+            .content-area {
+                order: 1;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .language-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .ai-preferences {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="tenant-bank-a">
+    <div class="header">
+        <div class="header-content">
+            <button class="back-button">
+                ← <span>Back</span>
+            </button>
+            <div class="header-title">
+                <h1>Settings & Profile</h1>
+                <p>Manage your account and preferences</p>
+            </div>
+            <button class="save-button" onclick="saveSettings()">💾 Save Changes</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    JD
+                    <div class="avatar-upload">📷</div>
+                </div>
+                <div class="profile-name">John Doe</div>
+                <div class="profile-email">john.doe@email.com</div>
+                <div class="profile-tier">Premium Account</div>
+            </div>
+
+            <nav class="nav-menu">
+                <button class="nav-item active" onclick="showSection('profile')">
+                    <span class="nav-icon">👤</span>
+                    <span>Profile Information</span>
+                </button>
+                <button class="nav-item" onclick="showSection('security')">
+                    <span class="nav-icon">🔒</span>
+                    <span>Security Settings</span>
+                </button>
+                <button class="nav-item" onclick="showSection('preferences')">
+                    <span class="nav-icon">⚙️</span>
+                    <span>App Preferences</span>
+                </button>
+                <button class="nav-item" onclick="showSection('ai')">
+                    <span class="nav-icon">🤖</span>
+                    <span>AI Assistant</span>
+                </button>
+                <button class="nav-item" onclick="showSection('notifications')">
+                    <span class="nav-icon">🔔</span>
+                    <span>Notifications</span>
+                </button>
+                <button class="nav-item" onclick="showSection('privacy')">
+                    <span class="nav-icon">🛡️</span>
+                    <span>Privacy & Data</span>
+                </button>
+                <button class="nav-item" onclick="showSection('support')">
+                    <span class="nav-icon">💬</span>
+                    <span>Help & Support</span>
+                </button>
+            </nav>
+        </div>
+
+        <div class="content-area">
+            <!-- Profile Information Section -->
+            <div class="section active" id="profile">
+                <div class="content-header">
+                    <h2>👤 Profile Information</h2>
+                    <p>Update your personal details and account information</p>
+                </div>
+                <div class="content-body">
+                    <div class="form-section">
+                        <h3>📝 Personal Details</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">First Name</label>
+                                <input type="text" class="form-input" value="John" placeholder="Enter your first name">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" class="form-input" value="Doe" placeholder="Enter your last name">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" class="form-input" value="john.doe@email.com" placeholder="Enter your email">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Phone Number</label>
+                                <input type="tel" class="form-input" value="+2348012345678" placeholder="Enter your phone number">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Date of Birth</label>
+                                <input type="date" class="form-input" value="1990-05-15">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Gender</label>
+                                <select class="form-select">
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                    <option value="prefer-not-to-say">Prefer not to say</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>📍 Address Information</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Street Address</label>
+                                <input type="text" class="form-input" value="123 Lekki Phase 1" placeholder="Enter your street address">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">City</label>
+                                <input type="text" class="form-input" value="Lagos" placeholder="Enter your city">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">State</label>
+                                <select class="form-select">
+                                    <option value="lagos">Lagos</option>
+                                    <option value="abuja">FCT - Abuja</option>
+                                    <option value="kano">Kano</option>
+                                    <option value="rivers">Rivers</option>
+                                    <option value="oyo">Oyo</option>
+                                    <!-- Add more states as needed -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Postal Code</label>
+                                <input type="text" class="form-input" value="100001" placeholder="Enter postal code">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>🏦 Banking Information</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">BVN (Bank Verification Number)</label>
+                                <input type="text" class="form-input" value="••••••••••" placeholder="Enter your BVN" readonly>
+                                <small style="color: #666; font-size: 12px;">BVN is secured and cannot be changed here</small>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Preferred Currency</label>
+                                <select class="form-select">
+                                    <option value="NGN">Nigerian Naira (₦)</option>
+                                    <option value="USD">US Dollar ($)</option>
+                                    <option value="GBP">British Pound (£)</option>
+                                    <option value="EUR">Euro (€)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Settings Section -->
+            <div class="section" id="security">
+                <div class="content-header">
+                    <h2>🔒 Security Settings</h2>
+                    <p>Manage your account security and authentication methods</p>
+                </div>
+                <div class="content-body">
+                    <div class="form-section">
+                        <h3>🛡️ Authentication Methods</h3>
+                        
+                        <div class="security-method enabled">
+                            <div class="security-header">
+                                <div class="security-info">
+                                    <span class="security-icon">🔑</span>
+                                    <div class="security-details">
+                                        <h4>Password</h4>
+                                        <p>Last changed 2 months ago</p>
+                                    </div>
+                                </div>
+                                <span class="security-status enabled">Enabled</span>
+                            </div>
+                            <button class="action-button secondary">Change Password</button>
+                        </div>
+
+                        <div class="security-method enabled">
+                            <div class="security-header">
+                                <div class="security-info">
+                                    <span class="security-icon">📱</span>
+                                    <div class="security-details">
+                                        <h4>Two-Factor Authentication</h4>
+                                        <p>SMS to +234••••••5678</p>
+                                    </div>
+                                </div>
+                                <span class="security-status enabled">Enabled</span>
+                            </div>
+                            <button class="action-button secondary">Manage 2FA</button>
+                        </div>
+
+                        <div class="security-method enabled">
+                            <div class="security-header">
+                                <div class="security-info">
+                                    <span class="security-icon">👆</span>
+                                    <div class="security-details">
+                                        <h4>Fingerprint Authentication</h4>
+                                        <p>2 fingerprints registered</p>
+                                    </div>
+                                </div>
+                                <span class="security-status enabled">Enabled</span>
+                            </div>
+                            <button class="action-button secondary">Manage Fingerprints</button>
+                        </div>
+
+                        <div class="security-method">
+                            <div class="security-header">
+                                <div class="security-info">
+                                    <span class="security-icon">😊</span>
+                                    <div class="security-details">
+                                        <h4>Face ID</h4>
+                                        <p>Not set up</p>
+                                    </div>
+                                </div>
+                                <span class="security-status disabled">Disabled</span>
+                            </div>
+                            <button class="action-button">Set up Face ID</button>
+                        </div>
+
+                        <div class="security-method">
+                            <div class="security-header">
+                                <div class="security-info">
+                                    <span class="security-icon">🎤</span>
+                                    <div class="security-details">
+                                        <h4>Voice Recognition</h4>
+                                        <p>Secure voice authentication</p>
+                                    </div>
+                                </div>
+                                <span class="security-status disabled">Disabled</span>
+                            </div>
+                            <button class="action-button">Set up Voice ID</button>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>🔐 Security Preferences</h3>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Transaction PIN</div>
+                                <div class="setting-description">Require PIN for all transactions</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="toggle-input" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Biometric for Large Transactions</div>
+                                <div class="setting-description">Require biometric authentication for transactions over ₦100,000</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="toggle-input" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Session Timeout</div>
+                                <div class="setting-description">Auto-logout after inactivity</div>
+                            </div>
+                            <select class="form-select" style="width: 150px;">
+                                <option value="5">5 minutes</option>
+                                <option value="15" selected>15 minutes</option>
+                                <option value="30">30 minutes</option>
+                                <option value="60">1 hour</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- App Preferences Section -->
+            <div class="section" id="preferences">
+                <div class="content-header">
+                    <h2>⚙️ App Preferences</h2>
+                    <p>Customize your app experience and display settings</p>
+                </div>
+                <div class="content-body">
+                    <div class="form-section">
+                        <h3>🌍 Language & Region</h3>
+                        <div class="form-group">
+                            <label class="form-label">Primary Language</label>
+                            <div class="language-grid">
+                                <div class="language-option selected">
+                                    <div class="language-flag">🇬🇧</div>
+                                    <div class="language-name">English</div>
+                                </div>
+                                <div class="language-option">
+                                    <div class="language-flag">🇳🇬</div>
+                                    <div class="language-name">Yoruba</div>
+                                </div>
+                                <div class="language-option">
+                                    <div class="language-flag">🇳🇬</div>
+                                    <div class="language-name">Hausa</div>
+                                </div>
+                                <div class="language-option">
+                                    <div class="language-flag">🇳🇬</div>
+                                    <div class="language-name">Igbo</div>
+                                </div>
+                                <div class="language-option">
+                                    <div class="language-flag">🇳🇬</div>
+                                    <div class="language-name">Pidgin</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Date Format</label>
+                                <select class="form-select">
+                                    <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                    <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                    <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Time Format</label>
+                                <select class="form-select">
+                                    <option value="12h">12-hour (AM/PM)</option>
+                                    <option value="24h">24-hour</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>🎨 Display Settings</h3>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Dark Mode</div>
+                                <div class="setting-description">Use dark theme throughout the app</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="toggle-input">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Compact View</div>
+                                <div class="setting-description">Show more transactions in list view</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="toggle-input">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Show Balance</div>
+                                <div class="setting-description">Display account balance on home screen</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="toggle-input" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>💰 Transaction Preferences</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Default Transaction Amount</label>
+                                <input type="number" class="form-input" value="5000" placeholder="Enter default amount">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Quick Transfer Amounts</label>
+                                <input type="text" class="form-input" value="1000, 5000, 10000, 25000" placeholder="Comma-separated amounts">
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Smart Recipient Suggestions</div>
+                                <div class="setting-description">Show frequently used recipients</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="toggle-input" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Assistant Section -->
+            <div class="section" id="ai">
+                <div class="content-header">
+                    <h2>🤖 AI Assistant</h2>
+                    <p>Configure your AI assistant preferences and capabilities</p>
+                </div>
+                <div class="content-body">
+                    <div class="ai-assistant-card">
+                        <div class="ai-assistant-header">
+                            <div class="ai-avatar">🤖</div>
+                            <div class="ai-info">
+                                <h3>Your AI Assistant</h3>
+                                <p>Personalized banking assistance powered by advanced AI</p>
+                            </div>
+                        </div>
+                        
+                        <div class="ai-preferences">
+                            <div class="ai-pref-card">
+                                <div class="ai-pref-icon">💬</div>
+                                <div class="ai-pref-title">Conversational</div>
+                                <div class="ai-pref-desc">Natural language understanding</div>
+                            </div>
+                            <div class="ai-pref-card">
+                                <div class="ai-pref-icon">🎤</div>
+                                <div class="ai-pref-title">Voice Enabled</div>
+                                <div class="ai-pref-desc">Voice commands and responses</div>
+                            </div>
+                            <div class="ai-pref-card">
+                                <div class="ai-pref-icon">🧠</div>
+                                <div class="ai-pref-title">Smart Insights</div>
+                                <div class="ai-pref-desc">Proactive financial insights</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>🎯 AI Preferences</h3>
+                        
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Proactive Suggestions</div>
+                                <div class="setting-description">AI suggests actions based on your patterns</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="toggle-input" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Voice Assistant</div>
+                                <div class="setting-description">Enable voice commands and responses</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="toggle-input" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Smart Fraud Detection</div>
+                                <div class="setting-description">AI-powered transaction security</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="toggle-input" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Spending Analysis</div>
+                                <div class="setting-description">AI insights on your spending habits</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="toggle-input" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">AI Assistant Voice</label>
+                            <select class="form-select">
+                                <option value="neutral">Neutral</option>
+                                <option value="friendly">Friendly</option>
+                                <option value="professional" selected>Professional</option>
+                                <option value="casual">Casual</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Response Language Preference</label>
+                            <select class="form-select">
+                                <option value="auto">Auto-detect from conversation</option>
+                                <option value="en" selected>Always English</option>
+                                <option value="yo">Always Yoruba</option>
+                                <option value="ha">Always Hausa</option>
+                                <option value="ig">Always Igbo</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications Section -->
+            <div class="section" id="notifications">
+                <div class="content-header">
+                    <h2>🔔 Notifications</h2>
+                    <p>Control how and when you receive notifications</p>
+                </div>
+                <div class="content-body">
+                    <div class="form-section">
+                        <h3>📱 Push Notifications</h3>
+                        
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Transaction Alerts</div>
+                                <div class="setting-description">Get notified of all transactions</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="toggle-input" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Security Alerts</div>
+                                <div class="setting-description">Important security notifications</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="toggle-input" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">AI Suggestions</div>
+                                <div class="setting-description">Proactive AI recommendations</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="toggle-input" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Balance Updates</div>
+                                <div class="setting-description">Daily balance summaries</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="toggle-input">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>📧 Email Notifications</h3>
+                        
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Monthly Statements</div>
+                                <div class="setting-description">Receive monthly account statements</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="toggle-input" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Product Updates</div>
+                                <div class="setting-description">New features and improvements</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="toggle-input" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Marketing</div>
+                                <div class="setting-description">Promotional offers and news</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="toggle-input">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>📞 SMS Notifications</h3>
+                        
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Transaction OTP</div>
+                                <div class="setting-description">One-time passwords for transactions</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="toggle-input" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">High-Value Alerts</div>
+                                <div class="setting-description">SMS for transactions over ₦100,000</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="toggle-input" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Privacy Section -->
+            <div class="section" id="privacy">
+                <div class="content-header">
+                    <h2>🛡️ Privacy & Data</h2>
+                    <p>Control your data privacy and sharing preferences</p>
+                </div>
+                <div class="content-body">
+                    <div class="form-section">
+                        <h3>📊 Data Usage</h3>
+                        
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Analytics & Insights</div>
+                                <div class="setting-description">Use transaction data for personalized insights</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="toggle-input" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">AI Training</div>
+                                <div class="setting-description">Allow anonymized data to improve AI features</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="toggle-input" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Usage Analytics</div>
+                                <div class="setting-description">Share app usage data for improvements</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="toggle-input">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>🔒 Data Protection</h3>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <button class="action-button secondary" style="margin-right: 10px;">Download My Data</button>
+                            <button class="action-button secondary" style="margin-right: 10px;">Privacy Policy</button>
+                            <button class="action-button secondary">Terms of Service</button>
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <button class="action-button danger">Delete My Account</button>
+                        </div>
+
+                        <div style="padding: 20px; background: #f8fafc; border-radius: 10px; font-size: 14px; color: #666;">
+                            <strong>Data Retention:</strong> Your transaction data is kept for 7 years as required by Nigerian banking regulations. Personal data can be deleted upon request, except where legally required to be retained.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Support Section -->
+            <div class="section" id="support">
+                <div class="content-header">
+                    <h2>💬 Help & Support</h2>
+                    <p>Get help and contact our support team</p>
+                </div>
+                <div class="content-body">
+                    <div class="form-section">
+                        <h3>🆘 Quick Help</h3>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px;">
+                            <div style="background: #f8fafc; border: 1px solid #e1e5e9; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer;">
+                                <div style="font-size: 32px; margin-bottom: 10px;">❓</div>
+                                <div style="font-weight: 600; margin-bottom: 5px;">FAQ</div>
+                                <div style="font-size: 14px; color: #666;">Common questions</div>
+                            </div>
+                            
+                            <div style="background: #f8fafc; border: 1px solid #e1e5e9; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer;">
+                                <div style="font-size: 32px; margin-bottom: 10px;">📖</div>
+                                <div style="font-weight: 600; margin-bottom: 5px;">User Guide</div>
+                                <div style="font-size: 14px; color: #666;">How to use features</div>
+                            </div>
+                            
+                            <div style="background: #f8fafc; border: 1px solid #e1e5e9; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer;">
+                                <div style="font-size: 32px; margin-bottom: 10px;">🎥</div>
+                                <div style="font-weight: 600; margin-bottom: 5px;">Video Tutorials</div>
+                                <div style="font-size: 14px; color: #666;">Step-by-step guides</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>📞 Contact Support</h3>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                            <div style="background: #f8fafc; border-radius: 12px; padding: 25px;">
+                                <h4 style="margin-bottom: 15px;">💬 Live Chat</h4>
+                                <p style="color: #666; font-size: 14px; margin-bottom: 15px;">Get instant help from our support team</p>
+                                <button class="action-button" style="width: 100%;">Start Chat</button>
+                            </div>
+                            
+                            <div style="background: #f8fafc; border-radius: 12px; padding: 25px;">
+                                <h4 style="margin-bottom: 15px;">📧 Email Support</h4>
+                                <p style="color: #666; font-size: 14px; margin-bottom: 15px;">support@orokii.com<br>Response within 24 hours</p>
+                                <button class="action-button secondary" style="width: 100%;">Send Email</button>
+                            </div>
+                            
+                            <div style="background: #f8fafc; border-radius: 12px; padding: 25px;">
+                                <h4 style="margin-bottom: 15px;">📞 Phone Support</h4>
+                                <p style="color: #666; font-size: 14px; margin-bottom: 15px;">+234-800-OROKII<br>Mon-Fri: 8AM-8PM WAT</p>
+                                <button class="action-button secondary" style="width: 100%;">Call Now</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>ℹ️ App Information</h3>
+                        
+                        <div style="background: #f8fafc; border-radius: 12px; padding: 25px;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                                <div>
+                                    <div style="color: #666; font-size: 14px;">App Version</div>
+                                    <div style="font-weight: 600;">2.1.0</div>
+                                </div>
+                                <div>
+                                    <div style="color: #666; font-size: 14px;">Build Number</div>
+                                    <div style="font-weight: 600;">210</div>
+                                </div>
+                                <div>
+                                    <div style="color: #666; font-size: 14px;">Last Updated</div>
+                                    <div style="font-weight: 600;">Sept 4, 2025</div>
+                                </div>
+                                <div>
+                                    <div style="color: #666; font-size: 14px;">Device ID</div>
+                                    <div style="font-weight: 600;">•••••••••••</div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e1e5e9;">
+                                <button class="action-button secondary" style="margin-right: 10px;">Check for Updates</button>
+                                <button class="action-button secondary">Report a Bug</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navigation functionality
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Activate corresponding nav item
+            event.target.classList.add('active');
+        }
+
+        // Language selection
+        document.querySelectorAll('.language-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.language-option').forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        // Save settings
+        function saveSettings() {
+            // Simulate saving
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = '💾 Saving...';
+            button.disabled = true;
+            
+            setTimeout(() => {
+                button.textContent = '✅ Saved';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.disabled = false;
+                }, 1000);
+            }, 1500);
+        }
+
+        // Security method interactions
+        document.querySelectorAll('.security-method .action-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const method = this.closest('.security-method').querySelector('h4').textContent;
+                alert(`${method} configuration would open here`);
+            });
+        });
+
+        // Support options
+        document.querySelectorAll('[style*="cursor: pointer"]').forEach(element => {
+            if (element.textContent.includes('FAQ')) {
+                element.addEventListener('click', () => alert('FAQ section would open here with commonly asked questions'));
+            } else if (element.textContent.includes('User Guide')) {
+                element.addEventListener('click', () => alert('User guide with detailed instructions would open here'));
+            } else if (element.textContent.includes('Video Tutorials')) {
+                element.addEventListener('click', () => alert('Video tutorial library would open here'));
+            }
+        });
+
+        // Avatar upload
+        document.querySelector('.avatar-upload').addEventListener('click', function() {
+            alert('Photo upload functionality would be triggered here');
+        });
+
+        // Action button handlers
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('action-button')) {
+                const text = e.target.textContent.trim();
+                
+                switch(text) {
+                    case 'Start Chat':
+                        alert('Live chat with support would open here');
+                        break;
+                    case 'Send Email':
+                        alert('Email composition window would open here');
+                        break;
+                    case 'Call Now':
+                        alert('This would initiate a call to: +234-800-OROKII');
+                        break;
+                    case 'Download My Data':
+                        alert('Data export process would begin. You would receive an email when ready.');
+                        break;
+                    case 'Delete My Account':
+                        if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+                            alert('Account deletion process would begin with verification steps.');
+                        }
+                        break;
+                    case 'Check for Updates':
+                        alert('Checking for app updates... You are running the latest version (2.1.0)');
+                        break;
+                    case 'Report a Bug':
+                        alert('Bug report form would open here');
+                        break;
+                }
+            }
+        });
+
+        // Toggle switch animations
+        document.querySelectorAll('.toggle-input').forEach(toggle => {
+            toggle.addEventListener('change', function() {
+                console.log(`Setting ${this.closest('.setting-item').querySelector('.setting-title').textContent} changed to: ${this.checked}`);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,485 @@
+<svg viewBox="0 0 1600 1200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="headerGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1a365d;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2d5aa0;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="clientGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4299e1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3182ce;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="aiGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#9f7aea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#805ad5;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="tenantGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f093fb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f5576c;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="gatewayGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#805ad5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6b46c1;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="serviceGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#48bb78;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#38a169;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="dataGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ed8936;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#dd6b20;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="integrationGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e53e3e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#c53030;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="2" dy="4" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+     refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#718096" />
+    </marker>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1600" height="1200" fill="#f8fafc"/>
+  
+  <!-- Header -->
+  <rect x="0" y="0" width="1600" height="80" fill="url(#headerGradient)"/>
+  <text x="800" y="45" text-anchor="middle" fill="white" font-size="26" font-weight="bold">
+    Nigerian Multi-Tenant PoS System - AI-Enhanced Cross-Platform Architecture
+  </text>
+  
+  <!-- Multi-Tenant Client Layer -->
+  <g id="multiTenantClientLayer">
+    <rect x="50" y="100" width="1500" height="140" rx="10" fill="url(#clientGradient)" opacity="0.1" stroke="#3182ce" stroke-width="2"/>
+    <text x="80" y="125" font-size="18" font-weight="bold" fill="#2d3748">Multi-Tenant Cross-Platform Client Layer</text>
+    
+    <!-- React Native Mobile -->
+    <rect x="80" y="145" width="200" height="85" rx="8" fill="url(#clientGradient)" filter="url(#shadow)"/>
+    <text x="180" y="165" text-anchor="middle" fill="white" font-weight="bold" font-size="13">React Native Mobile</text>
+    <text x="90" y="180" fill="white" font-size="10">• iOS and Android Native</text>
+    <text x="90" y="192" fill="white" font-size="10">• AI Voice Commands</text>
+    <text x="90" y="204" fill="white" font-size="10">• Tenant Branding</text>
+    <text x="90" y="216" fill="white" font-size="10">• Offline AI Processing</text>
+    
+    <!-- React Native Web -->
+    <rect x="300" y="145" width="200" height="85" rx="8" fill="url(#clientGradient)" filter="url(#shadow)"/>
+    <text x="400" y="165" text-anchor="middle" fill="white" font-weight="bold" font-size="13">React Native Web/PWA</text>
+    <text x="310" y="180" fill="white" font-size="10">• Progressive Web App</text>
+    <text x="310" y="192" fill="white" font-size="10">• Same Components</text>
+    <text x="310" y="204" fill="white" font-size="10">• Tenant Detection</text>
+    <text x="310" y="216" fill="white" font-size="10">• WebRTC Voice AI</text>
+    
+    <!-- AI Assistant -->
+    <rect x="520" y="145" width="200" height="85" rx="8" fill="url(#aiGradient)" filter="url(#shadow)"/>
+    <text x="620" y="165" text-anchor="middle" fill="white" font-weight="bold" font-size="13">AI Assistant Layer</text>
+    <text x="530" y="180" fill="white" font-size="10">• Conversational Interface</text>
+    <text x="530" y="192" fill="white" font-size="10">• Multi-Language NLP</text>
+    <text x="530" y="204" fill="white" font-size="10">• Tenant AI Personalities</text>
+    <text x="530" y="216" fill="white" font-size="10">• Voice Transaction</text>
+    
+    <!-- Tenant Context -->
+    <rect x="740" y="145" width="200" height="85" rx="8" fill="url(#tenantGradient)" filter="url(#shadow)"/>
+    <text x="840" y="165" text-anchor="middle" fill="white" font-weight="bold" font-size="13">Tenant Context Layer</text>
+    <text x="750" y="180" fill="white" font-size="10">• Dynamic Theming</text>
+    <text x="750" y="192" fill="white" font-size="10">• Brand Customization</text>
+    <text x="750" y="204" fill="white" font-size="10">• Business Rules</text>
+    <text x="750" y="216" fill="white" font-size="10">• Feature Flags</text>
+    
+    <!-- Authentication -->
+    <rect x="960" y="145" width="200" height="85" rx="8" fill="url(#clientGradient)" filter="url(#shadow)"/>
+    <text x="1060" y="165" text-anchor="middle" fill="white" font-weight="bold" font-size="13">Multi-Tenant Auth</text>
+    <text x="970" y="180" fill="white" font-size="10">• Biometric and AI Behavior</text>
+    <text x="970" y="192" fill="white" font-size="10">• Tenant Isolation</text>
+    <text x="970" y="204" fill="white" font-size="10">• MFA and Fraud AI</text>
+    <text x="970" y="216" fill="white" font-size="10">• JWT Session Management</text>
+    
+    <!-- Offline Storage -->
+    <rect x="1180" y="145" width="200" height="85" rx="8" fill="url(#clientGradient)" filter="url(#shadow)"/>
+    <text x="1280" y="165" text-anchor="middle" fill="white" font-weight="bold" font-size="13">Tenant-Isolated Storage</text>
+    <text x="1190" y="180" fill="white" font-size="10">• Per-Tenant Encryption</text>
+    <text x="1190" y="192" fill="white" font-size="10">• Offline AI Models</text>
+    <text x="1190" y="204" fill="white" font-size="10">• Secure Sync</text>
+    <text x="1190" y="216" fill="white" font-size="10">• Cross-Platform Store</text>
+  </g>
+  
+  <!-- AI Services Layer -->
+  <g id="aiServicesLayer">
+    <rect x="50" y="260" width="1500" height="100" rx="10" fill="url(#aiGradient)" opacity="0.1" stroke="#805ad5" stroke-width="2"/>
+    <text x="80" y="285" font-size="18" font-weight="bold" fill="#2d3748">AI Intelligence Services Layer</text>
+    
+    <rect x="100" y="300" width="180" height="50" rx="6" fill="url(#aiGradient)" filter="url(#shadow)"/>
+    <text x="190" y="320" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Conversational AI</text>
+    <text x="110" y="335" fill="white" font-size="9">Nigerian Context GPT-4</text>
+    <text x="110" y="345" fill="white" font-size="9">Multi-Language NLP</text>
+    
+    <rect x="300" y="300" width="180" height="50" rx="6" fill="url(#aiGradient)" filter="url(#shadow)"/>
+    <text x="390" y="320" text-anchor="middle" fill="white" font-weight="bold" font-size="11">AI Fraud Detection</text>
+    <text x="310" y="335" fill="white" font-size="9">Real-time ML Scoring</text>
+    <text x="310" y="345" fill="white" font-size="9">Behavioral Analysis</text>
+    
+    <rect x="500" y="300" width="180" height="50" rx="6" fill="url(#aiGradient)" filter="url(#shadow)"/>
+    <text x="590" y="320" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Voice and Vision AI</text>
+    <text x="510" y="335" fill="white" font-size="9">Nigerian Accent Model</text>
+    <text x="510" y="345" fill="white" font-size="9">Document OCR</text>
+    
+    <rect x="700" y="300" width="180" height="50" rx="6" fill="url(#aiGradient)" filter="url(#shadow)"/>
+    <text x="790" y="320" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Predictive Analytics</text>
+    <text x="710" y="335" fill="white" font-size="9">Cash Flow Prediction</text>
+    <text x="710" y="345" fill="white" font-size="9">Business Intelligence</text>
+    
+    <rect x="900" y="300" width="180" height="50" rx="6" fill="url(#aiGradient)" filter="url(#shadow)"/>
+    <text x="990" y="320" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Tenant AI Manager</text>
+    <text x="910" y="335" fill="white" font-size="9">Custom AI Personalities</text>
+    <text x="910" y="345" fill="white" font-size="9">Model Fine-tuning</text>
+    
+    <rect x="1100" y="300" width="180" height="50" rx="6" fill="url(#aiGradient)" filter="url(#shadow)"/>
+    <text x="1190" y="320" text-anchor="middle" fill="white" font-weight="bold" font-size="11">AI Model Serving</text>
+    <text x="1110" y="335" fill="white" font-size="9">TensorFlow Serving</text>
+    <text x="1110" y="345" fill="white" font-size="9">ONNX Runtime</text>
+    
+    <rect x="1300" y="300" width="180" height="50" rx="6" fill="url(#aiGradient)" filter="url(#shadow)"/>
+    <text x="1390" y="320" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Vector Database</text>
+    <text x="1310" y="335" fill="white" font-size="9">Semantic Search</text>
+    <text x="1310" y="345" fill="white" font-size="9">Embeddings Store</text>
+  </g>
+  
+  <!-- Multi-Tenant API Gateway -->
+  <g id="multiTenantGateway">
+    <rect x="50" y="380" width="1500" height="90" rx="10" fill="url(#gatewayGradient)" opacity="0.1" stroke="#6b46c1" stroke-width="2"/>
+    <text x="80" y="405" font-size="18" font-weight="bold" fill="#2d3748">Multi-Tenant AI-Enhanced API Gateway</text>
+    
+    <rect x="150" y="420" width="200" height="40" rx="5" fill="url(#gatewayGradient)" filter="url(#shadow)"/>
+    <text x="250" y="445" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Tenant Detection and Routing</text>
+    
+    <rect x="370" y="420" width="200" height="40" rx="5" fill="url(#gatewayGradient)" filter="url(#shadow)"/>
+    <text x="470" y="445" text-anchor="middle" fill="white" font-weight="bold" font-size="11">AI-Powered Rate Limiting</text>
+    
+    <rect x="590" y="420" width="200" height="40" rx="5" fill="url(#gatewayGradient)" filter="url(#shadow)"/>
+    <text x="690" y="445" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Intelligent Request Analysis</text>
+    
+    <rect x="810" y="420" width="200" height="40" rx="5" fill="url(#gatewayGradient)" filter="url(#shadow)"/>
+    <text x="910" y="445" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Multi-Tenant Security</text>
+    
+    <rect x="1030" y="420" width="200" height="40" rx="5" fill="url(#gatewayGradient)" filter="url(#shadow)"/>
+    <text x="1130" y="445" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Circuit Breaker Monitoring</text>
+    
+    <rect x="1250" y="420" width="200" height="40" rx="5" fill="url(#gatewayGradient)" filter="url(#shadow)"/>
+    <text x="1350" y="445" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Natural Language Gateway</text>
+  </g>
+  
+  <!-- Multi-Tenant Microservices Layer -->
+  <g id="multiTenantMicroservices">
+    <rect x="50" y="490" width="1500" height="240" rx="10" fill="url(#serviceGradient)" opacity="0.1" stroke="#38a169" stroke-width="2"/>
+    <text x="80" y="515" font-size="18" font-weight="bold" fill="#2d3748">AI-Enhanced Multi-Tenant Microservices</text>
+    
+    <!-- First Row - Core Services -->
+    <rect x="80" y="530" width="160" height="80" rx="6" fill="url(#serviceGradient)" filter="url(#shadow)"/>
+    <text x="160" y="550" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Tenant Service</text>
+    <text x="90" y="565" fill="white" font-size="9">• Multi-Tenant Management</text>
+    <text x="90" y="575" fill="white" font-size="9">• Branding Engine</text>
+    <text x="90" y="585" fill="white" font-size="9">• Auto Onboarding</text>
+    <text x="90" y="595" fill="white" font-size="9">• AI Configuration</text>
+    
+    <rect x="260" y="530" width="160" height="80" rx="6" fill="url(#serviceGradient)" filter="url(#shadow)"/>
+    <text x="340" y="550" text-anchor="middle" fill="white" font-weight="bold" font-size="11">AI Auth Service</text>
+    <text x="270" y="565" fill="white" font-size="9">• Behavioral Biometrics</text>
+    <text x="270" y="575" fill="white" font-size="9">• AI Fraud Prevention</text>
+    <text x="270" y="585" fill="white" font-size="9">• Tenant Isolation</text>
+    <text x="270" y="595" fill="white" font-size="9">• Adaptive Security</text>
+    
+    <rect x="440" y="530" width="160" height="80" rx="6" fill="url(#serviceGradient)" filter="url(#shadow)"/>
+    <text x="520" y="550" text-anchor="middle" fill="white" font-weight="bold" font-size="11">AI Transaction</text>
+    <text x="450" y="565" fill="white" font-size="9">• Voice Commands</text>
+    <text x="450" y="575" fill="white" font-size="9">• Smart Routing</text>
+    <text x="450" y="585" fill="white" font-size="9">• Predictive Processing</text>
+    <text x="450" y="595" fill="white" font-size="9">• Tenant Rules</text>
+    
+    <rect x="620" y="530" width="160" height="80" rx="6" fill="url(#serviceGradient)" filter="url(#shadow)"/>
+    <text x="700" y="550" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Wallet Service</text>
+    <text x="630" y="565" fill="white" font-size="9">• AI Balance Predict</text>
+    <text x="630" y="575" fill="white" font-size="9">• Smart Limits</text>
+    <text x="630" y="585" fill="white" font-size="9">• Cash Flow AI</text>
+    <text x="630" y="595" fill="white" font-size="9">• Tenant Accounts</text>
+    
+    <rect x="800" y="530" width="160" height="80" rx="6" fill="url(#serviceGradient)" filter="url(#shadow)"/>
+    <text x="880" y="550" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Notification AI</text>
+    <text x="810" y="565" fill="white" font-size="9">• Intelligent Alerts</text>
+    <text x="810" y="575" fill="white" font-size="9">• Multi-Language</text>
+    <text x="810" y="585" fill="white" font-size="9">• Tenant Branded</text>
+    <text x="810" y="595" fill="white" font-size="9">• AI Optimization</text>
+    
+    <rect x="980" y="530" width="160" height="80" rx="6" fill="url(#serviceGradient)" filter="url(#shadow)"/>
+    <text x="1060" y="550" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Settlement AI</text>
+    <text x="990" y="565" fill="white" font-size="9">• Auto Reconciliation</text>
+    <text x="990" y="575" fill="white" font-size="9">• Predictive Timing</text>
+    <text x="990" y="585" fill="white" font-size="9">• Tenant Rules</text>
+    <text x="990" y="595" fill="white" font-size="9">• Fee Optimization</text>
+    
+    <rect x="1160" y="530" width="160" height="80" rx="6" fill="url(#serviceGradient)" filter="url(#shadow)"/>
+    <text x="1240" y="550" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Billing Service</text>
+    <text x="1170" y="565" fill="white" font-size="9">• Multi-Tier Pricing</text>
+    <text x="1170" y="575" fill="white" font-size="9">• Usage Analytics</text>
+    <text x="1170" y="585" fill="white" font-size="9">• Auto Billing</text>
+    <text x="1170" y="595" fill="white" font-size="9">• Revenue AI</text>
+    
+    <rect x="1340" y="530" width="160" height="80" rx="6" fill="url(#serviceGradient)" filter="url(#shadow)"/>
+    <text x="1420" y="550" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Compliance AI</text>
+    <text x="1350" y="565" fill="white" font-size="9">• Auto AML Checks</text>
+    <text x="1350" y="575" fill="white" font-size="9">• CBN Reporting</text>
+    <text x="1350" y="585" fill="white" font-size="9">• Audit Trail AI</text>
+    <text x="1350" y="595" fill="white" font-size="9">• Risk Assessment</text>
+    
+    <!-- Second Row - Advanced Services -->
+    <rect x="170" y="630" width="160" height="80" rx="6" fill="url(#serviceGradient)" filter="url(#shadow)"/>
+    <text x="250" y="650" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Analytics AI</text>
+    <text x="180" y="665" fill="white" font-size="9">• Business Intelligence</text>
+    <text x="180" y="675" fill="white" font-size="9">• Tenant Insights</text>
+    <text x="180" y="685" fill="white" font-size="9">• Predictive Reports</text>
+    <text x="180" y="695" fill="white" font-size="9">• ML Recommendations</text>
+    
+    <rect x="350" y="630" width="160" height="80" rx="6" fill="url(#serviceGradient)" filter="url(#shadow)"/>
+    <text x="430" y="650" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Document AI</text>
+    <text x="360" y="665" fill="white" font-size="9">• Nigerian OCR</text>
+    <text x="360" y="675" fill="white" font-size="9">• KYC Automation</text>
+    <text x="360" y="685" fill="white" font-size="9">• Receipt Processing</text>
+    <text x="360" y="695" fill="white" font-size="9">• Verification AI</text>
+    
+    <rect x="530" y="630" width="160" height="80" rx="6" fill="url(#serviceGradient)" filter="url(#shadow)"/>
+    <text x="610" y="650" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Config Service</text>
+    <text x="540" y="665" fill="white" font-size="9">• Tenant Settings</text>
+    <text x="540" y="675" fill="white" font-size="9">• AI Feature Flags</text>
+    <text x="540" y="685" fill="white" font-size="9">• Dynamic Config</text>
+    <text x="540" y="695" fill="white" font-size="9">• Environment Management</text>
+    
+    <rect x="710" y="630" width="160" height="80" rx="6" fill="url(#serviceGradient)" filter="url(#shadow)"/>
+    <text x="790" y="650" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Audit AI Service</text>
+    <text x="720" y="665" fill="white" font-size="9">• Intelligent Logging</text>
+    <text x="720" y="675" fill="white" font-size="9">• Anomaly Detection</text>
+    <text x="720" y="685" fill="white" font-size="9">• Compliance Check</text>
+    <text x="720" y="695" fill="white" font-size="9">• Security Analysis</text>
+    
+    <rect x="890" y="630" width="160" height="80" rx="6" fill="url(#serviceGradient)" filter="url(#shadow)"/>
+    <text x="970" y="650" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Support AI</text>
+    <text x="900" y="665" fill="white" font-size="9">• Multi-Language Bot</text>
+    <text x="900" y="675" fill="white" font-size="9">• Issue Classification</text>
+    <text x="900" y="685" fill="white" font-size="9">• Auto Resolution</text>
+    <text x="900" y="695" fill="white" font-size="9">• Tenant Support</text>
+    
+    <rect x="1070" y="630" width="160" height="80" rx="6" fill="url(#serviceGradient)" filter="url(#shadow)"/>
+    <text x="1150" y="650" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Reporting Service</text>
+    <text x="1080" y="665" fill="white" font-size="9">• Tenant Dashboards</text>
+    <text x="1080" y="675" fill="white" font-size="9">• AI-Generated Reports</text>
+    <text x="1080" y="685" fill="white" font-size="9">• Real-time Metrics</text>
+    <text x="1080" y="695" fill="white" font-size="9">• Custom Analytics</text>
+    
+    <rect x="1250" y="630" width="160" height="80" rx="6" fill="url(#serviceGradient)" filter="url(#shadow)"/>
+    <text x="1330" y="650" text-anchor="middle" fill="white" font-weight="bold" font-size="11">MLOps Service</text>
+    <text x="1260" y="665" fill="white" font-size="9">• Model Deployment</text>
+    <text x="1260" y="675" fill="white" font-size="9">• A/B Testing</text>
+    <text x="1260" y="685" fill="white" font-size="9">• Performance Monitor</text>
+    <text x="1260" y="695" fill="white" font-size="9">• Auto Scaling</text>
+  </g>
+  
+  <!-- Multi-Tenant Data Layer -->
+  <g id="multiTenantDataLayer">
+    <rect x="50" y="750" width="750" height="140" rx="10" fill="url(#dataGradient)" opacity="0.1" stroke="#dd6b20" stroke-width="2"/>
+    <text x="80" y="775" font-size="18" font-weight="bold" fill="#2d3748">Multi-Tenant Data Architecture</text>
+    
+    <!-- Platform Database -->
+    <rect x="80" y="790" width="140" height="90" rx="6" fill="url(#dataGradient)" filter="url(#shadow)"/>
+    <text x="150" y="810" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Platform DB</text>
+    <text x="90" y="825" fill="white" font-size="9">PostgreSQL</text>
+    <text x="90" y="837" fill="white" font-size="9">Tenant Registry</text>
+    <text x="90" y="849" fill="white" font-size="9">Billing Data</text>
+    <text x="90" y="861" fill="white" font-size="9">Global Config</text>
+    
+    <!-- Tenant Databases -->
+    <rect x="240" y="790" width="140" height="90" rx="6" fill="url(#dataGradient)" filter="url(#shadow)"/>
+    <text x="310" y="810" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Tenant DBs</text>
+    <text x="250" y="825" fill="white" font-size="9">DB-per-Tenant</text>
+    <text x="250" y="837" fill="white" font-size="9">Financial Data</text>
+    <text x="250" y="849" fill="white" font-size="9">User Accounts</text>
+    <text x="250" y="861" fill="white" font-size="9">Transactions</text>
+    
+    <!-- AI/ML Data -->
+    <rect x="400" y="790" width="140" height="90" rx="6" fill="url(#dataGradient)" filter="url(#shadow)"/>
+    <text x="470" y="810" text-anchor="middle" fill="white" font-weight="bold" font-size="11">AI Data Store</text>
+    <text x="410" y="825" fill="white" font-size="9">Training Data</text>
+    <text x="410" y="837" fill="white" font-size="9">Model Artifacts</text>
+    <text x="410" y="849" fill="white" font-size="9">Feature Store</text>
+    <text x="410" y="861" fill="white" font-size="9">Vector DB</text>
+    
+    <!-- Cache -->
+    <rect x="560" y="790" width="140" height="90" rx="6" fill="url(#dataGradient)" filter="url(#shadow)"/>
+    <text x="630" y="810" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Cache Layer</text>
+    <text x="570" y="825" fill="white" font-size="9">Redis Cluster</text>
+    <text x="570" y="837" fill="white" font-size="9">Tenant Sessions</text>
+    <text x="570" y="849" fill="white" font-size="9">AI Model Cache</text>
+    <text x="570" y="861" fill="white" font-size="9">Rate Limits</text>
+    
+    <!-- Analytics DB -->
+    <rect x="720" y="790" width="140" height="90" rx="6" fill="url(#dataGradient)" filter="url(#shadow)"/>
+    <text x="790" y="810" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Analytics DB</text>
+    <text x="730" y="825" fill="white" font-size="9">ClickHouse</text>
+    <text x="730" y="837" fill="white" font-size="9">Event Streams</text>
+    <text x="730" y="849" fill="white" font-size="9">Metrics</text>
+    <text x="730" y="861" fill="white" font-size="9">Business Intel</text>
+  </g>
+  
+  <!-- Nigerian Payment Ecosystem -->
+  <g id="nigerianPaymentEcosystem">
+    <rect x="820" y="750" width="730" height="140" rx="10" fill="url(#integrationGradient)" opacity="0.1" stroke="#c53030" stroke-width="2"/>
+    <text x="850" y="775" font-size="18" font-weight="bold" fill="#2d3748">Nigerian Payment Ecosystem Integration</text>
+    
+    <rect x="850" y="790" width="120" height="90" rx="6" fill="url(#integrationGradient)" filter="url(#shadow)"/>
+    <text x="910" y="810" text-anchor="middle" fill="white" font-weight="bold" font-size="11">NIBSS</text>
+    <text x="860" y="825" fill="white" font-size="9">NIP Integration</text>
+    <text x="860" y="837" fill="white" font-size="9">Transaction</text>
+    <text x="860" y="849" fill="white" font-size="9">Routing</text>
+    <text x="860" y="861" fill="white" font-size="9">Settlement</text>
+    
+    <rect x="990" y="790" width="120" height="90" rx="6" fill="url(#integrationGradient)" filter="url(#shadow)"/>
+    <text x="1050" y="810" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Interswitch</text>
+    <text x="1000" y="825" fill="white" font-size="9">Verve Cards</text>
+    <text x="1000" y="837" fill="white" font-size="9">Processing</text>
+    <text x="1000" y="849" fill="white" font-size="9">Gateway</text>
+    <text x="1000" y="861" fill="white" font-size="9">Switching</text>
+    
+    <rect x="1130" y="790" width="120" height="90" rx="6" fill="url(#integrationGradient)" filter="url(#shadow)"/>
+    <text x="1190" y="810" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Banks API</text>
+    <text x="1140" y="825" fill="white" font-size="9">Core Banking</text>
+    <text x="1140" y="837" fill="white" font-size="9">Account Management</text>
+    <text x="1140" y="849" fill="white" font-size="9">Balance Inquiry</text>
+    <text x="1140" y="861" fill="white" font-size="9">Fund Transfer</text>
+    
+    <rect x="1270" y="790" width="120" height="90" rx="6" fill="url(#integrationGradient)" filter="url(#shadow)"/>
+    <text x="1330" y="810" text-anchor="middle" fill="white" font-weight="bold" font-size="11">CBN/Fintech</text>
+    <text x="1280" y="825" fill="white" font-size="9">Regulatory</text>
+    <text x="1280" y="837" fill="white" font-size="9">Compliance</text>
+    <text x="1280" y="849" fill="white" font-size="9">Reporting</text>
+    <text x="1280" y="861" fill="white" font-size="9">Licensing</text>
+    
+    <rect x="1410" y="790" width="120" height="90" rx="6" fill="url(#integrationGradient)" filter="url(#shadow)"/>
+    <text x="1470" y="810" text-anchor="middle" fill="white" font-weight="bold" font-size="11">BVN/KYC</text>
+    <text x="1420" y="825" fill="white" font-size="9">Identity</text>
+    <text x="1420" y="837" fill="white" font-size="9">Verification</text>
+    <text x="1420" y="849" fill="white" font-size="9">AI-Enhanced</text>
+    <text x="1420" y="861" fill="white" font-size="9">KYC Process</text>
+  </g>
+  
+  <!-- Infrastructure Layer -->
+  <g id="aiInfrastructureLayer">
+    <rect x="50" y="910" width="1500" height="140" rx="10" fill="#e2e8f0" stroke="#718096" stroke-width="2"/>
+    <text x="80" y="935" font-size="18" font-weight="bold" fill="#2d3748">AI-Enhanced Multi-Tenant Infrastructure</text>
+    
+    <rect x="80" y="950" width="140" height="90" rx="6" fill="#718096" filter="url(#shadow)"/>
+    <text x="150" y="970" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Kubernetes</text>
+    <text x="90" y="985" fill="white" font-size="9">Multi-Tenant</text>
+    <text x="90" y="997" fill="white" font-size="9">Orchestration</text>
+    <text x="90" y="1009" fill="white" font-size="9">Auto Scaling</text>
+    <text x="90" y="1021" fill="white" font-size="9">Namespaces</text>
+    
+    <rect x="240" y="950" width="140" height="90" rx="6" fill="#718096" filter="url(#shadow)"/>
+    <text x="310" y="970" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Service Mesh</text>
+    <text x="250" y="985" fill="white" font-size="9">Istio/Linkerd</text>
+    <text x="250" y="997" fill="white" font-size="9">Traffic Control</text>
+    <text x="250" y="1009" fill="white" font-size="9">Security</text>
+    <text x="250" y="1021" fill="white" font-size="9">Observability</text>
+    
+    <rect x="400" y="950" width="140" height="90" rx="6" fill="#718096" filter="url(#shadow)"/>
+    <text x="470" y="970" text-anchor="middle" fill="white" font-weight="bold" font-size="11">AI/ML Pipeline</text>
+    <text x="410" y="985" fill="white" font-size="9">MLflow</text>
+    <text x="410" y="997" fill="white" font-size="9">Model Training</text>
+    <text x="410" y="1009" fill="white" font-size="9">Auto Deploy</text>
+    <text x="410" y="1021" fill="white" font-size="9">GPU Clusters</text>
+    
+    <rect x="560" y="950" width="140" height="90" rx="6" fill="#718096" filter="url(#shadow)"/>
+    <text x="630" y="970" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Message Queue</text>
+    <text x="570" y="985" fill="white" font-size="9">Apache Kafka</text>
+    <text x="570" y="997" fill="white" font-size="9">Event Streaming</text>
+    <text x="570" y="1009" fill="white" font-size="9">Tenant Topics</text>
+    <text x="570" y="1021" fill="white" font-size="9">AI Events</text>
+    
+    <rect x="720" y="950" width="140" height="90" rx="6" fill="#718096" filter="url(#shadow)"/>
+    <text x="790" y="970" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Monitoring AI</text>
+    <text x="730" y="985" fill="white" font-size="9">Prometheus</text>
+    <text x="730" y="997" fill="white" font-size="9">Grafana</text>
+    <text x="730" y="1009" fill="white" font-size="9">AI Metrics</text>
+    <text x="730" y="1021" fill="white" font-size="9">Tenant Health</text>
+    
+    <rect x="880" y="950" width="140" height="90" rx="6" fill="#718096" filter="url(#shadow)"/>
+    <text x="950" y="970" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Security Vault</text>
+    <text x="890" y="985" fill="white" font-size="9">HashiCorp</text>
+    <text x="890" y="997" fill="white" font-size="9">Tenant Secrets</text>
+    <text x="890" y="1009" fill="white" font-size="9">Key Rotation</text>
+    <text x="890" y="1021" fill="white" font-size="9">Encryption</text>
+    
+    <rect x="1040" y="950" width="140" height="90" rx="6" fill="#718096" filter="url(#shadow)"/>
+    <text x="1110" y="970" text-anchor="middle" fill="white" font-weight="bold" font-size="11">CI/CD Pipeline</text>
+    <text x="1050" y="985" fill="white" font-size="9">GitLab CI</text>
+    <text x="1050" y="997" fill="white" font-size="9">Multi-Tenant</text>
+    <text x="1050" y="1009" fill="white" font-size="9">Deploy</text>
+    <text x="1050" y="1021" fill="white" font-size="9">Blue/Green</text>
+    
+    <rect x="1200" y="950" width="140" height="90" rx="6" fill="#718096" filter="url(#shadow)"/>
+    <text x="1270" y="970" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Observability</text>
+    <text x="1210" y="985" fill="white" font-size="9">ELK Stack</text>
+    <text x="1210" y="997" fill="white" font-size="9">Distributed</text>
+    <text x="1210" y="1009" fill="white" font-size="9">Tracing</text>
+    <text x="1210" y="1021" fill="white" font-size="9">Tenant Logs</text>
+    
+    <rect x="1360" y="950" width="140" height="90" rx="6" fill="#718096" filter="url(#shadow)"/>
+    <text x="1430" y="970" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Backup/DR</text>
+    <text x="1370" y="985" fill="white" font-size="9">Cross-Region</text>
+    <text x="1370" y="997" fill="white" font-size="9">Per-Tenant</text>
+    <text x="1370" y="1009" fill="white" font-size="9">Backup</text>
+    <text x="1370" y="1021" fill="white" font-size="9">Auto Recovery</text>
+  </g>
+  
+  <!-- Connection Lines -->
+  <g id="connectionLines" stroke="#718096" stroke-width="3" opacity="0.7" fill="none">
+    <!-- Client to AI Services -->
+    <path d="M 800 240 L 800 260" marker-end="url(#arrowhead)"/>
+    <!-- AI to Gateway -->
+    <path d="M 800 360 L 800 380" marker-end="url(#arrowhead)"/>
+    <!-- Gateway to Services -->
+    <path d="M 800 470 L 800 490" marker-end="url(#arrowhead)"/>
+    <!-- Services to Data -->
+    <path d="M 400 730 L 400 750" marker-end="url(#arrowhead)"/>
+    <!-- Services to External -->
+    <path d="M 1200 730 L 1200 750" marker-end="url(#arrowhead)"/>
+    <!-- All to Infrastructure -->
+    <path d="M 800 890 L 800 910" marker-end="url(#arrowhead)"/>
+  </g>
+  
+  <!-- Legend -->
+  <g id="legend">
+    <rect x="50" y="1070" width="1500" height="60" rx="8" fill="#f0f4f8" stroke="#cbd5e0"/>
+    <text x="80" y="1095" font-size="16" font-weight="bold" fill="#2d3748">Multi-Tenant AI-Enhanced Architecture Features:</text>
+    
+    <text x="80" y="1115" font-size="12" fill="#4a5568">✓ Database-per-Tenant Isolation with AI Training Data</text>
+    <text x="450" y="1115" font-size="12" fill="#4a5568">✓ AI-Powered Fraud Detection and Behavioral Analysis</text>
+    <text x="850" y="1115" font-size="12" fill="#4a5568">✓ Multi-Language Conversational AI Interface</text>
+    <text x="1250" y="1115" font-size="12" fill="#4a5568">✓ Predictive Analytics and Business Intelligence</text>
+  </g>
+  
+  <!-- Technology Stack -->
+  <g id="aiTechStack">
+    <rect x="50" y="1150" width="1500" height="40" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+    <text x="80" y="1175" font-size="14" font-weight="bold" fill="#2d3748">AI-Enhanced Tech Stack:</text>
+    <text x="220" y="1175" font-size="12" fill="#4a5568">Frontend: React Native + Web + AI Chat UI</text>
+    <text x="480" y="1175" font-size="12" fill="#4a5568">AI: GPT-4 + Custom Nigerian Models + TensorFlow</text>
+    <text x="780" y="1175" font-size="12" fill="#4a5568">Services: Node.js + Multi-Tenant Context</text>
+    <text x="1050" y="1175" font-size="12" fill="#4a5568">Data: PostgreSQL + Vector DB + Redis</text>
+    <text x="1350" y="1175" font-size="12" fill="#4a5568">Infra: K8s + MLOps</text>
+  </g>
+</svg>

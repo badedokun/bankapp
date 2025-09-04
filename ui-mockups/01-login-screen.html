@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#007bff">
+    <meta name="msapplication-TileColor" content="#007bff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="OrokiiPay">
+    <link rel="manifest" href="manifest.json">
+    <title>OrokiiPay Money Transfer - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        input, textarea, select {
+            -webkit-user-select: auto;
+            -moz-user-select: auto;
+            -ms-user-select: auto;
+            user-select: auto;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            padding-top: env(safe-area-inset-top, 20px);
+            padding-bottom: env(safe-area-inset-bottom, 20px);
+            padding-left: env(safe-area-inset-left, 20px);
+            padding-right: env(safe-area-inset-right, 20px);
+            overflow-x: hidden;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .tenant-header {
+            padding: 30px 20px;
+            text-align: center;
+            background: var(--tenant-primary, #007bff);
+            color: white;
+            position: relative;
+        }
+
+        .tenant-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><linearGradient id="a" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:rgba(255,255,255,0.1)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0)"/></linearGradient></defs><polygon fill="url(%23a)" points="0,20 100,0 100,20"/></svg>') no-repeat;
+            background-size: cover;
+            opacity: 0.1;
+        }
+
+        .tenant-logo {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tenant-name {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tenant-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-form {
+            padding: 40px 30px;
+        }
+
+        .welcome-text {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .welcome-text h2 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .welcome-text p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            background: #fafbfc;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            touch-action: manipulation;
+        }
+
+        input[type="email"], input[type="tel"] {
+            -webkit-text-security: none;
+        }
+
+        input[type="password"] {
+            -webkit-text-security: disc;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--tenant-primary, #007bff);
+            background: white;
+        }
+
+        .form-input::placeholder {
+            color: #999;
+        }
+
+        .password-input-wrapper {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .remember-me input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+
+        .forgot-password {
+            color: var(--tenant-primary, #007bff);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 15px;
+            background: var(--tenant-primary, #007bff);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            touch-action: manipulation;
+            min-height: 44px;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 123, 255, 0.3);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        .divider {
+            text-align: center;
+            margin: 25px 0;
+            position: relative;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e1e5e9;
+            z-index: 1;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .biometric-login {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .biometric-button {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #e1e5e9;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.3s ease;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            touch-action: manipulation;
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        .biometric-button:hover {
+            border-color: var(--tenant-primary, #007bff);
+            transform: translateY(-2px);
+        }
+
+        .language-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+        }
+
+        .language-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .ai-assistant {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: var(--tenant-primary, #007bff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 123, 255, 0.3);
+            font-size: 24px;
+            transition: transform 0.3s ease;
+        }
+
+        .ai-assistant:hover {
+            transform: scale(1.1);
+        }
+
+        /* Tenant-specific color overrides */
+        .tenant-bank-a {
+            --tenant-primary: #007bff;
+        }
+
+        .tenant-bank-b {
+            --tenant-primary: #e31e24;
+        }
+
+        .tenant-bank-c {
+            --tenant-primary: #00a651;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+                padding-top: max(env(safe-area-inset-top), 10px);
+                padding-bottom: max(env(safe-area-inset-bottom), 10px);
+            }
+
+            .login-container {
+                margin: 0;
+                border-radius: 15px;
+                max-width: 100%;
+            }
+
+            .login-form {
+                padding: 25px 20px;
+            }
+
+            .tenant-header {
+                padding: 20px 15px;
+            }
+
+            .form-input {
+                font-size: 16px;
+                padding: 12px 15px;
+            }
+
+            .welcome-text h2 {
+                font-size: 18px;
+            }
+
+            .biometric-login {
+                gap: 10px;
+            }
+
+            .biometric-button {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .login-form {
+                padding: 20px 15px;
+            }
+
+            .tenant-header {
+                padding: 15px 10px;
+            }
+
+            .tenant-name {
+                font-size: 20px;
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 600px) {
+            body {
+                align-items: flex-start;
+                padding-top: 20px;
+            }
+
+            .login-container {
+                margin-top: 0;
+            }
+
+            .tenant-header {
+                padding: 15px 20px;
+            }
+
+            .tenant-logo {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+                margin-bottom: 10px;
+            }
+
+            .login-form {
+                padding: 25px 30px;
+            }
+        }
+    </style>
+</head>
+<body class="tenant-bank-a">
+    <div class="language-selector">
+        <select class="language-button">
+            <option value="en">English</option>
+            <option value="ha">Hausa</option>
+            <option value="yo">Yoruba</option>
+            <option value="ig">Igbo</option>
+            <option value="pcm">Pidgin</option>
+        </select>
+    </div>
+
+    <div class="login-container">
+        <div class="tenant-header">
+            <div class="tenant-logo">BA</div>
+            <div class="tenant-name">Bank A</div>
+            <div class="tenant-subtitle">Secure Money Transfer</div>
+        </div>
+
+        <div class="login-form">
+            <div class="welcome-text">
+                <h2>Welcome Back</h2>
+                <p>Sign in to your account to continue</p>
+            </div>
+
+            <form>
+                <div class="form-group">
+                    <label class="form-label" for="email">Email or Phone</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        class="form-input" 
+                        placeholder="Enter your email or phone number"
+                        autocomplete="username"
+                        inputmode="email"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <div class="password-input-wrapper">
+                        <input 
+                            type="password" 
+                            id="password" 
+                            class="form-input" 
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+                        <button type="button" class="password-toggle">👁️</button>
+                    </div>
+                </div>
+
+                <div class="remember-forgot">
+                    <label class="remember-me">
+                        <input type="checkbox" id="remember">
+                        <span>Remember me</span>
+                    </label>
+                    <a href="#" class="forgot-password">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="login-button">
+                    Sign In
+                </button>
+            </form>
+
+            <div class="divider">
+                <span>or continue with</span>
+            </div>
+
+            <div class="biometric-login">
+                <button type="button" class="biometric-button" title="Fingerprint">
+                    👆
+                </button>
+                <button type="button" class="biometric-button" title="Face ID">
+                    😊
+                </button>
+                <button type="button" class="biometric-button" title="Voice">
+                    🎤
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="ai-assistant" title="AI Assistant">
+        🤖
+    </div>
+
+    <script>
+        // Password toggle functionality
+        document.querySelector('.password-toggle').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.textContent = type === 'password' ? '👁️' : '🙈';
+        });
+
+        // Language selector
+        document.querySelector('.language-button').addEventListener('change', function(e) {
+            console.log('Language changed to:', e.target.value);
+            // In real app, this would trigger language change
+        });
+
+        // AI Assistant
+        document.querySelector('.ai-assistant').addEventListener('click', function() {
+            alert('AI Assistant: Hello! I can help you with login issues or answer questions about our money transfer service. How can I assist you today?');
+        });
+
+        // Biometric buttons
+        document.querySelectorAll('.biometric-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const type = this.getAttribute('title');
+                alert(`${type} authentication would be triggered here`);
+            });
+        });
+
+        // Tenant switching demo (for development)
+        let currentTenant = 0;
+        const tenants = ['tenant-bank-a', 'tenant-bank-b', 'tenant-bank-c'];
+        const tenantNames = ['Bank A', 'Bank B', 'Bank C'];
+        const tenantLogos = ['BA', 'BB', 'BC'];
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'T' || e.key === 't') {
+                currentTenant = (currentTenant + 1) % tenants.length;
+                document.body.className = tenants[currentTenant];
+                document.querySelector('.tenant-name').textContent = tenantNames[currentTenant];
+                document.querySelector('.tenant-logo').textContent = tenantLogos[currentTenant];
+            }
+        });
+    </script>
+</body>
+</html>

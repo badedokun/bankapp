@@ -1,0 +1,662 @@
+<svg viewBox="0 0 1800 1400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradients for different security layers -->
+    <linearGradient id="threatGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ff4757;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#c44569;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="perimeterGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#5f27cd;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#341f97;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="networkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00d2d3;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#01a3a4;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="applicationGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffa726;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff7043;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="dataGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2e7d32;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1b5e20;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="aiSecurityGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#9c27b0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7b1fa2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="identityGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1976d2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1565c0;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="complianceGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8bc34a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#689f38;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Filters for visual effects -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="3" dy="6" stdDeviation="4" flood-opacity="0.3"/>
+    </filter>
+    <filter id="threatGlow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Arrow markers -->
+    <marker id="arrowThreat" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,10 L12,5 z" fill="#ff4757"/>
+    </marker>
+    <marker id="arrowDefense" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,10 L12,5 z" fill="#2e7d32"/>
+    </marker>
+    <marker id="arrowData" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L0,8 L10,4 z" fill="#718096"/>
+    </marker>
+
+    <!-- Patterns for different zones -->
+    <pattern id="secureZone" patternUnits="userSpaceOnUse" width="20" height="20">
+      <rect width="20" height="20" fill="#f0f9ff"/>
+      <circle cx="10" cy="10" r="2" fill="#1976d2" opacity="0.2"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1800" height="1400" fill="#f8fafc"/>
+
+  <!-- Title -->
+  <rect x="0" y="0" width="1800" height="70" fill="url(#threatGradient)"/>
+  <text x="900" y="40" text-anchor="middle" fill="white" font-size="28" font-weight="bold">
+    Nigerian Multi-Tenant PoS System - Comprehensive Security Architecture
+  </text>
+
+  <!-- External Threats Layer -->
+  <g id="externalThreats">
+    <rect x="50" y="90" width="1700" height="80" rx="8" fill="url(#threatGradient)" opacity="0.1" stroke="#ff4757" stroke-width="2"/>
+    <text x="70" y="115" font-size="16" font-weight="bold" fill="#2d3748">External Threat Landscape</text>
+    
+    <!-- Threat types -->
+    <ellipse cx="150" cy="145" rx="40" ry="15" fill="#ff4757" filter="url(#threatGlow)"/>
+    <text x="150" y="150" text-anchor="middle" fill="white" font-size="10" font-weight="bold">DDoS Attacks</text>
+    
+    <ellipse cx="280" cy="145" rx="45" ry="15" fill="#ff4757" filter="url(#threatGlow)"/>
+    <text x="280" y="150" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Nigerian Fraudsters</text>
+    
+    <ellipse cx="420" cy="145" rx="40" ry="15" fill="#ff4757" filter="url(#threatGlow)"/>
+    <text x="420" y="150" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Data Breaches</text>
+    
+    <ellipse cx="560" cy="145" rx="45" ry="15" fill="#ff4757" filter="url(#threatGlow)"/>
+    <text x="560" y="150" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Social Engineering</text>
+    
+    <ellipse cx="720" cy="145" rx="40" ry="15" fill="#ff4757" filter="url(#threatGlow)"/>
+    <text x="720" y="150" text-anchor="middle" fill="white" font-size="10" font-weight="bold">AI Attacks</text>
+    
+    <ellipse cx="860" cy="145" rx="45" ry="15" fill="#ff4757" filter="url(#threatGlow)"/>
+    <text x="860" y="150" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Mobile Malware</text>
+    
+    <ellipse cx="1020" cy="145" rx="40" ry="15" fill="#ff4757" filter="url(#threatGlow)"/>
+    <text x="1020" y="150" text-anchor="middle" fill="white" font-size="10" font-weight="bold">API Abuse</text>
+    
+    <ellipse cx="1160" cy="145" rx="45" ry="15" fill="#ff4757" filter="url(#threatGlow)"/>
+    <text x="1160" y="150" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Insider Threats</text>
+    
+    <ellipse cx="1310" cy="145" rx="40" ry="15" fill="#ff4757" filter="url(#threatGlow)"/>
+    <text x="1310" y="150" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Ransomware</text>
+    
+    <ellipse cx="1450" cy="145" rx="45" ry="15" fill="#ff4757" filter="url(#threatGlow)"/>
+    <text x="1450" y="150" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Nation State</text>
+    
+    <ellipse cx="1600" cy="145" rx="40" ry="15" fill="#ff4757" filter="url(#threatGlow)"/>
+    <text x="1600" y="150" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Zero Days</text>
+  </g>
+
+  <!-- Perimeter Security Layer -->
+  <g id="perimeterSecurity">
+    <rect x="50" y="190" width="1700" height="120" rx="8" fill="url(#perimeterGradient)" opacity="0.1" stroke="#5f27cd" stroke-width="2"/>
+    <text x="70" y="215" font-size="16" font-weight="bold" fill="#2d3748">Perimeter Security and AI-Enhanced Defense</text>
+    
+    <!-- WAF and DDoS Protection -->
+    <rect x="80" y="230" width="160" height="70" rx="6" fill="url(#perimeterGradient)" filter="url(#shadow)"/>
+    <text x="160" y="250" text-anchor="middle" fill="white" font-weight="bold" font-size="12">WAF + AI Defense</text>
+    <text x="90" y="265" fill="white" font-size="9">OWASP Top 10 Protection</text>
+    <text x="90" y="277" fill="white" font-size="9">Nigerian Attack Patterns</text>
+    <text x="90" y="289" fill="white" font-size="9">AI-Powered Rate Limiting</text>
+    
+    <!-- DDoS Protection -->
+    <rect x="260" y="230" width="160" height="70" rx="6" fill="url(#perimeterGradient)" filter="url(#shadow)"/>
+    <text x="340" y="250" text-anchor="middle" fill="white" font-weight="bold" font-size="12">DDoS Protection</text>
+    <text x="270" y="265" fill="white" font-size="9">Multi-Layer Mitigation</text>
+    <text x="270" y="277" fill="white" font-size="9">Geographic Filtering</text>
+    <text x="270" y="289" fill="white" font-size="9">Behavioral Analysis</text>
+    
+    <!-- DNS Security -->
+    <rect x="440" y="230" width="160" height="70" rx="6" fill="url(#perimeterGradient)" filter="url(#shadow)"/>
+    <text x="520" y="250" text-anchor="middle" fill="white" font-weight="bold" font-size="12">DNS Security</text>
+    <text x="450" y="265" fill="white" font-size="9">DNS Filtering</text>
+    <text x="450" y="277" fill="white" font-size="9">Domain Reputation</text>
+    <text x="450" y="289" fill="white" font-size="9">Threat Intelligence</text>
+    
+    <!-- Bot Management -->
+    <rect x="620" y="230" width="160" height="70" rx="6" fill="url(#perimeterGradient)" filter="url(#shadow)"/>
+    <text x="700" y="250" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Bot Management</text>
+    <text x="630" y="265" fill="white" font-size="9">AI Bot Detection</text>
+    <text x="630" y="277" fill="white" font-size="9">Behavioral Analysis</text>
+    <text x="630" y="289" fill="white" font-size="9">Challenge Response</text>
+    
+    <!-- API Gateway Security -->
+    <rect x="800" y="230" width="160" height="70" rx="6" fill="url(#perimeterGradient)" filter="url(#shadow)"/>
+    <text x="880" y="250" text-anchor="middle" fill="white" font-weight="bold" font-size="12">API Gateway Security</text>
+    <text x="810" y="265" fill="white" font-size="9">Authentication</text>
+    <text x="810" y="277" fill="white" font-size="9">Rate Limiting</text>
+    <text x="810" y="289" fill="white" font-size="9">Input Validation</text>
+    
+    <!-- Load Balancer Security -->
+    <rect x="980" y="230" width="160" height="70" rx="6" fill="url(#perimeterGradient)" filter="url(#shadow)"/>
+    <text x="1060" y="250" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Load Balancer</text>
+    <text x="990" y="265" fill="white" font-size="9">SSL Offloading</text>
+    <text x="990" y="277" fill="white" font-size="9">Health Monitoring</text>
+    <text x="990" y="289" fill="white" font-size="9">Traffic Distribution</text>
+    
+    <!-- Threat Intelligence -->
+    <rect x="1160" y="230" width="160" height="70" rx="6" fill="url(#perimeterGradient)" filter="url(#shadow)"/>
+    <text x="1240" y="250" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Threat Intelligence</text>
+    <text x="1170" y="265" fill="white" font-size="9">Nigerian CTI Feeds</text>
+    <text x="1170" y="277" fill="white" font-size="9">IOC Correlation</text>
+    <text x="1170" y="289" fill="white" font-size="9">Automated Blocking</text>
+    
+    <!-- Certificate Management -->
+    <rect x="1340" y="230" width="160" height="70" rx="6" fill="url(#perimeterGradient)" filter="url(#shadow)"/>
+    <text x="1420" y="250" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Certificate Mgmt</text>
+    <text x="1350" y="265" fill="white" font-size="9">Auto Renewal</text>
+    <text x="1350" y="277" fill="white" font-size="9">Multi-Domain Certs</text>
+    <text x="1350" y="289" fill="white" font-size="9">Tenant SSL</text>
+    
+    <!-- CDN Security -->
+    <rect x="1520" y="230" width="160" height="70" rx="6" fill="url(#perimeterGradient)" filter="url(#shadow)"/>
+    <text x="1600" y="250" text-anchor="middle" fill="white" font-weight="bold" font-size="12">CDN Security</text>
+    <text x="1530" y="265" fill="white" font-size="9">Edge Protection</text>
+    <text x="1530" y="277" fill="white" font-size="9">SSL/TLS Termination</text>
+    <text x="1530" y="289" fill="white" font-size="9">Content Filtering</text>
+  </g>
+
+  <!-- Network Security Layer -->
+  <g id="networkSecurity">
+    <rect x="50" y="330" width="1700" height="120" rx="8" fill="url(#networkGradient)" opacity="0.1" stroke="#00d2d3" stroke-width="2"/>
+    <text x="70" y="355" font-size="16" font-weight="bold" fill="#2d3748">Network Security and Segmentation</text>
+    
+    <!-- Network Segmentation -->
+    <rect x="80" y="370" width="200" height="70" rx="6" fill="url(#networkGradient)" filter="url(#shadow)"/>
+    <text x="180" y="390" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Network Segmentation</text>
+    <text x="90" y="405" fill="white" font-size="9">Micro-segmentation</text>
+    <text x="90" y="417" fill="white" font-size="9">Tenant VLANs</text>
+    <text x="90" y="429" fill="white" font-size="9">Zero Trust Network</text>
+    
+    <!-- Next-Gen Firewall -->
+    <rect x="300" y="370" width="200" height="70" rx="6" fill="url(#networkGradient)" filter="url(#shadow)"/>
+    <text x="400" y="390" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Next-Gen Firewall</text>
+    <text x="310" y="405" fill="white" font-size="9">Deep Packet Inspection</text>
+    <text x="310" y="417" fill="white" font-size="9">Intrusion Prevention</text>
+    <text x="310" y="429" fill="white" font-size="9">App-aware Filtering</text>
+    
+    <!-- Network Access Control -->
+    <rect x="520" y="370" width="200" height="70" rx="6" fill="url(#networkGradient)" filter="url(#shadow)"/>
+    <text x="620" y="390" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Network Access Control</text>
+    <text x="530" y="405" fill="white" font-size="9">Device Authentication</text>
+    <text x="530" y="417" fill="white" font-size="9">Policy Enforcement</text>
+    <text x="530" y="429" fill="white" font-size="9">Quarantine System</text>
+    
+    <!-- VPN Gateway -->
+    <rect x="740" y="370" width="200" height="70" rx="6" fill="url(#networkGradient)" filter="url(#shadow)"/>
+    <text x="840" y="390" text-anchor="middle" fill="white" font-weight="bold" font-size="12">VPN Gateway</text>
+    <text x="750" y="405" fill="white" font-size="9">Site-to-Site VPN</text>
+    <text x="750" y="417" fill="white" font-size="9">Remote Access VPN</text>
+    <text x="750" y="429" fill="white" font-size="9">Multi-Factor Auth</text>
+    
+    <!-- Network Monitoring -->
+    <rect x="960" y="370" width="200" height="70" rx="6" fill="url(#networkGradient)" filter="url(#shadow)"/>
+    <text x="1060" y="390" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Network Monitoring</text>
+    <text x="970" y="405" fill="white" font-size="9">Traffic Analysis</text>
+    <text x="970" y="417" fill="white" font-size="9">Anomaly Detection</text>
+    <text x="970" y="429" fill="white" font-size="9">Flow Monitoring</text>
+    
+    <!-- Wireless Security -->
+    <rect x="1180" y="370" width="200" height="70" rx="6" fill="url(#networkGradient)" filter="url(#shadow)"/>
+    <text x="1280" y="390" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Wireless Security</text>
+    <text x="1190" y="405" fill="white" font-size="9">WPA3 Encryption</text>
+    <text x="1190" y="417" fill="white" font-size="9">Network Isolation</text>
+    <text x="1190" y="429" fill="white" font-size="9">Rogue AP Detection</text>
+    
+    <!-- DMZ Management -->
+    <rect x="1400" y="370" width="200" height="70" rx="6" fill="url(#networkGradient)" filter="url(#shadow)"/>
+    <text x="1500" y="390" text-anchor="middle" fill="white" font-weight="bold" font-size="12">DMZ Management</text>
+    <text x="1410" y="405" fill="white" font-size="9">Isolated Web Tier</text>
+    <text x="1410" y="417" fill="white" font-size="9">Controlled Access</text>
+    <text x="1410" y="429" fill="white" font-size="9">Jump Servers</text>
+  </g>
+
+  <!-- Identity and Access Management -->
+  <g id="identityManagement">
+    <rect x="50" y="470" width="850" height="140" rx="8" fill="url(#identityGradient)" opacity="0.1" stroke="#1976d2" stroke-width="2"/>
+    <text x="70" y="495" font-size="16" font-weight="bold" fill="#2d3748">Identity and Access Management (Multi-Tenant)</text>
+    
+    <!-- Multi-Tenant SSO -->
+    <rect x="80" y="510" width="180" height="90" rx="6" fill="url(#identityGradient)" filter="url(#shadow)"/>
+    <text x="170" y="530" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Multi-Tenant SSO</text>
+    <text x="90" y="545" fill="white" font-size="9">Tenant-Specific IdP</text>
+    <text x="90" y="557" fill="white" font-size="9">SAML/OIDC Support</text>
+    <text x="90" y="569" fill="white" font-size="9">Federation Security</text>
+    <text x="90" y="581" fill="white" font-size="9">Session Isolation</text>
+    <text x="90" y="593" fill="white" font-size="9">Branded Login Pages</text>
+    
+    <!-- MFA Engine -->
+    <rect x="280" y="510" width="180" height="90" rx="6" fill="url(#identityGradient)" filter="url(#shadow)"/>
+    <text x="370" y="530" text-anchor="middle" fill="white" font-weight="bold" font-size="11">MFA Engine</text>
+    <text x="290" y="545" fill="white" font-size="9">SMS OTP (Nigerian)</text>
+    <text x="290" y="557" fill="white" font-size="9">Biometric Auth</text>
+    <text x="290" y="569" fill="white" font-size="9">FIDO2/WebAuthn</text>
+    <text x="290" y="581" fill="white" font-size="9">Risk-based Auth</text>
+    <text x="290" y="593" fill="white" font-size="9">Adaptive Security</text>
+    
+    <!-- RBAC System -->
+    <rect x="480" y="510" width="180" height="90" rx="6" fill="url(#identityGradient)" filter="url(#shadow)"/>
+    <text x="570" y="530" text-anchor="middle" fill="white" font-weight="bold" font-size="11">RBAC System</text>
+    <text x="490" y="545" fill="white" font-size="9">Tenant Role Isolation</text>
+    <text x="490" y="557" fill="white" font-size="9">Granular Permissions</text>
+    <text x="490" y="569" fill="white" font-size="9">Dynamic Roles</text>
+    <text x="490" y="581" fill="white" font-size="9">Privilege Escalation</text>
+    <text x="490" y="593" fill="white" font-size="9">Access Reviews</text>
+    
+    <!-- Directory Services -->
+    <rect x="680" y="510" width="180" height="90" rx="6" fill="url(#identityGradient)" filter="url(#shadow)"/>
+    <text x="770" y="530" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Directory Services</text>
+    <text x="690" y="545" fill="white" font-size="9">Multi-Tenant LDAP</text>
+    <text x="690" y="557" fill="white" font-size="9">User Provisioning</text>
+    <text x="690" y="569" fill="white" font-size="9">Group Management</text>
+    <text x="690" y="581" fill="white" font-size="9">Sync Integration</text>
+    <text x="690" y="593" fill="white" font-size="9">Audit Logging</text>
+  </g>
+
+  <!-- AI-Enhanced Security -->
+  <g id="aiSecurity">
+    <rect x="920" y="470" width="830" height="140" rx="8" fill="url(#aiSecurityGradient)" opacity="0.1" stroke="#9c27b0" stroke-width="2"/>
+    <text x="940" y="495" font-size="16" font-weight="bold" fill="#2d3748">AI-Enhanced Security Intelligence</text>
+    
+    <!-- AI Fraud Detection -->
+    <rect x="950" y="510" width="170" height="90" rx="6" fill="url(#aiSecurityGradient)" filter="url(#shadow)"/>
+    <text x="1035" y="530" text-anchor="middle" fill="white" font-weight="bold" font-size="11">AI Fraud Detection</text>
+    <text x="960" y="545" fill="white" font-size="9">Real-time ML Scoring</text>
+    <text x="960" y="557" fill="white" font-size="9">Nigerian Fraud Patterns</text>
+    <text x="960" y="569" fill="white" font-size="9">Behavioral Analysis</text>
+    <text x="960" y="581" fill="white" font-size="9">Network Analysis</text>
+    <text x="960" y="593" fill="white" font-size="9">Ensemble Models</text>
+    
+    <!-- Behavioral Analytics -->
+    <rect x="1140" y="510" width="170" height="90" rx="6" fill="url(#aiSecurityGradient)" filter="url(#shadow)"/>
+    <text x="1225" y="530" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Behavioral Analytics</text>
+    <text x="1150" y="545" fill="white" font-size="9">User Behavior Modeling</text>
+    <text x="1150" y="557" fill="white" font-size="9">Anomaly Detection</text>
+    <text x="1150" y="569" fill="white" font-size="9">Risk Scoring</text>
+    <text x="1150" y="581" fill="white" font-size="9">Tenant-specific Models</text>
+    <text x="1150" y="593" fill="white" font-size="9">Adaptive Learning</text>
+    
+    <!-- Threat Intelligence AI -->
+    <rect x="1330" y="510" width="170" height="90" rx="6" fill="url(#aiSecurityGradient)" filter="url(#shadow)"/>
+    <text x="1415" y="530" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Threat Intel AI</text>
+    <text x="1340" y="545" fill="white" font-size="9">Automated Hunting</text>
+    <text x="1340" y="557" fill="white" font-size="9">IOC Correlation</text>
+    <text x="1340" y="569" fill="white" font-size="9">Predictive Analytics</text>
+    <text x="1340" y="581" fill="white" font-size="9">Nigerian CTI</text>
+    <text x="1340" y="593" fill="white" font-size="9">Auto Response</text>
+    
+    <!-- AI Security Orchestration -->
+    <rect x="1520" y="510" width="170" height="90" rx="6" fill="url(#aiSecurityGradient)" filter="url(#shadow)"/>
+    <text x="1605" y="530" text-anchor="middle" fill="white" font-weight="bold" font-size="11">AI SOAR Platform</text>
+    <text x="1530" y="545" fill="white" font-size="9">Incident Automation</text>
+    <text x="1530" y="557" fill="white" font-size="9">Playbook Execution</text>
+    <text x="1530" y="569" fill="white" font-size="9">Response Optimization</text>
+    <text x="1530" y="581" fill="white" font-size="9">Multi-tenant Isolation</text>
+    <text x="1530" y="593" fill="white" font-size="9">Self-healing Systems</text>
+  </g>
+
+  <!-- Application Security Layer -->
+  <g id="applicationSecurity">
+    <rect x="50" y="630" width="1700" height="120" rx="8" fill="url(#applicationGradient)" opacity="0.1" stroke="#ff7043" stroke-width="2"/>
+    <text x="70" y="655" font-size="16" font-weight="bold" fill="#2d3748">Application Security (Cross-Platform)</text>
+    
+    <!-- Secure Development -->
+    <rect x="80" y="670" width="170" height="70" rx="6" fill="url(#applicationGradient)" filter="url(#shadow)"/>
+    <text x="165" y="690" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Secure SDLC</text>
+    <text x="90" y="705" fill="white" font-size="9">SAST/DAST Integration</text>
+    <text x="90" y="717" fill="white" font-size="9">Dependency Scanning</text>
+    <text x="90" y="729" fill="white" font-size="9">Security Testing</text>
+    
+    <!-- Input Validation -->
+    <rect x="270" y="670" width="170" height="70" rx="6" fill="url(#applicationGradient)" filter="url(#shadow)"/>
+    <text x="355" y="690" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Input Validation</text>
+    <text x="280" y="705" fill="white" font-size="9">Multi-layer Validation</text>
+    <text x="280" y="717" fill="white" font-size="9">Injection Prevention</text>
+    <text x="280" y="729" fill="white" font-size="9">Sanitization Engine</text>
+    
+    <!-- Session Management -->
+    <rect x="460" y="670" width="170" height="70" rx="6" fill="url(#applicationGradient)" filter="url(#shadow)"/>
+    <text x="545" y="690" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Session Security</text>
+    <text x="470" y="705" fill="white" font-size="9">Tenant Session Isolation</text>
+    <text x="470" y="717" fill="white" font-size="9">Secure Token Handling</text>
+    <text x="470" y="729" fill="white" font-size="9">Session Timeout</text>
+    
+    <!-- API Security -->
+    <rect x="650" y="670" width="170" height="70" rx="6" fill="url(#applicationGradient)" filter="url(#shadow)"/>
+    <text x="735" y="690" text-anchor="middle" fill="white" font-weight="bold" font-size="11">API Security</text>
+    <text x="660" y="705" fill="white" font-size="9">OAuth 2.1/OIDC</text>
+    <text x="660" y="717" fill="white" font-size="9">API Rate Limiting</text>
+    <text x="660" y="729" fill="white" font-size="9">Request Signing</text>
+    
+    <!-- Mobile Security -->
+    <rect x="840" y="670" width="170" height="70" rx="6" fill="url(#applicationGradient)" filter="url(#shadow)"/>
+    <text x="925" y="690" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Mobile Security</text>
+    <text x="850" y="705" fill="white" font-size="9">App Attestation</text>
+    <text x="850" y="717" fill="white" font-size="9">Certificate Pinning</text>
+    <text x="850" y="729" fill="white" font-size="9">Root/Jailbreak Detection</text>
+    
+    <!-- Web Security -->
+    <rect x="1030" y="670" width="170" height="70" rx="6" fill="url(#applicationGradient)" filter="url(#shadow)"/>
+    <text x="1115" y="690" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Web Security</text>
+    <text x="1040" y="705" fill="white" font-size="9">CSP Headers</text>
+    <text x="1040" y="717" fill="white" font-size="9">XSS Protection</text>
+    <text x="1040" y="729" fill="white" font-size="9">CSRF Prevention</text>
+    
+    <!-- Code Analysis -->
+    <rect x="1220" y="670" width="170" height="70" rx="6" fill="url(#applicationGradient)" filter="url(#shadow)"/>
+    <text x="1305" y="690" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Code Analysis</text>
+    <text x="1230" y="705" fill="white" font-size="9">Real-time Scanning</text>
+    <text x="1230" y="717" fill="white" font-size="9">Vulnerability DB</text>
+    <text x="1230" y="729" fill="white" font-size="9">Auto Remediation</text>
+    
+    <!-- Container Security -->
+    <rect x="1410" y="670" width="170" height="70" rx="6" fill="url(#applicationGradient)" filter="url(#shadow)"/>
+    <text x="1495" y="690" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Container Security</text>
+    <text x="1420" y="705" fill="white" font-size="9">Image Scanning</text>
+    <text x="1420" y="717" fill="white" font-size="9">Runtime Protection</text>
+    <text x="1420" y="729" fill="white" font-size="9">Kubernetes Security</text>
+    
+    <!-- Secrets Management -->
+    <rect x="1600" y="670" width="120" height="70" rx="6" fill="url(#applicationGradient)" filter="url(#shadow)"/>
+    <text x="1660" y="690" text-anchor="middle" fill="white" font-weight="bold" font-size="11">Secrets Mgmt</text>
+    <text x="1610" y="705" fill="white" font-size="9">HashiCorp Vault</text>
+    <text x="1610" y="717" fill="white" font-size="9">Auto Rotation</text>
+    <text x="1610" y="729" fill="white" font-size="9">Tenant Isolation</text>
+  </g>
+
+  <!-- Data Security Layer -->
+  <g id="dataSecurity">
+    <rect x="50" y="770" width="1700" height="120" rx="8" fill="url(#dataGradient)" opacity="0.1" stroke="#2e7d32" stroke-width="2"/>
+    <text x="70" y="795" font-size="16" font-weight="bold" fill="#2d3748">Data Security and Multi-Tenant Isolation</text>
+    
+    <!-- Database Security -->
+    <rect x="80" y="810" width="200" height="70" rx="6" fill="url(#dataGradient)" filter="url(#shadow)"/>
+    <text x="180" y="830" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Database Security</text>
+    <text x="90" y="845" fill="white" font-size="9">Database-per-Tenant</text>
+    <text x="90" y="857" fill="white" font-size="9">Transparent Encryption</text>
+    <text x="90" y="869" fill="white" font-size="9">Access Control Lists</text>
+    
+    <!-- Encryption Engine -->
+    <rect x="300" y="810" width="200" height="70" rx="6" fill="url(#dataGradient)" filter="url(#shadow)"/>
+    <text x="400" y="830" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Encryption Engine</text>
+    <text x="310" y="845" fill="white" font-size="9">AES-256-GCM</text>
+    <text x="310" y="857" fill="white" font-size="9">Tenant-specific Keys</text>
+    <text x="310" y="869" fill="white" font-size="9">HSM Integration</text>
+    
+    <!-- Key Management -->
+    <rect x="520" y="810" width="200" height="70" rx="6" fill="url(#dataGradient)" filter="url(#shadow)"/>
+    <text x="620" y="830" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Key Management</text>
+    <text x="530" y="845" fill="white" font-size="9">Key Lifecycle Mgmt</text>
+    <text x="530" y="857" fill="white" font-size="9">Auto Key Rotation</text>
+    <text x="530" y="869" fill="white" font-size="9">Tenant Key Isolation</text>
+    
+    <!-- Data Loss Prevention -->
+    <rect x="740" y="810" width="200" height="70" rx="6" fill="url(#dataGradient)" filter="url(#shadow)"/>
+    <text x="840" y="830" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Data Loss Prevention</text>
+    <text x="750" y="845" fill="white" font-size="9">Content Inspection</text>
+    <text x="750" y="857" fill="white" font-size="9">Policy Enforcement</text>
+    <text x="750" y="869" fill="white" font-size="9">Nigerian PII Detection</text>
+    
+    <!-- Backup Security -->
+    <rect x="960" y="810" width="200" height="70" rx="6" fill="url(#dataGradient)" filter="url(#shadow)"/>
+    <text x="1060" y="830" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Backup Security</text>
+    <text x="970" y="845" fill="white" font-size="9">Encrypted Backups</text>
+    <text x="970" y="857" fill="white" font-size="9">Multi-region Copies</text>
+    <text x="970" y="869" fill="white" font-size="9">Immutable Storage</text>
+    
+    <!-- Data Classification -->
+    <rect x="1180" y="810" width="200" height="70" rx="6" fill="url(#dataGradient)" filter="url(#shadow)"/>
+    <text x="1280" y="830" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Data Classification</text>
+    <text x="1190" y="845" fill="white" font-size="9">Auto Classification</text>
+    <text x="1190" y="857" fill="white" font-size="9">Sensitivity Labels</text>
+    <text x="1190" y="869" fill="white" font-size="9">Handling Policies</text>
+    
+    <!-- Privacy Controls -->
+    <rect x="1400" y="810" width="200" height="70" rx="6" fill="url(#dataGradient)" filter="url(#shadow)"/>
+    <text x="1500" y="830" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Privacy Controls</text>
+    <text x="1410" y="845" fill="white" font-size="9">Data Minimization</text>
+    <text x="1410" y="857" fill="white" font-size="9">Right to Erasure</text>
+    <text x="1410" y="869" fill="white" font-size="9">Consent Management</text>
+  </g>
+
+  <!-- Compliance and Governance -->
+  <g id="complianceGovernance">
+    <rect x="50" y="910" width="1700" height="120" rx="8" fill="url(#complianceGradient)" opacity="0.1" stroke="#689f38" stroke-width="2"/>
+    <text x="70" y="935" font-size="16" font-weight="bold" fill="#2d3748">Compliance, Governance and Regulatory</text>
+    
+    <!-- CBN Compliance -->
+    <rect x="80" y="950" width="200" height="70" rx="6" fill="url(#complianceGradient)" filter="url(#shadow)"/>
+    <text x="180" y="970" text-anchor="middle" fill="white" font-weight="bold" font-size="12">CBN Compliance</text>
+    <text x="90" y="985" fill="white" font-size="9">Regulatory Reporting</text>
+    <text x="90" y="997" fill="white" font-size="9">Data Localization</text>
+    <text x="90" y="1009" fill="white" font-size="9">Incident Reporting</text>
+    
+    <!-- PCI DSS -->
+    <rect x="300" y="950" width="200" height="70" rx="6" fill="url(#complianceGradient)" filter="url(#shadow)"/>
+    <text x="400" y="970" text-anchor="middle" fill="white" font-weight="bold" font-size="12">PCI DSS</text>
+    <text x="310" y="985" fill="white" font-size="9">Cardholder Data Protection</text>
+    <text x="310" y="997" fill="white" font-size="9">Network Segmentation</text>
+    <text x="310" y="1009" fill="white" font-size="9">Regular Testing</text>
+    
+    <!-- ISO 27001 -->
+    <rect x="520" y="950" width="200" height="70" rx="6" fill="url(#complianceGradient)" filter="url(#shadow)"/>
+    <text x="620" y="970" text-anchor="middle" fill="white" font-weight="bold" font-size="12">ISO 27001</text>
+    <text x="530" y="985" fill="white" font-size="9">ISMS Implementation</text>
+    <text x="530" y="997" fill="white" font-size="9">Risk Management</text>
+    <text x="530" y="1009" fill="white" font-size="9">Continuous Improvement</text>
+    
+    <!-- Audit Management -->
+    <rect x="740" y="950" width="200" height="70" rx="6" fill="url(#complianceGradient)" filter="url(#shadow)"/>
+    <text x="840" y="970" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Audit Management</text>
+    <text x="750" y="985" fill="white" font-size="9">Comprehensive Logging</text>
+    <text x="750" y="997" fill="white" font-size="9">Tamper Detection</text>
+    <text x="750" y="1009" fill="white" font-size="9">Tenant Audit Trails</text>
+    
+    <!-- Risk Assessment -->
+    <rect x="960" y="950" width="200" height="70" rx="6" fill="url(#complianceGradient)" filter="url(#shadow)"/>
+    <text x="1060" y="970" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Risk Assessment</text>
+    <text x="970" y="985" fill="white" font-size="9">Automated Risk Scoring</text>
+    <text x="970" y="997" fill="white" font-size="9">Vulnerability Management</text>
+    <text x="970" y="1009" fill="white" font-size="9">Threat Modeling</text>
+    
+    <!-- GRC Platform -->
+    <rect x="1180" y="950" width="200" height="70" rx="6" fill="url(#complianceGradient)" filter="url(#shadow)"/>
+    <text x="1280" y="970" text-anchor="middle" fill="white" font-weight="bold" font-size="12">GRC Platform</text>
+    <text x="1190" y="985" fill="white" font-size="9">Policy Management</text>
+    <text x="1190" y="997" fill="white" font-size="9">Control Testing</text>
+    <text x="1190" y="1009" fill="white" font-size="9">Compliance Dashboard</text>
+    
+    <!-- Privacy Framework -->
+    <rect x="1400" y="950" width="200" height="70" rx="6" fill="url(#complianceGradient)" filter="url(#shadow)"/>
+    <text x="1500" y="970" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Privacy Framework</text>
+    <text x="1410" y="985" fill="white" font-size="9">Privacy by Design</text>
+    <text x="1410" y="997" fill="white" font-size="9">Impact Assessments</text>
+    <text x="1410" y="1009" fill="white" font-size="9">Rights Management</text>
+  </g>
+
+  <!-- Security Operations Center -->
+  <g id="securityOperationsCenter">
+    <rect x="50" y="1050" width="1700" height="120" rx="8" fill="#e2e8f0" stroke="#718096" stroke-width="2"/>
+    <text x="70" y="1075" font-size="16" font-weight="bold" fill="#2d3748">Security Operations Center (SOC)</text>
+    
+    <!-- SIEM Platform -->
+    <rect x="80" y="1090" width="200" height="70" rx="6" fill="#718096" filter="url(#shadow)"/>
+    <text x="180" y="1110" text-anchor="middle" fill="white" font-weight="bold" font-size="12">SIEM Platform</text>
+    <text x="90" y="1125" fill="white" font-size="9">Real-time Correlation</text>
+    <text x="90" y="1137" fill="white" font-size="9">Multi-tenant Dashboards</text>
+    <text x="90" y="1149" fill="white" font-size="9">AI-enhanced Detection</text>
+    
+    <!-- Incident Response -->
+    <rect x="300" y="1090" width="200" height="70" rx="6" fill="#718096" filter="url(#shadow)"/>
+    <text x="400" y="1110" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Incident Response</text>
+    <text x="310" y="1125" fill="white" font-size="9">Automated Playbooks</text>
+    <text x="310" y="1137" fill="white" font-size="9">Escalation Procedures</text>
+    <text x="310" y="1149" fill="white" font-size="9">Forensic Capabilities</text>
+    
+    <!-- Vulnerability Mgmt -->
+    <rect x="520" y="1090" width="200" height="70" rx="6" fill="#718096" filter="url(#shadow)"/>
+    <text x="620" y="1110" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Vulnerability Mgmt</text>
+    <text x="530" y="1125" fill="white" font-size="9">Continuous Scanning</text>
+    <text x="530" y="1137" fill="white" font-size="9">Risk Prioritization</text>
+    <text x="530" y="1149" fill="white" font-size="9">Auto Patching</text>
+    
+    <!-- Threat Hunting -->
+    <rect x="740" y="1090" width="200" height="70" rx="6" fill="#718096" filter="url(#shadow)"/>
+    <text x="840" y="1110" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Threat Hunting</text>
+    <text x="750" y="1125" fill="white" font-size="9">Proactive Detection</text>
+    <text x="750" y="1137" fill="white" font-size="9">Hypothesis Testing</text>
+    <text x="750" y="1149" fill="white" font-size="9">IOC Development</text>
+    
+    <!-- Security Metrics -->
+    <rect x="960" y="1090" width="200" height="70" rx="6" fill="#718096" filter="url(#shadow)"/>
+    <text x="1060" y="1110" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Security Metrics</text>
+    <text x="970" y="1125" fill="white" font-size="9">KPI Dashboards</text>
+    <text x="970" y="1137" fill="white" font-size="9">Trend Analysis</text>
+    <text x="970" y="1149" fill="white" font-size="9">Executive Reporting</text>
+    
+    <!-- Digital Forensics -->
+    <rect x="1180" y="1090" width="200" height="70" rx="6" fill="#718096" filter="url(#shadow)"/>
+    <text x="1280" y="1110" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Digital Forensics</text>
+    <text x="1190" y="1125" fill="white" font-size="9">Evidence Collection</text>
+    <text x="1190" y="1137" fill="white" font-size="9">Chain of Custody</text>
+    <text x="1190" y="1149" fill="white" font-size="9">Legal Compliance</text>
+    
+    <!-- Crisis Management -->
+    <rect x="1400" y="1090" width="200" height="70" rx="6" fill="#718096" filter="url(#shadow)"/>
+    <text x="1500" y="1110" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Crisis Management</text>
+    <text x="1410" y="1125" fill="white" font-size="9">Business Continuity</text>
+    <text x="1410" y="1137" fill="white" font-size="9">Communication Plans</text>
+    <text x="1410" y="1149" fill="white" font-size="9">Recovery Procedures</text>
+  </g>
+
+  <!-- Security Data Flows -->
+  <g id="securityDataFlows" stroke="#718096" stroke-width="2" fill="none" opacity="0.6">
+    <!-- Threat arrows pointing down -->
+    <path d="M 150 170 L 150 190" marker-end="url(#arrowThreat)"/>
+    <path d="M 420 170 L 420 190" marker-end="url(#arrowThreat)"/>
+    <path d="M 720 170 L 720 190" marker-end="url(#arrowThreat)"/>
+    <path d="M 1020 170 L 1020 190" marker-end="url(#arrowThreat)"/>
+    <path d="M 1320 170 L 1320 190" marker-end="url(#arrowThreat)"/>
+    <path d="M 1620 170 L 1620 190" marker-end="url(#arrowThreat)"/>
+    
+    <!-- Defense flow arrows -->
+    <path d="M 900 310 L 900 330" marker-end="url(#arrowDefense)"/>
+    <path d="M 900 450 L 900 470" marker-end="url(#arrowDefense)"/>
+    <path d="M 900 610 L 900 630" marker-end="url(#arrowDefense)"/>
+    <path d="M 900 750 L 900 770" marker-end="url(#arrowDefense)"/>
+    <path d="M 900 890 L 900 910" marker-end="url(#arrowDefense)"/>
+    <path d="M 900 1030 L 900 1050" marker-end="url(#arrowDefense)"/>
+    
+    <!-- Data flow connections -->
+    <path d="M 475 555 L 950 555" marker-end="url(#arrowData)" stroke-dasharray="5,5"/>
+    <path d="M 1225 555 L 1500 825" marker-end="url(#arrowData)" stroke-dasharray="5,5"/>
+  </g>
+
+  <!-- Tenant Isolation Visualization -->
+  <g id="tenantIsolation">
+    <rect x="1620" y="180" width="120" height="450" rx="8" fill="url(#secureZone)" stroke="#1976d2" stroke-width="2" opacity="0.3"/>
+    <text x="1680" y="200" text-anchor="middle" font-size="12" font-weight="bold" fill="#1976d2">Tenant A</text>
+    <text x="1680" y="215" text-anchor="middle" font-size="10" fill="#1976d2">GTBank</text>
+    
+    <rect x="1620" y="650" width="120" height="220" rx="8" fill="url(#secureZone)" stroke="#9c27b0" stroke-width="2" opacity="0.3"/>
+    <text x="1680" y="670" text-anchor="middle" font-size="12" font-weight="bold" fill="#9c27b0">Tenant B</text>
+    <text x="1680" y="685" text-anchor="middle" font-size="10" fill="#9c27b0">UBA</text>
+    
+    <!-- Isolation barriers -->
+    <line x1="1610" y1="180" x2="1610" y2="870" stroke="#ff4757" stroke-width="3" stroke-dasharray="10,5"/>
+    <text x="1605" y="525" text-anchor="end" font-size="10" font-weight="bold" fill="#ff4757" transform="rotate(-90 1605 525)">ISOLATION BOUNDARY</text>
+  </g>
+
+  <!-- Legend and Key -->
+  <g id="legend">
+    <rect x="50" y="1190" width="1700" height="80" rx="8" fill="#f0f4f8" stroke="#cbd5e0"/>
+    <text x="80" y="1215" font-size="16" font-weight="bold" fill="#2d3748">Security Architecture Key Features:</text>
+    
+    <!-- Legend items -->
+    <circle cx="90" cy="1240" r="8" fill="#ff4757"/>
+    <text x="110" y="1245" font-size="11" fill="#4a5568">External Threats</text>
+    
+    <circle cx="250" cy="1240" r="8" fill="#5f27cd"/>
+    <text x="270" y="1245" font-size="11" fill="#4a5568">Perimeter Defense</text>
+    
+    <circle cx="400" cy="1240" r="8" fill="#00d2d3"/>
+    <text x="420" y="1245" font-size="11" fill="#4a5568">Network Security</text>
+    
+    <circle cx="550" cy="1240" r="8" fill="#1976d2"/>
+    <text x="570" y="1245" font-size="11" fill="#4a5568">Identity Management</text>
+    
+    <circle cx="720" cy="1240" r="8" fill="#9c27b0"/>
+    <text x="740" y="1245" font-size="11" fill="#4a5568">AI Security</text>
+    
+    <circle cx="860" cy="1240" r="8" fill="#ff7043"/>
+    <text x="880" y="1245" font-size="11" fill="#4a5568">App Security</text>
+    
+    <circle cx="1020" cy="1240" r="8" fill="#2e7d32"/>
+    <text x="1040" y="1245" font-size="11" fill="#4a5568">Data Protection</text>
+    
+    <circle cx="1170" cy="1240" r="8" fill="#689f38"/>
+    <text x="1190" y="1245" font-size="11" fill="#4a5568">Compliance</text>
+    
+    <circle cx="1320" cy="1240" r="8" fill="#718096"/>
+    <text x="1340" y="1245" font-size="11" fill="#4a5568">SOC Operations</text>
+    
+    <!-- Security Metrics -->
+    <text x="80" y="1260" font-size="11" fill="#4a5568" font-weight="bold">Key Metrics: </text>
+    <text x="180" y="1260" font-size="10" fill="#4a5568">99.9% Uptime - Less than 5min MTTD - Zero Cross-tenant Breaches - 100% CBN/PCI Compliance</text>
+  </g>
+
+  <!-- Security Standards Footer -->
+  <g id="securityStandards">
+    <rect x="50" y="1290" width="1700" height="40" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+    <text x="80" y="1315" font-size="14" font-weight="bold" fill="#2d3748">Security Standards and Frameworks:</text>
+    <text x="290" y="1315" font-size="12" fill="#4a5568">NIST Cybersecurity Framework</text>
+    <text x="500" y="1315" font-size="12" fill="#4a5568">ISO 27001/27002</text>
+    <text x="650" y="1315" font-size="12" fill="#4a5568">PCI DSS Level 1</text>
+    <text x="780" y="1315" font-size="12" fill="#4a5568">CBN Guidelines</text>
+    <text x="920" y="1315" font-size="12" fill="#4a5568">OWASP Top 10</text>
+    <text x="1050" y="1315" font-size="12" fill="#4a5568">Zero Trust Architecture</text>
+    <text x="1230" y="1315" font-size="12" fill="#4a5568">Nigerian Data Protection</text>
+  </g>
+
+  <!-- Multi-tenant Security Callout -->
+  <g id="multiTenantCallout">
+    <ellipse cx="1680" cy="400" rx="60" ry="40" fill="#fff3cd" stroke="#ffc107" stroke-width="2" filter="url(#glow)"/>
+    <text x="1680" y="390" text-anchor="middle" font-size="10" font-weight="bold" fill="#856404">MULTI-TENANT</text>
+    <text x="1680" y="405" text-anchor="middle" font-size="10" font-weight="bold" fill="#856404">ISOLATION</text>
+    <text x="1680" y="420" text-anchor="middle" font-size="9" fill="#856404">Complete tenant</text>
+    <text x="1680" y="432" text-anchor="middle" font-size="9" fill="#856404">data separation</text>
+  </g>
+</svg>

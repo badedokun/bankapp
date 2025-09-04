@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrokiiPay - AI-Assisted Money Transfer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: var(--tenant-primary, #007bff);
+            color: white;
+            padding: 20px;
+            position: relative;
+        }
+
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .header-title {
+            text-align: center;
+            flex: 1;
+        }
+
+        .header-title h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header-title p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .main-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 20px;
+        }
+
+        .transfer-form {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-header h2 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .form-header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .quick-action {
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .quick-action:hover {
+            border-color: var(--tenant-primary, #007bff);
+            transform: translateY(-2px);
+        }
+
+        .quick-action.active {
+            border-color: var(--tenant-primary, #007bff);
+            background: rgba(0, 123, 255, 0.05);
+        }
+
+        .quick-action-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .quick-action-text {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .form-section {
+            margin-bottom: 25px;
+        }
+
+        .form-section h3 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            background: #fafbfc;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--tenant-primary, #007bff);
+            background: white;
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            font-size: 18px;
+        }
+
+        .input-with-icon .form-input {
+            padding-left: 50px;
+        }
+
+        .currency-amount {
+            display: flex;
+            gap: 10px;
+        }
+
+        .currency-select {
+            width: 100px;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            background: #fafbfc;
+            font-size: 16px;
+        }
+
+        .amount-input {
+            flex: 1;
+            text-align: right;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .recipient-suggestions {
+            background: white;
+            border: 1px solid #e1e5e9;
+            border-radius: 10px;
+            margin-top: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .recipient-suggestion {
+            padding: 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f3f5;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .recipient-suggestion:hover {
+            background: #f8fafc;
+        }
+
+        .recipient-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--tenant-primary, #007bff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .recipient-info h4 {
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .recipient-info p {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .transfer-fees {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .fee-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .fee-row:last-child {
+            border-top: 1px solid #e1e5e9;
+            padding-top: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .fraud-analysis {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .fraud-analysis.warning {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+
+        .fraud-analysis.danger {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+
+        .fraud-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .fraud-icon {
+            font-size: 20px;
+        }
+
+        .fraud-status {
+            font-weight: 600;
+            color: #155724;
+        }
+
+        .fraud-analysis.warning .fraud-status {
+            color: #856404;
+        }
+
+        .fraud-analysis.danger .fraud-status {
+            color: #721c24;
+        }
+
+        .fraud-details {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .transfer-button {
+            width: 100%;
+            padding: 18px;
+            background: var(--tenant-primary, #007bff);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .transfer-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 123, 255, 0.3);
+        }
+
+        .transfer-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .ai-chat {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .ai-chat-header {
+            background: var(--tenant-primary, #007bff);
+            color: white;
+            padding: 20px;
+            border-radius: 20px 20px 0 0;
+            text-align: center;
+        }
+
+        .ai-chat-header h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .ai-chat-header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .ai-chat-messages {
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .ai-message {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .ai-message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .ai-message .message-avatar {
+            background: var(--tenant-primary, #007bff);
+            color: white;
+        }
+
+        .ai-message.user .message-avatar {
+            background: #f1f3f5;
+            color: #333;
+        }
+
+        .message-bubble {
+            background: #f8fafc;
+            padding: 12px 16px;
+            border-radius: 15px;
+            max-width: 250px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .ai-message.user .message-bubble {
+            background: var(--tenant-primary, #007bff);
+            color: white;
+        }
+
+        .suggested-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .suggested-action {
+            background: rgba(0, 123, 255, 0.1);
+            border: 1px solid var(--tenant-primary, #007bff);
+            color: var(--tenant-primary, #007bff);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .suggested-action:hover {
+            background: var(--tenant-primary, #007bff);
+            color: white;
+        }
+
+        .ai-input-section {
+            padding: 20px;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        .ai-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .ai-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 25px;
+            font-size: 14px;
+        }
+
+        .ai-input:focus {
+            outline: none;
+            border-color: var(--tenant-primary, #007bff);
+        }
+
+        .ai-send-button {
+            width: 40px;
+            height: 40px;
+            background: var(--tenant-primary, #007bff);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .voice-button {
+            width: 40px;
+            height: 40px;
+            background: #f1f3f5;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .voice-button:hover,
+        .voice-button.listening {
+            background: #4caf50;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .language-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            background: #f8fafc;
+            padding: 5px;
+            border-radius: 10px;
+        }
+
+        .language-tab {
+            padding: 8px 12px;
+            border: none;
+            background: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .language-tab.active {
+            background: var(--tenant-primary, #007bff);
+            color: white;
+        }
+
+        .tenant-bank-a { --tenant-primary: #007bff; }
+        .tenant-bank-b { --tenant-primary: #e31e24; }
+        .tenant-bank-c { --tenant-primary: #00a651; }
+
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                padding: 15px;
+                gap: 20px;
+            }
+
+            .header-content {
+                padding: 0 10px;
+            }
+
+            .transfer-form,
+            .ai-chat {
+                margin: 0;
+                border-radius: 15px;
+            }
+
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body class="tenant-bank-a">
+    <div class="header">
+        <div class="header-content">
+            <button class="back-button">←</button>
+            <div class="header-title">
+                <h1>Send Money</h1>
+                <p>AI-Assisted Transfer</p>
+            </div>
+            <div class="user-avatar">JD</div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="transfer-form">
+            <div class="form-header">
+                <h2>💸 Money Transfer</h2>
+                <p>Send money quickly and securely with AI assistance</p>
+            </div>
+
+            <div class="quick-actions">
+                <div class="quick-action active">
+                    <div class="quick-action-icon">🏦</div>
+                    <div class="quick-action-text">Bank Transfer</div>
+                </div>
+                <div class="quick-action">
+                    <div class="quick-action-icon">📱</div>
+                    <div class="quick-action-text">Mobile Money</div>
+                </div>
+                <div class="quick-action">
+                    <div class="quick-action-icon">💳</div>
+                    <div class="quick-action-text">Card Transfer</div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>💰 Amount</h3>
+                <div class="currency-amount">
+                    <select class="currency-select">
+                        <option value="NGN">₦ NGN</option>
+                        <option value="USD">$ USD</option>
+                        <option value="GBP">£ GBP</option>
+                    </select>
+                    <input type="text" class="form-input amount-input" placeholder="0.00" value="25,000">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>👤 Recipient</h3>
+                <div class="form-group">
+                    <label class="form-label">Account Number</label>
+                    <div class="input-with-icon">
+                        <span class="input-icon">🏦</span>
+                        <input type="text" class="form-input" placeholder="Enter account number" id="recipient-input">
+                    </div>
+                    <div class="recipient-suggestions" id="recipient-suggestions">
+                        <div class="recipient-suggestion">
+                            <div class="recipient-avatar">AM</div>
+                            <div class="recipient-info">
+                                <h4>Adebayo Michael</h4>
+                                <p>2345678901 • Bank B</p>
+                            </div>
+                        </div>
+                        <div class="recipient-suggestion">
+                            <div class="recipient-avatar">FO</div>
+                            <div class="recipient-info">
+                                <h4>Fatima Okonkwo</h4>
+                                <p>3456789012 • Bank C</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Bank</label>
+                    <select class="form-input">
+                        <option value="">Select Bank</option>
+                        <option value="bank-b" selected>Bank B</option>
+                        <option value="bank-c">Bank C</option>
+                        <option value="bank-d">Bank D</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Recipient Name</label>
+                    <input type="text" class="form-input" value="Adebayo Michael" readonly>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>📝 Transaction Details</h3>
+                <div class="form-group">
+                    <label class="form-label">Description (Optional)</label>
+                    <input type="text" class="form-input" placeholder="What's this for?">
+                </div>
+            </div>
+
+            <div class="transfer-fees">
+                <div class="fee-row">
+                    <span>Transfer Amount</span>
+                    <span>₦25,000.00</span>
+                </div>
+                <div class="fee-row">
+                    <span>Transfer Fee</span>
+                    <span>₦52.50</span>
+                </div>
+                <div class="fee-row">
+                    <span>Total Amount</span>
+                    <span>₦25,052.50</span>
+                </div>
+            </div>
+
+            <div class="fraud-analysis">
+                <div class="fraud-header">
+                    <span class="fraud-icon">🛡️</span>
+                    <span class="fraud-status">Transaction Approved</span>
+                </div>
+                <div class="fraud-details">
+                    AI Analysis: Low risk transaction. Regular recipient with good transaction history.
+                </div>
+            </div>
+
+            <button class="transfer-button">
+                <span>🚀</span>
+                Send ₦25,000.00
+            </button>
+        </div>
+
+        <div class="ai-chat">
+            <div class="ai-chat-header">
+                <h3>🤖 AI Assistant</h3>
+                <p>I'm here to help with your transfer</p>
+            </div>
+
+            <div class="language-tabs">
+                <button class="language-tab active" data-lang="en">EN</button>
+                <button class="language-tab" data-lang="yo">YO</button>
+                <button class="language-tab" data-lang="ha">HA</button>
+                <button class="language-tab" data-lang="ig">IG</button>
+            </div>
+
+            <div class="ai-chat-messages" id="chat-messages">
+                <div class="ai-message">
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-bubble">
+                        Hi! I can help you with this transfer. I see you're sending ₦25,000 to Adebayo Michael at Bank B. The recipient looks familiar - you've sent money to them before.
+                        <div class="suggested-actions">
+                            <button class="suggested-action">Check recipient details</button>
+                            <button class="suggested-action">Explain fees</button>
+                            <button class="suggested-action">Security check</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ai-message user">
+                    <div class="message-avatar">👤</div>
+                    <div class="message-bubble">
+                        Is this transfer safe? Can you explain the fees?
+                    </div>
+                </div>
+
+                <div class="ai-message">
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-bubble">
+                        Yes, this transfer is safe! 🛡️ Our AI detected this as a low-risk transaction. The fee is ₦52.50 (0.21%) which includes:
+                        • Bank processing: ₦50.00
+                        • AI security check: ₦2.50
+                        
+                        This is competitive compared to other services.
+                    </div>
+                </div>
+            </div>
+
+            <div class="ai-input-section">
+                <div class="ai-input-group">
+                    <button class="voice-button" id="voice-btn" title="Voice input">🎤</button>
+                    <input type="text" class="ai-input" placeholder="Ask me anything..." id="ai-message-input">
+                    <button class="ai-send-button" id="send-btn">➤</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Voice input functionality
+        let isListening = false;
+        const voiceBtn = document.getElementById('voice-btn');
+        const aiInput = document.getElementById('ai-message-input');
+        const chatMessages = document.getElementById('chat-messages');
+        const sendBtn = document.getElementById('send-btn');
+        const recipientInput = document.getElementById('recipient-input');
+        const recipientSuggestions = document.getElementById('recipient-suggestions');
+
+        // Voice recognition
+        voiceBtn.addEventListener('click', function() {
+            if (!isListening) {
+                this.classList.add('listening');
+                this.innerHTML = '🔴';
+                isListening = true;
+                
+                // Simulate voice recognition
+                setTimeout(() => {
+                    aiInput.value = "I want to send money to my friend Michael";
+                    this.classList.remove('listening');
+                    this.innerHTML = '🎤';
+                    isListening = false;
+                }, 2000);
+            }
+        });
+
+        // Send message
+        function sendMessage() {
+            const message = aiInput.value.trim();
+            if (message) {
+                // Add user message
+                const userMsg = document.createElement('div');
+                userMsg.className = 'ai-message user';
+                userMsg.innerHTML = `
+                    <div class="message-avatar">👤</div>
+                    <div class="message-bubble">${message}</div>
+                `;
+                chatMessages.appendChild(userMsg);
+
+                // Clear input
+                aiInput.value = '';
+
+                // Simulate AI response
+                setTimeout(() => {
+                    const aiMsg = document.createElement('div');
+                    aiMsg.className = 'ai-message';
+                    aiMsg.innerHTML = `
+                        <div class="message-avatar">🤖</div>
+                        <div class="message-bubble">
+                            I understand you want to send money to Michael. I can help you with that! Would you like me to fill in the details automatically?
+                            <div class="suggested-actions">
+                                <button class="suggested-action" onclick="autoFillRecipient()">Yes, fill details</button>
+                                <button class="suggested-action">Show recent recipients</button>
+                            </div>
+                        </div>
+                    `;
+                    chatMessages.appendChild(aiMsg);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 1000);
+
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        aiInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Auto-fill recipient function
+        function autoFillRecipient() {
+            recipientInput.value = '2345678901';
+            recipientInput.dispatchEvent(new Event('input'));
+        }
+
+        // Recipient input suggestions
+        recipientInput.addEventListener('input', function() {
+            if (this.value.length >= 3) {
+                recipientSuggestions.style.display = 'block';
+            } else {
+                recipientSuggestions.style.display = 'none';
+            }
+        });
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.form-group')) {
+                recipientSuggestions.style.display = 'none';
+            }
+        });
+
+        // Select recipient suggestion
+        document.querySelectorAll('.recipient-suggestion').forEach(suggestion => {
+            suggestion.addEventListener('click', function() {
+                const accountNumber = this.querySelector('.recipient-info p').textContent.split(' • ')[0];
+                recipientInput.value = accountNumber;
+                recipientSuggestions.style.display = 'none';
+            });
+        });
+
+        // Language switching
+        document.querySelectorAll('.language-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.language-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                const lang = this.dataset.lang;
+                // In real app, this would switch the AI language
+                console.log('Switched to language:', lang);
+            });
+        });
+
+        // Quick actions
+        document.querySelectorAll('.quick-action').forEach(action => {
+            action.addEventListener('click', function() {
+                document.querySelectorAll('.quick-action').forEach(a => a.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Suggested actions
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('suggested-action')) {
+                const action = e.target.textContent;
+                console.log('Suggested action clicked:', action);
+                
+                // Simulate AI responses to suggested actions
+                if (action === 'Explain fees') {
+                    // This would trigger an AI explanation
+                }
+            }
+        });
+
+        // Amount formatting
+        const amountInput = document.querySelector('.amount-input');
+        amountInput.addEventListener('input', function() {
+            // Format number with commas
+            let value = this.value.replace(/,/g, '');
+            if (!isNaN(value) && value !== '') {
+                this.value = parseInt(value).toLocaleString();
+            }
+        });
+    </script>
+</body>
+</html>

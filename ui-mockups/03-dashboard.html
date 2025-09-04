@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#007bff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="manifest" href="manifest.json">
+    <title>OrokiiPay - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        input, button {
+            -webkit-appearance: none;
+            touch-action: manipulation;
+            min-height: 44px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            padding-top: env(safe-area-inset-top);
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .tenant-logo {
+            width: 50px;
+            height: 50px;
+            background: var(--tenant-primary, #007bff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .logo-text h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 2px;
+        }
+
+        .logo-text p {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-input {
+            padding: 12px 40px 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 25px;
+            background: #f8fafc;
+            font-size: 14px;
+            width: 300px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--tenant-primary, #007bff);
+            background: white;
+            width: 350px;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+
+        .notification-bell {
+            position: relative;
+            background: #f8fafc;
+            border: none;
+            padding: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #ff4757;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 15px;
+            transition: background 0.3s ease;
+        }
+
+        .user-profile:hover {
+            background: #f8fafc;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--tenant-primary, #007bff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .user-info h3 {
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .user-info p {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .welcome-section {
+            background: linear-gradient(135deg, var(--tenant-primary, #007bff) 0%, var(--tenant-secondary, #0056b3) 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 25px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .welcome-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .welcome-text h2 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .welcome-text p {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 25px;
+        }
+
+        .balance-display {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 20px;
+            margin-top: 25px;
+        }
+
+        .balance-label {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 8px;
+        }
+
+        .balance-amount {
+            font-size: 42px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .balance-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .balance-action {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .balance-action:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .quick-actions {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+        }
+
+        .section-header h3 {
+            color: #333;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .see-all {
+            color: var(--tenant-primary, #007bff);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .action-card {
+            background: #f8fafc;
+            border: 2px solid transparent;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-card:hover {
+            border-color: var(--tenant-primary, #007bff);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-icon {
+            font-size: 36px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .action-title {
+            color: #333;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .action-subtitle {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .ai-assistant-panel {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .ai-header {
+            background: var(--tenant-primary, #007bff);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .ai-header h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .ai-status {
+            font-size: 14px;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #4caf50;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .ai-suggestions {
+            padding: 25px;
+        }
+
+        .ai-suggestion {
+            background: #f8fafc;
+            border: 1px solid #e1e5e9;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .ai-suggestion:hover {
+            border-color: var(--tenant-primary, #007bff);
+            background: rgba(0, 123, 255, 0.02);
+        }
+
+        .suggestion-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .suggestion-icon {
+            font-size: 20px;
+        }
+
+        .suggestion-title {
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .suggestion-description {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .recent-activity {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+        }
+
+        .activity-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px 0;
+            border-bottom: 1px solid #f1f3f5;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .activity-icon.sent {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .activity-icon.received {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .activity-icon.pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .activity-details {
+            flex: 1;
+        }
+
+        .activity-title {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .activity-subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .activity-time {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .activity-amount {
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .activity-amount.sent {
+            color: #dc2626;
+        }
+
+        .activity-amount.received {
+            color: #16a34a;
+        }
+
+        .activity-amount.pending {
+            color: #d97706;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            text-align: center;
+        }
+
+        .stat-icon {
+            font-size: 36px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .tenant-bank-a { 
+            --tenant-primary: #007bff; 
+            --tenant-secondary: #0056b3;
+        }
+        .tenant-bank-b { 
+            --tenant-primary: #e31e24; 
+            --tenant-secondary: #b71c1c;
+        }
+        .tenant-bank-c { 
+            --tenant-primary: #00a651; 
+            --tenant-secondary: #00701a;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 20px 15px;
+            }
+
+            .header-content {
+                padding: 0 15px;
+            }
+
+            .search-input {
+                width: 200px;
+            }
+
+            .search-input:focus {
+                width: 250px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .welcome-text h2 {
+                font-size: 28px;
+            }
+
+            .balance-amount {
+                font-size: 32px;
+            }
+
+            .balance-actions {
+                flex-wrap: wrap;
+            }
+
+            .user-info {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="tenant-bank-a">
+    <div class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="tenant-logo">BA</div>
+                <div class="logo-text">
+                    <h1>Bank A</h1>
+                    <p>Money Transfer</p>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="Search transactions, contacts...">
+                    <span class="search-icon">🔍</span>
+                </div>
+
+                <button class="notification-bell">
+                    🔔
+                    <span class="notification-badge">3</span>
+                </button>
+
+                <div class="user-profile">
+                    <div class="user-avatar">JD</div>
+                    <div class="user-info">
+                        <h3>John Doe</h3>
+                        <p>Premium Account</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="welcome-section">
+            <div class="welcome-content">
+                <div class="welcome-text">
+                    <h2>Good morning, John! 👋</h2>
+                    <p>Ready to make some transfers? Your AI assistant is here to help.</p>
+                </div>
+
+                <div class="balance-display">
+                    <div class="balance-label">Available Balance</div>
+                    <div class="balance-amount">₦2,847,250.00</div>
+                    <div class="balance-actions">
+                        <button class="balance-action">💸 Send Money</button>
+                        <button class="balance-action">📈 View Details</button>
+                        <button class="balance-action">🔄 Refresh</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-icon">📊</span>
+                <div class="stat-value">47</div>
+                <div class="stat-label">Transactions This Month</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">👥</span>
+                <div class="stat-value">12</div>
+                <div class="stat-label">Frequent Recipients</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">💰</span>
+                <div class="stat-value">₦1.2M</div>
+                <div class="stat-label">Monthly Volume</div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="quick-actions">
+                <div class="section-header">
+                    <h3>⚡ Quick Actions</h3>
+                    <a href="#" class="see-all">Customize</a>
+                </div>
+
+                <div class="actions-grid">
+                    <div class="action-card" onclick="showTransferScreen()">
+                        <span class="action-icon">💸</span>
+                        <div class="action-title">Send Money</div>
+                        <div class="action-subtitle">Transfer to any bank</div>
+                    </div>
+
+                    <div class="action-card">
+                        <span class="action-icon">📱</span>
+                        <div class="action-title">Mobile Top-up</div>
+                        <div class="action-subtitle">Airtime & Data</div>
+                    </div>
+
+                    <div class="action-card">
+                        <span class="action-icon">💡</span>
+                        <div class="action-title">Pay Bills</div>
+                        <div class="action-subtitle">Utilities & Services</div>
+                    </div>
+
+                    <div class="action-card">
+                        <span class="action-icon">📊</span>
+                        <div class="action-title">Analytics</div>
+                        <div class="action-subtitle">Spending insights</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ai-assistant-panel">
+                <div class="ai-header">
+                    <h3>🤖 AI Assistant</h3>
+                    <div class="ai-status">
+                        <span class="status-dot"></span>
+                        Online & Ready
+                    </div>
+                </div>
+
+                <div class="ai-suggestions">
+                    <div class="ai-suggestion" onclick="handleAISuggestion('repeat')">
+                        <div class="suggestion-header">
+                            <span class="suggestion-icon">🔄</span>
+                            <span class="suggestion-title">Repeat Transfer</span>
+                        </div>
+                        <div class="suggestion-description">
+                            Send ₦50,000 to Adebayo Michael again? You did this last week.
+                        </div>
+                    </div>
+
+                    <div class="ai-suggestion" onclick="handleAISuggestion('bills')">
+                        <div class="suggestion-header">
+                            <span class="suggestion-icon">💡</span>
+                            <span class="suggestion-title">Bill Reminder</span>
+                        </div>
+                        <div class="suggestion-description">
+                            Your electricity bill is due in 3 days. Would you like me to set up payment?
+                        </div>
+                    </div>
+
+                    <div class="ai-suggestion" onclick="handleAISuggestion('budget')">
+                        <div class="suggestion-header">
+                            <span class="suggestion-icon">📊</span>
+                            <span class="suggestion-title">Budget Alert</span>
+                        </div>
+                        <div class="suggestion-description">
+                            You've spent 78% of your monthly transfer budget. Want to see details?
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="recent-activity">
+            <div class="section-header">
+                <h3>📝 Recent Activity</h3>
+                <a href="#" class="see-all">View All</a>
+            </div>
+
+            <div class="activity-list">
+                <div class="activity-item">
+                    <div class="activity-icon sent">↗️</div>
+                    <div class="activity-details">
+                        <div class="activity-title">Transfer to Adebayo Michael</div>
+                        <div class="activity-subtitle">Bank B • Account: 234...890</div>
+                        <div class="activity-time">2 hours ago</div>
+                    </div>
+                    <div class="activity-amount sent">-₦25,000</div>
+                </div>
+
+                <div class="activity-item">
+                    <div class="activity-icon received">↙️</div>
+                    <div class="activity-details">
+                        <div class="activity-title">Received from Fatima Okonkwo</div>
+                        <div class="activity-subtitle">Bank C • Salary payment</div>
+                        <div class="activity-time">1 day ago</div>
+                    </div>
+                    <div class="activity-amount received">+₦485,000</div>
+                </div>
+
+                <div class="activity-item">
+                    <div class="activity-icon sent">↗️</div>
+                    <div class="activity-details">
+                        <div class="activity-title">Electricity Bill Payment</div>
+                        <div class="activity-subtitle">EKEDC • Monthly bill</div>
+                        <div class="activity-time">2 days ago</div>
+                    </div>
+                    <div class="activity-amount sent">-₦15,750</div>
+                </div>
+
+                <div class="activity-item">
+                    <div class="activity-icon pending">⏳</div>
+                    <div class="activity-details">
+                        <div class="activity-title">Transfer to Ibrahim Yusuf</div>
+                        <div class="activity-subtitle">Bank D • Processing...</div>
+                        <div class="activity-time">3 days ago</div>
+                    </div>
+                    <div class="activity-amount pending">-₦75,000</div>
+                </div>
+
+                <div class="activity-item">
+                    <div class="activity-icon sent">↗️</div>
+                    <div class="activity-details">
+                        <div class="activity-title">Mobile Top-up</div>
+                        <div class="activity-subtitle">MTN • Data bundle</div>
+                        <div class="activity-time">4 days ago</div>
+                    </div>
+                    <div class="activity-amount sent">-₦5,000</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Search functionality
+        document.querySelector('.search-input').addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            console.log('Searching for:', query);
+            // In real app, this would filter activities or show search results
+        });
+
+        // Notification bell
+        document.querySelector('.notification-bell').addEventListener('click', function() {
+            alert('Notifications:\n• Transfer completed: ₦25,000 to Adebayo\n• Budget alert: 78% monthly limit reached\n• New recipient added: Ibrahim Yusuf');
+        });
+
+        // AI suggestions handler
+        function handleAISuggestion(type) {
+            switch(type) {
+                case 'repeat':
+                    alert('AI Assistant: I can help you send ₦50,000 to Adebayo Michael again. Would you like me to prepare the transfer?');
+                    break;
+                case 'bills':
+                    alert('AI Assistant: Your EKEDC bill is ₦15,750. I can set up automatic payment if you\'d like!');
+                    break;
+                case 'budget':
+                    alert('AI Assistant: You\'ve spent ₦932,000 out of ₦1,200,000 this month. Most spending was on transfers (68%) and bills (22%).');
+                    break;
+            }
+        }
+
+        // Quick action for showing transfer screen
+        function showTransferScreen() {
+            alert('Opening AI-Assisted Money Transfer...\n(This would navigate to the transfer screen)');
+        }
+
+        // Balance actions
+        document.querySelectorAll('.balance-action').forEach(button => {
+            button.addEventListener('click', function() {
+                const action = this.textContent.trim();
+                console.log('Balance action clicked:', action);
+                
+                if (action.includes('Send Money')) {
+                    showTransferScreen();
+                } else if (action.includes('View Details')) {
+                    alert('Account Details:\n• Account Number: 1234567890\n• Account Type: Premium Savings\n• Available: ₦2,847,250.00\n• Ledger: ₦2,847,250.00');
+                } else if (action.includes('Refresh')) {
+                    // Simulate balance refresh
+                    const balanceElement = document.querySelector('.balance-amount');
+                    balanceElement.style.opacity = '0.5';
+                    setTimeout(() => {
+                        balanceElement.textContent = '₦' + (Math.random() * 1000000 + 2000000).toLocaleString('en-NG', {minimumFractionDigits: 2});
+                        balanceElement.style.opacity = '1';
+                    }, 1000);
+                }
+            });
+        });
+
+        // User profile click
+        document.querySelector('.user-profile').addEventListener('click', function() {
+            alert('User Profile:\n• John Doe\n• john.doe@email.com\n• Premium Account\n• Member since: Jan 2023\n• Total Transfers: 1,247');
+        });
+
+        // Activity item clicks
+        document.querySelectorAll('.activity-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const title = this.querySelector('.activity-title').textContent;
+                alert(`Transaction Details:\n${title}\n\nThis would show full transaction details, receipts, and options to repeat or dispute the transaction.`);
+            });
+        });
+
+        // Simulate real-time updates
+        setInterval(() => {
+            const badge = document.querySelector('.notification-badge');
+            const currentCount = parseInt(badge.textContent);
+            if (Math.random() < 0.1) { // 10% chance every 5 seconds
+                badge.textContent = currentCount + 1;
+            }
+        }, 5000);
+
+        // Tenant switching (development feature)
+        let currentTenant = 0;
+        const tenants = ['tenant-bank-a', 'tenant-bank-b', 'tenant-bank-c'];
+        const tenantNames = ['Bank A', 'Bank B', 'Bank C'];
+        const tenantLogos = ['BA', 'BB', 'BC'];
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'T' || e.key === 't') {
+                currentTenant = (currentTenant + 1) % tenants.length;
+                document.body.className = tenants[currentTenant];
+                document.querySelector('.logo-text h1').textContent = tenantNames[currentTenant];
+                document.querySelector('.tenant-logo').textContent = tenantLogos[currentTenant];
+            }
+        });
+    </script>
+</body>
+</html>
