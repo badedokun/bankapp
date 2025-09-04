@@ -64,6 +64,7 @@ module.exports = {
     extensions: ['.web.tsx', '.web.ts', '.tsx', '.ts', '.web.jsx', '.web.js', '.jsx', '.js'],
     alias: {
       'react-native$': 'react-native-web',
+      '@react-native-async-storage/async-storage': path.resolve(appDirectory, 'src/utils/storage.ts'),
       '@': path.resolve(appDirectory, 'src'),
       '@ai': path.resolve(appDirectory, 'src/ai'),
       '@components': path.resolve(appDirectory, 'src/components'),

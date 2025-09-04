@@ -4,7 +4,7 @@
  */
 
 import { Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Storage } from '@/utils/storage';
 import { TenantConfig, TenantID } from '@/types/tenant';
 
 export enum TenantDetectionMethod {
@@ -102,11 +102,11 @@ class TenantDetector {
   }
 
   /**
-   * Detect tenant from AsyncStorage
+   * Detect tenant from Storage
    */
   private async detectFromStorage(): Promise<TenantID | null> {
     try {
-      const storedTenant = await AsyncStorage.getItem('currentTenant');
+      const storedTenant = await Storage.getItem('currentTenant');
       if (storedTenant && this.isValidTenantId(storedTenant)) {
         return storedTenant as TenantID;
       }
@@ -131,11 +131,11 @@ class TenantDetector {
   }
 
   /**
-   * Save tenant to AsyncStorage for persistence
+   * Save tenant to Storage for persistence
    */
   private async saveTenantToStorage(tenantId: TenantID): Promise<void> {
     try {
-      await AsyncStorage.setItem('currentTenant', tenantId);
+      await Storage.setItem('currentTenant', tenantId);
     } catch (error) {
       console.error('Error saving tenant to storage:', error);
     }
@@ -173,7 +173,7 @@ class TenantDetector {
    */
   async clearTenant(): Promise<void> {
     try {
-      await AsyncStorage.removeItem('currentTenant');
+      await Storage.removeItem('currentTenant');
       this.currentTenantId = 'default';
     } catch (error) {
       console.error('Error clearing tenant:', error);

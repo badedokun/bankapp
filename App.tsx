@@ -3,14 +3,17 @@
  * Main App Component
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { SafeAreaView, StatusBar, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { TenantProvider, useTenant, useTenantTheme } from '@/tenants/TenantContext';
 import LoadingScreen from '@/components/common/LoadingScreen';
+import LoginScreen from '@/screens/auth/LoginScreen';
 
 const AppContent: React.FC = () => {
   const { currentTenant, isLoading, error, switchTenant } = useTenant();
   const theme = useTenantTheme();
+  const [showDemo, setShowDemo] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   if (isLoading) {
     return <LoadingScreen />;
@@ -26,6 +29,20 @@ const AppContent: React.FC = () => {
           {error.message}
         </Text>
       </SafeAreaView>
+    );
+  }
+
+  // Show login screen if not authenticated
+  if (!isAuthenticated && !showDemo) {
+    return (
+      <LoginScreen 
+        onLogin={async (credentials) => {
+          console.log('Login attempt:', credentials);
+          // Simulate authentication
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          setIsAuthenticated(true);
+        }}
+      />
     );
   }
 
@@ -189,6 +206,24 @@ const AppContent: React.FC = () => {
               onPress={() => handleTenantSwitch('default')}
             >
               <Text style={dynamicStyles.demoButtonText}>Default</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={dynamicStyles.demoSection}>
+          <Text style={dynamicStyles.demoTitle}>Authentication Demo</Text>
+          <View style={dynamicStyles.demoButtons}>
+            <TouchableOpacity 
+              style={dynamicStyles.demoButton} 
+              onPress={() => setIsAuthenticated(false)}
+            >
+              <Text style={dynamicStyles.demoButtonText}>Show Login</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={dynamicStyles.demoButton} 
+              onPress={() => setShowDemo(true)}
+            >
+              <Text style={dynamicStyles.demoButtonText}>Show Demo</Text>
             </TouchableOpacity>
           </View>
         </View>
