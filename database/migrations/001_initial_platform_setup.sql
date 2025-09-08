@@ -15,7 +15,7 @@ CREATE SCHEMA IF NOT EXISTS audit;
 CREATE SCHEMA IF NOT EXISTS analytics;
 
 -- Set search path to include our schemas
-ALTER DATABASE orokii_money_transfer_platform SET search_path TO platform, audit, analytics, public;
+ALTER DATABASE bank_app_platform SET search_path TO platform, audit, analytics, public;
 
 -- Tenants table - Core tenant registry
 CREATE TABLE platform.tenants (
@@ -827,11 +827,25 @@ CREATE POLICY tenant_usage_isolation ON platform.tenant_usage_metrics
     USING (tenant_id = get_current_tenant_id());
 
 -- Create roles for different access levels
-CREATE ROLE pos_platform_admin;
-CREATE ROLE pos_tenant_admin;
-CREATE ROLE pos_agent;
-CREATE ROLE pos_readonly;
-CREATE ROLE pos_api_service;
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'pos_platform_admin') THEN
+        CREATE ROLE pos_platform_admin;
+    END IF;
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'pos_tenant_admin') THEN
+        CREATE ROLE pos_tenant_admin;
+    END IF;
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'pos_agent') THEN
+        CREATE ROLE pos_agent;
+    END IF;
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'pos_readonly') THEN
+        CREATE ROLE pos_readonly;
+    END IF;
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'pos_api_service') THEN
+        CREATE ROLE pos_api_service;
+    END IF;
+END
+$$;
 
 -- Grant appropriate permissions
 GRANT USAGE ON SCHEMA platform, audit, analytics TO pos_platform_admin, pos_tenant_admin, pos_agent, pos_readonly, pos_api_service;

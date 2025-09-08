@@ -111,7 +111,7 @@ export interface TenantTheme {
   };
 }
 
-export type TenantID = 'bank-a' | 'bank-b' | 'bank-c' | 'default';
+export type TenantID = 'fmfb' | 'bank-a' | 'bank-b' | 'bank-c' | 'default';
 
 export interface TenantContextValue {
   currentTenant: TenantConfig | null;

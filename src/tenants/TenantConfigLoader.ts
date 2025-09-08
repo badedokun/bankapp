@@ -7,6 +7,52 @@ import { TenantConfig, TenantID } from '@/types/tenant';
 
 // Tenant configurations (in production, these would come from a secure API)
 const tenantConfigs: Record<TenantID, TenantConfig> = {
+  'fmfb': {
+    id: 'fmfb',
+    name: 'fmfb',
+    displayName: 'Firstmidas Microfinance Bank',
+    domain: 'fmfb.orokiipay.com',
+    apiEndpoint: 'https://api.orokiipay.com/fmfb',
+    features: {
+      aiAssistant: true,
+      voiceTransfer: true,
+      biometricAuth: true,
+      offlineMode: true,
+      multiCurrency: true,
+      internationalTransfers: true,
+      bulkTransfers: true,
+      scheduledTransfers: true,
+      fraudDetection: true,
+    },
+    branding: {
+      primaryColor: '#010080',
+      secondaryColor: '#000060',
+      accentColor: '#DAA520',
+      logo: 'https://firstmidasmfb.com/wp-content/uploads/2021/01/logomidas-e1609933219910.png',
+      favicon: 'fmfb-favicon',
+      fonts: {
+        primary: 'Inter',
+        secondary: 'Roboto',
+      },
+      borderRadius: 10,
+      shadowIntensity: 0.1,
+    },
+    aiConfig: {
+      provider: 'openai',
+      models: {
+        conversational: 'gpt-4',
+        fraud: 'custom-fraud-model',
+        prediction: 'custom-prediction-model',
+      },
+      voiceSettings: {
+        enabled: true,
+        language: 'en-NG',
+        accent: 'nigerian',
+      },
+    },
+    languages: ['en', 'yo', 'ha', 'ig', 'pcm'],
+    defaultLanguage: 'en',
+  },
   'bank-a': {
     id: 'bank-a',
     name: 'bank-a',

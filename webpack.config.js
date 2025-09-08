@@ -78,6 +78,12 @@ module.exports = {
       '@tenants': path.resolve(appDirectory, 'src/tenants'),
       '@navigation': path.resolve(appDirectory, 'src/navigation'),
     },
+    fallback: {
+      "crypto": false,
+      "fs": false,
+      "path": require.resolve("path-browserify"),
+      "process": require.resolve("process/browser"),
+    }
   },
   module: {
     rules: [
@@ -100,6 +106,12 @@ module.exports = {
       'process.env.TENANT_DETECTION_METHOD': JSON.stringify(
         process.env.TENANT_DETECTION_METHOD || 'subdomain'
       ),
+      'process.env.DEPLOYMENT_TYPE': JSON.stringify(
+        process.env.DEPLOYMENT_TYPE || 'development'
+      ),
+    }),
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
     }),
   ],
   devServer: {
@@ -110,6 +122,18 @@ module.exports = {
     port: 3000,
     hot: true,
     historyApiFallback: true,
-    open: true,
+    open: false,
+    allowedHosts: [
+      'localhost',
+      '.orokii.com',
+      'orokii.com',
+      'fmfb.orokii.com',
+      '.localhost'
+    ],
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+      'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization'
+    }
   },
 };

@@ -6,8 +6,11 @@
 import { Platform } from 'react-native';
 import { Storage } from '@/utils/storage';
 import { TenantConfig, TenantID } from '@/types/tenant';
+import JWTManager from '@/utils/jwt';
+import DeploymentManager from '@/config/deployment';
 
 export enum TenantDetectionMethod {
+  JWT_TOKEN = 'jwt_token',
   SUBDOMAIN = 'subdomain',
   QUERY_PARAM = 'query',
   HEADER = 'header',
@@ -18,8 +21,8 @@ export enum TenantDetectionMethod {
 
 class TenantDetector {
   private static instance: TenantDetector;
-  private currentTenantId: TenantID = 'default';
-  private detectionMethod: TenantDetectionMethod = TenantDetectionMethod.SUBDOMAIN;
+  private currentTenantId: TenantID | null = null;
+  private detectionMethod: TenantDetectionMethod = TenantDetectionMethod.JWT_TOKEN;
 
   private constructor() {}
 
@@ -36,18 +39,42 @@ class TenantDetector {
   async detectTenant(): Promise<TenantID> {
     try {
       // Try multiple detection methods in order of priority
-      let tenantId = await this.detectFromStorage();
+      let tenantId: string | null = null;
       
+      // 1. First priority: JWT token (most secure)
+      tenantId = await this.detectFromJWT();
+      
+      // 2. Second priority: Web environment detection
       if (!tenantId && Platform.OS === 'web') {
         tenantId = this.detectFromWeb();
       }
       
+      // 3. Third priority: Stored tenant (for offline scenarios)
+      if (!tenantId) {
+        tenantId = await this.detectFromStorage();
+      }
+      
+      // 4. Last resort: Configuration/environment
       if (!tenantId) {
         tenantId = await this.detectFromConfig();
       }
-      
+
+      // 5. Deployment-specific default (maintains multi-tenancy)
       if (!tenantId) {
-        tenantId = 'default';
+        const deploymentConfig = DeploymentManager.getConfig();
+        if (deploymentConfig.defaultTenant && this.isValidTenantId(deploymentConfig.defaultTenant)) {
+          tenantId = deploymentConfig.defaultTenant;
+        }
+      }
+      
+      // If no tenant detected, throw error instead of defaulting
+      if (!tenantId) {
+        throw new Error('No valid tenant could be detected. Please authenticate or provide tenant information.');
+      }
+
+      // Validate tenant is allowed in this deployment
+      if (!DeploymentManager.isTenantAllowed(tenantId)) {
+        throw new Error(`Tenant '${tenantId}' is not allowed in this deployment.`);
       }
       
       this.currentTenantId = tenantId as TenantID;
@@ -56,7 +83,39 @@ class TenantDetector {
       return this.currentTenantId;
     } catch (error) {
       console.error('Error detecting tenant:', error);
-      return 'default';
+      // Only fallback to default in development mode
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Development mode: Falling back to default tenant');
+        this.currentTenantId = 'default';
+        return this.currentTenantId;
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Detect tenant from JWT token (highest priority)
+   */
+  private async detectFromJWT(): Promise<TenantID | null> {
+    try {
+      // First, try to get tenant from stored JWT token
+      const tenantFromToken = await JWTManager.getTenantFromStoredToken();
+      if (tenantFromToken && this.isValidTenantId(tenantFromToken)) {
+        return tenantFromToken as TenantID;
+      }
+
+      // Second, try to get from auth header (web only)
+      if (Platform.OS === 'web') {
+        const tenantFromHeader = JWTManager.extractTenantFromAuthHeader();
+        if (tenantFromHeader && this.isValidTenantId(tenantFromHeader)) {
+          return tenantFromHeader as TenantID;
+        }
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error detecting tenant from JWT:', error);
+      return null;
     }
   }
 
@@ -82,6 +141,11 @@ class TenantDetector {
         if (this.isValidTenantId(subdomain)) {
           return subdomain as TenantID;
         }
+      }
+
+      // Special case for FMFB production deployment
+      if (hostname.includes('firstmidas') || hostname.includes('fmfb') || hostname === 'fmfb.orokii.com') {
+        return 'fmfb';
       }
 
       // Check path
@@ -145,14 +209,14 @@ class TenantDetector {
    * Validate if a tenant ID is valid
    */
   private isValidTenantId(tenantId: string): boolean {
-    const validTenants: TenantID[] = ['bank-a', 'bank-b', 'bank-c', 'default'];
+    const validTenants: TenantID[] = ['fmfb', 'bank-a', 'bank-b', 'bank-c', 'default'];
     return validTenants.includes(tenantId as TenantID);
   }
 
   /**
    * Get current tenant ID
    */
-  getCurrentTenantId(): TenantID {
+  getCurrentTenantId(): TenantID | null {
     return this.currentTenantId;
   }
 
@@ -174,7 +238,8 @@ class TenantDetector {
   async clearTenant(): Promise<void> {
     try {
       await Storage.removeItem('currentTenant');
-      this.currentTenantId = 'default';
+      await JWTManager.clearTokens();
+      this.currentTenantId = null;
     } catch (error) {
       console.error('Error clearing tenant:', error);
     }

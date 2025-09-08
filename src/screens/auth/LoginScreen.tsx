@@ -3,7 +3,7 @@
  * Multi-tenant login with comprehensive security features
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -15,11 +15,15 @@ import {
   Alert,
   Platform,
   Dimensions,
+  Image,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { useTenant, useTenantTheme, useTenantBranding } from '@/tenants/TenantContext';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import { SecurityMonitor, SecurityConfig } from '@/utils/security';
+import APIService from '@/services/api';
+import DeploymentManager from '@/config/deployment';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -45,6 +49,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   const { currentTenant, isLoading } = useTenant();
   const theme = useTenantTheme();
   const branding = useTenantBranding();
+  const deploymentBranding = DeploymentManager.getDeploymentBranding();
 
   // Form state with security validation
   const [formData, setFormData] = useState<LoginFormData>({
@@ -58,6 +63,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   const [loginAttempts, setLoginAttempts] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState<'weak' | 'medium' | 'strong'>('weak');
+  
+  // Refs for input fields
+  const passwordInputRef = useRef<any>(null);
 
   // Security monitoring
   useEffect(() => {
@@ -120,32 +128,79 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
       setIsSubmitting(true);
       
       if (onLogin) {
+        // Use custom login handler if provided
         await onLogin(formData);
-        // Reset attempts on successful login
         SecurityMonitor.resetLoginAttempts(formData.email);
       } else {
-        // Demo login logic
-        console.log('Login attempted with:', {
+        // Use API service for authentication
+        console.log('Attempting API login with:', {
           tenant: currentTenant?.id,
           email: formData.email,
           timestamp: new Date().toISOString(),
         });
         
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        const loginResponse = await APIService.login({
+          email: formData.email,
+          password: formData.password,
+          tenantId: currentTenant?.id,
+          deviceInfo: {
+            rememberMe: formData.rememberMe,
+            platform: Platform.OS,
+            screenSize: `${screenWidth}x${Dimensions.get('window').height}`,
+          }
+        });
         
-        Alert.alert('Login Successful', `Welcome to ${currentTenant?.displayName}!`);
+        // Reset attempts on successful login
+        SecurityMonitor.resetLoginAttempts(formData.email);
+        
+        Alert.alert(
+          'Login Successful',
+          `Welcome back, ${loginResponse.user.firstName}! You have ${loginResponse.user.wallet?.availableBalance ? `₦${loginResponse.user.wallet.availableBalance}` : '₦0'} available.`,
+          [
+            {
+              text: 'Continue',
+              onPress: () => {
+                console.log('Login successful, user data:', {
+                  id: loginResponse.user.id,
+                  name: `${loginResponse.user.firstName} ${loginResponse.user.lastName}`,
+                  tenant: loginResponse.user.tenant.displayName,
+                  balance: loginResponse.user.wallet?.availableBalance
+                });
+                
+                // Navigate to main app (would be handled by navigation prop)
+                if (navigation) {
+                  navigation.replace('MainApp');
+                }
+              }
+            }
+          ]
+        );
       }
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
       setLoginAttempts(prev => prev + 1);
       
-      Alert.alert(
-        'Login Failed',
-        'Invalid email or password. Please try again.',
-        [{ text: 'OK' }]
-      );
+      // Handle different error types
+      let errorMessage = 'Invalid email or password. Please try again.';
+      let errorTitle = 'Login Failed';
+      
+      if (error?.message) {
+        if (error.message.includes('Account locked') || error.message.includes('too many')) {
+          errorTitle = 'Account Locked';
+          errorMessage = 'Too many failed attempts. Please try again later or contact support.';
+        } else if (error.message.includes('Account is inactive') || error.message.includes('suspended')) {
+          errorTitle = 'Account Inactive';
+          errorMessage = 'Your account is currently inactive. Please contact support.';
+        } else if (error.message.includes('Server is not accessible')) {
+          errorTitle = 'Connection Error';
+          errorMessage = 'Unable to connect to server. Please check your internet connection.';
+        } else if (error.message.includes('Invalid credentials')) {
+          errorMessage = 'The email or password you entered is incorrect. Please try again.';
+        }
+      }
+      
+      Alert.alert(errorTitle, errorMessage, [{ text: 'OK' }]);
     } finally {
       setIsSubmitting(false);
     }
@@ -218,11 +273,17 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
       justifyContent: 'center',
       alignItems: 'center',
       marginBottom: theme.spacing.md,
+      overflow: 'hidden',
     },
     tenantLogoText: {
       fontSize: theme.typography.sizes.xxxl,
       fontWeight: theme.typography.weights.bold as any,
       color: '#ffffff',
+    },
+    tenantLogoImage: {
+      width: 60,
+      height: 60,
+      borderRadius: 30,
     },
     tenantName: {
       fontSize: theme.typography.sizes.xl,
@@ -363,16 +424,28 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         <View style={styles.loginCard}>
           {/* Tenant Header */}
           <View style={styles.tenantHeader}>
-            <View style={styles.tenantLogo}>
-              <Text style={styles.tenantLogoText}>
-                {getTenantLogoInitials()}
-              </Text>
+            <View style={[
+              styles.tenantLogo,
+              currentTenant?.id === 'fmfb' && { backgroundColor: '#FFFFFF' }
+            ]}>
+              {currentTenant?.id === 'fmfb' ? (
+                <Image 
+                  source={{ uri: `http://localhost:3001/api/tenants/by-name/fmfb/assets/logo/default` }}
+                  style={styles.tenantLogoImage}
+                  resizeMode="contain"
+                  onError={() => console.log('Failed to load FMFB logo, falling back to initials')}
+                />
+              ) : (
+                <Text style={styles.tenantLogoText}>
+                  {getTenantLogoInitials()}
+                </Text>
+              )}
             </View>
             <Text style={styles.tenantName}>
-              {currentTenant?.displayName || 'OrokiiPay'}
+              {currentTenant?.displayName || deploymentBranding.loginPageTitle}
             </Text>
             <Text style={styles.tenantSubtitle}>
-              Secure Money Transfer
+              {currentTenant ? 'Secure Money Transfer' : 'AI-Enhanced Banking Platform'}
             </Text>
           </View>
 
@@ -394,9 +467,15 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                 onChangeText={(text) => handleFieldChange('email', text)}
                 onValidationChange={handleEmailValidation}
                 enableSecurityValidation={true}
+                returnKeyType="next"
+                onSubmitEditing={() => {
+                  // Focus password field when enter is pressed
+                  passwordInputRef.current?.focus();
+                }}
               />
 
               <Input
+                ref={passwordInputRef}
                 label="Password"
                 placeholder="Enter your password"
                 validationType="password"
@@ -406,6 +485,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                 onChangeText={(text) => handleFieldChange('password', text)}
                 onValidationChange={handlePasswordValidation}
                 enableSecurityValidation={true}
+                returnKeyType="done"
+                onSubmitEditing={handleSubmit}
                 rightIcon={
                   <Text style={{ fontSize: 18 }}>
                     {showPassword ? '🙈' : '👁️'}
