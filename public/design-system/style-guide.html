@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrokiiPay - Design System Style Guide</title>
+    <link rel="stylesheet" href="orokii-pay-theme.css">
+    <style>
+        .style-guide {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .section {
+            margin-bottom: 3rem;
+            padding-bottom: 3rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+        
+        .section:last-child {
+            border-bottom: none;
+        }
+        
+        .component-showcase {
+            display: grid;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .component-group {
+            padding: 2rem;
+            background: var(--color-neutral-50);
+            border-radius: var(--border-radius-lg);
+            border: 1px solid var(--border-light);
+        }
+        
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .color-swatch {
+            text-align: center;
+            border-radius: var(--border-radius-md);
+            overflow: hidden;
+            border: 1px solid var(--border-light);
+        }
+        
+        .color-block {
+            height: 60px;
+            width: 100%;
+        }
+        
+        .color-info {
+            padding: 0.75rem;
+            background: white;
+        }
+        
+        .typography-showcase h1,
+        .typography-showcase h2,
+        .typography-showcase h3,
+        .typography-showcase h4,
+        .typography-showcase p {
+            margin-bottom: 1rem;
+        }
+        
+        .spacing-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .spacing-item {
+            text-align: center;
+        }
+        
+        .spacing-box {
+            margin: 0 auto 0.5rem auto;
+            background: var(--color-primary-200);
+        }
+        
+        .demo-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .demo-inputs {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1rem;
+            max-width: 400px;
+        }
+        
+        .demo-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .demo-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .demo-avatars {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .code-block {
+            background: var(--color-neutral-900);
+            color: var(--color-neutral-100);
+            padding: 1rem;
+            border-radius: var(--border-radius-md);
+            font-family: var(--font-family-mono);
+            font-size: var(--font-size-sm);
+            overflow-x: auto;
+            margin-top: 0.5rem;
+        }
+        
+        .tenant-theme-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--color-neutral-100);
+            border-radius: var(--border-radius-md);
+        }
+        
+        .banking-demo {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="style-guide">
+        <header class="section">
+            <h1 class="orokii-text-3xl orokii-font-bold">OrokiiPay Design System</h1>
+            <p class="orokii-text-lg orokii-text-secondary orokii-mt-2">
+                Comprehensive design system for multi-tenant banking platform
+            </p>
+            
+            <div class="tenant-theme-selector">
+                <label class="orokii-font-medium">Theme Preview:</label>
+                <button class="orokii-btn orokii-btn--sm orokii-btn--outline" onclick="switchTheme('default')">Default</button>
+                <button class="orokii-btn orokii-btn--sm orokii-btn--outline" onclick="switchTheme('fmfb')">FMFB</button>
+                <button class="orokii-btn orokii-btn--sm orokii-btn--outline" onclick="switchTheme('demo')">Demo Bank</button>
+            </div>
+        </header>
+
+        <!-- Colors -->
+        <section class="section">
+            <h2 class="orokii-text-2xl orokii-font-semibold">Colors</h2>
+            <p class="orokii-text-secondary">Multi-tenant color system with primary, secondary, neutral, and semantic colors.</p>
+            
+            <h3 class="orokii-text-xl orokii-font-medium orokii-mt-6 orokii-mb-3">Primary Colors</h3>
+            <div class="color-palette">
+                <div class="color-swatch">
+                    <div class="color-block" style="background-color: var(--color-primary-500);"></div>
+                    <div class="color-info">
+                        <div class="orokii-font-semibold">Primary</div>
+                        <div class="orokii-text-sm orokii-text-secondary">#667eea</div>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-block" style="background-color: var(--color-secondary-500);"></div>
+                    <div class="color-info">
+                        <div class="orokii-font-semibold">Secondary</div>
+                        <div class="orokii-text-sm orokii-text-secondary">#764ba2</div>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-block" style="background-color: var(--color-success-500);"></div>
+                    <div class="color-info">
+                        <div class="orokii-font-semibold">Success</div>
+                        <div class="orokii-text-sm orokii-text-secondary">#10b981</div>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-block" style="background-color: var(--color-warning-500);"></div>
+                    <div class="color-info">
+                        <div class="orokii-font-semibold">Warning</div>
+                        <div class="orokii-text-sm orokii-text-secondary">#f59e0b</div>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-block" style="background-color: var(--color-error-500);"></div>
+                    <div class="color-info">
+                        <div class="orokii-font-semibold">Error</div>
+                        <div class="orokii-text-sm orokii-text-secondary">#ef4444</div>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-block" style="background-color: var(--color-info-500);"></div>
+                    <div class="color-info">
+                        <div class="orokii-font-semibold">Info</div>
+                        <div class="orokii-text-sm orokii-text-secondary">#3b82f6</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Typography -->
+        <section class="section">
+            <h2 class="orokii-text-2xl orokii-font-semibold">Typography</h2>
+            <p class="orokii-text-secondary">Consistent typography scale using system fonts for optimal performance.</p>
+            
+            <div class="typography-showcase orokii-mt-6">
+                <h1 class="orokii-text-5xl orokii-font-bold">Heading 1 (48px)</h1>
+                <h2 class="orokii-text-3xl orokii-font-bold">Heading 2 (30px)</h2>
+                <h3 class="orokii-text-2xl orokii-font-semibold">Heading 3 (24px)</h3>
+                <h4 class="orokii-text-xl orokii-font-semibold">Heading 4 (20px)</h4>
+                <p class="orokii-text-lg">Large text (18px) - Used for important information and subtitles.</p>
+                <p class="orokii-text-base">Base text (16px) - Default body text size for optimal readability.</p>
+                <p class="orokii-text-sm orokii-text-secondary">Small text (14px) - Used for secondary information and captions.</p>
+                <p class="orokii-text-xs orokii-text-tertiary">Extra small (12px) - Used for fine print and legal text.</p>
+            </div>
+        </section>
+
+        <!-- Spacing -->
+        <section class="section">
+            <h2 class="orokii-text-2xl orokii-font-semibold">Spacing</h2>
+            <p class="orokii-text-secondary">Consistent 4px base spacing system for layouts and components.</p>
+            
+            <div class="spacing-demo">
+                <div class="spacing-item">
+                    <div class="spacing-box" style="width: 4px; height: 4px;"></div>
+                    <div class="orokii-text-sm">1 (4px)</div>
+                </div>
+                <div class="spacing-item">
+                    <div class="spacing-box" style="width: 8px; height: 8px;"></div>
+                    <div class="orokii-text-sm">2 (8px)</div>
+                </div>
+                <div class="spacing-item">
+                    <div class="spacing-box" style="width: 16px; height: 16px;"></div>
+                    <div class="orokii-text-sm">4 (16px)</div>
+                </div>
+                <div class="spacing-item">
+                    <div class="spacing-box" style="width: 24px; height: 24px;"></div>
+                    <div class="orokii-text-sm">6 (24px)</div>
+                </div>
+                <div class="spacing-item">
+                    <div class="spacing-box" style="width: 32px; height: 32px;"></div>
+                    <div class="orokii-text-sm">8 (32px)</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Buttons -->
+        <section class="section">
+            <h2 class="orokii-text-2xl orokii-font-semibold">Buttons</h2>
+            <p class="orokii-text-secondary">Interactive button components with multiple variants and sizes.</p>
+            
+            <div class="component-showcase">
+                <div class="component-group">
+                    <h3 class="orokii-text-lg orokii-font-medium orokii-mb-4">Button Variants</h3>
+                    <div class="demo-buttons">
+                        <button class="orokii-btn orokii-btn--md orokii-btn--primary">Primary</button>
+                        <button class="orokii-btn orokii-btn--md orokii-btn--secondary">Secondary</button>
+                        <button class="orokii-btn orokii-btn--md orokii-btn--outline">Outline</button>
+                        <button class="orokii-btn orokii-btn--md orokii-btn--ghost">Ghost</button>
+                        <button class="orokii-btn orokii-btn--md orokii-btn--danger">Danger</button>
+                    </div>
+                    <div class="code-block">
+&lt;button class="orokii-btn orokii-btn--md orokii-btn--primary"&gt;Primary&lt;/button&gt;</div>
+                </div>
+                
+                <div class="component-group">
+                    <h3 class="orokii-text-lg orokii-font-medium orokii-mb-4">Button Sizes</h3>
+                    <div class="demo-buttons">
+                        <button class="orokii-btn orokii-btn--sm orokii-btn--primary">Small</button>
+                        <button class="orokii-btn orokii-btn--md orokii-btn--primary">Medium</button>
+                        <button class="orokii-btn orokii-btn--lg orokii-btn--primary">Large</button>
+                        <button class="orokii-btn orokii-btn--xl orokii-btn--primary">Extra Large</button>
+                    </div>
+                </div>
+                
+                <div class="component-group">
+                    <h3 class="orokii-text-lg orokii-font-medium orokii-mb-4">Full Width Button</h3>
+                    <button class="orokii-btn orokii-btn--md orokii-btn--primary orokii-btn--full-width">Full Width Button</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Inputs -->
+        <section class="section">
+            <h2 class="orokii-text-2xl orokii-font-semibold">Inputs</h2>
+            <p class="orokii-text-secondary">Form input components with validation states.</p>
+            
+            <div class="component-showcase">
+                <div class="component-group">
+                    <h3 class="orokii-text-lg orokii-font-medium orokii-mb-4">Input Sizes & States</h3>
+                    <div class="demo-inputs">
+                        <div>
+                            <label class="orokii-text-sm orokii-font-medium orokii-text-secondary orokii-mb-1" style="display: block;">Small Input</label>
+                            <input type="text" class="orokii-input orokii-input--sm" placeholder="Small input field">
+                        </div>
+                        <div>
+                            <label class="orokii-text-sm orokii-font-medium orokii-text-secondary orokii-mb-1" style="display: block;">Medium Input (Default)</label>
+                            <input type="text" class="orokii-input orokii-input--md" placeholder="Default input field">
+                        </div>
+                        <div>
+                            <label class="orokii-text-sm orokii-font-medium orokii-text-secondary orokii-mb-1" style="display: block;">Large Input</label>
+                            <input type="text" class="orokii-input orokii-input--lg" placeholder="Large input field">
+                        </div>
+                        <div>
+                            <label class="orokii-text-sm orokii-font-medium orokii-text-secondary orokii-mb-1" style="display: block;">Error State</label>
+                            <input type="text" class="orokii-input orokii-input--md orokii-input--error" value="Invalid email address">
+                            <div class="orokii-text-sm" style="color: var(--color-error-500); margin-top: 4px;">Please enter a valid email address</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cards -->
+        <section class="section">
+            <h2 class="orokii-text-2xl orokii-font-semibold">Cards</h2>
+            <p class="orokii-text-secondary">Container components for content organization.</p>
+            
+            <div class="component-showcase">
+                <div class="demo-cards">
+                    <div class="orokii-card orokii-card--md">
+                        <div class="orokii-card__header">
+                            <div class="orokii-card__title">Basic Card</div>
+                            <div class="orokii-card__subtitle">Simple card with header and content</div>
+                        </div>
+                        <p>This is a basic card component with consistent padding and styling.</p>
+                    </div>
+                    
+                    <div class="orokii-card orokii-card--lg">
+                        <div class="orokii-card__header">
+                            <div class="orokii-card__title">Account Balance</div>
+                            <div class="orokii-card__subtitle">Current account</div>
+                        </div>
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--color-primary-500); margin: 1rem 0;">₦1,250,000.00</div>
+                        <div class="orokii-card__footer">
+                            <button class="orokii-btn orokii-btn--sm orokii-btn--primary">Transfer Money</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Badges -->
+        <section class="section">
+            <h2 class="orokii-text-2xl orokii-font-semibold">Badges</h2>
+            <p class="orokii-text-secondary">Status indicators and labels for various states.</p>
+            
+            <div class="component-showcase">
+                <div class="component-group">
+                    <h3 class="orokii-text-lg orokii-font-medium orokii-mb-4">Badge Variants</h3>
+                    <div class="demo-badges">
+                        <span class="orokii-badge orokii-badge--md orokii-badge--success">Success</span>
+                        <span class="orokii-badge orokii-badge--md orokii-badge--warning">Warning</span>
+                        <span class="orokii-badge orokii-badge--md orokii-badge--error">Error</span>
+                        <span class="orokii-badge orokii-badge--md orokii-badge--info">Info</span>
+                        <span class="orokii-badge orokii-badge--md orokii-badge--neutral">Neutral</span>
+                    </div>
+                </div>
+                
+                <div class="component-group">
+                    <h3 class="orokii-text-lg orokii-font-medium orokii-mb-4">Badge Sizes</h3>
+                    <div class="demo-badges">
+                        <span class="orokii-badge orokii-badge--sm orokii-badge--success">Small</span>
+                        <span class="orokii-badge orokii-badge--md orokii-badge--success">Medium</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Avatars -->
+        <section class="section">
+            <h2 class="orokii-text-2xl orokii-font-semibold">Avatars</h2>
+            <p class="orokii-text-secondary">User representation components with multiple sizes and fallbacks.</p>
+            
+            <div class="component-showcase">
+                <div class="component-group">
+                    <h3 class="orokii-text-lg orokii-font-medium orokii-mb-4">Avatar Sizes</h3>
+                    <div class="demo-avatars">
+                        <div class="orokii-avatar orokii-avatar--sm">
+                            <div class="orokii-avatar__fallback">JS</div>
+                        </div>
+                        <div class="orokii-avatar orokii-avatar--md">
+                            <div class="orokii-avatar__fallback">JS</div>
+                        </div>
+                        <div class="orokii-avatar orokii-avatar--lg">
+                            <div class="orokii-avatar__fallback">JS</div>
+                        </div>
+                        <div class="orokii-avatar orokii-avatar--xl">
+                            <div class="orokii-avatar__fallback">JS</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="component-group">
+                    <h3 class="orokii-text-lg orokii-font-medium orokii-mb-4">Square Avatars</h3>
+                    <div class="demo-avatars">
+                        <div class="orokii-avatar orokii-avatar--sm orokii-avatar--square">
+                            <div class="orokii-avatar__fallback">AB</div>
+                        </div>
+                        <div class="orokii-avatar orokii-avatar--md orokii-avatar--square">
+                            <div class="orokii-avatar__fallback">AB</div>
+                        </div>
+                        <div class="orokii-avatar orokii-avatar--lg orokii-avatar--square">
+                            <div class="orokii-avatar__fallback">AB</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Banking Components -->
+        <section class="section">
+            <h2 class="orokii-text-2xl orokii-font-semibold">Banking Components</h2>
+            <p class="orokii-text-secondary">Specialized components for banking and financial applications.</p>
+            
+            <div class="component-showcase">
+                <div class="component-group">
+                    <h3 class="orokii-text-lg orokii-font-medium orokii-mb-4">Transaction Items</h3>
+                    <div class="banking-demo">
+                        <div class="orokii-transaction-item">
+                            <div class="orokii-transaction-item__icon orokii-transaction-item__icon--received">
+                                <span>💰</span>
+                            </div>
+                            <div class="orokii-transaction-item__content">
+                                <div class="orokii-transaction-item__title">Payment Received</div>
+                                <div class="orokii-transaction-item__subtitle">From John Doe • 2:30 PM</div>
+                            </div>
+                            <div class="orokii-transaction-item__amount orokii-transaction-item__amount--received">+₦50,000</div>
+                        </div>
+                        
+                        <div class="orokii-transaction-item">
+                            <div class="orokii-transaction-item__icon orokii-transaction-item__icon--sent">
+                                <span>📤</span>
+                            </div>
+                            <div class="orokii-transaction-item__content">
+                                <div class="orokii-transaction-item__title">Money Sent</div>
+                                <div class="orokii-transaction-item__subtitle">To Alice Smith • 1:15 PM</div>
+                            </div>
+                            <div class="orokii-transaction-item__amount orokii-transaction-item__amount--sent">-₦25,000</div>
+                        </div>
+                        
+                        <div class="orokii-transaction-item">
+                            <div class="orokii-transaction-item__icon orokii-transaction-item__icon--pending">
+                                <span>⏳</span>
+                            </div>
+                            <div class="orokii-transaction-item__content">
+                                <div class="orokii-transaction-item__title">Transfer Pending</div>
+                                <div class="orokii-transaction-item__subtitle">To Bob Johnson • 12:45 PM</div>
+                            </div>
+                            <div class="orokii-transaction-item__amount orokii-transaction-item__amount--pending">-₦15,000</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Integration Guide -->
+        <section class="section">
+            <h2 class="orokii-text-2xl orokii-font-semibold">Integration Guide</h2>
+            <p class="orokii-text-secondary">How to use the design system in your projects.</p>
+            
+            <div class="component-showcase">
+                <div class="component-group">
+                    <h3 class="orokii-text-lg orokii-font-medium orokii-mb-4">HTML/CSS Usage</h3>
+                    <p class="orokii-mb-4">Include the CSS file and use the component classes:</p>
+                    <div class="code-block">
+&lt;link rel="stylesheet" href="orokii-pay-theme.css"&gt;
+
+&lt;button class="orokii-btn orokii-btn--md orokii-btn--primary"&gt;
+  Primary Button
+&lt;/button&gt;
+
+&lt;div class="orokii-card orokii-card--md"&gt;
+  &lt;div class="orokii-card__header"&gt;
+    &lt;div class="orokii-card__title"&gt;Card Title&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;p&gt;Card content goes here.&lt;/p&gt;
+&lt;/div&gt;</div>
+                </div>
+                
+                <div class="component-group">
+                    <h3 class="orokii-text-lg orokii-font-medium orokii-mb-4">React Native Usage</h3>
+                    <p class="orokii-mb-4">Import and use the design system functions:</p>
+                    <div class="code-block">
+import { createButtonStyles, defaultThemes } from '@/design-system';
+
+const theme = defaultThemes.orokiiPay;
+const buttonStyles = createButtonStyles(theme, {
+  variant: 'primary',
+  size: 'md'
+});
+
+&lt;TouchableOpacity style={buttonStyles.container}&gt;
+  &lt;Text style={buttonStyles.text}&gt;Primary Button&lt;/Text&gt;
+&lt;/TouchableOpacity&gt;</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        function switchTheme(themeName) {
+            const root = document.documentElement;
+            
+            const themes = {
+                default: {
+                    primary: '#667eea',
+                    secondary: '#764ba2'
+                },
+                fmfb: {
+                    primary: '#1a365d',
+                    secondary: '#2d5a87'
+                },
+                demo: {
+                    primary: '#059669',
+                    secondary: '#047857'
+                }
+            };
+            
+            if (themes[themeName]) {
+                root.style.setProperty('--color-primary-500', themes[themeName].primary);
+                root.style.setProperty('--color-secondary-500', themes[themeName].secondary);
+                root.style.setProperty('--border-focus', themes[themeName].primary);
+                
+                // Update gradient
+                const gradient = `linear-gradient(135deg, ${themes[themeName].primary} 0%, ${themes[themeName].secondary} 100%)`;
+                root.style.setProperty('--gradient-primary', gradient);
+            }
+        }
+    </script>
+</body>
+</html>

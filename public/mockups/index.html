@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrokiiPay - Registration Flow Mockups</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            color: #6b7280;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        
+        .intro {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .intro h3 {
+            color: #374151;
+            margin-bottom: 10px;
+        }
+        
+        .intro p {
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        
+        .flow-steps {
+            margin-bottom: 40px;
+        }
+        
+        .flow-steps h3 {
+            color: #374151;
+            margin-bottom: 20px;
+        }
+        
+        .step-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .step-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .step-title {
+            color: #374151;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .step-description {
+            color: #6b7280;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .step-features {
+            list-style: none;
+            margin-bottom: 15px;
+        }
+        
+        .step-features li {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 5px;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .step-features li::before {
+            content: "✓";
+            color: #10b981;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+        
+        .view-page-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .view-page-btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .api-info {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .api-info h3 {
+            color: #1e40af;
+            margin-bottom: 15px;
+        }
+        
+        .api-endpoint {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 5px 0;
+            overflow-x: auto;
+        }
+        
+        .method {
+            color: #10b981;
+            font-weight: bold;
+        }
+        
+        .method.post {
+            color: #f59e0b;
+        }
+        
+        .method.get {
+            color: #10b981;
+        }
+        
+        .tech-stack {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .tech-stack h3 {
+            color: #374151;
+            margin-bottom: 15px;
+        }
+        
+        .tech-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .tech-item {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .tech-item strong {
+            color: #374151;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .tech-item span {
+            color: #6b7280;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>OrokiiPay</h1>
+            <p>Multi-Tenant Banking Platform - Registration Flow Mockups</p>
+        </div>
+        
+        <div class="intro">
+            <h3>Complete User Registration & KYC System</h3>
+            <p>This demonstration showcases a comprehensive user onboarding system with Know Your Customer (KYC) compliance for multi-tenant banking applications.</p>
+            <p><strong>Backend API:</strong> http://localhost:3001/api/registration/</p>
+            <p><strong>Current Tenant:</strong> First Midas Microfinance Bank (fmfb)</p>
+        </div>
+        
+        <div class="flow-steps">
+            <h3>Registration Flow</h3>
+            
+            <div class="step-card" onclick="window.open('registration-start.html', '_blank')">
+                <div class="step-header">
+                    <div class="step-number">1</div>
+                    <div class="step-title">Account Creation</div>
+                </div>
+                <div class="step-description">
+                    Initial registration with personal information, email, and phone number verification setup.
+                </div>
+                <ul class="step-features">
+                    <li>Personal information collection (name, date of birth)</li>
+                    <li>Email and phone number validation</li>
+                    <li>Strong password requirements</li>
+                    <li>Terms and conditions acceptance</li>
+                    <li>Real-time form validation</li>
+                </ul>
+                <a href="registration-start.html" class="view-page-btn">View Page</a>
+            </div>
+            
+            <div class="step-card" onclick="window.open('verification.html', '_blank')">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <div class="step-title">Contact Verification</div>
+                </div>
+                <div class="step-description">
+                    Two-factor verification using email tokens and SMS codes to confirm user identity.
+                </div>
+                <ul class="step-features">
+                    <li>Email verification with secure tokens</li>
+                    <li>SMS verification with 6-digit codes</li>
+                    <li>Resend functionality for failed attempts</li>
+                    <li>Progress tracking and visual feedback</li>
+                    <li>Session management with localStorage</li>
+                </ul>
+                <a href="verification.html" class="view-page-btn">View Page</a>
+            </div>
+            
+            <div class="step-card" onclick="window.open('personal-details.html', '_blank')">
+                <div class="step-header">
+                    <div class="step-number">3</div>
+                    <div class="step-title">Personal Details</div>
+                </div>
+                <div class="step-description">
+                    Comprehensive profile completion with address, employment, and Nigerian banking identifiers.
+                </div>
+                <ul class="step-features">
+                    <li>Complete address information with Nigerian states</li>
+                    <li>Employment and income details</li>
+                    <li>BVN (Bank Verification Number) integration</li>
+                    <li>NIN (National Identity Number) support</li>
+                    <li>Real-time validation for Nigerian banking standards</li>
+                </ul>
+                <a href="personal-details.html" class="view-page-btn">View Page</a>
+            </div>
+            
+            <div class="step-card" onclick="window.open('kyc-documents.html', '_blank')">
+                <div class="step-header">
+                    <div class="step-number">4</div>
+                    <div class="step-title">KYC Documents</div>
+                </div>
+                <div class="step-description">
+                    Secure document upload system for regulatory compliance with drag-and-drop functionality.
+                </div>
+                <ul class="step-features">
+                    <li>Government ID document upload</li>
+                    <li>Proof of address verification</li>
+                    <li>Selfie with ID for biometric matching</li>
+                    <li>Signature sample collection</li>
+                    <li>Drag-and-drop file uploads with validation</li>
+                </ul>
+                <a href="kyc-documents.html" class="view-page-btn">View Page</a>
+            </div>
+            
+            <div class="step-card" onclick="window.open('registration-complete.html', '_blank')">
+                <div class="step-header">
+                    <div class="step-number">5</div>
+                    <div class="step-title">Completion & Success</div>
+                </div>
+                <div class="step-description">
+                    Registration confirmation with next steps, account status, and onboarding guidance.
+                </div>
+                <ul class="step-features">
+                    <li>Registration success confirmation</li>
+                    <li>Account status overview</li>
+                    <li>KYC processing timeline</li>
+                    <li>Next steps and guidance</li>
+                    <li>Support information and contacts</li>
+                </ul>
+                <a href="registration-complete.html" class="view-page-btn">View Page</a>
+            </div>
+        </div>
+        
+        <div class="api-info">
+            <h3>API Endpoints</h3>
+            <p style="color: #1e3a8a; margin-bottom: 15px;">These mockups integrate with the following RESTful API endpoints:</p>
+            
+            <div class="api-endpoint">
+                <span class="method post">POST</span> /api/registration/start
+            </div>
+            <div class="api-endpoint">
+                <span class="method post">POST</span> /api/registration/verify-email
+            </div>
+            <div class="api-endpoint">
+                <span class="method post">POST</span> /api/registration/verify-phone
+            </div>
+            <div class="api-endpoint">
+                <span class="method post">POST</span> /api/registration/personal-details
+            </div>
+            <div class="api-endpoint">
+                <span class="method get">GET</span> /api/registration/status/:userId
+            </div>
+        </div>
+        
+        <div class="tech-stack">
+            <h3>Technology Stack</h3>
+            <div class="tech-list">
+                <div class="tech-item">
+                    <strong>Frontend</strong>
+                    <span>Vanilla HTML/CSS/JavaScript with modern ES6+ features</span>
+                </div>
+                <div class="tech-item">
+                    <strong>Backend</strong>
+                    <span>Node.js, Express.js, TypeScript</span>
+                </div>
+                <div class="tech-item">
+                    <strong>Database</strong>
+                    <span>PostgreSQL with tenant schema isolation</span>
+                </div>
+                <div class="tech-item">
+                    <strong>Security</strong>
+                    <span>bcrypt, JWT, rate limiting, helmet.js</span>
+                </div>
+                <div class="tech-item">
+                    <strong>Validation</strong>
+                    <span>express-validator with Nigerian banking compliance</span>
+                </div>
+                <div class="tech-item">
+                    <strong>Multi-tenancy</strong>
+                    <span>Tenant middleware with X-Tenant-ID headers</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

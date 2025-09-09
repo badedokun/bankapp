@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrokiiPay - Navigation Components</title>
+    <link rel="stylesheet" href="orokii-pay-theme.css">
+    <style>
+        .showcase-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .component-section {
+            margin-bottom: 4rem;
+            padding-bottom: 3rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+        
+        .component-section:last-child {
+            border-bottom: none;
+        }
+        
+        .demo-container {
+            background: var(--color-neutral-50);
+            border: 1px solid var(--border-light);
+            border-radius: var(--border-radius-lg);
+            margin: 2rem 0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .demo-header {
+            background: var(--bg-surface);
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-light);
+            font-weight: var(--font-weight-medium);
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+        
+        .demo-content {
+            position: relative;
+            min-height: 200px;
+        }
+        
+        .sidebar-demo {
+            height: 400px;
+            display: flex;
+        }
+        
+        .bottom-nav-demo {
+            height: 300px;
+            position: relative;
+            background: var(--color-neutral-100);
+        }
+        
+        .bottom-nav-demo-content {
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+        
+        .controls {
+            padding: 1rem;
+            background: var(--bg-surface);
+            border-top: 1px solid var(--border-light);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .code-toggle {
+            background: var(--color-primary-500);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius-md);
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .code-toggle:hover {
+            background: var(--color-primary-600);
+        }
+        
+        .code-block {
+            background: var(--color-neutral-900);
+            color: var(--color-neutral-100);
+            padding: 1.5rem;
+            font-family: var(--font-family-mono);
+            font-size: var(--font-size-sm);
+            overflow-x: auto;
+            display: none;
+            white-space: pre-line;
+        }
+        
+        .code-block.visible {
+            display: block;
+        }
+        
+        .layout-preview {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            height: 100vh;
+            position: relative;
+        }
+        
+        .layout-preview.collapsed {
+            grid-template-columns: 64px 1fr;
+        }
+        
+        .main-content {
+            padding: 2rem;
+            background: var(--bg-primary);
+            overflow-y: auto;
+        }
+        
+        .sample-page {
+            max-width: 800px;
+        }
+        
+        .mobile-preview {
+            max-width: 375px;
+            margin: 0 auto;
+            background: white;
+            border-radius: var(--border-radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .mobile-screen {
+            height: 600px;
+            position: relative;
+            background: var(--bg-primary);
+        }
+        
+        .responsive-toggle {
+            text-align: center;
+            margin: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="showcase-container">
+        <header class="component-section">
+            <h1 class="orokii-text-3xl orokii-font-bold">Navigation Components</h1>
+            <p class="orokii-text-lg orokii-text-secondary orokii-mt-2">
+                Comprehensive navigation system for OrokiiPay banking platform
+            </p>
+        </header>
+
+        <!-- Header Navigation -->
+        <section class="component-section">
+            <h2 class="orokii-text-2xl orokii-font-semibold">Header Navigation</h2>
+            <p class="orokii-text-secondary orokii-mb-4">Top navigation bar with branding, navigation items, and user actions</p>
+            
+            <div class="demo-container">
+                <div class="demo-header">Desktop Header</div>
+                <div class="demo-content">
+                    <header class="orokii-header orokii-header--md orokii-header--sticky">
+                        <a href="#" class="orokii-header__brand">
+                            <div class="orokii-avatar orokii-avatar--sm orokii-header__logo">
+                                <div class="orokii-avatar__fallback">O</div>
+                            </div>
+                            <span>OrokiiPay</span>
+                        </a>
+                        
+                        <nav class="orokii-header__nav">
+                            <a href="#" class="orokii-header__nav-item orokii-header__nav-item--active">Dashboard</a>
+                            <a href="#" class="orokii-header__nav-item">Transfers</a>
+                            <a href="#" class="orokii-header__nav-item">Payments</a>
+                            <a href="#" class="orokii-header__nav-item">Accounts</a>
+                        </nav>
+                        
+                        <div class="orokii-header__actions">
+                            <div class="orokii-header__notification">
+                                <span>🔔</span>
+                                <span class="orokii-header__notification-badge">3</span>
+                            </div>
+                            
+                            <div class="orokii-header__user-menu">
+                                <div class="orokii-avatar orokii-avatar--sm">
+                                    <div class="orokii-avatar__fallback">JD</div>
+                                </div>
+                                <span class="orokii-text-sm orokii-font-medium">John Doe</span>
+                                <span>▼</span>
+                            </div>
+                        </div>
+                    </header>
+                </div>
+                <div class="controls">
+                    <button class="code-toggle" onclick="toggleCode('header-code')">Show Code</button>
+                </div>
+                <div id="header-code" class="code-block">
+&lt;header class="orokii-header orokii-header--md orokii-header--sticky"&gt;
+  &lt;a href="#" class="orokii-header__brand"&gt;
+    &lt;div class="orokii-avatar orokii-avatar--sm orokii-header__logo"&gt;
+      &lt;div class="orokii-avatar__fallback"&gt;O&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;span&gt;OrokiiPay&lt;/span&gt;
+  &lt;/a&gt;
+  
+  &lt;nav class="orokii-header__nav"&gt;
+    &lt;a href="#" class="orokii-header__nav-item orokii-header__nav-item--active"&gt;Dashboard&lt;/a&gt;
+    &lt;a href="#" class="orokii-header__nav-item"&gt;Transfers&lt;/a&gt;
+    &lt;a href="#" class="orokii-header__nav-item"&gt;Payments&lt;/a&gt;
+  &lt;/nav&gt;
+  
+  &lt;div class="orokii-header__actions"&gt;
+    &lt;div class="orokii-header__notification"&gt;
+      &lt;span&gt;🔔&lt;/span&gt;
+      &lt;span class="orokii-header__notification-badge"&gt;3&lt;/span&gt;
+    &lt;/div&gt;
+    
+    &lt;div class="orokii-header__user-menu"&gt;
+      &lt;div class="orokii-avatar orokii-avatar--sm"&gt;
+        &lt;div class="orokii-avatar__fallback"&gt;JD&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;span&gt;John Doe&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/header&gt;</div>
+            </div>
+        </section>
+
+        <!-- Sidebar Navigation -->
+        <section class="component-section">
+            <h2 class="orokii-text-2xl orokii-font-semibold">Sidebar Navigation</h2>
+            <p class="orokii-text-secondary orokii-mb-4">Collapsible sidebar with navigation sections and badges</p>
+            
+            <div class="demo-container">
+                <div class="demo-header">Sidebar Navigation (Click toggle to collapse)</div>
+                <div class="demo-content sidebar-demo">
+                    <aside class="orokii-sidebar" id="demo-sidebar">
+                        <button class="orokii-sidebar__toggle" onclick="toggleSidebar()">‹</button>
+                        
+                        <div class="orokii-sidebar__header">
+                            <a href="#" class="orokii-sidebar__brand">
+                                <div class="orokii-avatar orokii-avatar--sm orokii-sidebar__logo">
+                                    <div class="orokii-avatar__fallback">O</div>
+                                </div>
+                                <span class="orokii-sidebar__brand-text">OrokiiPay</span>
+                            </a>
+                        </div>
+                        
+                        <nav class="orokii-sidebar__nav">
+                            <div class="orokii-sidebar__section">
+                                <div class="orokii-sidebar__section-title">Main</div>
+                                <a href="#" class="orokii-sidebar__nav-item orokii-sidebar__nav-item--active">
+                                    <span class="orokii-sidebar__nav-icon">🏠</span>
+                                    <span class="orokii-sidebar__nav-label">Dashboard</span>
+                                </a>
+                                <a href="#" class="orokii-sidebar__nav-item">
+                                    <span class="orokii-sidebar__nav-icon">💳</span>
+                                    <span class="orokii-sidebar__nav-label">Accounts</span>
+                                </a>
+                                <a href="#" class="orokii-sidebar__nav-item">
+                                    <span class="orokii-sidebar__nav-icon">💸</span>
+                                    <span class="orokii-sidebar__nav-label">Transfers</span>
+                                    <span class="orokii-sidebar__nav-badge">New</span>
+                                </a>
+                            </div>
+                            
+                            <div class="orokii-sidebar__section">
+                                <div class="orokii-sidebar__section-title">Services</div>
+                                <a href="#" class="orokii-sidebar__nav-item">
+                                    <span class="orokii-sidebar__nav-icon">💳</span>
+                                    <span class="orokii-sidebar__nav-label">Payments</span>
+                                </a>
+                                <a href="#" class="orokii-sidebar__nav-item">
+                                    <span class="orokii-sidebar__nav-icon">📈</span>
+                                    <span class="orokii-sidebar__nav-label">Investments</span>
+                                </a>
+                                <a href="#" class="orokii-sidebar__nav-item">
+                                    <span class="orokii-sidebar__nav-icon">🏦</span>
+                                    <span class="orokii-sidebar__nav-label">Loans</span>
+                                    <span class="orokii-sidebar__nav-badge">3</span>
+                                </a>
+                            </div>
+                            
+                            <div class="orokii-sidebar__section">
+                                <div class="orokii-sidebar__section-title">Support</div>
+                                <a href="#" class="orokii-sidebar__nav-item">
+                                    <span class="orokii-sidebar__nav-icon">🎧</span>
+                                    <span class="orokii-sidebar__nav-label">Help Center</span>
+                                </a>
+                                <a href="#" class="orokii-sidebar__nav-item">
+                                    <span class="orokii-sidebar__nav-icon">⚙️</span>
+                                    <span class="orokii-sidebar__nav-label">Settings</span>
+                                </a>
+                            </div>
+                        </nav>
+                    </aside>
+                    
+                    <main class="main-content">
+                        <div class="sample-page">
+                            <nav class="orokii-breadcrumb">
+                                <a href="#" class="orokii-breadcrumb__item">Home</a>
+                                <span class="orokii-breadcrumb__separator">›</span>
+                                <a href="#" class="orokii-breadcrumb__item">Dashboard</a>
+                                <span class="orokii-breadcrumb__separator">›</span>
+                                <span class="orokii-breadcrumb__item orokii-breadcrumb__item--active">Overview</span>
+                            </nav>
+                            
+                            <h1 class="orokii-text-3xl orokii-font-bold orokii-mb-4">Dashboard</h1>
+                            <p class="orokii-text-secondary orokii-mb-6">Welcome to your banking dashboard. Here you can view your account balances, recent transactions, and quick actions.</p>
+                            
+                            <div class="orokii-card orokii-card--md orokii-mb-6">
+                                <div class="orokii-card__header">
+                                    <div class="orokii-card__title">Account Balance</div>
+                                    <div class="orokii-card__subtitle">Current Account</div>
+                                </div>
+                                <div style="font-size: 2rem; font-weight: 700; color: var(--color-primary-500);">₦1,250,000.00</div>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+                <div class="controls">
+                    <button class="orokii-btn orokii-btn--sm orokii-btn--outline" onclick="toggleSidebar()">Toggle Sidebar</button>
+                    <button class="code-toggle" onclick="toggleCode('sidebar-code')">Show Code</button>
+                </div>
+                <div id="sidebar-code" class="code-block">
+&lt;aside class="orokii-sidebar"&gt;
+  &lt;button class="orokii-sidebar__toggle"&gt;‹&lt;/button&gt;
+  
+  &lt;div class="orokii-sidebar__header"&gt;
+    &lt;a href="#" class="orokii-sidebar__brand"&gt;
+      &lt;div class="orokii-sidebar__logo"&gt;Logo&lt;/div&gt;
+      &lt;span class="orokii-sidebar__brand-text"&gt;OrokiiPay&lt;/span&gt;
+    &lt;/a&gt;
+  &lt;/div&gt;
+  
+  &lt;nav class="orokii-sidebar__nav"&gt;
+    &lt;div class="orokii-sidebar__section"&gt;
+      &lt;div class="orokii-sidebar__section-title"&gt;Main&lt;/div&gt;
+      &lt;a href="#" class="orokii-sidebar__nav-item orokii-sidebar__nav-item--active"&gt;
+        &lt;span class="orokii-sidebar__nav-icon"&gt;🏠&lt;/span&gt;
+        &lt;span class="orokii-sidebar__nav-label"&gt;Dashboard&lt;/span&gt;
+      &lt;/a&gt;
+    &lt;/div&gt;
+  &lt;/nav&gt;
+&lt;/aside&gt;</div>
+            </div>
+        </section>
+
+        <!-- Tab Navigation -->
+        <section class="component-section">
+            <h2 class="orokii-text-2xl orokii-font-semibold">Tab Navigation</h2>
+            <p class="orokii-text-secondary orokii-mb-4">Tab components with multiple variants for content organization</p>
+            
+            <div class="demo-container">
+                <div class="demo-header">Tab Variants</div>
+                <div class="demo-content" style="padding: 2rem;">
+                    <h3 class="orokii-text-lg orokii-font-medium orokii-mb-4">Line Tabs</h3>
+                    <div class="orokii-tabs orokii-tabs--line orokii-mb-6">
+                        <a href="#" class="orokii-tab orokii-tab--active">Overview</a>
+                        <a href="#" class="orokii-tab">Transactions</a>
+                        <a href="#" class="orokii-tab">Analytics</a>
+                        <a href="#" class="orokii-tab">Settings</a>
+                    </div>
+                    
+                    <h3 class="orokii-text-lg orokii-font-medium orokii-mb-4">Pill Tabs</h3>
+                    <div class="orokii-tabs orokii-tabs--pill orokii-mb-6">
+                        <a href="#" class="orokii-tab orokii-tab--active">All Transactions</a>
+                        <a href="#" class="orokii-tab">Income</a>
+                        <a href="#" class="orokii-tab">Expenses</a>
+                        <a href="#" class="orokii-tab">Transfers</a>
+                    </div>
+                    
+                    <h3 class="orokii-text-lg orokii-font-medium orokii-mb-4">Card Tabs</h3>
+                    <div class="orokii-tabs orokii-tabs--card">
+                        <a href="#" class="orokii-tab orokii-tab--active">Personal</a>
+                        <a href="#" class="orokii-tab">Business</a>
+                        <a href="#" class="orokii-tab">Savings</a>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="code-toggle" onclick="toggleCode('tabs-code')">Show Code</button>
+                </div>
+                <div id="tabs-code" class="code-block">
+&lt;!-- Line Tabs --&gt;
+&lt;div class="orokii-tabs orokii-tabs--line"&gt;
+  &lt;a href="#" class="orokii-tab orokii-tab--active"&gt;Overview&lt;/a&gt;
+  &lt;a href="#" class="orokii-tab"&gt;Transactions&lt;/a&gt;
+  &lt;a href="#" class="orokii-tab"&gt;Analytics&lt;/a&gt;
+&lt;/div&gt;
+
+&lt;!-- Pill Tabs --&gt;
+&lt;div class="orokii-tabs orokii-tabs--pill"&gt;
+  &lt;a href="#" class="orokii-tab orokii-tab--active"&gt;All Transactions&lt;/a&gt;
+  &lt;a href="#" class="orokii-tab"&gt;Income&lt;/a&gt;
+  &lt;a href="#" class="orokii-tab"&gt;Expenses&lt;/a&gt;
+&lt;/div&gt;
+
+&lt;!-- Card Tabs --&gt;
+&lt;div class="orokii-tabs orokii-tabs--card"&gt;
+  &lt;a href="#" class="orokii-tab orokii-tab--active"&gt;Personal&lt;/a&gt;
+  &lt;a href="#" class="orokii-tab"&gt;Business&lt;/a&gt;
+  &lt;a href="#" class="orokii-tab"&gt;Savings&lt;/a&gt;
+&lt;/div&gt;</div>
+            </div>
+        </section>
+
+        <!-- Bottom Navigation (Mobile) -->
+        <section class="component-section">
+            <h2 class="orokii-text-2xl orokii-font-semibold">Bottom Navigation (Mobile)</h2>
+            <p class="orokii-text-secondary orokii-mb-4">Mobile-first bottom navigation with icons and labels</p>
+            
+            <div class="responsive-toggle">
+                <button class="orokii-btn orokii-btn--md orokii-btn--outline" onclick="toggleMobileView()">
+                    <span id="mobile-toggle-text">Show Mobile View</span>
+                </button>
+            </div>
+            
+            <div class="demo-container">
+                <div class="demo-header">Mobile Bottom Navigation</div>
+                <div class="demo-content bottom-nav-demo" id="mobile-demo">
+                    <div class="mobile-preview">
+                        <div class="mobile-screen">
+                            <div class="bottom-nav-demo-content">
+                                <h3 class="orokii-text-xl orokii-font-semibold orokii-mb-2">Mobile Banking App</h3>
+                                <p>Navigate using the bottom tabs</p>
+                                <div class="orokii-mt-6">
+                                    <div class="orokii-card orokii-card--md">
+                                        <div class="orokii-card__title">Quick Balance</div>
+                                        <div class="orokii-text-2xl orokii-font-bold" style="color: var(--color-primary-500);">₦125,000</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <nav class="orokii-bottom-nav">
+                                <a href="#" class="orokii-bottom-nav__item orokii-bottom-nav__item--active">
+                                    <span class="orokii-bottom-nav__icon">🏠</span>
+                                    <span class="orokii-bottom-nav__label">Home</span>
+                                </a>
+                                <a href="#" class="orokii-bottom-nav__item">
+                                    <span class="orokii-bottom-nav__icon">💸</span>
+                                    <span class="orokii-bottom-nav__label">Transfer</span>
+                                </a>
+                                <a href="#" class="orokii-bottom-nav__item">
+                                    <span class="orokii-bottom-nav__icon">💳</span>
+                                    <span class="orokii-bottom-nav__label">Pay</span>
+                                    <span class="orokii-bottom-nav__badge">2</span>
+                                </a>
+                                <a href="#" class="orokii-bottom-nav__item">
+                                    <span class="orokii-bottom-nav__icon">📋</span>
+                                    <span class="orokii-bottom-nav__label">History</span>
+                                </a>
+                                <a href="#" class="orokii-bottom-nav__item">
+                                    <span class="orokii-bottom-nav__icon">⋯</span>
+                                    <span class="orokii-bottom-nav__label">More</span>
+                                </a>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="code-toggle" onclick="toggleCode('bottom-nav-code')">Show Code</button>
+                </div>
+                <div id="bottom-nav-code" class="code-block">
+&lt;nav class="orokii-bottom-nav"&gt;
+  &lt;a href="#" class="orokii-bottom-nav__item orokii-bottom-nav__item--active"&gt;
+    &lt;span class="orokii-bottom-nav__icon"&gt;🏠&lt;/span&gt;
+    &lt;span class="orokii-bottom-nav__label"&gt;Home&lt;/span&gt;
+  &lt;/a&gt;
+  &lt;a href="#" class="orokii-bottom-nav__item"&gt;
+    &lt;span class="orokii-bottom-nav__icon"&gt;💸&lt;/span&gt;
+    &lt;span class="orokii-bottom-nav__label"&gt;Transfer&lt;/span&gt;
+  &lt;/a&gt;
+  &lt;a href="#" class="orokii-bottom-nav__item"&gt;
+    &lt;span class="orokii-bottom-nav__icon"&gt;💳&lt;/span&gt;
+    &lt;span class="orokii-bottom-nav__label"&gt;Pay&lt;/span&gt;
+    &lt;span class="orokii-bottom-nav__badge"&gt;2&lt;/span&gt;
+  &lt;/a&gt;
+  &lt;a href="#" class="orokii-bottom-nav__item"&gt;
+    &lt;span class="orokii-bottom-nav__icon"&gt;📋&lt;/span&gt;
+    &lt;span class="orokii-bottom-nav__label"&gt;History&lt;/span&gt;
+  &lt;/a&gt;
+  &lt;a href="#" class="orokii-bottom-nav__item"&gt;
+    &lt;span class="orokii-bottom-nav__icon"&gt;⋯&lt;/span&gt;
+    &lt;span class="orokii-bottom-nav__label"&gt;More&lt;/span&gt;
+  &lt;/a&gt;
+&lt;/nav&gt;</div>
+            </div>
+        </section>
+
+        <!-- Breadcrumbs -->
+        <section class="component-section">
+            <h2 class="orokii-text-2xl orokii-font-semibold">Breadcrumb Navigation</h2>
+            <p class="orokii-text-secondary orokii-mb-4">Hierarchical navigation trail for complex applications</p>
+            
+            <div class="demo-container">
+                <div class="demo-header">Breadcrumb Examples</div>
+                <div class="demo-content" style="padding: 2rem;">
+                    <div class="orokii-mb-6">
+                        <h3 class="orokii-text-lg orokii-font-medium orokii-mb-2">Simple Breadcrumb</h3>
+                        <nav class="orokii-breadcrumb">
+                            <a href="#" class="orokii-breadcrumb__item">Home</a>
+                            <span class="orokii-breadcrumb__separator">›</span>
+                            <span class="orokii-breadcrumb__item orokii-breadcrumb__item--active">Dashboard</span>
+                        </nav>
+                    </div>
+                    
+                    <div class="orokii-mb-6">
+                        <h3 class="orokii-text-lg orokii-font-medium orokii-mb-2">Multi-level Breadcrumb</h3>
+                        <nav class="orokii-breadcrumb">
+                            <a href="#" class="orokii-breadcrumb__item">Home</a>
+                            <span class="orokii-breadcrumb__separator">›</span>
+                            <a href="#" class="orokii-breadcrumb__item">Accounts</a>
+                            <span class="orokii-breadcrumb__separator">›</span>
+                            <a href="#" class="orokii-breadcrumb__item">Savings</a>
+                            <span class="orokii-breadcrumb__separator">›</span>
+                            <span class="orokii-breadcrumb__item orokii-breadcrumb__item--active">Transaction History</span>
+                        </nav>
+                    </div>
+                    
+                    <div>
+                        <h3 class="orokii-text-lg orokii-font-medium orokii-mb-2">Banking Context</h3>
+                        <nav class="orokii-breadcrumb">
+                            <a href="#" class="orokii-breadcrumb__item">Banking</a>
+                            <span class="orokii-breadcrumb__separator">›</span>
+                            <a href="#" class="orokii-breadcrumb__item">Money Transfer</a>
+                            <span class="orokii-breadcrumb__separator">›</span>
+                            <a href="#" class="orokii-breadcrumb__item">International</a>
+                            <span class="orokii-breadcrumb__separator">›</span>
+                            <span class="orokii-breadcrumb__item orokii-breadcrumb__item--active">Recipient Details</span>
+                        </nav>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="code-toggle" onclick="toggleCode('breadcrumb-code')">Show Code</button>
+                </div>
+                <div id="breadcrumb-code" class="code-block">
+&lt;nav class="orokii-breadcrumb"&gt;
+  &lt;a href="#" class="orokii-breadcrumb__item"&gt;Home&lt;/a&gt;
+  &lt;span class="orokii-breadcrumb__separator"&gt;›&lt;/span&gt;
+  &lt;a href="#" class="orokii-breadcrumb__item"&gt;Accounts&lt;/a&gt;
+  &lt;span class="orokii-breadcrumb__separator"&gt;›&lt;/span&gt;
+  &lt;span class="orokii-breadcrumb__item orokii-breadcrumb__item--active"&gt;Savings&lt;/span&gt;
+&lt;/nav&gt;</div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        function toggleCode(codeId) {
+            const codeBlock = document.getElementById(codeId);
+            const button = event.target;
+            
+            if (codeBlock.classList.contains('visible')) {
+                codeBlock.classList.remove('visible');
+                button.textContent = 'Show Code';
+            } else {
+                codeBlock.classList.add('visible');
+                button.textContent = 'Hide Code';
+            }
+        }
+        
+        function toggleSidebar() {
+            const sidebar = document.getElementById('demo-sidebar');
+            sidebar.classList.toggle('orokii-sidebar--collapsed');
+            
+            const toggleBtn = sidebar.querySelector('.orokii-sidebar__toggle');
+            if (sidebar.classList.contains('orokii-sidebar--collapsed')) {
+                toggleBtn.textContent = '›';
+            } else {
+                toggleBtn.textContent = '‹';
+            }
+        }
+        
+        function toggleMobileView() {
+            const mobileDemo = document.getElementById('mobile-demo');
+            const toggleText = document.getElementById('mobile-toggle-text');
+            const button = event.target.closest('button');
+            
+            if (mobileDemo.style.maxWidth === '375px' || !mobileDemo.style.maxWidth) {
+                mobileDemo.style.maxWidth = '100%';
+                toggleText.textContent = 'Show Mobile View';
+                button.classList.remove('orokii-btn--primary');
+                button.classList.add('orokii-btn--outline');
+            } else {
+                mobileDemo.style.maxWidth = '375px';
+                toggleText.textContent = 'Show Desktop View';
+                button.classList.remove('orokii-btn--outline');
+                button.classList.add('orokii-btn--primary');
+            }
+        }
+        
+        // Initialize mobile view
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileDemo = document.getElementById('mobile-demo');
+            mobileDemo.style.maxWidth = '375px';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OrokiiPay Design System - Widget Showcase</title>
+  <link rel="stylesheet" href="orokii-pay-theme.css">
+  <style>
+    .showcase-section {
+      background: var(--color-neutral-0);
+      border-radius: var(--border-radius-lg);
+      padding: var(--spacing-2xl);
+      margin-bottom: var(--spacing-xl);
+      border: 1px solid var(--color-neutral-200);
+    }
+    
+    .showcase-title {
+      font-size: var(--font-size-2xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-neutral-900);
+      margin-bottom: var(--spacing-lg);
+      text-align: center;
+    }
+    
+    .widget-demo {
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--border-radius-md);
+      padding: var(--spacing-xl);
+      margin-bottom: var(--spacing-lg);
+      background: var(--color-neutral-50);
+    }
+    
+    .widget-demo h3 {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-neutral-800);
+      margin-bottom: var(--spacing-md);
+      border-bottom: 2px solid var(--color-primary-200);
+      padding-bottom: var(--spacing-sm);
+    }
+    
+    .widget-variants {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: var(--spacing-lg);
+      margin-top: var(--spacing-lg);
+    }
+    
+    .widget-variant {
+      background: var(--color-neutral-0);
+      padding: var(--spacing-lg);
+      border-radius: var(--border-radius-md);
+      border: 1px solid var(--color-neutral-200);
+    }
+    
+    .variant-title {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-neutral-600);
+      margin-bottom: var(--spacing-md);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .demo-row {
+      display: flex;
+      gap: var(--spacing-md);
+      align-items: center;
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .currency-display {
+      font-family: var(--font-family-mono);
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary-600);
+    }
+    
+    .code-snippet {
+      background: var(--color-neutral-800);
+      color: var(--color-neutral-100);
+      padding: var(--spacing-md);
+      border-radius: var(--border-radius-sm);
+      font-family: var(--font-family-mono);
+      font-size: var(--font-size-sm);
+      overflow-x: auto;
+      margin-top: var(--spacing-sm);
+    }
+    
+    .utility-demo {
+      background: var(--color-primary-50);
+      padding: var(--spacing-md);
+      border-radius: var(--border-radius-md);
+      border-left: 4px solid var(--color-primary-500);
+      margin-top: var(--spacing-md);
+    }
+    
+    .banking-icons {
+      display: flex;
+      gap: var(--spacing-sm);
+      font-size: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="orokii-container" style="max-width: 1200px; margin: 0 auto; padding: var(--spacing-xl);">
+    
+    <!-- Header -->
+    <header style="text-align: center; margin-bottom: var(--spacing-3xl);">
+      <h1 class="showcase-title" style="font-size: var(--font-size-4xl); margin-bottom: var(--spacing-sm);">
+        🏦 OrokiiPay Widget Showcase
+      </h1>
+      <p style="font-size: var(--font-size-lg); color: var(--color-neutral-600); max-width: 600px; margin: 0 auto;">
+        Professional banking widgets for consistent user experience across the multi-tenant platform
+      </p>
+    </header>
+
+    <!-- Date Picker Widget -->
+    <section class="showcase-section">
+      <div class="widget-demo">
+        <h3>📅 Date Picker Widget</h3>
+        <p>Professional date input with calendar icon and validation</p>
+        
+        <div class="widget-variants">
+          <div class="widget-variant">
+            <div class="variant-title">Default Date Picker</div>
+            <div class="widget-date-picker full-width">
+              <label class="widget-label">Birth Date</label>
+              <div class="widget-input-container">
+                <input type="date" class="widget-input md default" value="1990-01-01">
+                <span class="widget-icon">📅</span>
+              </div>
+              <div class="widget-helper">Format: DD/MM/YYYY</div>
+            </div>
+          </div>
+          
+          <div class="widget-variant">
+            <div class="variant-title">Error State</div>
+            <div class="widget-date-picker full-width">
+              <label class="widget-label">Account Opening Date</label>
+              <div class="widget-input-container">
+                <input type="date" class="widget-input md error" value="">
+                <span class="widget-icon">📅</span>
+              </div>
+              <div class="widget-error">Please select a valid date</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Phone Formatter Widget -->
+    <section class="showcase-section">
+      <div class="widget-demo">
+        <h3>📱 Phone Formatter Widget</h3>
+        <p>Nigerian phone number input with country code and formatting</p>
+        
+        <div class="widget-variants">
+          <div class="widget-variant">
+            <div class="variant-title">With Country Selector</div>
+            <div class="widget-phone full-width">
+              <label class="widget-label">Mobile Number</label>
+              <div class="widget-input-container">
+                <div class="country-selector">🇳🇬 +234</div>
+                <input type="tel" class="widget-input md default with-country" 
+                       placeholder="80 1234 5678" value="80 1234 5678">
+              </div>
+              <div class="widget-helper">Enter your Nigerian mobile number</div>
+            </div>
+          </div>
+          
+          <div class="widget-variant">
+            <div class="variant-title">Focused State</div>
+            <div class="widget-phone full-width">
+              <label class="widget-label">Alternative Phone</label>
+              <div class="widget-input-container">
+                <div class="country-selector">🇳🇬 +234</div>
+                <input type="tel" class="widget-input md focused with-country" 
+                       placeholder="70 9876 5432" value="">
+              </div>
+              <div class="widget-helper">Backup contact number (optional)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Currency Formatter Widget -->
+    <section class="showcase-section">
+      <div class="widget-demo">
+        <h3>💰 Currency Formatter Widget</h3>
+        <p>Nigerian Naira and multi-currency input with proper formatting</p>
+        
+        <div class="widget-variants">
+          <div class="widget-variant">
+            <div class="variant-title">Naira Input</div>
+            <div class="widget-currency full-width">
+              <label class="widget-label">Transfer Amount</label>
+              <div class="widget-input-container">
+                <span class="currency-symbol">₦</span>
+                <input type="text" class="widget-input md default with-symbol" 
+                       placeholder="0.00" value="150,000.00">
+              </div>
+              <div class="widget-helper">Minimum: ₦1,000.00</div>
+            </div>
+            <div class="utility-demo">
+              <strong>Formatted Display:</strong>
+              <div class="currency-display">₦150,000.00</div>
+            </div>
+          </div>
+          
+          <div class="widget-variant">
+            <div class="variant-title">USD Input</div>
+            <div class="widget-currency full-width">
+              <label class="widget-label">International Transfer</label>
+              <div class="widget-input-container">
+                <span class="currency-symbol">$</span>
+                <input type="text" class="widget-input md default with-symbol" 
+                       placeholder="0.00" value="500.00">
+              </div>
+              <div class="widget-helper">Exchange rate: $1 = ₦1,540</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Account Number Formatter -->
+    <section class="showcase-section">
+      <div class="widget-demo">
+        <h3>🏦 Account Number Formatter</h3>
+        <p>10-digit Nigerian account number input with bank validation</p>
+        
+        <div class="widget-variants">
+          <div class="widget-variant">
+            <div class="variant-title">Account Input</div>
+            <div class="widget-account full-width">
+              <label class="widget-label">Recipient Account Number</label>
+              <div class="widget-input-container">
+                <input type="text" class="widget-input md default with-bank-icon" 
+                       placeholder="0123456789" value="0123456789" maxlength="10">
+                <span class="bank-icon">🏦</span>
+              </div>
+              <div class="widget-helper">Enter 10-digit account number</div>
+            </div>
+          </div>
+          
+          <div class="widget-variant">
+            <div class="variant-title">Success State</div>
+            <div class="widget-account full-width">
+              <label class="widget-label">Beneficiary Account</label>
+              <div class="widget-input-container">
+                <input type="text" class="widget-input md success with-bank-icon" 
+                       placeholder="0123456789" value="0987654321" maxlength="10">
+                <span class="bank-icon">✅</span>
+              </div>
+              <div class="widget-success">Account verified: John Adebayo (GTBank)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PIN/OTP Input Widget -->
+    <section class="showcase-section">
+      <div class="widget-demo">
+        <h3>🔐 PIN/OTP Input Widget</h3>
+        <p>Secure PIN and OTP entry with individual digit inputs</p>
+        
+        <div class="widget-variants">
+          <div class="widget-variant">
+            <div class="variant-title">4-Digit PIN</div>
+            <div class="widget-pin">
+              <label class="widget-label">Enter Transaction PIN</label>
+              <div class="pin-input-row">
+                <input type="password" class="pin-digit md default" maxlength="1" value="•">
+                <input type="password" class="pin-digit md default" maxlength="1" value="•">
+                <input type="password" class="pin-digit md focused" maxlength="1" value="">
+                <input type="password" class="pin-digit md default" maxlength="1" value="">
+              </div>
+              <div class="widget-helper">Enter your 4-digit transaction PIN</div>
+            </div>
+          </div>
+          
+          <div class="widget-variant">
+            <div class="variant-title">6-Digit OTP</div>
+            <div class="widget-pin">
+              <label class="widget-label">SMS Verification Code</label>
+              <div class="pin-input-row">
+                <input type="text" class="pin-digit md default" maxlength="1" value="1">
+                <input type="text" class="pin-digit md default" maxlength="1" value="2">
+                <input type="text" class="pin-digit md default" maxlength="1" value="3">
+                <input type="text" class="pin-digit md focused" maxlength="1" value="">
+                <input type="text" class="pin-digit md default" maxlength="1" value="">
+                <input type="text" class="pin-digit md default" maxlength="1" value="">
+              </div>
+              <div class="widget-helper">Code expires in 4:58</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- File Upload Widget -->
+    <section class="showcase-section">
+      <div class="widget-demo">
+        <h3>📁 File Upload Widget</h3>
+        <p>Document upload for KYC verification and compliance</p>
+        
+        <div class="widget-variants">
+          <div class="widget-variant">
+            <div class="variant-title">KYC Document Upload</div>
+            <div class="widget-file-upload full-width">
+              <label class="widget-label">Upload Government ID</label>
+              <div class="upload-area md default">
+                <div class="upload-icon">📄</div>
+                <div class="upload-text">Click to upload or drag and drop</div>
+                <div class="upload-subtext">PDF, PNG, JPEG up to 5MB</div>
+              </div>
+              <div class="widget-helper">Accepted: National ID, Driver's License, Passport</div>
+            </div>
+          </div>
+          
+          <div class="widget-variant">
+            <div class="variant-title">Success State</div>
+            <div class="widget-file-upload full-width">
+              <label class="widget-label">Proof of Address</label>
+              <div class="upload-area md success">
+                <div class="upload-icon">✅</div>
+                <div class="upload-text">utility-bill.pdf uploaded</div>
+                <div class="upload-subtext">2.3 MB • Processing...</div>
+              </div>
+              <div class="widget-success">Document uploaded successfully</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Search Widget -->
+    <section class="showcase-section">
+      <div class="widget-demo">
+        <h3>🔍 Search Widget</h3>
+        <p>Search and filter functionality for transactions and accounts</p>
+        
+        <div class="widget-variants">
+          <div class="widget-variant">
+            <div class="variant-title">Transaction Search</div>
+            <div class="widget-search full-width">
+              <label class="widget-label">Search Transactions</label>
+              <div class="widget-input-container">
+                <span class="search-icon">🔍</span>
+                <input type="search" class="widget-input md default with-search-icon with-clear-button" 
+                       placeholder="Search by amount, reference, or beneficiary..." value="">
+                <button type="button" class="clear-button">✕</button>
+              </div>
+              <div class="widget-helper">Search across all your transactions</div>
+            </div>
+          </div>
+          
+          <div class="widget-variant">
+            <div class="variant-title">Active Search</div>
+            <div class="widget-search full-width">
+              <label class="widget-label">Find Beneficiary</label>
+              <div class="widget-input-container">
+                <span class="search-icon">🔍</span>
+                <input type="search" class="widget-input md focused with-search-icon with-clear-button" 
+                       placeholder="Enter name or account number..." value="John Adeb">
+                <button type="button" class="clear-button">✕</button>
+              </div>
+              <div class="widget-helper">3 matches found</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Widget Utilities -->
+    <section class="showcase-section">
+      <div class="widget-demo">
+        <h3>🛠️ Widget Utilities</h3>
+        <p>JavaScript utilities for formatting and validation</p>
+        
+        <div class="code-snippet">
+// Phone formatting
+widgetUtils.formatPhoneNumber('08012345678', 'national')
+// Output: "0801 234 5678"
+
+// Currency formatting
+widgetUtils.formatCurrency(150000, 'NGN', 2)
+// Output: "₦150,000.00"
+
+// Account validation
+widgetUtils.validateAccountNumber('0123456789')
+// Output: true
+
+// BVN validation
+widgetUtils.validateBVN('12345678901')
+// Output: true
+        </div>
+        
+        <div class="utility-demo">
+          <strong>Validation Examples:</strong><br>
+          ✅ Valid Nigerian phone: 08012345678<br>
+          ✅ Valid account number: 0123456789<br>
+          ✅ Valid BVN: 12345678901<br>
+          ❌ Invalid phone: 12345<br>
+        </div>
+      </div>
+    </section>
+
+    <!-- Banking Context -->
+    <section class="showcase-section">
+      <div class="widget-demo">
+        <h3>🇳🇬 Banking Context</h3>
+        <p>Nigerian banking-specific features and compliance</p>
+        
+        <div class="widget-variants">
+          <div class="widget-variant">
+            <div class="variant-title">Banking Icons</div>
+            <div class="banking-icons">
+              <span title="Naira">₦</span>
+              <span title="Bank">🏦</span>
+              <span title="Transfer">💸</span>
+              <span title="Mobile">📱</span>
+              <span title="Security">🔒</span>
+              <span title="Verified">✅</span>
+              <span title="Nigeria">🇳🇬</span>
+            </div>
+          </div>
+          
+          <div class="widget-variant">
+            <div class="variant-title">Compliance Features</div>
+            <ul style="color: var(--color-neutral-700); font-size: var(--font-size-sm);">
+              <li>✓ BVN validation (11 digits)</li>
+              <li>✓ Nigerian phone format (11 digits)</li>
+              <li>✓ Account number validation (10 digits)</li>
+              <li>✓ Naira currency formatting</li>
+              <li>✓ KYC document upload</li>
+              <li>✓ CBN regulatory compliance</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Usage Instructions -->
+    <footer style="margin-top: var(--spacing-3xl); padding: var(--spacing-xl); background: var(--color-neutral-100); border-radius: var(--border-radius-lg); text-align: center;">
+      <h3 style="color: var(--color-neutral-800); margin-bottom: var(--spacing-md);">Implementation Guide</h3>
+      <p style="color: var(--color-neutral-600); max-width: 800px; margin: 0 auto; line-height: 1.6;">
+        These widgets are part of the OrokiiPay design system. Import the TypeScript functions from 
+        <code style="background: var(--color-neutral-200); padding: 2px 6px; border-radius: 4px;">src/design-system/widgets</code> 
+        and use the CSS classes from the theme file. All components support multiple variants, sizes, and states for comprehensive banking applications.
+      </p>
+      <div style="margin-top: var(--spacing-lg);">
+        <a href="style-guide.html" style="color: var(--color-primary-600); text-decoration: none; margin: 0 var(--spacing-md);">← Style Guide</a>
+        <a href="navigation-showcase.html" style="color: var(--color-primary-600); text-decoration: none; margin: 0 var(--spacing-md);">Navigation →</a>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    // Demo interactions
+    document.addEventListener('DOMContentLoaded', function() {
+      // PIN input auto-advance
+      document.querySelectorAll('.pin-digit').forEach((input, index, inputs) => {
+        input.addEventListener('input', function(e) {
+          if (this.value.length === 1 && index < inputs.length - 1) {
+            inputs[index + 1].focus();
+          }
+        });
+        
+        input.addEventListener('keydown', function(e) {
+          if (e.key === 'Backspace' && !this.value && index > 0) {
+            inputs[index - 1].focus();
+          }
+        });
+      });
+      
+      // Phone number formatting
+      document.querySelectorAll('input[type="tel"]').forEach(input => {
+        input.addEventListener('input', function(e) {
+          let value = this.value.replace(/\D/g, '');
+          if (value.length >= 2) {
+            value = value.substring(0, 2) + ' ' + value.substring(2, 6) + ' ' + value.substring(6, 10);
+          }
+          this.value = value.trim();
+        });
+      });
+      
+      // Currency formatting
+      document.querySelectorAll('.widget-currency input').forEach(input => {
+        input.addEventListener('input', function(e) {
+          let value = this.value.replace(/[^\d.]/g, '');
+          let parts = value.split('.');
+          parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+          this.value = parts.join('.');
+        });
+      });
+      
+      // Clear button functionality
+      document.querySelectorAll('.clear-button').forEach(button => {
+        button.addEventListener('click', function() {
+          const input = this.parentElement.querySelector('input');
+          input.value = '';
+          input.focus();
+        });
+      });
+      
+      // Focus states
+      document.querySelectorAll('.widget-input').forEach(input => {
+        input.addEventListener('focus', function() {
+          this.classList.remove('default', 'error');
+          this.classList.add('focused');
+        });
+        
+        input.addEventListener('blur', function() {
+          this.classList.remove('focused');
+          this.classList.add('default');
+        });
+      });
+    });
+  </script>
+</body>
+</html>

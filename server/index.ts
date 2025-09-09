@@ -10,9 +10,11 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import compression from 'compression';
 import { rateLimit } from 'express-rate-limit';
+import path from 'path';
 
 // Import routes
 import authRoutes from './routes/auth';
+import registrationRoutes from './routes/registration';
 import tenantRoutes from './routes/tenants';
 import userRoutes from './routes/users';
 import transferRoutes from './routes/transfers';
@@ -96,6 +98,12 @@ const authLimiter = rateLimit({
   }
 });
 
+// Serve static files (HTML mockups)
+app.use('/mockups', express.static(path.join(__dirname, '../public/mockups')));
+
+// Serve design system files
+app.use('/design-system', express.static(path.join(__dirname, '../public/design-system')));
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({
@@ -109,6 +117,7 @@ app.get('/health', (req, res) => {
 
 // API routes
 app.use('/api/auth', authLimiter, tenantMiddleware, authRoutes);
+app.use('/api/registration', authLimiter, tenantMiddleware, registrationRoutes); // Public registration - no auth required
 app.use('/api/tenants', assetRoutes); // Public asset serving - no auth required
 app.use('/api/tenants', authenticateToken, tenantRoutes);
 app.use('/api/users', authenticateToken, tenantMiddleware, userRoutes);

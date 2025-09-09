@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrokiiPay - Personal Details</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo h1 {
+            color: #667eea;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .logo p {
+            color: #6b7280;
+            font-size: 1rem;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #667eea;
+            width: 80%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+        }
+        
+        .form-section h3 {
+            color: #374151;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+        
+        .required {
+            color: #ef4444;
+        }
+        
+        input[type="text"], 
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .btn:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+        }
+        
+        .error {
+            color: #ef4444;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .success {
+            background: #10b981;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .info-box {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .info-box h4 {
+            color: #374151;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .info-box p {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        
+        .optional-note {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>OrokiiPay</h1>
+            <p>Multi-Tenant Banking Platform</p>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+        
+        <h2 style="text-align: center; margin-bottom: 30px; color: #374151;">Complete Your Profile</h2>
+        
+        <div id="success-message" class="success"></div>
+        
+        <form id="personal-details-form">
+            <!-- Address Information -->
+            <div class="form-section">
+                <h3>📍 Address Information</h3>
+                
+                <div class="form-group">
+                    <label for="street">Street Address <span class="required">*</span></label>
+                    <input type="text" id="street" name="street" placeholder="Enter your full street address" required>
+                    <div class="error" id="street-error"></div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="city">City <span class="required">*</span></label>
+                        <input type="text" id="city" name="city" placeholder="e.g., Lagos" required>
+                        <div class="error" id="city-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="state">State <span class="required">*</span></label>
+                        <select id="state" name="state" required>
+                            <option value="">Select State</option>
+                            <option value="Abia">Abia</option>
+                            <option value="Adamawa">Adamawa</option>
+                            <option value="Anambra">Anambra</option>
+                            <option value="Bauchi">Bauchi</option>
+                            <option value="Delta">Delta</option>
+                            <option value="FCT">FCT - Abuja</option>
+                            <option value="Kaduna">Kaduna</option>
+                            <option value="Lagos">Lagos</option>
+                            <option value="Ogun">Ogun</option>
+                            <option value="Rivers">Rivers</option>
+                        </select>
+                        <div class="error" id="state-error"></div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="postalCode">Postal Code</label>
+                    <input type="text" id="postalCode" name="postalCode" placeholder="Optional">
+                    <div class="optional-note">Postal codes are optional in Nigeria</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="country">Country</label>
+                    <input type="text" id="country" name="country" value="Nigeria" readonly style="background: #f9fafb;">
+                </div>
+            </div>
+            
+            <!-- Employment Information -->
+            <div class="form-section">
+                <h3>💼 Employment Information</h3>
+                
+                <div class="form-group">
+                    <label for="occupation">Occupation <span class="required">*</span></label>
+                    <input type="text" id="occupation" name="occupation" placeholder="e.g., Software Engineer, Teacher, Business Owner" required>
+                    <div class="error" id="occupation-error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="monthlyIncome">Monthly Income (₦)</label>
+                    <input type="number" id="monthlyIncome" name="monthlyIncome" placeholder="Optional - for better service">
+                    <div class="optional-note">This helps us provide personalized financial services</div>
+                </div>
+            </div>
+            
+            <!-- Identity Verification -->
+            <div class="form-section">
+                <h3>🆔 Identity Verification</h3>
+                
+                <div class="info-box">
+                    <h4>Nigerian Identity Requirements</h4>
+                    <p>• BVN (Bank Verification Number) - Links your account to the Nigerian banking system</p>
+                    <p>• NIN (National Identity Number) - Your official national identification</p>
+                    <p>• Both are optional but recommended for enhanced account features</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="bvn">BVN (Bank Verification Number)</label>
+                    <input type="text" id="bvn" name="bvn" placeholder="11-digit BVN" maxlength="11" pattern="[0-9]{11}">
+                    <div class="error" id="bvn-error"></div>
+                    <div class="optional-note">Required for higher transaction limits and advanced features</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="nin">NIN (National Identity Number)</label>
+                    <input type="text" id="nin" name="nin" placeholder="11-digit NIN" maxlength="11" pattern="[0-9]{11}">
+                    <div class="error" id="nin-error"></div>
+                    <div class="optional-note">Enhances account security and verification</div>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn">Save Personal Details</button>
+        </form>
+    </div>
+    
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        
+        // Get user info from localStorage
+        const userId = localStorage.getItem('registrationUserId');
+        
+        if (!userId) {
+            alert('Session expired. Please start registration again.');
+            window.location.href = 'registration-start.html';
+        }
+        
+        document.getElementById('personal-details-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Saving Details...';
+            submitBtn.disabled = true;
+            
+            // Clear previous errors
+            document.querySelectorAll('.error').forEach(el => {
+                el.style.display = 'none';
+                el.textContent = '';
+            });
+            
+            const formData = new FormData(e.target);
+            const data = {
+                userId: userId,
+                address: {
+                    street: formData.get('street'),
+                    city: formData.get('city'),
+                    state: formData.get('state'),
+                    postalCode: formData.get('postalCode') || null,
+                    country: 'Nigeria'
+                },
+                occupation: formData.get('occupation'),
+                monthlyIncome: formData.get('monthlyIncome') ? parseFloat(formData.get('monthlyIncome')) : null,
+                bvn: formData.get('bvn') || null,
+                nin: formData.get('nin') || null
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/registration/personal-details`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Tenant-ID': 'fmfb'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('success-message').style.display = 'block';
+                    document.getElementById('success-message').textContent = 'Personal details saved successfully! Redirecting to document upload...';
+                    
+                    // Update progress bar
+                    document.querySelector('.progress-fill').style.width = '90%';
+                    
+                    setTimeout(() => {
+                        window.location.href = 'kyc-documents.html';
+                    }, 2000);
+                } else {
+                    if (result.details && Array.isArray(result.details)) {
+                        result.details.forEach(error => {
+                            // Map API field names to form field names
+                            let fieldName = error.param;
+                            if (error.param.startsWith('address.')) {
+                                fieldName = error.param.replace('address.', '');
+                            }
+                            
+                            const errorEl = document.getElementById(`${fieldName}-error`);
+                            if (errorEl) {
+                                errorEl.textContent = error.msg;
+                                errorEl.style.display = 'block';
+                            }
+                        });
+                    } else {
+                        alert('Failed to save details: ' + result.error);
+                    }
+                }
+            } catch (error) {
+                console.error('Personal details error:', error);
+                alert('Network error. Please try again.');
+            }
+            
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        });
+        
+        // BVN validation
+        document.getElementById('bvn').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            const errorEl = document.getElementById('bvn-error');
+            
+            if (this.value && this.value.length !== 11) {
+                errorEl.textContent = 'BVN must be exactly 11 digits';
+                errorEl.style.display = 'block';
+            } else {
+                errorEl.style.display = 'none';
+            }
+        });
+        
+        // NIN validation
+        document.getElementById('nin').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            const errorEl = document.getElementById('nin-error');
+            
+            if (this.value && this.value.length !== 11) {
+                errorEl.textContent = 'NIN must be exactly 11 digits';
+                errorEl.style.display = 'block';
+            } else {
+                errorEl.style.display = 'none';
+            }
+        });
+        
+        // Monthly income formatting
+        document.getElementById('monthlyIncome').addEventListener('input', function(e) {
+            // Remove any non-numeric characters except decimal point
+            this.value = this.value.replace(/[^0-9.]/g, '');
+        });
+    </script>
+</body>
+</html>
