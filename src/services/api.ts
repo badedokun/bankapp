@@ -697,6 +697,331 @@ class APIService {
 
     throw new Error(response.error || 'Failed to submit limit increase request');
   }
+
+  // Phase 1 Security Methods
+
+  // CBN Compliance Methods
+
+  /**
+   * Get CBN compliance status
+   */
+  async getCBNComplianceStatus(): Promise<any> {
+    const response = await this.makeRequest<any>('/api/cbn-compliance/status');
+    
+    if (response.success && response.data) {
+      return response.data;
+    }
+
+    throw new Error(response.error || 'Failed to fetch CBN compliance status');
+  }
+
+  /**
+   * Get CBN compliance dashboard
+   */
+  async getCBNComplianceDashboard(): Promise<any> {
+    const response = await this.makeRequest<any>('/api/cbn-compliance/dashboard');
+    
+    if (response.success && response.data) {
+      return response.data;
+    }
+
+    throw new Error(response.error || 'Failed to fetch CBN compliance dashboard');
+  }
+
+  /**
+   * Report CBN incident
+   */
+  async reportCBNIncident(incident: {
+    type: string;
+    description: string;
+    severity: 'low' | 'medium' | 'high' | 'critical';
+    affectedSystems?: string[];
+    customerImpact?: boolean;
+  }): Promise<{
+    incidentId: string;
+    reportedAt: string;
+    cbnReportingDeadline: string;
+  }> {
+    const response = await this.makeRequest<any>('/api/cbn-compliance/incidents', {
+      method: 'POST',
+      body: JSON.stringify(incident)
+    });
+
+    if (response.success && response.data) {
+      return response.data;
+    }
+
+    throw new Error(response.error || 'Failed to report CBN incident');
+  }
+
+  /**
+   * Get CBN incidents
+   */
+  async getCBNIncidents(options?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    severity?: string;
+  }): Promise<{
+    incidents: any[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  }> {
+    const params = new URLSearchParams();
+    if (options?.page) params.append('page', options.page.toString());
+    if (options?.limit) params.append('limit', options.limit.toString());
+    if (options?.status) params.append('status', options.status);
+    if (options?.severity) params.append('severity', options.severity);
+
+    const response = await this.makeRequest<any>(`/api/cbn-compliance/incidents?${params.toString()}`);
+    
+    if (response.success && response.data) {
+      return response.data;
+    }
+
+    throw new Error(response.error || 'Failed to fetch CBN incidents');
+  }
+
+  /**
+   * Check data localization compliance
+   */
+  async checkDataLocalization(): Promise<{
+    compliant: boolean;
+    dataLocations: Array<{
+      dataType: string;
+      location: string;
+      compliant: boolean;
+    }>;
+  }> {
+    const response = await this.makeRequest<any>('/api/cbn-compliance/data-localization/check', {
+      method: 'POST'
+    });
+    
+    if (response.success && response.data) {
+      return response.data;
+    }
+
+    throw new Error(response.error || 'Failed to check data localization');
+  }
+
+  // PCI DSS Compliance Methods
+
+  /**
+   * Get PCI DSS compliance status
+   */
+  async getPCIDSSComplianceStatus(): Promise<any> {
+    const response = await this.makeRequest<any>('/api/pci-dss-compliance/status');
+    
+    if (response.success && response.data) {
+      return response.data;
+    }
+
+    throw new Error(response.error || 'Failed to fetch PCI DSS compliance status');
+  }
+
+  /**
+   * Get PCI DSS compliance dashboard
+   */
+  async getPCIDSSComplianceDashboard(): Promise<any> {
+    const response = await this.makeRequest<any>('/api/pci-dss-compliance/dashboard');
+    
+    if (response.success && response.data) {
+      return response.data;
+    }
+
+    throw new Error(response.error || 'Failed to fetch PCI DSS compliance dashboard');
+  }
+
+  /**
+   * Create PCI DSS assessment
+   */
+  async createPCIDSSAssessment(assessment: {
+    assessmentType: 'self' | 'external';
+    scope: string;
+    plannedDate: string;
+  }): Promise<{
+    assessmentId: string;
+    createdAt: string;
+    status: string;
+  }> {
+    const response = await this.makeRequest<any>('/api/pci-dss-compliance/assessments', {
+      method: 'POST',
+      body: JSON.stringify(assessment)
+    });
+
+    if (response.success && response.data) {
+      return response.data;
+    }
+
+    throw new Error(response.error || 'Failed to create PCI DSS assessment');
+  }
+
+  /**
+   * Get PCI DSS assessments
+   */
+  async getPCIDSSAssessments(): Promise<{
+    assessments: any[];
+  }> {
+    const response = await this.makeRequest<any>('/api/pci-dss-compliance/assessments');
+    
+    if (response.success && response.data) {
+      return response.data;
+    }
+
+    throw new Error(response.error || 'Failed to fetch PCI DSS assessments');
+  }
+
+  /**
+   * Submit vulnerability scan results
+   */
+  async submitVulnerabilityScan(scan: {
+    scanType: 'external' | 'internal';
+    scanDate: string;
+    findings: Array<{
+      vulnerability: string;
+      severity: string;
+      status: string;
+    }>;
+  }): Promise<{
+    scanId: string;
+    submittedAt: string;
+  }> {
+    const response = await this.makeRequest<any>('/api/pci-dss-compliance/vulnerability-scans', {
+      method: 'POST',
+      body: JSON.stringify(scan)
+    });
+
+    if (response.success && response.data) {
+      return response.data;
+    }
+
+    throw new Error(response.error || 'Failed to submit vulnerability scan');
+  }
+
+  /**
+   * Get vulnerability scans
+   */
+  async getVulnerabilityScans(): Promise<{
+    scans: any[];
+  }> {
+    const response = await this.makeRequest<any>('/api/pci-dss-compliance/vulnerability-scans');
+    
+    if (response.success && response.data) {
+      return response.data;
+    }
+
+    throw new Error(response.error || 'Failed to fetch vulnerability scans');
+  }
+
+  // Security Monitoring (SIEM) Methods
+
+  /**
+   * Get security monitoring dashboard
+   */
+  async getSecurityMonitoringDashboard(): Promise<any> {
+    const response = await this.makeRequest<any>('/api/security-monitoring/dashboard');
+    
+    if (response.success && response.data) {
+      return response.data;
+    }
+
+    throw new Error(response.error || 'Failed to fetch security monitoring dashboard');
+  }
+
+  /**
+   * Get security alerts
+   */
+  async getSecurityAlerts(options?: {
+    page?: number;
+    limit?: number;
+    severity?: string;
+    status?: string;
+  }): Promise<{
+    alerts: any[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  }> {
+    const params = new URLSearchParams();
+    if (options?.page) params.append('page', options.page.toString());
+    if (options?.limit) params.append('limit', options.limit.toString());
+    if (options?.severity) params.append('severity', options.severity);
+    if (options?.status) params.append('status', options.status);
+
+    const response = await this.makeRequest<any>(`/api/security-monitoring/alerts?${params.toString()}`);
+    
+    if (response.success && response.data) {
+      return response.data;
+    }
+
+    throw new Error(response.error || 'Failed to fetch security alerts');
+  }
+
+  /**
+   * Log security event
+   */
+  async logSecurityEvent(event: {
+    eventType: string;
+    description: string;
+    severity: 'low' | 'medium' | 'high' | 'critical';
+    source: string;
+    metadata?: any;
+  }): Promise<{
+    eventId: string;
+    loggedAt: string;
+  }> {
+    const response = await this.makeRequest<any>('/api/security-monitoring/events', {
+      method: 'POST',
+      body: JSON.stringify(event)
+    });
+
+    if (response.success && response.data) {
+      return response.data;
+    }
+
+    throw new Error(response.error || 'Failed to log security event');
+  }
+
+  /**
+   * Get audit trail
+   */
+  async getAuditTrail(options?: {
+    startDate?: string;
+    endDate?: string;
+    eventType?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<{
+    events: any[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  }> {
+    const params = new URLSearchParams();
+    if (options?.startDate) params.append('startDate', options.startDate);
+    if (options?.endDate) params.append('endDate', options.endDate);
+    if (options?.eventType) params.append('eventType', options.eventType);
+    if (options?.page) params.append('page', options.page.toString());
+    if (options?.limit) params.append('limit', options.limit.toString());
+
+    const response = await this.makeRequest<any>(`/api/security-monitoring/audit-trail?${params.toString()}`);
+    
+    if (response.success && response.data) {
+      return response.data;
+    }
+
+    throw new Error(response.error || 'Failed to fetch audit trail');
+  }
 }
 
 export default APIService.getInstance();
