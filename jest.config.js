@@ -34,7 +34,7 @@ module.exports = {
       testEnvironment: 'node',
       preset: 'ts-jest',
       moduleFileExtensions: ['ts', 'js', 'json', 'node'],
-      setupFilesAfterEnv: ['<rootDir>/tests/backend/setup.ts'],
+      setupFilesAfterEnv: ['<rootDir>/tests/setup/jest-setup.ts'],
       collectCoverageFrom: [
         'server/**/*.{ts,js}',
         '!server/**/*.d.ts',

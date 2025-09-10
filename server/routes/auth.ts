@@ -99,15 +99,19 @@ router.post('/login', [
     `, [req.ip, user.id]);
 
     // Create session record
+    const sessionToken = require('crypto').randomUUID();
+    const refreshTokenValue = generateRefreshToken({ userId: user.id, tenantId: user.tenant_id });
+    
     const sessionResult = await client.query(`
       INSERT INTO tenant.user_sessions (
-        user_id, session_token, device_info, ip_address, user_agent,
+        user_id, session_token, refresh_token, device_info, ip_address, user_agent,
         expires_at
-      ) VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING id, session_token, expires_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING id, session_token, refresh_token, expires_at
     `, [
       user.id,
-      generateRefreshToken({ userId: user.id, tenantId: user.tenant_id }),
+      sessionToken,
+      refreshTokenValue,
       JSON.stringify(deviceInfo),
       req.ip,
       req.get('User-Agent') || '',
@@ -128,7 +132,7 @@ router.post('/login', [
   };
 
   const accessToken = generateToken(tokenPayload);
-  const refreshToken = sessionResult.session_token;
+  const refreshToken = sessionResult.refresh_token;
 
   // User profile for response
   const userProfile = {
