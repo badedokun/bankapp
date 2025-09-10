@@ -22,6 +22,9 @@ import transactionRoutes from './routes/transactions';
 import walletRoutes from './routes/wallets';
 import assetRoutes from './routes/assets';
 import kycRoutes from './routes/kyc';
+import cbnComplianceRoutes from './routes/cbn-compliance';
+import pciDssComplianceRoutes from './routes/pci-dss-compliance';
+import securityMonitoringRoutes from './routes/security-monitoring';
 
 // Import middleware
 import { errorHandler, notFound } from './middleware/errorHandler';
@@ -127,6 +130,9 @@ app.use('/api/transfers', authenticateToken, tenantMiddleware, transferRoutes);
 app.use('/api/transactions', authenticateToken, tenantMiddleware, transactionRoutes);
 app.use('/api/wallets', authenticateToken, tenantMiddleware, walletRoutes);
 app.use('/api/kyc', kycRoutes);
+app.use('/api/cbn-compliance', authenticateToken, tenantMiddleware, cbnComplianceRoutes);
+app.use('/api/pci-dss-compliance', authenticateToken, tenantMiddleware, pciDssComplianceRoutes);
+app.use('/api/security-monitoring', authenticateToken, tenantMiddleware, securityMonitoringRoutes);
 
 // Error handling
 app.use(notFound);
