@@ -3,7 +3,7 @@
  * Provides the foundation for all tenant-specific themes
  */
 
-import { TenantTheme } from '@/types/tenant';
+import { TenantTheme } from '../types/tenant';
 
 export const createBaseTheme = (primaryColor: string = '#007bff'): TenantTheme => {
   // Generate color variations from primary color

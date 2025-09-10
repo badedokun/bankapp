@@ -13,10 +13,10 @@ import {
   TextInputProps,
   Alert,
 } from 'react-native';
-import { useTenantTheme } from '@/tenants/TenantContext';
-import { InputSanitizer, InputValidator, SecurityMonitor, SecurityConfig } from '@/utils/security';
+import { useTenantTheme } from '../../tenants/TenantContext';
+import { InputSanitizer, InputValidator, SecurityMonitor, SecurityConfig } from '../../utils/security';
 
-export interface InputProps extends TextInputProps {
+export interface InputProps extends Omit<TextInputProps, 'ref'> {
   label?: string;
   error?: string;
   rightIcon?: React.ReactNode;
@@ -29,7 +29,7 @@ export interface InputProps extends TextInputProps {
   sensitive?: boolean; // For password/PIN fields
 }
 
-export const Input: React.FC<InputProps> = ({
+export const Input = React.forwardRef<TextInput, InputProps>(({
   label,
   error,
   rightIcon,
@@ -44,12 +44,11 @@ export const Input: React.FC<InputProps> = ({
   value,
   onChangeText,
   ...props
-}) => {
+}, ref) => {
   const theme = useTenantTheme();
   const [isFocused, setIsFocused] = useState(false);
   const [internalValue, setInternalValue] = useState(value || '');
   const [validationError, setValidationError] = useState<string | undefined>(error);
-  const inputRef = useRef<TextInput>(null);
   
   // Security monitoring
   const securityCheckCount = useRef(0);
@@ -100,7 +99,7 @@ export const Input: React.FC<InputProps> = ({
     
     // Perform validation if enabled
     if (enableSecurityValidation && sanitizedText.length > 0) {
-      let validation = { isValid: true, error: undefined };
+      let validation: { isValid: boolean; error?: string; strength?: 'weak' | 'medium' | 'strong' } = { isValid: true };
       
       switch (validationType) {
         case 'email':
@@ -121,10 +120,10 @@ export const Input: React.FC<InputProps> = ({
       }
       
       setValidationError(validation.error);
-      onValidationChange?.(validation.isValid, validation.error);
+      onValidationChange?.(validation.isValid, validation.error || undefined);
     } else {
       setValidationError(undefined);
-      onValidationChange?.(true);
+      onValidationChange?.(true, undefined);
     }
 
     // Call parent onChangeText with sanitized value
@@ -236,7 +235,7 @@ export const Input: React.FC<InputProps> = ({
         <TextInput
           {...props}
           {...getSecureInputProps()}
-          ref={inputRef}
+          ref={ref}
           value={internalValue}
           onChangeText={handleSecureTextChange}
           style={[
@@ -271,6 +270,8 @@ export const Input: React.FC<InputProps> = ({
       )}
     </View>
   );
-};
+});
+
+Input.displayName = 'Input';
 
 export default Input;

@@ -64,7 +64,7 @@ class DeploymentManager {
     const deploymentType = process.env.DEPLOYMENT_TYPE || 'development';
 
     // Check domain-based detection
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && window.location && window.location.hostname) {
       const hostname = window.location.hostname;
       
       // FMFB subdomain detection

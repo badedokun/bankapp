@@ -18,8 +18,10 @@ import registrationRoutes from './routes/registration';
 import tenantRoutes from './routes/tenants';
 import userRoutes from './routes/users';
 import transferRoutes from './routes/transfers';
+import transactionRoutes from './routes/transactions';
 import walletRoutes from './routes/wallets';
 import assetRoutes from './routes/assets';
+import kycRoutes from './routes/kyc';
 
 // Import middleware
 import { errorHandler, notFound } from './middleware/errorHandler';
@@ -122,7 +124,9 @@ app.use('/api/tenants', assetRoutes); // Public asset serving - no auth required
 app.use('/api/tenants', authenticateToken, tenantRoutes);
 app.use('/api/users', authenticateToken, tenantMiddleware, userRoutes);
 app.use('/api/transfers', authenticateToken, tenantMiddleware, transferRoutes);
+app.use('/api/transactions', authenticateToken, tenantMiddleware, transactionRoutes);
 app.use('/api/wallets', authenticateToken, tenantMiddleware, walletRoutes);
+app.use('/api/kyc', kycRoutes);
 
 // Error handling
 app.use(notFound);

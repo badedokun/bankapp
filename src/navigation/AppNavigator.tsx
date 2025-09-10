@@ -16,7 +16,7 @@ import {
   AITransferScreen,
   TransactionHistoryScreen,
   SettingsScreen,
-} from '@/screens';
+} from '../screens';
 
 // Navigation parameter types
 export type RootStackParamList = {
@@ -57,6 +57,7 @@ const TabBarIcon: React.FC<{
 const MainTabNavigator: React.FC = () => {
   return (
     <Tab.Navigator
+      id={undefined}
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarStyle: {
@@ -185,6 +186,7 @@ const AppNavigator: React.FC<{
   return (
     <NavigationContainer>
       <Stack.Navigator
+        id={undefined}
         screenOptions={{
           headerShown: false,
           cardStyle: { backgroundColor: '#ffffff' },

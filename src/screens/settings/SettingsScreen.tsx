@@ -16,10 +16,10 @@ import {
   Dimensions,
   Switch,
 } from 'react-native';
-import { useTenant, useTenantTheme } from '@/tenants/TenantContext';
-import Input from '@/components/ui/Input';
-import Button from '@/components/ui/Button';
-import APIService from '@/services/api';
+import { useTenant, useTenantTheme } from '../../tenants/TenantContext';
+import Input from '../../components/ui/Input';
+import Button from '../../components/ui/Button';
+import APIService from '../../services/api';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -68,7 +68,7 @@ interface AppPreferences {
 
 type SettingsSection = 'profile' | 'security' | 'preferences' | 'ai' | 'notifications' | 'privacy' | 'support';
 
-interface SettingsScreenProps {
+export interface SettingsScreenProps {
   onBack?: () => void;
   onLogout?: () => void;
 }
@@ -118,7 +118,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         firstName: profile.firstName || 'John',
         lastName: profile.lastName || 'Doe',
         email: profile.email || 'john.doe@example.com',
-        phoneNumber: profile.phoneNumber || '+2348012345678',
+        phoneNumber: profile.profileData?.phoneNumber || '+2348012345678',
         dateOfBirth: '1990-05-15',
         gender: 'male',
         address: {

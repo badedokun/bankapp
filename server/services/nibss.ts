@@ -1,0 +1,506 @@
+/**
+ * NIBSS (Nigeria Inter-Bank Settlement System) API Integration
+ * Handles real-time money transfers between Nigerian banks
+ */
+
+export interface NIBSSTransferRequest {
+  amount: string;
+  sourceAccountNumber: string;
+  sourceBankCode: string;
+  destinationAccountNumber: string;
+  destinationBankCode: string;
+  narration: string;
+  reference: string;
+  beneficiaryName?: string;
+}
+
+export interface NIBSSTransferResponse {
+  success: boolean;
+  transactionId: string;
+  reference: string;
+  status: 'pending' | 'successful' | 'failed' | 'reversed';
+  message: string;
+  fee?: string;
+  responseCode?: string;
+  sessionId?: string;
+}
+
+export interface NIBSSAccountInquiryRequest {
+  accountNumber: string;
+  bankCode: string;
+}
+
+export interface NIBSSAccountInquiryResponse {
+  success: boolean;
+  accountNumber: string;
+  accountName: string;
+  bankCode: string;
+  bankName: string;
+  message: string;
+}
+
+export interface NIBSSBankListResponse {
+  success: boolean;
+  banks: Array<{
+    code: string;
+    name: string;
+    longCode?: string;
+    active: boolean;
+  }>;
+}
+
+// Internal NIBSS API response interfaces
+interface NIBSSApiTransferResponse {
+  status?: string;
+  transactionId?: string;
+  sessionId?: string;
+  message?: string;
+  responseMessage?: string;
+  fee?: string;
+}
+
+interface NIBSSApiAccountInquiryResponse {
+  status?: string;
+  accountName?: string;
+  beneficiaryName?: string;
+  bankName?: string;
+  message?: string;
+  responseMessage?: string;
+}
+
+interface NIBSSApiBankListResponse {
+  banks?: Array<{
+    code: string;
+    name: string;
+    longCode?: string;
+    active: boolean;
+  }>;
+  data?: Array<{
+    code: string;
+    name: string;
+    longCode?: string;
+    active: boolean;
+  }>;
+}
+
+interface NIBSSApiTransactionStatusResponse {
+  status?: string;
+  transactionId?: string;
+  message?: string;
+  responseMessage?: string;
+}
+
+export interface NIBSSTransactionStatusRequest {
+  reference: string;
+  transactionId?: string;
+}
+
+/**
+ * NIBSS Service Configuration
+ */
+interface NIBSSConfig {
+  baseUrl: string;
+  apiKey: string;
+  secretKey: string;
+  merchantId: string;
+  environment: 'sandbox' | 'production';
+  timeout: number;
+}
+
+export class NIBSSService {
+  private config: NIBSSConfig;
+
+  constructor() {
+    this.config = {
+      baseUrl: process.env.NIBSS_BASE_URL || 'https://api.nibss-plc.com.ng',
+      apiKey: process.env.NIBSS_API_KEY || 'STUBBED_API_KEY',
+      secretKey: process.env.NIBSS_SECRET_KEY || 'STUBBED_SECRET_KEY',
+      merchantId: process.env.NIBSS_MERCHANT_ID || 'STUBBED_MERCHANT_ID',
+      environment: (process.env.NIBSS_ENVIRONMENT as 'sandbox' | 'production') || 'sandbox',
+      timeout: parseInt(process.env.NIBSS_TIMEOUT || '30000'),
+    };
+  }
+
+  /**
+   * Initiate a bank transfer via NIBSS
+   */
+  async initiateTransfer(request: NIBSSTransferRequest): Promise<NIBSSTransferResponse> {
+    console.log('🏦 NIBSS Transfer Request:', request);
+
+    // STUB: Return mock response until we have real API credentials
+    if (this.isStubMode()) {
+      return this.stubTransferResponse(request);
+    }
+
+    try {
+      const payload = {
+        amount: request.amount,
+        sourceAccount: request.sourceAccountNumber,
+        sourceBankCode: request.sourceBankCode,
+        destinationAccount: request.destinationAccountNumber,
+        destinationBankCode: request.destinationBankCode,
+        narration: request.narration,
+        reference: request.reference,
+        beneficiaryName: request.beneficiaryName,
+        merchantId: this.config.merchantId,
+      };
+
+      const headers = this.buildHeaders();
+      
+      const response = await fetch(`${this.config.baseUrl}/nip/transfer`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(this.config.timeout),
+      });
+
+      if (!response.ok) {
+        throw new Error(`NIBSS API Error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json() as NIBSSApiTransferResponse;
+      
+      return {
+        success: data.status === '00',
+        transactionId: data.transactionId || data.sessionId,
+        reference: request.reference,
+        status: this.mapNIBSSStatus(data.status),
+        message: data.message || data.responseMessage,
+        fee: data.fee,
+        responseCode: data.status,
+        sessionId: data.sessionId,
+      };
+
+    } catch (error) {
+      console.error('NIBSS Transfer Error:', error);
+      
+      return {
+        success: false,
+        transactionId: '',
+        reference: request.reference,
+        status: 'failed',
+        message: error instanceof Error ? error.message : 'Transfer failed',
+      };
+    }
+  }
+
+  /**
+   * Perform account name inquiry
+   */
+  async accountInquiry(request: NIBSSAccountInquiryRequest): Promise<NIBSSAccountInquiryResponse> {
+    console.log('🔍 NIBSS Account Inquiry:', request);
+
+    // STUB: Return mock response until we have real API credentials
+    if (this.isStubMode()) {
+      return this.stubAccountInquiryResponse(request);
+    }
+
+    try {
+      const payload = {
+        accountNumber: request.accountNumber,
+        bankCode: request.bankCode,
+        merchantId: this.config.merchantId,
+      };
+
+      const headers = this.buildHeaders();
+      
+      const response = await fetch(`${this.config.baseUrl}/nip/account-inquiry`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(this.config.timeout),
+      });
+
+      if (!response.ok) {
+        throw new Error(`NIBSS API Error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json() as NIBSSApiAccountInquiryResponse;
+      
+      return {
+        success: data.status === '00',
+        accountNumber: request.accountNumber,
+        accountName: data.accountName || data.beneficiaryName || '',
+        bankCode: request.bankCode,
+        bankName: data.bankName || this.getBankName(request.bankCode),
+        message: data.message || data.responseMessage || 'Account inquiry successful',
+      };
+
+    } catch (error) {
+      console.error('NIBSS Account Inquiry Error:', error);
+      
+      return {
+        success: false,
+        accountNumber: request.accountNumber,
+        accountName: '',
+        bankCode: request.bankCode,
+        bankName: '',
+        message: error instanceof Error ? error.message : 'Account inquiry failed',
+      };
+    }
+  }
+
+  /**
+   * Get list of supported banks
+   */
+  async getBankList(): Promise<NIBSSBankListResponse> {
+    console.log('🏛️ NIBSS Get Bank List');
+
+    // STUB: Return mock response until we have real API credentials
+    if (this.isStubMode()) {
+      return this.stubBankListResponse();
+    }
+
+    try {
+      const headers = this.buildHeaders();
+      
+      const response = await fetch(`${this.config.baseUrl}/banks`, {
+        method: 'GET',
+        headers,
+        signal: AbortSignal.timeout(this.config.timeout),
+      });
+
+      if (!response.ok) {
+        throw new Error(`NIBSS API Error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json() as NIBSSApiBankListResponse;
+      
+      return {
+        success: true,
+        banks: data.banks || data.data || [],
+      };
+
+    } catch (error) {
+      console.error('NIBSS Bank List Error:', error);
+      
+      return {
+        success: false,
+        banks: [],
+      };
+    }
+  }
+
+  /**
+   * Check transaction status
+   */
+  async getTransactionStatus(request: NIBSSTransactionStatusRequest): Promise<NIBSSTransferResponse> {
+    console.log('📊 NIBSS Transaction Status:', request);
+
+    // STUB: Return mock response until we have real API credentials
+    if (this.isStubMode()) {
+      return this.stubTransactionStatusResponse(request);
+    }
+
+    try {
+      const payload = {
+        reference: request.reference,
+        transactionId: request.transactionId,
+        merchantId: this.config.merchantId,
+      };
+
+      const headers = this.buildHeaders();
+      
+      const response = await fetch(`${this.config.baseUrl}/nip/transaction-status`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(this.config.timeout),
+      });
+
+      if (!response.ok) {
+        throw new Error(`NIBSS API Error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json() as NIBSSApiTransactionStatusResponse;
+      
+      return {
+        success: data.status === '00',
+        transactionId: data.transactionId || request.transactionId || '',
+        reference: request.reference,
+        status: this.mapNIBSSStatus(data.status),
+        message: data.message || data.responseMessage || '',
+        responseCode: data.status,
+      };
+
+    } catch (error) {
+      console.error('NIBSS Transaction Status Error:', error);
+      
+      return {
+        success: false,
+        transactionId: request.transactionId || '',
+        reference: request.reference,
+        status: 'failed',
+        message: error instanceof Error ? error.message : 'Status check failed',
+      };
+    }
+  }
+
+  // Private helper methods
+
+  private isStubMode(): boolean {
+    return this.config.apiKey === 'STUBBED_API_KEY' || this.config.environment === 'sandbox';
+  }
+
+  private buildHeaders(): Record<string, string> {
+    const timestamp = Date.now().toString();
+    const signature = this.generateSignature(timestamp);
+
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${this.config.apiKey}`,
+      'X-Timestamp': timestamp,
+      'X-Signature': signature,
+      'X-Merchant-ID': this.config.merchantId,
+    };
+  }
+
+  private generateSignature(timestamp: string): string {
+    // TODO: Implement proper HMAC-SHA256 signature when we have real credentials
+    return `stub_signature_${timestamp}`;
+  }
+
+  private mapNIBSSStatus(nibssStatus: string): 'pending' | 'successful' | 'failed' | 'reversed' {
+    switch (nibssStatus) {
+      case '00': return 'successful';
+      case '01': 
+      case '02': 
+      case '03': return 'pending';
+      case '90':
+      case '91': return 'reversed';
+      default: return 'failed';
+    }
+  }
+
+  private getBankName(bankCode: string): string {
+    const bankNames: Record<string, string> = {
+      '011': 'First Bank of Nigeria',
+      '044': 'Access Bank',
+      '014': 'Afribank Nigeria',
+      '023': 'Citibank Nigeria',
+      '058': 'Guaranty Trust Bank',
+      '076': 'Skye Bank',
+      '082': 'Keystone Bank',
+      '221': 'Stanbic IBTC Bank',
+      '068': 'Standard Chartered Bank',
+      '232': 'Sterling Bank',
+      '032': 'Union Bank of Nigeria',
+      '033': 'United Bank for Africa',
+      '035': 'Wema Bank',
+      '057': 'Zenith Bank',
+      // Add more bank codes as needed
+    };
+
+    return bankNames[bankCode] || 'Unknown Bank';
+  }
+
+  // STUB METHODS - These will be used until we have real NIBSS API credentials
+
+  private stubTransferResponse(request: NIBSSTransferRequest): NIBSSTransferResponse {
+    const amount = parseFloat(request.amount);
+    const fee = Math.min(amount * 0.01, 50); // 1% fee, max ₦50
+
+    // Simulate some realistic scenarios
+    if (amount > 1000000) {
+      return {
+        success: false,
+        transactionId: '',
+        reference: request.reference,
+        status: 'failed',
+        message: 'Amount exceeds daily transfer limit',
+        responseCode: '61',
+      };
+    }
+
+    if (request.destinationAccountNumber === '0000000000') {
+      return {
+        success: false,
+        transactionId: '',
+        reference: request.reference,
+        status: 'failed',
+        message: 'Invalid account number',
+        responseCode: '25',
+      };
+    }
+
+    return {
+      success: true,
+      transactionId: `TXN_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      reference: request.reference,
+      status: 'successful',
+      message: 'Transfer completed successfully',
+      fee: fee.toFixed(2),
+      responseCode: '00',
+      sessionId: `SES_${Date.now()}`,
+    };
+  }
+
+  private stubAccountInquiryResponse(request: NIBSSAccountInquiryRequest): NIBSSAccountInquiryResponse {
+    // Simulate account inquiry with some test accounts
+    const testAccounts: Record<string, string> = {
+      '1234567890': 'John Doe',
+      '0987654321': 'Jane Smith',
+      '1111111111': 'Test Account',
+      '2222222222': 'Demo User',
+    };
+
+    const accountName = testAccounts[request.accountNumber] || 'ACCOUNT HOLDER';
+
+    if (request.accountNumber === '0000000000') {
+      return {
+        success: false,
+        accountNumber: request.accountNumber,
+        accountName: '',
+        bankCode: request.bankCode,
+        bankName: '',
+        message: 'Invalid account number',
+      };
+    }
+
+    return {
+      success: true,
+      accountNumber: request.accountNumber,
+      accountName,
+      bankCode: request.bankCode,
+      bankName: this.getBankName(request.bankCode),
+      message: 'Account inquiry successful',
+    };
+  }
+
+  private stubBankListResponse(): NIBSSBankListResponse {
+    return {
+      success: true,
+      banks: [
+        { code: '011', name: 'First Bank of Nigeria', active: true },
+        { code: '044', name: 'Access Bank', active: true },
+        { code: '014', name: 'Afribank Nigeria', active: true },
+        { code: '023', name: 'Citibank Nigeria', active: true },
+        { code: '058', name: 'Guaranty Trust Bank', active: true },
+        { code: '076', name: 'Skye Bank', active: true },
+        { code: '082', name: 'Keystone Bank', active: true },
+        { code: '221', name: 'Stanbic IBTC Bank', active: true },
+        { code: '068', name: 'Standard Chartered Bank', active: true },
+        { code: '232', name: 'Sterling Bank', active: true },
+        { code: '032', name: 'Union Bank of Nigeria', active: true },
+        { code: '033', name: 'United Bank for Africa', active: true },
+        { code: '035', name: 'Wema Bank', active: true },
+        { code: '057', name: 'Zenith Bank', active: true },
+      ],
+    };
+  }
+
+  private stubTransactionStatusResponse(request: NIBSSTransactionStatusRequest): NIBSSTransferResponse {
+    // Simulate checking transaction status
+    return {
+      success: true,
+      transactionId: request.transactionId || `TXN_${Date.now()}`,
+      reference: request.reference,
+      status: 'successful',
+      message: 'Transaction completed successfully',
+      responseCode: '00',
+    };
+  }
+}
+
+// Export singleton instance
+export const nibssService = new NIBSSService();

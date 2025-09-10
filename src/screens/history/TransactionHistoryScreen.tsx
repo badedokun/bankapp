@@ -17,8 +17,8 @@ import {
   RefreshControl,
   TextInput,
 } from 'react-native';
-import { useTenant, useTenantTheme } from '@/tenants/TenantContext';
-import APIService from '@/services/api';
+import { useTenant, useTenantTheme } from '../../tenants/TenantContext';
+import APIService from '../../services/api';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -51,7 +51,7 @@ interface DetailedTransaction {
   icon: string;
 }
 
-interface TransactionHistoryScreenProps {
+export interface TransactionHistoryScreenProps {
   onBack?: () => void;
   onTransactionDetails?: (transactionId: string) => void;
 }

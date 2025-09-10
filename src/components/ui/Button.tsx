@@ -12,7 +12,7 @@ import {
   View,
   TouchableOpacityProps,
 } from 'react-native';
-import { useTenantTheme } from '@/tenants/TenantContext';
+import { useTenantTheme } from '../../tenants/TenantContext';
 
 export interface ButtonProps extends TouchableOpacityProps {
   title: string;

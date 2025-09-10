@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
-import { useTenantTheme } from '@/tenants/TenantContext';
+import { useTenantTheme } from '../../tenants/TenantContext';
 
 interface LoadingScreenProps {
   message?: string;

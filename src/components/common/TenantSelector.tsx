@@ -5,8 +5,8 @@
 
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native';
-import { useTenant } from '@/tenants/TenantContext';
-import { TenantID } from '@/types/tenant';
+import { useTenant } from '../../tenants/TenantContext';
+import { TenantID } from '../../types/tenant';
 
 interface TenantSelectorProps {
   visible: boolean;

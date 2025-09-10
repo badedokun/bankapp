@@ -18,12 +18,12 @@ import {
   Image,
   KeyboardAvoidingView,
 } from 'react-native';
-import { useTenant, useTenantTheme, useTenantBranding } from '@/tenants/TenantContext';
-import Input from '@/components/ui/Input';
-import Button from '@/components/ui/Button';
-import { SecurityMonitor, SecurityConfig } from '@/utils/security';
-import APIService from '@/services/api';
-import DeploymentManager from '@/config/deployment';
+import { useTenant, useTenantTheme, useTenantBranding } from '../../tenants/TenantContext';
+import Input from '../../components/ui/Input';
+import Button from '../../components/ui/Button';
+import { SecurityMonitor, SecurityConfig } from '../../utils/security';
+import APIService from '../../services/api';
+import DeploymentManager from '../../config/deployment';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -33,7 +33,7 @@ interface LoginFormData {
   rememberMe: boolean;
 }
 
-interface LoginScreenProps {
+export interface LoginScreenProps {
   onLogin?: (credentials: LoginFormData) => Promise<void>;
   onForgotPassword?: () => void;
   onBiometricAuth?: (type: 'fingerprint' | 'faceId' | 'voice') => void;

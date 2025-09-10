@@ -4,11 +4,11 @@
  */
 
 import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
-import { TenantConfig, TenantTheme, TenantContextValue, TenantID } from '@/types/tenant';
+import { TenantConfig, TenantTheme, TenantContextValue, TenantID } from '../types/tenant';
 import TenantDetector from './TenantDetector';
 import TenantConfigLoader from './TenantConfigLoader';
 import TenantThemeManager from './TenantThemeManager';
-import { createBaseTheme } from '@/themes/base';
+import { createBaseTheme } from '../themes/base';
 
 // Create the context
 const TenantContext = createContext<TenantContextValue | null>(null);

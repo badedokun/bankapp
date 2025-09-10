@@ -42,9 +42,22 @@ export const setupTestDatabase = async (): Promise<Pool> => {
 
 export const cleanupTestDatabase = async (): Promise<void> => {
   if (testDbPool) {
-    // Clean up test data
-    await testDbPool.query('TRUNCATE TABLE IF EXISTS platform.tenants CASCADE');
-    await testDbPool.query('TRUNCATE TABLE IF EXISTS platform.tenant_assets CASCADE');
+    try {
+      // Clean up test data with proper PostgreSQL syntax
+      await testDbPool.query(`
+        DO $$ 
+        BEGIN
+          IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'platform' AND table_name = 'tenants') THEN
+            TRUNCATE TABLE platform.tenants CASCADE;
+          END IF;
+          IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'platform' AND table_name = 'tenant_assets') THEN
+            TRUNCATE TABLE platform.tenant_assets CASCADE;
+          END IF;
+        END $$;
+      `);
+    } catch (error) {
+      console.warn('Cleanup warning:', error.message);
+    }
     await testDbPool.end();
   }
 };

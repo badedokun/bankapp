@@ -349,7 +349,7 @@ router.get('/profile', authenticateToken, validateTenantAccess, asyncHandler(asy
 router.put('/profile', authenticateToken, validateTenantAccess, [
   body('firstName').optional().isLength({ min: 2 }).withMessage('First name must be at least 2 characters'),
   body('lastName').optional().isLength({ min: 2 }).withMessage('Last name must be at least 2 characters'),
-  body('phoneNumber').optional().isMobilePhone().withMessage('Invalid phone number'),
+  body('phoneNumber').optional().isMobilePhone('any').withMessage('Invalid phone number'),
   body('profileData').optional().isObject().withMessage('Profile data must be an object'),
   body('aiPreferences').optional().isObject().withMessage('AI preferences must be an object')
 ], asyncHandler(async (req, res) => {
@@ -476,6 +476,219 @@ router.get('/sessions', authenticateToken, validateTenantAccess, asyncHandler(as
     success: true,
     data: { sessions }
   });
+}));
+
+/**
+ * POST /api/auth/register
+ * Register a new user
+ */
+router.post('/register', [
+  body('email').isEmail().normalizeEmail().withMessage('Valid email required'),
+  body('phone').isMobilePhone('any').withMessage('Valid phone number required'),
+  body('firstName').isLength({ min: 2, max: 50 }).withMessage('First name must be 2-50 characters'),
+  body('lastName').isLength({ min: 2, max: 50 }).withMessage('Last name must be 2-50 characters'),
+  body('dateOfBirth').isDate().withMessage('Valid date of birth required'),
+  body('gender').isIn(['male', 'female', 'other']).withMessage('Valid gender required'),
+  body('password').isLength({ min: 8 }).matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).*$/).withMessage('Password must be at least 8 characters with uppercase, lowercase and number'),
+  body('transactionPin').isLength({ min: 4, max: 4 }).isNumeric().withMessage('Transaction PIN must be 4 digits'),
+  body('acceptTerms').equals('true').withMessage('You must accept the terms and conditions'),
+  body('tenantId').optional().isUUID().withMessage('Invalid tenant ID format'),
+  body('referralCode').optional().isLength({ min: 6, max: 10 }).withMessage('Invalid referral code')
+], asyncHandler(async (req, res) => {
+  const validationErrors = validationResult(req);
+  if (!validationErrors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      error: 'Validation failed',
+      code: 'VALIDATION_ERROR',
+      details: validationErrors.array()
+    });
+  }
+
+  const {
+    email, phone, firstName, lastName, dateOfBirth, gender,
+    password, transactionPin, referralCode
+  } = req.body;
+  
+  const tenantId = req.body.tenantId || req.tenant?.id;
+
+  if (!tenantId) {
+    return res.status(400).json({
+      success: false,
+      error: 'Tenant context required',
+      code: 'TENANT_REQUIRED'
+    });
+  }
+
+  try {
+    const { userService } = await import('../services/users');
+    
+    const registrationResult = await userService.registerUser({
+      email,
+      phone,
+      firstName,
+      lastName,
+      dateOfBirth,
+      gender,
+      password,
+      transactionPin,
+      tenantId,
+      referralCode
+    });
+
+    if (!registrationResult.success) {
+      return res.status(400).json({
+        success: false,
+        error: registrationResult.message,
+        code: 'REGISTRATION_FAILED'
+      });
+    }
+
+    res.status(201).json({
+      success: true,
+      message: registrationResult.message,
+      data: {
+        userId: registrationResult.userId,
+        accountNumber: registrationResult.accountNumber,
+        email,
+        firstName,
+        lastName,
+        kycStatus: 'pending',
+        kycLevel: 1
+      }
+    });
+
+  } catch (error) {
+    console.error('Registration error:', error);
+    throw errors.internalError('Registration failed');
+  }
+}));
+
+/**
+ * POST /api/auth/kyc/submit
+ * Submit KYC documents for verification
+ */
+router.post('/kyc/submit', authenticateToken, validateTenantAccess, [
+  body('documentType').isIn(['nin', 'passport', 'drivers_license', 'voters_card']).withMessage('Valid document type required'),
+  body('documentNumber').isLength({ min: 5, max: 20 }).withMessage('Valid document number required'),
+  body('documentImage').isLength({ min: 10 }).withMessage('Document image is required'),
+  body('selfieImage').isLength({ min: 10 }).withMessage('Selfie image is required')
+], asyncHandler(async (req, res) => {
+  const validationErrors = validationResult(req);
+  if (!validationErrors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      error: 'Validation failed',
+      code: 'VALIDATION_ERROR',
+      details: validationErrors.array()
+    });
+  }
+
+  const { documentType, documentNumber, documentImage, selfieImage } = req.body;
+  const userId = req.user.id;
+
+  try {
+    const { userService } = await import('../services/users');
+    
+    const kycResult = await userService.submitKYCDocuments({
+      userId,
+      documentType,
+      documentNumber,
+      documentImage,
+      selfieImage
+    });
+
+    res.json({
+      success: kycResult.success,
+      message: kycResult.message,
+      data: {
+        kycLevel: kycResult.kycLevel,
+        verificationId: kycResult.verificationId,
+        matchScore: kycResult.matchScore
+      }
+    });
+
+  } catch (error) {
+    console.error('KYC submission error:', error);
+    throw errors.internalError('KYC submission failed');
+  }
+}));
+
+/**
+ * GET /api/auth/profile
+ * Get complete user profile
+ */
+router.get('/profile', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
+  try {
+    const { userService } = await import('../services/users');
+    
+    const profile = await userService.getUserProfile(req.user.id);
+
+    if (!profile) {
+      return res.status(404).json({
+        success: false,
+        error: 'Profile not found',
+        code: 'PROFILE_NOT_FOUND'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: { user: profile }
+    });
+
+  } catch (error) {
+    console.error('Get profile error:', error);
+    throw errors.internalError('Failed to fetch profile');
+  }
+}));
+
+/**
+ * PUT /api/auth/profile
+ * Update user profile information
+ */
+router.put('/profile', authenticateToken, validateTenantAccess, [
+  body('firstName').optional().isLength({ min: 2, max: 50 }).withMessage('First name must be 2-50 characters'),
+  body('lastName').optional().isLength({ min: 2, max: 50 }).withMessage('Last name must be 2-50 characters'),
+  body('phone').optional().isMobilePhone('any').withMessage('Valid phone number required'),
+  body('address.street').optional().isLength({ min: 5, max: 100 }).withMessage('Street address must be 5-100 characters'),
+  body('address.city').optional().isLength({ min: 2, max: 50 }).withMessage('City must be 2-50 characters'),
+  body('address.state').optional().isLength({ min: 2, max: 50 }).withMessage('State must be 2-50 characters'),
+  body('address.country').optional().isLength({ min: 2, max: 50 }).withMessage('Country must be 2-50 characters'),
+], asyncHandler(async (req, res) => {
+  const validationErrors = validationResult(req);
+  if (!validationErrors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      error: 'Validation failed',
+      code: 'VALIDATION_ERROR',
+      details: validationErrors.array()
+    });
+  }
+
+  const { firstName, lastName, phone, address, profileImage } = req.body;
+  const userId = req.user.id;
+
+  try {
+    const { userService } = await import('../services/users');
+    
+    const updateResult = await userService.updateUserProfile(userId, {
+      firstName,
+      lastName,
+      phone,
+      address,
+      profileImage
+    });
+
+    res.json({
+      success: updateResult.success,
+      message: updateResult.message
+    });
+
+  } catch (error) {
+    console.error('Profile update error:', error);
+    throw errors.internalError('Profile update failed');
+  }
 }));
 
 export default router;

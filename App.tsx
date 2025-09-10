@@ -5,13 +5,13 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { SafeAreaView, StyleSheet, Text } from 'react-native';
-import { TenantProvider, useTenant, useTenantTheme } from '@/tenants/TenantContext';
-import LoadingScreen from '@/components/common/LoadingScreen';
-import WebNavigator from '@/navigation/WebNavigator';
-import APIService from '@/services/api';
-import DemoAuthManager from '@/utils/demoAuth';
-import DeploymentManager from '@/config/deployment';
-import '@/utils/authTestHelper'; // Import test helper for development
+import { TenantProvider, useTenant, useTenantTheme } from './src/tenants/TenantContext';
+import LoadingScreen from './src/components/common/LoadingScreen';
+import WebNavigator from './src/navigation/WebNavigator';
+import APIService from './src/services/api';
+import DemoAuthManager from './src/utils/demoAuth';
+import DeploymentManager from './src/config/deployment';
+import './src/utils/authTestHelper'; // Import test helper for development
 
 const AppContent: React.FC = () => {
   const { currentTenant, isLoading, error } = useTenant();

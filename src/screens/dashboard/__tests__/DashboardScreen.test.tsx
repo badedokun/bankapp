@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import DashboardScreen from '../DashboardScreen';
+import { TenantProvider } from '@/tenants/TenantContext';
 
 // Mock dependencies
 jest.mock('@/services/api', () => ({
@@ -95,6 +96,27 @@ describe('DashboardScreen', () => {
     },
   ];
 
+  const mockTenantData = {
+    id: 'fmfb',
+    name: 'Firstmidas Microfinance Bank',
+    displayName: 'Firstmidas Microfinance Bank',
+    branding: {
+      primaryColor: '#010080',
+      secondaryColor: '#000060',
+      accentColor: '#DAA520',
+      logo: 'https://example.com/logo.png',
+    },
+    configuration: {},
+  };
+
+  const renderWithProvider = (component: React.ReactElement) => {
+    return render(
+      <TenantProvider initialTenant={mockTenantData}>
+        {component}
+      </TenantProvider>
+    );
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
     
@@ -110,7 +132,7 @@ describe('DashboardScreen', () => {
   });
 
   it('renders correctly with user data and balance', async () => {
-    const { getByText, getByTestId } = render(
+    const { getByText, getByTestId } = renderWithProvider(
       <DashboardScreen user={mockUser} onLogout={jest.fn()} />
     );
 
@@ -123,7 +145,7 @@ describe('DashboardScreen', () => {
   });
 
   it('displays account statistics correctly', async () => {
-    const { getByText } = render(
+    const { getByText } = renderWithProvider(
       <DashboardScreen user={mockUser} onLogout={jest.fn()} />
     );
 
@@ -135,7 +157,7 @@ describe('DashboardScreen', () => {
   });
 
   it('shows recent transactions', async () => {
-    const { getByText } = render(
+    const { getByText } = renderWithProvider(
       <DashboardScreen user={mockUser} onLogout={jest.fn()} />
     );
 
@@ -149,7 +171,7 @@ describe('DashboardScreen', () => {
   });
 
   it('handles quick action button presses', async () => {
-    const { getByText } = render(
+    const { getByText } = renderWithProvider(
       <DashboardScreen user={mockUser} onLogout={jest.fn()} />
     );
 
@@ -178,7 +200,7 @@ describe('DashboardScreen', () => {
       () => new Promise(resolve => setTimeout(() => resolve({ wallet: mockBalance }), 100))
     );
 
-    const { getByTestId, queryByText } = render(
+    const { getByTestId, queryByText } = renderWithProvider(
       <DashboardScreen user={mockUser} onLogout={jest.fn()} />
     );
 
@@ -196,7 +218,7 @@ describe('DashboardScreen', () => {
     mockWalletsAPI.getBalance.mockRejectedValueOnce(new Error('Network error'));
     mockTransfersAPI.getHistory.mockRejectedValueOnce(new Error('Network error'));
 
-    const { getByText } = render(
+    const { getByText } = renderWithProvider(
       <DashboardScreen user={mockUser} onLogout={jest.fn()} />
     );
 
@@ -206,7 +228,7 @@ describe('DashboardScreen', () => {
   });
 
   it('displays AI assistant section', async () => {
-    const { getByText, getByPlaceholderText } = render(
+    const { getByText, getByPlaceholderText } = renderWithProvider(
       <DashboardScreen user={mockUser} onLogout={jest.fn()} />
     );
 
@@ -218,7 +240,7 @@ describe('DashboardScreen', () => {
   });
 
   it('handles refresh action', async () => {
-    const { getByTestId } = render(
+    const { getByTestId } = renderWithProvider(
       <DashboardScreen user={mockUser} onLogout={jest.fn()} />
     );
 
@@ -233,7 +255,7 @@ describe('DashboardScreen', () => {
   });
 
   it('formats currency amounts correctly', async () => {
-    const { getByText } = render(
+    const { getByText } = renderWithProvider(
       <DashboardScreen user={mockUser} onLogout={jest.fn()} />
     );
 
@@ -246,7 +268,7 @@ describe('DashboardScreen', () => {
   });
 
   it('handles view all transactions button', async () => {
-    const { getByText } = render(
+    const { getByText } = renderWithProvider(
       <DashboardScreen user={mockUser} onLogout={jest.fn()} />
     );
 
@@ -272,7 +294,7 @@ describe('DashboardScreen', () => {
       totalPages: 1,
     });
 
-    const { getByText } = render(
+    const { getByText } = renderWithProvider(
       <DashboardScreen user={mockUser} onLogout={jest.fn()} />
     );
 

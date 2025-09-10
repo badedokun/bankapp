@@ -3,11 +3,11 @@
  * JWT token verification and user authentication
  */
 
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions, JwtPayload } from 'jsonwebtoken';
 import { query } from '../config/database';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
+const JWT_EXPIRES_IN: string | number = process.env.JWT_EXPIRES_IN || '24h';
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || 'your-refresh-token-secret';
 
 /**
@@ -16,9 +16,9 @@ const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || 'your-refresh-t
  * @param {Object} options - Token options
  * @returns {string} JWT token
  */
-function generateToken(payload, options = {}) {
-  const defaultOptions = {
-    expiresIn: JWT_EXPIRES_IN,
+function generateToken(payload: string | object | Buffer, options: Partial<SignOptions> = {}) {
+  const defaultOptions: SignOptions = {
+    expiresIn: JWT_EXPIRES_IN as any,
     issuer: 'orokiipay-api',
     audience: 'orokiipay-client'
   };
@@ -31,7 +31,7 @@ function generateToken(payload, options = {}) {
  * @param {Object} payload - Token payload
  * @returns {string} Refresh token
  */
-function generateRefreshToken(payload) {
+function generateRefreshToken(payload: string | object | Buffer) {
   return jwt.sign(payload, REFRESH_TOKEN_SECRET, {
     expiresIn: '7d',
     issuer: 'orokiipay-api',
@@ -44,7 +44,7 @@ function generateRefreshToken(payload) {
  * @param {string} token - JWT token to verify
  * @returns {Object} Decoded token payload
  */
-function verifyToken(token) {
+function verifyToken(token: string) {
   try {
     return jwt.verify(token, JWT_SECRET, {
       issuer: 'orokiipay-api',
@@ -60,7 +60,7 @@ function verifyToken(token) {
  * @param {string} token - Refresh token to verify
  * @returns {Object} Decoded token payload
  */
-function verifyRefreshToken(token) {
+function verifyRefreshToken(token: string) {
   try {
     return jwt.verify(token, REFRESH_TOKEN_SECRET, {
       issuer: 'orokiipay-api',
@@ -76,7 +76,7 @@ function verifyRefreshToken(token) {
  * @param {Object} req - Express request object
  * @returns {string|null} Extracted token
  */
-function extractToken(req) {
+function extractToken(req: any) {
   const authHeader = req.headers.authorization;
   
   if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -91,7 +91,7 @@ function extractToken(req) {
  * Authentication middleware
  * Verifies JWT token and sets user information on request object
  */
-async function authenticateToken(req, res, next) {
+async function authenticateToken(req: any, res: any, next: any) {
   try {
     const token = extractToken(req);
     
@@ -112,7 +112,7 @@ async function authenticateToken(req, res, next) {
       JOIN tenant.tenant_metadata tm ON u.tenant_id = tm.tenant_id
       JOIN platform.tenants t ON u.tenant_id = t.id
       WHERE u.id = $1 AND u.status = 'active'
-    `, [decoded.userId]);
+    `, [(decoded as JwtPayload).userId]);
 
     if (userResult.rows.length === 0) {
       return res.status(401).json({
@@ -124,7 +124,7 @@ async function authenticateToken(req, res, next) {
     const user = userResult.rows[0];
     
     // Check if token tenant matches user tenant
-    if (decoded.tenantId !== user.tenant_id) {
+    if ((decoded as JwtPayload).tenantId !== user.tenant_id) {
       return res.status(401).json({
         error: 'Invalid tenant context',
         code: 'TENANT_MISMATCH'
@@ -151,8 +151,8 @@ async function authenticateToken(req, res, next) {
     req.token = {
       raw: token,
       payload: decoded,
-      issuedAt: new Date(decoded.iat * 1000),
-      expiresAt: new Date(decoded.exp * 1000)
+      issuedAt: new Date((decoded as JwtPayload).iat! * 1000),
+      expiresAt: new Date((decoded as JwtPayload).exp! * 1000)
     };
 
     next();
@@ -185,7 +185,7 @@ async function authenticateToken(req, res, next) {
  * Optional authentication middleware
  * Similar to authenticateToken but doesn't return error if no token
  */
-async function optionalAuth(req, res, next) {
+async function optionalAuth(req: any, res: any, next: any) {
   try {
     const token = extractToken(req);
     
@@ -206,7 +206,7 @@ async function optionalAuth(req, res, next) {
  * @param {Array|string} allowedRoles - Required roles
  * @returns {Function} Middleware function
  */
-function requireRole(allowedRoles) {
+function requireRole(allowedRoles: string | string[]) {
   const roles = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
   
   return (req, res, next) => {
@@ -235,7 +235,7 @@ function requireRole(allowedRoles) {
  * @param {Array|string} requiredPermissions - Required permissions
  * @returns {Function} Middleware function
  */
-function requirePermission(requiredPermissions) {
+function requirePermission(requiredPermissions: string | string[]) {
   const permissions = Array.isArray(requiredPermissions) ? requiredPermissions : [requiredPermissions];
   
   return (req, res, next) => {
@@ -263,6 +263,18 @@ function requirePermission(requiredPermissions) {
     next();
   };
 }
+
+export { 
+  generateToken, 
+  generateRefreshToken, 
+  verifyToken, 
+  verifyRefreshToken, 
+  extractToken, 
+  authenticateToken, 
+  optionalAuth, 
+  requireRole, 
+  requirePermission 
+};
 
 export default {
   generateToken,

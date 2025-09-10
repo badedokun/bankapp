@@ -2,13 +2,32 @@
  * Error Handling Middleware
  * Centralized error handling for the API
  */
+import { Request, Response, NextFunction } from 'express';
+
+interface CustomRequest extends Request {
+  tenant?: any;
+  user?: any;
+}
+
+interface CustomError extends Error {
+  status?: number;
+  statusCode?: number;
+  code?: string;
+  details?: any;
+  field?: string;
+  expected?: any;
+  actual?: any;
+  errno?: number;
+  syscall?: string;
+  errors?: any;
+}
 
 /**
  * Not Found middleware
  * Handles 404 errors for undefined routes
  */
-function notFound(req, res, next) {
-  const error = new Error(`Route not found: ${req.originalUrl}`);
+function notFound(req: Request, res: Response, next: NextFunction): void {
+  const error = new Error(`Route not found: ${req.originalUrl}`) as any;
   error.status = 404;
   error.code = 'ROUTE_NOT_FOUND';
   next(error);
@@ -18,7 +37,7 @@ function notFound(req, res, next) {
  * Global error handler middleware
  * Handles all errors and returns standardized error responses
  */
-function errorHandler(err, req, res, next) {
+function errorHandler(err: CustomError, req: CustomRequest, res: Response, next: NextFunction): void {
   let error = { ...err };
   error.message = err.message;
 
@@ -31,25 +50,25 @@ function errorHandler(err, req, res, next) {
     url: req.originalUrl,
     method: req.method,
     ip: req.ip,
-    userAgent: req.get('User-Agent',
+    userAgent: req.get('User-Agent'),
     tenantId: req.tenant?.id,
     userId: req.user?.id,
     timestamp: new Date().toISOString()
   });
 
   // Database errors
-  if (error.code?.startsWith('23') {
-    if (error.code === '23505' {
+  if (error.code?.startsWith('23')) {
+    if (error.code === '23505') {
       // Unique constraint violation
       error.status = 409;
       error.message = 'Duplicate entry - resource already exists';
       error.code = 'DUPLICATE_ENTRY';
-    } else if (error.code === '23503' {
+    } else if (error.code === '23503') {
       // Foreign key violation
       error.status = 400;
       error.message = 'Invalid reference - related resource not found';
       error.code = 'INVALID_REFERENCE';
-    } else if (error.code === '23514' {
+    } else if (error.code === '23514') {
       // Check constraint violation
       error.status = 400;
       error.message = 'Invalid data - constraint violation';
@@ -58,30 +77,30 @@ function errorHandler(err, req, res, next) {
   }
 
   // Connection errors
-  if (error.code === 'ECONNREFUSED' {
+  if (error.code === 'ECONNREFUSED') {
     error.status = 503;
     error.message = 'Database connection failed';
     error.code = 'DATABASE_CONNECTION_ERROR';
   }
 
   // Validation errors
-  if (error.name === 'ValidationError' {
+  if (error.name === 'ValidationError') {
     error.status = 400;
     error.code = 'VALIDATION_ERROR';
-    error.details = Object.values(error.errors).map(e => ({
+    error.details = Object.values(error.errors || {}).map((e: any) => ({
       field: e.path,
       message: e.message
     }));
   }
 
   // JWT errors
-  if (error.name === 'JsonWebTokenError' {
+  if (error.name === 'JsonWebTokenError') {
     error.status = 401;
     error.message = 'Invalid authentication token';
     error.code = 'INVALID_TOKEN';
   }
 
-  if (error.name === 'TokenExpiredError' {
+  if (error.name === 'TokenExpiredError') {
     error.status = 401;
     error.message = 'Authentication token expired';
     error.code = 'TOKEN_EXPIRED';
@@ -94,7 +113,7 @@ function errorHandler(err, req, res, next) {
   }
 
   // Default error response structure
-  const response = {
+  const response: any = {
     success: false,
     error: error.message || 'Internal server error',
     code: error.code || 'INTERNAL_ERROR',
@@ -120,7 +139,7 @@ function errorHandler(err, req, res, next) {
   }
 
   // Include stack trace in development mode
-  if (process.env.NODE_ENV === 'development' {
+  if (process.env.NODE_ENV === 'development') {
     response.stack = error.stack;
     response.originalError = {
       name: error.name,
@@ -146,8 +165,8 @@ function errorHandler(err, req, res, next) {
  * Async error wrapper
  * Wraps async route handlers to catch errors automatically
  */
-function asyncHandler(fn) {
-  return (req, res, next) => {
+function asyncHandler(fn: Function) {
+  return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
 }
@@ -156,7 +175,11 @@ function asyncHandler(fn) {
  * Create custom error with additional properties
  */
 class APIError extends Error {
-  constructor(message, status = 500, code = 'API_ERROR', details = null) {
+  public status: number;
+  public code: string;
+  public details: any;
+
+  constructor(message: string, status: number = 500, code: string = 'API_ERROR', details: any = null) {
     super(message);
     this.status = status;
     this.code = code;
@@ -173,34 +196,36 @@ const errors = {
     return new APIError(message, 400, code, details);
   },
   
-  unauthorized: (message = 'Unauthorized', code = 'UNAUTHORIZED' => {
+  unauthorized: (message = 'Unauthorized', code = 'UNAUTHORIZED') => {
     return new APIError(message, 401, code);
   },
   
-  forbidden: (message = 'Forbidden', code = 'FORBIDDEN' => {
+  forbidden: (message = 'Forbidden', code = 'FORBIDDEN') => {
     return new APIError(message, 403, code);
   },
   
-  notFound: (message = 'Resource not found', code = 'NOT_FOUND' => {
+  notFound: (message = 'Resource not found', code = 'NOT_FOUND') => {
     return new APIError(message, 404, code);
   },
   
-  conflict: (message = 'Resource conflict', code = 'CONFLICT' => {
+  conflict: (message = 'Resource conflict', code = 'CONFLICT') => {
     return new APIError(message, 409, code);
   },
   
-  tooManyRequests: (message = 'Too many requests', code = 'TOO_MANY_REQUESTS' => {
+  tooManyRequests: (message = 'Too many requests', code = 'TOO_MANY_REQUESTS') => {
     return new APIError(message, 429, code);
   },
   
-  internalError: (message = 'Internal server error', code = 'INTERNAL_ERROR' => {
+  internalError: (message = 'Internal server error', code = 'INTERNAL_ERROR') => {
     return new APIError(message, 500, code);
   },
   
-  serviceUnavailable: (message = 'Service unavailable', code = 'SERVICE_UNAVAILABLE' => {
+  serviceUnavailable: (message = 'Service unavailable', code = 'SERVICE_UNAVAILABLE') => {
     return new APIError(message, 503, code);
   }
 };
+
+export { notFound, errorHandler, asyncHandler, APIError, errors };
 
 export default {
   notFound,

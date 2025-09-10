@@ -47,7 +47,7 @@ router.get('/:tenantId/assets/:assetType/:assetName', async (req, res) => {
     const asset = result.rows[0];
     
     // Convert Base64 back to binary
-    const binaryData = Buffer.from(asset.asset_data, 'base64';
+    const binaryData = Buffer.from(asset.asset_data, 'base64');
     
     // Set appropriate headers
     res.set({
@@ -104,7 +104,7 @@ router.get('/by-name/:tenantName/assets/:assetType/:assetName', async (req, res)
     const asset = result.rows[0];
     
     // Convert Base64 back to binary
-    const binaryData = Buffer.from(asset.asset_data, 'base64';
+    const binaryData = Buffer.from(asset.asset_data, 'base64');
     
     // Set appropriate headers
     res.set({

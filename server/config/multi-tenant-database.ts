@@ -7,11 +7,16 @@
 import { Pool } from 'pg';
 
 class MultiTenantDatabaseManager {
+  private platformPool: Pool;
+  private tenantPools: Map<string, Pool>;
+  private tenantConnectionCache: Map<string, any>;
+  private cacheExpiryMs: number;
+
   constructor() {
     // Platform database pool (for tenant registry and shared data)
     this.platformPool = new Pool({
       host: process.env.DB_HOST || 'localhost',
-      port: process.env.DB_PORT || 5433,
+      port: parseInt(process.env.DB_PORT || '5433'),
       user: process.env.DB_USER || 'bisiadedokun',
       password: process.env.DB_PASSWORD || '',
       database: 'bank_app_platform',
@@ -40,7 +45,7 @@ class MultiTenantDatabaseManager {
   /**
    * Get tenant-specific database connection info
    */
-  async getTenantConnectionInfo(tenantId) {
+  async getTenantConnectionInfo(tenantId: string) {
     // Check cache first
     const cached = this.tenantConnectionCache.get(tenantId);
     if (cached && cached.expires > Date.now()) {
@@ -92,7 +97,7 @@ class MultiTenantDatabaseManager {
   /**
    * Get or create a connection pool for a specific tenant
    */
-  async getTenantPool(tenantId) {
+  async getTenantPool(tenantId: string): Promise<Pool> {
     // Check if pool already exists
     if (this.tenantPools.has(tenantId)) {
       return this.tenantPools.get(tenantId);
@@ -105,7 +110,7 @@ class MultiTenantDatabaseManager {
       // Create new pool for tenant
       const tenantPool = new Pool({
         host: tenantInfo.database_host || 'localhost',
-        port: tenantInfo.database_port || 5433,
+        port: parseInt(tenantInfo.database_port || '5433'),
         user: process.env.DB_USER || 'bisiadedokun',
         password: process.env.DB_PASSWORD || '',
         database: tenantInfo.database_name,
@@ -137,7 +142,7 @@ class MultiTenantDatabaseManager {
   /**
    * Execute a query on a tenant's database
    */
-  async queryTenant(tenantId, text, params) {
+  async queryTenant(tenantId: string, text: string, params: any[] = []) {
     const pool = await this.getTenantPool(tenantId);
     return pool.query(text, params);
   }
@@ -145,14 +150,14 @@ class MultiTenantDatabaseManager {
   /**
    * Execute a query on the platform database
    */
-  async queryPlatform(text, params) {
+  async queryPlatform(text: string, params: any[] = []) {
     return this.platformPool.query(text, params);
   }
 
   /**
    * Get a client for transaction handling
    */
-  async getTenantClient(tenantId) {
+  async getTenantClient(tenantId: string) {
     const pool = await this.getTenantPool(tenantId);
     return pool.connect();
   }
@@ -167,7 +172,7 @@ class MultiTenantDatabaseManager {
   /**
    * Close a specific tenant's connection pool
    */
-  async closeTenantPool(tenantId) {
+  async closeTenantPool(tenantId: string) {
     const pool = this.tenantPools.get(tenantId);
     if (pool) {
       await pool.end();

@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import LoginScreen from '../LoginScreen';
+import { TenantProvider } from '@/tenants/TenantContext';
 
 // Mock dependencies
 jest.mock('@/utils/storage', () => ({
@@ -43,12 +44,33 @@ const mockTenantDetector = TenantDetector as jest.Mocked<typeof TenantDetector>;
 describe('LoginScreen', () => {
   const mockOnLogin = jest.fn();
 
+  const mockTenantData = {
+    id: 'fmfb',
+    name: 'Firstmidas Microfinance Bank',
+    displayName: 'Firstmidas Microfinance Bank',
+    branding: {
+      primaryColor: '#010080',
+      secondaryColor: '#000060',
+      accentColor: '#DAA520',
+      logo: 'https://example.com/logo.png',
+    },
+    configuration: {},
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
+  const renderWithProvider = (component: React.ReactElement) => {
+    return render(
+      <TenantProvider initialTenant={mockTenantData}>
+        {component}
+      </TenantProvider>
+    );
+  };
+
   it('renders correctly with FMFB branding', async () => {
-    const { getByText, getByPlaceholderText } = render(
+    const { getByText, getByPlaceholderText } = renderWithProvider(
       <LoginScreen onLogin={mockOnLogin} />
     );
 
@@ -61,7 +83,7 @@ describe('LoginScreen', () => {
   });
 
   it('validates required fields', async () => {
-    const { getByText } = render(<LoginScreen onLogin={mockOnLogin} />);
+    const { getByText } = renderWithProvider(<LoginScreen onLogin={mockOnLogin} />);
 
     const signInButton = getByText('Sign In');
     fireEvent.press(signInButton);
@@ -168,7 +190,7 @@ describe('LoginScreen', () => {
   });
 
   it('displays tenant logo when available', async () => {
-    const { getByTestId } = render(<LoginScreen onLogin={mockOnLogin} />);
+    const { getByTestId } = renderWithProvider(<LoginScreen onLogin={mockOnLogin} />);
 
     await waitFor(() => {
       expect(getByTestId('tenant-logo')).toBeTruthy();
@@ -196,7 +218,7 @@ describe('LoginScreen', () => {
   });
 
   it('navigates to forgot password', async () => {
-    const { getByText } = render(<LoginScreen onLogin={mockOnLogin} />);
+    const { getByText } = renderWithProvider(<LoginScreen onLogin={mockOnLogin} />);
 
     const forgotPasswordLink = getByText('Forgot Password?');
     fireEvent.press(forgotPasswordLink);

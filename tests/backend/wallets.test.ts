@@ -1,38 +1,82 @@
 import request from 'supertest';
 import express from 'express';
-import { testUtils } from './setup';
+import { QueryResult } from 'pg';
+
+// Helper function to create proper QueryResult mock
+function createQueryResult<T>(rows: T[]): QueryResult<T> {
+  return {
+    rows,
+    command: 'SELECT',
+    rowCount: rows.length,
+    oid: 0,
+    fields: []
+  } as QueryResult<T>;
+}
 
 // Mock database dependencies
-jest.mock('../../server/config/multi-tenant-database', () => ({
-  queryTenant: jest.fn(),
+jest.mock('../../server/config/database', () => ({
+  query: jest.fn(),
 }));
 
-import dbManager from '../../server/config/multi-tenant-database';
-
-const mockQueryTenant = dbManager.queryTenant as jest.MockedFunction<typeof dbManager.queryTenant>;
+// Mock bcrypt
+jest.mock('bcrypt', () => ({
+  hash: jest.fn(),
+  compare: jest.fn(),
+}));
 
 // Mock authentication middleware
-const mockAuthMiddleware = (req: any, res: any, next: any) => {
-  req.user = testUtils.createMockUser();
+const mockAuthenticateToken = jest.fn((req: any, res: any, next: any) => {
+  req.user = {
+    id: 'test-user-id',
+    email: 'test@example.com',
+    firstName: 'Test',
+    lastName: 'User',
+    role: 'customer',
+    status: 'active',
+    tenantId: 'test-tenant-id',
+    tenantName: 'test-tenant',
+    tenantDisplayName: 'Test Tenant',
+  };
   next();
-};
+});
 
-const mockTenantMiddleware = (req: any, res: any, next: any) => {
+jest.mock('../../server/middleware/auth', () => ({
+  authenticateToken: mockAuthenticateToken,
+}));
+
+// Mock tenant middleware 
+const mockValidateTenantAccess = jest.fn((req: any, res: any, next: any) => {
   req.tenant = { id: 'test-tenant-id', name: 'test-tenant' };
   next();
-};
+});
+
+jest.mock('../../server/middleware/tenant', () => ({
+  validateTenantAccess: mockValidateTenantAccess,
+}));
+
+import { query } from '../../server/config/database';
+import bcrypt from 'bcrypt';
+
+const mockQuery = query as jest.MockedFunction<typeof query>;
+const mockBcryptHash = bcrypt.hash as jest.MockedFunction<typeof bcrypt.hash>;
+const mockBcryptCompare = bcrypt.compare as jest.MockedFunction<typeof bcrypt.compare>;
 
 describe('Wallet Routes', () => {
   let app: express.Application;
 
   beforeEach(async () => {
+    // Reset all mocks
+    jest.clearAllMocks();
+    mockBcryptHash.mockResolvedValue('hashed-pin');
+    mockBcryptCompare.mockResolvedValue(true);
+    
     // Dynamically import the routes to ensure mocks are applied
     const walletRoutes = await import('../../server/routes/wallets');
     
     app = express();
     app.use(express.json());
-    app.use(mockAuthMiddleware);
-    app.use(mockTenantMiddleware);
+    app.use(mockAuthenticateToken);
+    app.use(mockValidateTenantAccess);
     app.use('/api/wallets', walletRoutes.default);
   });
 
@@ -41,232 +85,345 @@ describe('Wallet Routes', () => {
   });
 
   describe('GET /api/wallets/balance', () => {
-    it('should return user wallet balance', async () => {
-      const mockWalletData = {
+    it('should return user wallet balance successfully', async () => {
+      const mockWallet = {
         id: 'wallet-id',
         user_id: 'test-user-id',
-        wallet_number: 'WLT202501001',
-        balance: 50000.00,
-        available_balance: 45000.00,
-        reserved_balance: 5000.00,
+        account_number: '1234567890',
+        balance: '50000.00',
         currency: 'NGN',
+        wallet_type: 'primary',
+        status: 'active',
         first_name: 'Test',
         last_name: 'User',
+        kyc_level: 'tier2',
+        daily_limit: '100000.00',
+        monthly_limit: '500000.00',
+        created_at: '2025-01-01T00:00:00Z',
+        updated_at: '2025-01-01T00:00:00Z'
       };
 
-      mockQueryTenant.mockResolvedValueOnce({
-        rows: [mockWalletData]
-      });
+      const mockSpending = {
+        daily_spent: '25000.00',
+        monthly_spent: '150000.00'
+      };
+
+      mockQuery
+        .mockResolvedValueOnce({ rows: [mockWallet], rowCount: 1 })
+        .mockResolvedValueOnce(createQueryResult([mockSpending]));
 
       const response = await request(app)
-        .get('/api/wallets/balance')
-        .expect(200);
+        .get('/api/wallets/balance');
 
-      expect(response.body.wallet).toEqual(mockWalletData);
-      expect(mockQueryTenant).toHaveBeenCalledWith(
-        'test-user-id',
-        expect.stringContaining('SELECT w.*, u.first_name, u.last_name'),
-        ['test-user-id']
-      );
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.accountNumber).toBe('1234567890');
+      expect(response.body.data.balance).toBe(50000);
+      expect(response.body.data.currency).toBe('NGN');
+      expect(response.body.data.limits.dailyLimit).toBe(100000);
+      expect(response.body.data.limits.dailySpent).toBe(25000);
+      expect(response.body.data.owner.name).toBe('Test User');
     });
 
     it('should return 404 if wallet not found', async () => {
-      mockQueryTenant.mockResolvedValueOnce({ rows: [] });
+      mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 });
 
       const response = await request(app)
-        .get('/api/wallets/balance')
-        .expect(404);
+        .get('/api/wallets/balance');
 
+      expect(response.status).toBe(404);
+      expect(response.body.success).toBe(false);
       expect(response.body.error).toBe('Wallet not found');
+      expect(response.body.code).toBe('WALLET_NOT_FOUND');
     });
 
     it('should handle database errors', async () => {
-      mockQueryTenant.mockRejectedValueOnce(new Error('Database connection failed'));
+      mockQuery.mockRejectedValueOnce(new Error('Database error'));
 
       const response = await request(app)
-        .get('/api/wallets/balance')
-        .expect(500);
+        .get('/api/wallets/balance');
 
+      expect(response.status).toBe(500);
+      expect(response.body.success).toBe(false);
       expect(response.body.error).toBe('Failed to fetch wallet balance');
     });
   });
 
-  describe('GET /api/wallets/statement', () => {
-    it('should return wallet statement with transactions', async () => {
-      const mockWallet = {
-        id: 'wallet-id',
-        wallet_number: 'WLT202501001',
-      };
-
-      const mockTransactions = [
+  describe('GET /api/wallets/all', () => {
+    it('should return all user wallets', async () => {
+      const mockWallets = [
         {
-          id: 'txn-1',
-          reference: 'TXN202501001',
-          type: 'money_transfer',
-          amount: 5000.00,
-          status: 'completed',
-          description: 'Transfer to John Doe',
+          id: 'primary-wallet-id',
+          wallet_type: 'primary',
+          balance: '50000.00',
+          currency: 'NGN',
+          is_primary: true,
+          status: 'active',
+          first_name: 'Test',
+          last_name: 'User',
           created_at: '2025-01-01T00:00:00Z',
-          entry_type: 'debit',
+          updated_at: '2025-01-01T00:00:00Z'
         },
         {
-          id: 'txn-2',
-          reference: 'TXN202501002',
-          type: 'credit',
-          amount: 10000.00,
-          status: 'completed',
-          description: 'Account credit',
+          id: 'savings-wallet-id',
+          wallet_type: 'savings',
+          balance: '25000.00',
+          currency: 'NGN',
+          is_primary: false,
+          status: 'active',
+          first_name: 'Test',
+          last_name: 'User',
           created_at: '2025-01-02T00:00:00Z',
-          entry_type: 'credit',
-        },
+          updated_at: '2025-01-02T00:00:00Z'
+        }
       ];
 
-      mockQueryTenant
-        .mockResolvedValueOnce({ rows: [mockWallet] }) // Wallet lookup
-        .mockResolvedValueOnce({ rows: [{ opening_balance: 40000.00 }] }) // Opening balance
-        .mockResolvedValueOnce({ rows: mockTransactions }); // Transactions
+      mockQuery.mockResolvedValueOnce(createQueryResult(mockWallets));
 
       const response = await request(app)
-        .get('/api/wallets/statement')
-        .query({ startDate: '2025-01-01', endDate: '2025-01-31' })
-        .expect(200);
+        .get('/api/wallets/all');
 
-      expect(response.body.statement.openingBalance).toBe(40000.00);
-      expect(response.body.statement.transactions).toHaveLength(2);
-      expect(response.body.statement.transactions[0]).toMatchObject({
-        reference: 'TXN202501001',
-        type: 'money_transfer',
-        amount: 5000.00,
-      });
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.wallets).toHaveLength(2);
+      expect(response.body.data.wallets[0].walletType).toBe('primary');
+      expect(response.body.data.wallets[0].isPrimary).toBe(true);
+      expect(response.body.data.wallets[1].walletType).toBe('savings');
+      expect(response.body.data.wallets[1].isPrimary).toBe(false);
+    });
+  });
+
+  describe('POST /api/wallets/create', () => {
+    it('should create new wallet successfully', async () => {
+      const mockCountResult = { wallet_count: '2' };
+      const mockNewWallet = {
+        id: 'new-wallet-id',
+        wallet_type: 'savings',
+        wallet_name: 'My Savings',
+        balance: '0.00',
+        created_at: '2025-01-01T00:00:00Z'
+      };
+
+      mockQuery
+        .mockResolvedValueOnce(createQueryResult([mockCountResult]))
+        .mockResolvedValueOnce(createQueryResult([mockNewWallet]));
+
+      const response = await request(app)
+        .post('/api/wallets/create')
+        .send({
+          walletType: 'savings',
+          name: 'My Savings',
+          description: 'Emergency fund'
+        });
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.walletType).toBe('savings');
+      expect(response.body.data.name).toBe('My Savings');
     });
 
-    it('should validate date parameters', async () => {
+    it('should reject invalid wallet type', async () => {
       const response = await request(app)
-        .get('/api/wallets/statement')
-        .query({ startDate: 'invalid-date' })
-        .expect(400);
+        .post('/api/wallets/create')
+        .send({
+          walletType: 'invalid_type',
+          name: 'Test Wallet'
+        });
 
-      expect(response.body.error).toContain('Invalid date format');
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toBe('Validation failed');
     });
   });
 
   describe('PUT /api/wallets/set-pin', () => {
-    const validPinData = {
-      currentPin: '1234',
-      newPin: '5678',
-      confirmPin: '5678',
-    };
+    it('should set PIN successfully', async () => {
+      const mockUser = {
+        transaction_pin_hash: null
+      };
 
-    it('should set new PIN successfully', async () => {
-      // Mock current user lookup
-      mockQueryTenant.mockResolvedValueOnce({
-        rows: [{ transaction_pin_hash: '$2b$10$hashedcurrentpin' }]
-      });
-
-      // Mock PIN update
-      mockQueryTenant.mockResolvedValueOnce({ rows: [] });
+      mockQuery
+        .mockResolvedValueOnce(createQueryResult([mockUser]))
+        .mockResolvedValueOnce({ rows: [] });
 
       const response = await request(app)
         .put('/api/wallets/set-pin')
-        .send(validPinData)
-        .expect(200);
+        .send({
+          pin: '1234',
+          confirmPin: '1234'
+        });
 
-      expect(response.body.message).toBe('Transaction PIN updated successfully');
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.message).toBe('Transaction PIN set successfully');
+      expect(mockBcryptHash).toHaveBeenCalledWith('1234', 12);
     });
 
     it('should validate PIN confirmation', async () => {
       const response = await request(app)
         .put('/api/wallets/set-pin')
         .send({
-          ...validPinData,
-          confirmPin: '9999', // Different from newPin
-        })
-        .expect(400);
+          pin: '1234',
+          confirmPin: '5678'
+        });
 
-      expect(response.body.error).toBe('PIN confirmation does not match');
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toBe('PIN and confirm PIN do not match');
     });
 
     it('should validate PIN format', async () => {
       const response = await request(app)
         .put('/api/wallets/set-pin')
         .send({
-          ...validPinData,
-          newPin: '123', // Too short
-        })
-        .expect(400);
+          pin: '123', // Too short
+          confirmPin: '123'
+        });
 
-      expect(response.body.errors).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            path: 'newPin',
-            msg: 'PIN must be exactly 4 digits',
-          }),
-        ])
-      );
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toBe('Validation failed');
     });
   });
 
   describe('POST /api/wallets/verify-pin', () => {
     it('should verify PIN successfully', async () => {
-      mockQueryTenant.mockResolvedValueOnce({
-        rows: [{ transaction_pin_hash: '$2b$10$correcthash' }]
-      });
+      const mockUser = {
+        transaction_pin_hash: 'hashed-pin'
+      };
+
+      mockQuery.mockResolvedValueOnce(createQueryResult([mockUser]));
+      mockBcryptCompare.mockResolvedValueOnce(true);
 
       const response = await request(app)
         .post('/api/wallets/verify-pin')
-        .send({ pin: '1234' })
-        .expect(200);
+        .send({ pin: '1234' });
 
-      expect(response.body.valid).toBe(true);
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.message).toBe('PIN verified successfully');
     });
 
     it('should fail with incorrect PIN', async () => {
-      mockQueryTenant.mockResolvedValueOnce({
-        rows: [{ transaction_pin_hash: '$2b$10$differenthash' }]
-      });
+      const mockUser = {
+        transaction_pin_hash: 'hashed-pin'
+      };
+
+      mockQuery.mockResolvedValueOnce(createQueryResult([mockUser]));
+      mockBcryptCompare.mockResolvedValueOnce(false);
 
       const response = await request(app)
         .post('/api/wallets/verify-pin')
-        .send({ pin: '9999' })
-        .expect(400);
+        .send({ pin: '9999' });
 
-      expect(response.body.valid).toBe(false);
-      expect(response.body.error).toBe('Invalid PIN');
+      expect(response.status).toBe(401);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toBe('Invalid transaction PIN');
+    });
+
+    it('should handle PIN not set', async () => {
+      const mockUser = {
+        transaction_pin_hash: null
+      };
+
+      mockQuery.mockResolvedValueOnce(createQueryResult([mockUser]));
+
+      const response = await request(app)
+        .post('/api/wallets/verify-pin')
+        .send({ pin: '1234' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toBe('Transaction PIN not set');
     });
   });
 
   describe('GET /api/wallets/limits', () => {
-    it('should return user transaction limits', async () => {
-      const mockUserLimits = {
-        daily_limit: 500000,
-        monthly_limit: 5000000,
+    it('should return transaction limits', async () => {
+      const mockUser = {
+        daily_limit: '100000.00',
+        monthly_limit: '500000.00',
+        kyc_level: 'tier2',
+        balance: '50000.00'
       };
 
       const mockSpending = {
-        daily_spent: 50000,
-        monthly_spent: 200000,
+        daily_spent: '50000.00',
+        monthly_spent: '200000.00'
       };
 
-      mockQueryTenant
-        .mockResolvedValueOnce({ rows: [mockUserLimits] })
-        .mockResolvedValueOnce({ rows: [mockSpending] });
+      mockQuery
+        .mockResolvedValueOnce(createQueryResult([mockUser]))
+        .mockResolvedValueOnce(createQueryResult([mockSpending]));
 
       const response = await request(app)
-        .get('/api/wallets/limits')
-        .expect(200);
+        .get('/api/wallets/limits');
 
-      expect(response.body.limits).toMatchObject({
-        daily: {
-          limit: 500000,
-          used: 50000,
-          remaining: 450000,
-        },
-        monthly: {
-          limit: 5000000,
-          used: 200000,
-          remaining: 4800000,
-        },
-      });
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.limits.dailyLimit).toBe(100000);
+      expect(response.body.data.limits.dailySpent).toBe(50000);
+      expect(response.body.data.limits.dailyRemaining).toBe(50000);
+      expect(response.body.data.limits.monthlyLimit).toBe(500000);
+      expect(response.body.data.limits.monthlySpent).toBe(200000);
+      expect(response.body.data.limits.monthlyRemaining).toBe(300000);
+    });
+  });
+
+  describe('GET /api/wallets/statement', () => {
+    it('should return wallet statement', async () => {
+      const mockWallet = {
+        id: 'wallet-id',
+        wallet_number: 'WLT202501001',
+        balance: '50000.00',
+        first_name: 'Test',
+        last_name: 'User'
+      };
+
+      const mockOpeningBalance = {
+        opening_balance: '40000.00'
+      };
+
+      const mockTransactions = [
+        {
+          id: 'txn-1',
+          reference: 'TXN001',
+          type: 'credit',
+          amount: '10000.00',
+          description: 'Wallet funding',
+          created_at: '2025-01-01T00:00:00Z',
+          recipient_account_number: null,
+          recipient_name: null,
+          recipient_bank_code: null,
+          transaction_type: 'funding'
+        }
+      ];
+
+      mockQuery
+        .mockResolvedValueOnce(createQueryResult([mockWallet]))
+        .mockResolvedValueOnce(createQueryResult([mockOpeningBalance]))
+        .mockResolvedValueOnce(createQueryResult(mockTransactions));
+
+      const response = await request(app)
+        .get('/api/wallets/statement')
+        .query({
+          startDate: '2025-01-01',
+          endDate: '2025-01-31'
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.statement.openingBalance).toBe(40000);
+      expect(response.body.data.statement.transactions).toHaveLength(1);
+    });
+
+    it('should validate required date parameters', async () => {
+      const response = await request(app)
+        .get('/api/wallets/statement');
+
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toBe('Start date and end date are required');
     });
   });
 });

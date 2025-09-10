@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import TransactionHistoryScreen from '../TransactionHistoryScreen';
+import TransactionHistoryScreen from '../../history/TransactionHistoryScreen';
+import { TenantProvider } from '@/tenants/TenantContext';
 
 // Mock dependencies
 jest.mock('@/services/api', () => ({
@@ -31,6 +32,27 @@ const mockTransfersAPI = transfersAPI as jest.Mocked<typeof transfersAPI>;
 const mockWalletsAPI = walletsAPI as jest.Mocked<typeof walletsAPI>;
 
 describe('TransactionHistoryScreen', () => {
+  const mockTenantData = {
+    id: 'fmfb',
+    name: 'Firstmidas Microfinance Bank',
+    displayName: 'Firstmidas Microfinance Bank',
+    branding: {
+      primaryColor: '#010080',
+      secondaryColor: '#000060',
+      accentColor: '#DAA520',
+      logo: 'https://example.com/logo.png',
+    },
+    configuration: {},
+  };
+
+  const renderWithProvider = (component: React.ReactElement) => {
+    return render(
+      <TenantProvider initialTenant={mockTenantData}>
+        {component}
+      </TenantProvider>
+    );
+  };
+
   const mockTransactions = [
     {
       id: 'txn-1',
@@ -79,7 +101,7 @@ describe('TransactionHistoryScreen', () => {
   });
 
   it('renders correctly with transaction list', async () => {
-    const { getByText, getByTestId } = render(
+    const { getByText, getByTestId } = renderWithProvider(
       <TransactionHistoryScreen />
     );
 
@@ -93,7 +115,7 @@ describe('TransactionHistoryScreen', () => {
   });
 
   it('displays transaction details correctly', async () => {
-    const { getByText } = render(
+    const { getByText } = renderWithProvider(
       <TransactionHistoryScreen />
     );
 
@@ -115,7 +137,7 @@ describe('TransactionHistoryScreen', () => {
   });
 
   it('handles transaction status filtering', async () => {
-    const { getByText, queryByText } = render(
+    const { getByText, queryByText } = renderWithProvider(
       <TransactionHistoryScreen />
     );
 
@@ -140,7 +162,7 @@ describe('TransactionHistoryScreen', () => {
   });
 
   it('handles transaction type filtering', async () => {
-    const { getByText } = render(
+    const { getByText } = renderWithProvider(
       <TransactionHistoryScreen />
     );
 
@@ -168,7 +190,7 @@ describe('TransactionHistoryScreen', () => {
   });
 
   it('handles date range filtering', async () => {
-    const { getByPlaceholderText, getByText } = render(
+    const { getByPlaceholderText, getByText } = renderWithProvider(
       <TransactionHistoryScreen />
     );
 
@@ -194,7 +216,7 @@ describe('TransactionHistoryScreen', () => {
   });
 
   it('handles transaction search', async () => {
-    const { getByPlaceholderText } = render(
+    const { getByPlaceholderText } = renderWithProvider(
       <TransactionHistoryScreen />
     );
 
@@ -221,7 +243,7 @@ describe('TransactionHistoryScreen', () => {
       totalPages: 5,
     });
 
-    const { getByText } = render(
+    const { getByText } = renderWithProvider(
       <TransactionHistoryScreen />
     );
 
@@ -249,7 +271,7 @@ describe('TransactionHistoryScreen', () => {
       }
     });
 
-    const { getByText, getByTestId } = render(
+    const { getByText, getByTestId } = renderWithProvider(
       <TransactionHistoryScreen />
     );
 
@@ -277,7 +299,7 @@ describe('TransactionHistoryScreen', () => {
       }), 100))
     );
 
-    const { getByTestId, queryByTestId } = render(
+    const { getByTestId, queryByTestId } = renderWithProvider(
       <TransactionHistoryScreen />
     );
 
@@ -294,7 +316,7 @@ describe('TransactionHistoryScreen', () => {
   it('handles API errors gracefully', async () => {
     mockTransfersAPI.getHistory.mockRejectedValueOnce(new Error('Network error'));
 
-    const { getByText } = render(
+    const { getByText } = renderWithProvider(
       <TransactionHistoryScreen />
     );
 
@@ -315,7 +337,7 @@ describe('TransactionHistoryScreen', () => {
         totalPages: 1,
       });
 
-    const { getByText, queryByText } = render(
+    const { getByText, queryByText } = renderWithProvider(
       <TransactionHistoryScreen />
     );
 
@@ -343,7 +365,7 @@ describe('TransactionHistoryScreen', () => {
       totalPages: 0,
     });
 
-    const { getByText, getByTestId } = render(
+    const { getByText, getByTestId } = renderWithProvider(
       <TransactionHistoryScreen />
     );
 
@@ -354,7 +376,7 @@ describe('TransactionHistoryScreen', () => {
   });
 
   it('handles export functionality', async () => {
-    const { getByText } = render(
+    const { getByText } = renderWithProvider(
       <TransactionHistoryScreen />
     );
 
@@ -369,7 +391,7 @@ describe('TransactionHistoryScreen', () => {
   });
 
   it('formats dates correctly', async () => {
-    const { getByText } = render(
+    const { getByText } = renderWithProvider(
       <TransactionHistoryScreen />
     );
 
@@ -382,7 +404,7 @@ describe('TransactionHistoryScreen', () => {
   });
 
   it('displays transaction icons correctly', async () => {
-    const { getByTestId } = render(
+    const { getByTestId } = renderWithProvider(
       <TransactionHistoryScreen />
     );
 

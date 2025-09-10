@@ -16,11 +16,11 @@ import {
   Dimensions,
   Animated,
 } from 'react-native';
-import { useTenant, useTenantTheme } from '@/tenants/TenantContext';
-import Input from '@/components/ui/Input';
-import Button from '@/components/ui/Button';
-import { InputValidator } from '@/utils/security';
-import APIService from '@/services/api';
+import { useTenant, useTenantTheme } from '../../tenants/TenantContext';
+import Input from '../../components/ui/Input';
+import Button from '../../components/ui/Button';
+import { InputValidator } from '../../utils/security';
+import APIService from '../../services/api';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -39,7 +39,7 @@ interface Bank {
   slug: string;
 }
 
-interface AITransferScreenProps {
+export interface AITransferScreenProps {
   onTransferComplete?: (transferData: TransferFormData) => void;
   onBack?: () => void;
 }

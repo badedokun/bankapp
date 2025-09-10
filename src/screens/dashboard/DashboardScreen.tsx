@@ -17,8 +17,8 @@ import {
   RefreshControl,
   TextInput,
 } from 'react-native';
-import { useTenant, useTenantTheme } from '@/tenants/TenantContext';
-import APIService from '@/services/api';
+import { useTenant, useTenantTheme } from '../../tenants/TenantContext';
+import APIService from '../../services/api';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -30,6 +30,18 @@ interface DashboardData {
     transactions: number;
     recipients: number;
     volume: string;
+  };
+  transactionLimits: {
+    daily: {
+      limit: number;
+      used: number;
+      remaining: number;
+    };
+    monthly: {
+      limit: number;
+      used: number;
+      remaining: number;
+    };
   };
   recentTransactions: Transaction[];
   aiSuggestions: AISuggestion[];
@@ -53,7 +65,7 @@ interface AISuggestion {
   description: string;
 }
 
-interface DashboardScreenProps {
+export interface DashboardScreenProps {
   onNavigateToTransfer?: () => void;
   onNavigateToHistory?: () => void;
   onNavigateToSettings?: () => void;
@@ -126,6 +138,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
           recipients: new Set(transactionsData.transactions.map((tx: any) => tx.recipient_name).filter(Boolean)).size,
           volume: `₦${(transactionsData.transactions.reduce((sum: number, tx: any) => sum + Math.abs(tx.amount || 0), 0) / 1000000).toFixed(1)}M`,
         },
+        transactionLimits: limitsData.limits,
         recentTransactions: recentTransactions,
         aiSuggestions: aiSuggestions,
       });
@@ -575,6 +588,58 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
     amountPending: {
       color: '#f59e0b',
     },
+    limitsPanel: {
+      backgroundColor: '#ffffff',
+      borderRadius: 20,
+      padding: theme.spacing.lg,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.08,
+      shadowRadius: 20,
+      elevation: 4,
+      marginBottom: theme.spacing.lg,
+    },
+    limitsGrid: {
+      gap: theme.spacing.md,
+    },
+    limitCard: {
+      backgroundColor: '#f8fafc',
+      borderRadius: 16,
+      padding: theme.spacing.lg,
+      borderLeftWidth: 4,
+      borderLeftColor: theme.colors.primary,
+    },
+    limitHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: theme.spacing.md,
+    },
+    limitLabel: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: '#333',
+    },
+    limitValue: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: theme.colors.primary,
+    },
+    progressBar: {
+      height: 8,
+      backgroundColor: '#e1e5e9',
+      borderRadius: 4,
+      overflow: 'hidden',
+      marginBottom: theme.spacing.sm,
+    },
+    progressFill: {
+      height: '100%',
+      borderRadius: 4,
+    },
+    limitSubtext: {
+      fontSize: 12,
+      color: '#666',
+    },
   });
 
   return (
@@ -693,6 +758,66 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
               <Text style={dynamicStyles.statIcon}>💰</Text>
               <Text style={dynamicStyles.statValue}>{dashboardData.monthlyStats.volume}</Text>
               <Text style={dynamicStyles.statLabel}>Monthly Volume</Text>
+            </View>
+          </View>
+        )}
+
+        {/* Transaction Limits Section */}
+        {dashboardData && (
+          <View style={dynamicStyles.dashboardGrid}>
+            <View style={dynamicStyles.limitsPanel}>
+              <View style={dynamicStyles.sectionHeader}>
+                <Text style={dynamicStyles.sectionTitle}>🔒 Transaction Limits</Text>
+                <TouchableOpacity onPress={() => Alert.alert('Limits Info', 'Transaction limits help protect your account. Contact support to request increases.')}>
+                  <Text style={dynamicStyles.seeAll}>Info</Text>
+                </TouchableOpacity>
+              </View>
+              
+              <View style={dynamicStyles.limitsGrid}>
+                {/* Daily Limit */}
+                <View style={dynamicStyles.limitCard}>
+                  <View style={dynamicStyles.limitHeader}>
+                    <Text style={dynamicStyles.limitLabel}>Daily Limit</Text>
+                    <Text style={dynamicStyles.limitValue}>
+                      ₦{dashboardData.transactionLimits.daily.remaining.toLocaleString()} remaining
+                    </Text>
+                  </View>
+                  <View style={dynamicStyles.progressBar}>
+                    <View style={[
+                      dynamicStyles.progressFill,
+                      { 
+                        width: `${Math.min(100, (dashboardData.transactionLimits.daily.used / dashboardData.transactionLimits.daily.limit) * 100)}%`,
+                        backgroundColor: dashboardData.transactionLimits.daily.used / dashboardData.transactionLimits.daily.limit > 0.8 ? '#ef4444' : theme.colors.primary
+                      }
+                    ]} />
+                  </View>
+                  <Text style={dynamicStyles.limitSubtext}>
+                    ₦{dashboardData.transactionLimits.daily.used.toLocaleString()} of ₦{dashboardData.transactionLimits.daily.limit.toLocaleString()} used
+                  </Text>
+                </View>
+
+                {/* Monthly Limit */}
+                <View style={dynamicStyles.limitCard}>
+                  <View style={dynamicStyles.limitHeader}>
+                    <Text style={dynamicStyles.limitLabel}>Monthly Limit</Text>
+                    <Text style={dynamicStyles.limitValue}>
+                      ₦{dashboardData.transactionLimits.monthly.remaining.toLocaleString()} remaining
+                    </Text>
+                  </View>
+                  <View style={dynamicStyles.progressBar}>
+                    <View style={[
+                      dynamicStyles.progressFill,
+                      { 
+                        width: `${Math.min(100, (dashboardData.transactionLimits.monthly.used / dashboardData.transactionLimits.monthly.limit) * 100)}%`,
+                        backgroundColor: dashboardData.transactionLimits.monthly.used / dashboardData.transactionLimits.monthly.limit > 0.8 ? '#ef4444' : theme.colors.primary
+                      }
+                    ]} />
+                  </View>
+                  <Text style={dynamicStyles.limitSubtext}>
+                    ₦{dashboardData.transactionLimits.monthly.used.toLocaleString()} of ₦{dashboardData.transactionLimits.monthly.limit.toLocaleString()} used
+                  </Text>
+                </View>
+              </View>
             </View>
           </View>
         )}

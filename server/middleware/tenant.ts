@@ -248,6 +248,16 @@ function getTenantConfig(req, configPath, defaultValue = null) {
   return current !== undefined ? current : defaultValue;
 }
 
+export { 
+  extractTenantId, 
+  resolveTenant, 
+  tenantMiddleware, 
+  validateTenantAccess, 
+  requireTenantTier, 
+  requireFeature, 
+  getTenantConfig 
+};
+
 export default {
   extractTenantId,
   resolveTenant,

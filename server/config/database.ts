@@ -8,7 +8,7 @@ import { Pool } from 'pg';
 // Database configuration
 const dbConfig = {
   host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 5433,
+  port: parseInt(process.env.DB_PORT || '5433'),
   user: process.env.DB_USER || 'bisiadedokun',
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'bank_app_platform',
@@ -33,19 +33,19 @@ const dbConfig = {
 const pool = new Pool(dbConfig);
 
 // Pool event handlers
-pool.on('connect', (client) => {
+pool.on('connect', (client: any) => {
   console.log(`🔗 New database connection established (PID: ${client.processID})`);
 });
 
-pool.on('error', (err, client) => {
+pool.on('error', (err: any, client?: any) => {
   console.error('❌ Unexpected error on idle database client:', err);
 });
 
-pool.on('acquire', (client) => {
+pool.on('acquire', (client: any) => {
   console.log(`📦 Database client acquired (PID: ${client.processID})`);
 });
 
-pool.on('remove', (client) => {
+pool.on('remove', (client: any) => {
   console.log(`🗑️ Database client removed (PID: ${client.processID})`);
 });
 
@@ -56,7 +56,7 @@ pool.on('remove', (client) => {
  * @param {string} tenantId - Optional tenant ID for row-level security
  * @returns {Promise<Object>} Query result
  */
-async function query(text, params = [], tenantId = null) {
+async function query(text: string, params: any[] = [], tenantId: string | null = null) {
   const client = await pool.connect();
   
   try {
@@ -97,7 +97,7 @@ async function query(text, params = [], tenantId = null) {
  * @param {string} tenantId - Optional tenant ID for row-level security
  * @returns {Promise<any>} Transaction result
  */
-async function transaction(callback, tenantId = null) {
+async function transaction(callback: (client: any) => Promise<any>, tenantId: string | null = null) {
   const client = await pool.connect();
   
   try {
@@ -160,8 +160,8 @@ async function testConnection() {
   try {
     const result = await query('SELECT NOW() as current_time, version() as pg_version');
     console.log('✅ Database connection test successful:', {
-      time: result.rows[0].current_time,
-      version: result.rows[0].pg_version.split(' ')[0]
+      time: result.rows[0]?.current_time,
+      version: result.rows[0]?.pg_version?.split(' ')[0]
     });
     return true;
   } catch (error: any) {
@@ -172,6 +172,8 @@ async function testConnection() {
 
 // Test connection on startup
 testConnection();
+
+export { query, transaction, pool, getPoolStats, closePool, testConnection };
 
 export default {
   query,

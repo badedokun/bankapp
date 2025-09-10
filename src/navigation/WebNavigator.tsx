@@ -11,7 +11,7 @@ import {
   AITransferScreen,
   TransactionHistoryScreen,
   SettingsScreen,
-} from '@/screens';
+} from '../screens';
 
 type Screen = 'Login' | 'Dashboard' | 'Transfer' | 'History' | 'Settings';
 

@@ -5,13 +5,13 @@
  */
 
 import { Client } from 'pg';
-import 'fs';
-import 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 
 // Database configuration
 const PLATFORM_DB_CONFIG = {
   host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 5433,
+  port: parseInt(process.env.DB_PORT || '5433'),
   user: process.env.DB_USER || 'bisiadedokun',
   password: process.env.DB_PASSWORD || '',
   database: 'bank_app_platform'
@@ -25,7 +25,7 @@ const POSTGRES_CONFIG = {
 /**
  * Create a new database for a tenant
  */
-async function createTenantDatabase(tenantName, tenantId) {
+async function createTenantDatabase(tenantName: string, tenantId: string) {
   const dbName = `tenant_${tenantName}_db`;
   const client = new Client(POSTGRES_CONFIG);
   
@@ -34,11 +34,11 @@ async function createTenantDatabase(tenantName, tenantId) {
     console.log(`\n📦 Creating database for tenant: ${tenantName}`);
     
     // Drop existing database if in development mode
-    if (process.env.NODE_ENV === 'development' {)
+    if (process.env.NODE_ENV === 'development') {
       try {
         await client.query(`DROP DATABASE IF EXISTS ${dbName}`);
         console.log(`   Dropped existing database: ${dbName}`);
-      } catch (error) {
+      } catch (error: any) {
         console.log(`   No existing database to drop`);
       }
     }
@@ -62,7 +62,7 @@ async function createTenantDatabase(tenantName, tenantId) {
 /**
  * Apply the tenant template schema to a tenant database
  */
-async function applyTenantSchema(dbName, tenantId, tenantName) {
+async function applyTenantSchema(dbName: string, tenantId: string, tenantName: string) {
   const client = new Client({
     ...PLATFORM_DB_CONFIG,
     database: dbName
@@ -73,11 +73,11 @@ async function applyTenantSchema(dbName, tenantId, tenantName) {
     console.log(`\n📝 Applying tenant schema to ${dbName}`);
     
     // Read the tenant template schema
-    const templatePath = path.join(__dirname, '../database/migrations/002_tenant_template_schema.sql';
-    let schemaSQL = fs.readFileSync(templatePath, 'utf8';
+    const templatePath = path.join(__dirname, '../database/migrations/002_tenant_template_schema.sql');
+    let schemaSQL = fs.readFileSync(templatePath, 'utf8');
     
     // Split SQL into individual statements (handling VACUUM separately)
-    const statements = schemaSQL.split(';'.filter(stmt => stmt.trim());
+    const statements = schemaSQL.split(';').filter(stmt => stmt.trim());
     
     // Execute each statement
     for (let i = 0; i < statements.length; i++) {
@@ -85,13 +85,13 @@ async function applyTenantSchema(dbName, tenantId, tenantName) {
       if (!statement) continue;
       
       // Skip VACUUM statements (will be handled separately)
-      if (statement.toUpperCase().includes('VACUUM') {
+      if (statement.toUpperCase().includes('VACUUM')) {
         continue;
       }
       
       try {
-        await client.query(statement + ';';
-      } catch (error) {
+        await client.query(statement + ';');
+      } catch (error: any) {
         console.error(`   Error executing statement ${i + 1}:`, error.message);
         // Continue with other statements
       }
@@ -118,7 +118,7 @@ async function applyTenantSchema(dbName, tenantId, tenantName) {
 /**
  * Update platform database with tenant database connection info
  */
-async function updateTenantRegistry(tenantName, tenantId, dbName) {
+async function updateTenantRegistry(tenantName: string, tenantId: string, dbName: string) {
   const client = new Client(PLATFORM_DB_CONFIG);
   
   try {
@@ -155,7 +155,7 @@ async function updateTenantRegistry(tenantName, tenantId, dbName) {
 /**
  * Seed initial data for a tenant
  */
-async function seedTenantData(dbName, tenantId, tenantName) {
+async function seedTenantData(dbName: string, tenantId: string, tenantName: string) {
   const client = new Client({
     ...PLATFORM_DB_CONFIG,
     database: dbName
@@ -177,8 +177,8 @@ async function seedTenantData(dbName, tenantId, tenantName) {
         status,
         role
       ) VALUES 
-      ($1, $2, '+2348012345678', 'Demo', 'User', crypt('Demo@123!', gen_salt('bf'), 'active', 'agent',
-      ($1, $3, '+2348012345679', 'Admin', 'User', crypt('Admin@123!', gen_salt('bf'), 'active', 'admin'
+      ($1, $2, '+2348012345678', 'Demo', 'User', crypt('Demo@123!', gen_salt('bf')), 'active', 'agent'),
+      ($1, $3, '+2348012345679', 'Admin', 'User', crypt('Admin@123!', gen_salt('bf')), 'active', 'admin')
       ON CONFLICT (email) DO NOTHING
       RETURNING id, email
     `, [tenantId, `demo@${tenantName}.com`, `admin@${tenantName}.com`]);
@@ -199,7 +199,7 @@ async function seedTenantData(dbName, tenantId, tenantName) {
       `, [
         user.id, 
         tenantId, 
-        `${user.email.split('@'[0]} Main Wallet`,
+        `${user.email.split('@')[0]} Main Wallet`,
         `${tenantName.toUpperCase()}${Date.now()}${Math.floor(Math.random() * 1000)}`
       ]);
     }
@@ -216,7 +216,7 @@ async function seedTenantData(dbName, tenantId, tenantName) {
 /**
  * Main provisioning function
  */
-async function provisionTenant(tenantName) {
+async function provisionTenant(tenantName: string) {
   const platformClient = new Client(PLATFORM_DB_CONFIG);
   
   try {

@@ -3,8 +3,8 @@
  * Manages and applies tenant-specific themes dynamically
  */
 
-import { TenantTheme, TenantConfig, TenantID } from '@/types/tenant';
-import { createBaseTheme } from '@/themes/base';
+import { TenantTheme, TenantConfig, TenantID } from '../types/tenant';
+import { createBaseTheme } from '../themes/base';
 import { Platform } from 'react-native';
 
 class TenantThemeManager {

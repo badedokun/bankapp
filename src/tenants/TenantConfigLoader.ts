@@ -3,7 +3,7 @@
  * Loads and manages tenant-specific configurations
  */
 
-import { TenantConfig, TenantID } from '@/types/tenant';
+import { TenantConfig, TenantID } from '../types/tenant';
 
 // Tenant configurations (in production, these would come from a secure API)
 const tenantConfigs: Record<TenantID, TenantConfig> = {

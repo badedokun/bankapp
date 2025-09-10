@@ -4,10 +4,10 @@
  */
 
 import { Platform } from 'react-native';
-import { Storage } from '@/utils/storage';
-import { TenantConfig, TenantID } from '@/types/tenant';
-import JWTManager from '@/utils/jwt';
-import DeploymentManager from '@/config/deployment';
+import { Storage } from '../utils/storage';
+import { TenantConfig, TenantID } from '../types/tenant';
+import JWTManager from '../utils/jwt';
+import DeploymentManager from '../config/deployment';
 
 export enum TenantDetectionMethod {
   JWT_TOKEN = 'jwt_token',
