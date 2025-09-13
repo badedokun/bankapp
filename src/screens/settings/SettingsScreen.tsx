@@ -12,11 +12,11 @@ import {
   SafeAreaView,
   StatusBar,
   TouchableOpacity,
-  Alert,
   Dimensions,
   Switch,
 } from 'react-native';
 import { useTenant, useTenantTheme } from '../../tenants/TenantContext';
+import { useBankingAlert } from '../../services/AlertService';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import APIService from '../../services/api';
@@ -40,6 +40,8 @@ interface UserProfile {
   kycStatus: string;
   kycLevel: number;
   tier: string;
+  role?: string;
+  permissions?: string[];
 }
 
 interface SecuritySettings {
@@ -47,6 +49,16 @@ interface SecuritySettings {
   biometricEnabled: boolean;
   pinEnabled: boolean;
   loginNotifications: boolean;
+}
+
+interface TransactionLimits {
+  dailyLimit: number;
+  monthlyLimit: number;
+  dailySpent: number;
+  monthlySpent: number;
+  dailyRemaining: number;
+  monthlyRemaining: number;
+  kycLevel: number;
 }
 
 interface AppPreferences {
@@ -66,7 +78,7 @@ interface AppPreferences {
   };
 }
 
-type SettingsSection = 'profile' | 'security' | 'preferences' | 'ai' | 'notifications' | 'privacy' | 'support';
+type SettingsSection = 'profile' | 'security' | 'limits' | 'admin-limits' | 'preferences' | 'ai' | 'notifications' | 'privacy' | 'support';
 
 export interface SettingsScreenProps {
   onBack?: () => void;
@@ -79,6 +91,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 }) => {
   const { currentTenant } = useTenant();
   const theme = useTenantTheme();
+  const { showAlert } = useBankingAlert();
   
   // State
   const [activeSection, setActiveSection] = useState<SettingsSection>('profile');
@@ -91,6 +104,13 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     pinEnabled: true,
     loginNotifications: true,
   });
+  const [transactionLimits, setTransactionLimits] = useState<TransactionLimits | null>(null);
+  const [adminLimitsForm, setAdminLimitsForm] = useState({
+    userEmail: '',
+    dailyLimit: '',
+    monthlyLimit: '',
+  });
+  const [isUpdatingLimits, setIsUpdatingLimits] = useState(false);
   const [appPreferences, setAppPreferences] = useState<AppPreferences>({
     language: 'en',
     currency: 'NGN',
@@ -107,6 +127,18 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       voiceCommands: false,
     },
   });
+
+  // Load transaction limits
+  const loadTransactionLimits = useCallback(async () => {
+    try {
+      const limits = await APIService.getTransactionLimits();
+      if (limits?.limits) {
+        setTransactionLimits(limits.limits);
+      }
+    } catch (error) {
+      console.error('Failed to load transaction limits:', error);
+    }
+  }, []);
 
   // Load user profile and settings
   const loadUserData = useCallback(async () => {
@@ -131,6 +163,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         kycStatus: profile.kycStatus || 'verified',
         kycLevel: profile.kycLevel || 2,
         tier: 'Premium Account',
+        role: profile.role || 'user',
+        permissions: profile.permissions || [],
       });
 
       // Mock settings from profile
@@ -140,13 +174,59 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         pinEnabled: true,
         loginNotifications: true,
       });
+      
+      // Load transaction limits
+      await loadTransactionLimits();
     } catch (error) {
       console.error('Failed to load user data:', error);
-      Alert.alert('Error', 'Failed to load user data. Please try again.');
+      showAlert('Error', 'Failed to load user data. Please try again.');
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [loadTransactionLimits]);
+
+  // Update user limits (admin only)
+  const handleUpdateUserLimits = useCallback(async () => {
+    console.log('🔧 Update User Limits clicked', adminLimitsForm);
+    
+    if (!adminLimitsForm.userEmail || !adminLimitsForm.dailyLimit || !adminLimitsForm.monthlyLimit) {
+      console.log('❌ Missing fields validation failed');
+      showAlert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    const daily = parseFloat(adminLimitsForm.dailyLimit);
+    const monthly = parseFloat(adminLimitsForm.monthlyLimit);
+    
+    console.log('🔍 Parsed values:', { daily, monthly, dailyString: adminLimitsForm.dailyLimit, monthlyString: adminLimitsForm.monthlyLimit });
+
+    if (isNaN(daily) || isNaN(monthly)) {
+      console.log('❌ Invalid number format');
+      showAlert('Error', 'Please enter valid numbers for limits');
+      return;
+    }
+
+    if (daily > monthly) {
+      console.log('❌ Daily > Monthly validation failed:', { daily, monthly });
+      showAlert('Error', 'Daily limit cannot exceed monthly limit');
+      return;
+    }
+
+    console.log('🚀 Starting API call...', { userEmail: adminLimitsForm.userEmail, daily, monthly });
+    setIsUpdatingLimits(true);
+    try {
+      const result = await APIService.updateUserLimits(adminLimitsForm.userEmail, daily, monthly);
+      console.log('✅ API call successful:', result);
+      
+      showAlert('Success', `Transaction limits updated successfully for ${adminLimitsForm.userEmail}`);
+      setAdminLimitsForm({ userEmail: '', dailyLimit: '', monthlyLimit: '' });
+    } catch (error: any) {
+      console.error('❌ API call failed:', error);
+      showAlert('Error', error.message || 'Failed to update limits');
+    } finally {
+      setIsUpdatingLimits(false);
+    }
+  }, [adminLimitsForm]);
 
   useEffect(() => {
     loadUserData();
@@ -164,18 +244,23 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         phoneNumber: userProfile.phoneNumber,
       });
       
-      Alert.alert('Success', 'Profile updated successfully!');
+      showAlert('Success', 'Profile updated successfully!');
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to update profile.');
+      showAlert('Error', error.message || 'Failed to update profile.');
     } finally {
       setIsSaving(false);
     }
   }, [userProfile]);
 
+  // Check if user is admin
+  const isAdmin = userProfile?.role === 'admin' || userProfile?.role === 'super_admin';
+
   // Navigation items
   const navigationItems = [
     { key: 'profile', icon: '👤', label: 'Profile Information' },
     { key: 'security', icon: '🔒', label: 'Security Settings' },
+    { key: 'limits', icon: '💳', label: 'Transaction Limits' },
+    ...(isAdmin ? [{ key: 'admin-limits', icon: '🛠️', label: 'Admin: Manage Limits' }] : []),
     { key: 'preferences', icon: '⚙️', label: 'App Preferences' },
     { key: 'ai', icon: '🤖', label: 'AI Assistant' },
     { key: 'notifications', icon: '🔔', label: 'Notifications' },
@@ -616,7 +701,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
         <TouchableOpacity 
           style={dynamicStyles.actionButton}
-          onPress={() => Alert.alert('Change Password', 'Password change feature coming soon!')}
+          onPress={() => showAlert('Change Password', 'Password change feature coming soon!')}
         >
           <Text style={dynamicStyles.actionButtonText}>🔑 Change Password</Text>
         </TouchableOpacity>
@@ -627,6 +712,274 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         >
           <Text style={dynamicStyles.actionButtonText}>🚪 Sign Out</Text>
         </TouchableOpacity>
+      </View>
+    </ScrollView>
+  );
+
+  const renderTransactionLimitsSection = () => (
+    <ScrollView style={dynamicStyles.contentArea} showsVerticalScrollIndicator={false}>
+      <View style={dynamicStyles.contentHeader}>
+        <Text style={dynamicStyles.contentTitle}>💳 Transaction Limits</Text>
+        <Text style={dynamicStyles.contentSubtitle}>
+          View your transaction limits and current spending
+        </Text>
+      </View>
+      
+      <View style={dynamicStyles.contentBody}>
+        {transactionLimits ? (
+          <>
+            <View style={dynamicStyles.formSection}>
+              <Text style={dynamicStyles.sectionTitle}>📊 Daily Limits</Text>
+              <View style={[dynamicStyles.settingItem, { paddingVertical: theme.spacing.lg }]}>
+                <View style={{ flex: 1 }}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <Text style={dynamicStyles.settingTitle}>Daily Spending Limit</Text>
+                    <Text style={[dynamicStyles.settingTitle, { color: theme.colors.primary }]}>
+                      ₦{transactionLimits.dailyLimit.toLocaleString()}
+                    </Text>
+                  </View>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
+                    <Text style={dynamicStyles.settingDescription}>Used today</Text>
+                    <Text style={[dynamicStyles.settingDescription, { 
+                      color: transactionLimits.dailySpent > transactionLimits.dailyLimit * 0.8 ? theme.colors.error : '#666'
+                    }]}>
+                      ₦{transactionLimits.dailySpent.toLocaleString()}
+                    </Text>
+                  </View>
+                  <View style={{
+                    height: 8,
+                    backgroundColor: '#f1f5f9',
+                    borderRadius: 4,
+                    overflow: 'hidden'
+                  }}>
+                    <View style={{
+                      height: '100%',
+                      width: `${Math.min((transactionLimits.dailySpent / transactionLimits.dailyLimit) * 100, 100)}%`,
+                      backgroundColor: transactionLimits.dailySpent > transactionLimits.dailyLimit * 0.8 
+                        ? theme.colors.error 
+                        : transactionLimits.dailySpent > transactionLimits.dailyLimit * 0.6 
+                        ? '#f59e0b' 
+                        : theme.colors.primary
+                    }} />
+                  </View>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
+                    <Text style={[dynamicStyles.settingDescription, { fontSize: 12 }]}>Available</Text>
+                    <Text style={[dynamicStyles.settingDescription, { fontSize: 12, fontWeight: '500' }]}>
+                      ₦{Math.max(0, transactionLimits.dailyRemaining).toLocaleString()}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            <View style={dynamicStyles.formSection}>
+              <Text style={dynamicStyles.sectionTitle}>📅 Monthly Limits</Text>
+              <View style={[dynamicStyles.settingItem, { paddingVertical: theme.spacing.lg }]}>
+                <View style={{ flex: 1 }}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <Text style={dynamicStyles.settingTitle}>Monthly Spending Limit</Text>
+                    <Text style={[dynamicStyles.settingTitle, { color: theme.colors.primary }]}>
+                      ₦{transactionLimits.monthlyLimit.toLocaleString()}
+                    </Text>
+                  </View>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
+                    <Text style={dynamicStyles.settingDescription}>Used this month</Text>
+                    <Text style={[dynamicStyles.settingDescription, { 
+                      color: transactionLimits.monthlySpent > transactionLimits.monthlyLimit * 0.8 ? theme.colors.error : '#666'
+                    }]}>
+                      ₦{transactionLimits.monthlySpent.toLocaleString()}
+                    </Text>
+                  </View>
+                  <View style={{
+                    height: 8,
+                    backgroundColor: '#f1f5f9',
+                    borderRadius: 4,
+                    overflow: 'hidden'
+                  }}>
+                    <View style={{
+                      height: '100%',
+                      width: `${Math.min((transactionLimits.monthlySpent / transactionLimits.monthlyLimit) * 100, 100)}%`,
+                      backgroundColor: transactionLimits.monthlySpent > transactionLimits.monthlyLimit * 0.8 
+                        ? theme.colors.error 
+                        : transactionLimits.monthlySpent > transactionLimits.monthlyLimit * 0.6 
+                        ? '#f59e0b' 
+                        : theme.colors.primary
+                    }} />
+                  </View>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
+                    <Text style={[dynamicStyles.settingDescription, { fontSize: 12 }]}>Available</Text>
+                    <Text style={[dynamicStyles.settingDescription, { fontSize: 12, fontWeight: '500' }]}>
+                      ₦{Math.max(0, transactionLimits.monthlyRemaining).toLocaleString()}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            <View style={dynamicStyles.formSection}>
+              <Text style={dynamicStyles.sectionTitle}>ℹ️ Account Information</Text>
+              <View style={dynamicStyles.settingItem}>
+                <View style={dynamicStyles.settingLabel}>
+                  <Text style={dynamicStyles.settingTitle}>KYC Level</Text>
+                  <Text style={dynamicStyles.settingDescription}>
+                    Your account verification level
+                  </Text>
+                </View>
+                <Text style={[dynamicStyles.settingTitle, { color: theme.colors.primary }]}>
+                  Level {transactionLimits.kycLevel || 1}
+                </Text>
+              </View>
+            </View>
+
+            <View style={{
+              backgroundColor: theme.colors.primary + '10',
+              padding: theme.spacing.lg,
+              borderRadius: 12,
+              marginTop: theme.spacing.md
+            }}>
+              <Text style={{
+                fontSize: 14,
+                color: '#666',
+                lineHeight: 20,
+                textAlign: 'center'
+              }}>
+                💡 Need higher limits? Contact support to request a limit increase based on your account usage and KYC level.
+              </Text>
+            </View>
+          </>
+        ) : (
+          <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: theme.spacing.xl }}>
+            <Text style={{ fontSize: 48, marginBottom: theme.spacing.md }}>⏳</Text>
+            <Text style={{ fontSize: 16, fontWeight: '500', color: '#666', marginBottom: theme.spacing.sm }}>
+              Loading Limits...
+            </Text>
+            <Text style={{ fontSize: 14, color: '#999', textAlign: 'center' }}>
+              Please wait while we fetch your transaction limits
+            </Text>
+          </View>
+        )}
+      </View>
+    </ScrollView>
+  );
+
+  const renderAdminLimitsSection = () => (
+    <ScrollView style={dynamicStyles.contentArea} showsVerticalScrollIndicator={false}>
+      <View style={dynamicStyles.contentHeader}>
+        <Text style={dynamicStyles.contentTitle}>🛠️ Admin: Manage Limits</Text>
+        <Text style={dynamicStyles.contentSubtitle}>
+          Update transaction limits for any user account
+        </Text>
+      </View>
+      
+      <View style={dynamicStyles.contentBody}>
+        <View style={{
+          backgroundColor: theme.colors.error + '10',
+          padding: theme.spacing.lg,
+          borderRadius: 12,
+          marginBottom: theme.spacing.lg,
+          borderLeftWidth: 4,
+          borderLeftColor: theme.colors.error
+        }}>
+          <Text style={{
+            fontSize: 14,
+            fontWeight: 'bold',
+            color: theme.colors.error,
+            marginBottom: 8
+          }}>
+            ⚠️ Admin Access Required
+          </Text>
+          <Text style={{
+            fontSize: 14,
+            color: '#666',
+            lineHeight: 20
+          }}>
+            This section allows administrators to modify transaction limits for user accounts. Use with caution and ensure compliance with banking regulations.
+          </Text>
+        </View>
+
+        <View style={dynamicStyles.formSection}>
+          <Text style={dynamicStyles.sectionTitle}>👤 Update User Limits</Text>
+          <View style={dynamicStyles.formGrid}>
+            <Input
+              key="admin-user-email"
+              label="User Email Address"
+              value={adminLimitsForm.userEmail}
+              onChangeText={(text) => setAdminLimitsForm({...adminLimitsForm, userEmail: text})}
+              placeholder="user@example.com"
+              validationType="email"
+            />
+            
+            <View style={dynamicStyles.formRow}>
+              <View style={dynamicStyles.formGroup}>
+                <Input
+                  key="admin-daily-limit"
+                  label="Daily Limit (₦)"
+                  value={adminLimitsForm.dailyLimit}
+                  onChangeText={(text) => setAdminLimitsForm({...adminLimitsForm, dailyLimit: text})}
+                  placeholder="100000"
+                  validationType="numeric"
+                />
+              </View>
+              <View style={dynamicStyles.formGroup}>
+                <Input
+                  key="admin-monthly-limit"
+                  label="Monthly Limit (₦)"
+                  value={adminLimitsForm.monthlyLimit}
+                  onChangeText={(text) => setAdminLimitsForm({...adminLimitsForm, monthlyLimit: text})}
+                  placeholder="500000"
+                  validationType="numeric"
+                />
+              </View>
+            </View>
+          </View>
+        </View>
+
+        <Button
+          title={isUpdatingLimits ? "Updating..." : "💾 Update User Limits"}
+          onPress={handleUpdateUserLimits}
+          loading={isUpdatingLimits}
+          style={dynamicStyles.actionButton}
+        />
+
+        <View style={dynamicStyles.formSection}>
+          <Text style={dynamicStyles.sectionTitle}>📊 Quick Actions</Text>
+          
+          <TouchableOpacity 
+            style={[dynamicStyles.supportItem, { backgroundColor: theme.colors.primary + '10' }]}
+            onPress={() => showAlert('Bulk Update', 'Bulk limit update feature coming soon!')}
+          >
+            <Text style={dynamicStyles.supportIcon}>📄</Text>
+            <View style={dynamicStyles.supportContent}>
+              <Text style={dynamicStyles.supportTitle}>Bulk Update Limits</Text>
+              <Text style={dynamicStyles.supportDescription}>Update limits for multiple users at once</Text>
+            </View>
+            <Text style={dynamicStyles.supportArrow}>›</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[dynamicStyles.supportItem, { backgroundColor: theme.colors.secondary + '10' }]}
+            onPress={() => showAlert('Limit History', 'View limit change history feature coming soon!')}
+          >
+            <Text style={dynamicStyles.supportIcon}>📈</Text>
+            <View style={dynamicStyles.supportContent}>
+              <Text style={dynamicStyles.supportTitle}>View Limit History</Text>
+              <Text style={dynamicStyles.supportDescription}>See all limit changes and audit trail</Text>
+            </View>
+            <Text style={dynamicStyles.supportArrow}>›</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[dynamicStyles.supportItem, { backgroundColor: '#f59e0b20' }]}
+            onPress={() => showAlert('KYC-Based Limits', 'Auto-set limits based on KYC level feature coming soon!')}
+          >
+            <Text style={dynamicStyles.supportIcon}>⚙️</Text>
+            <View style={dynamicStyles.supportContent}>
+              <Text style={dynamicStyles.supportTitle}>KYC-Based Limits</Text>
+              <Text style={dynamicStyles.supportDescription}>Automatically set limits based on KYC level</Text>
+            </View>
+            <Text style={dynamicStyles.supportArrow}>›</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </ScrollView>
   );
@@ -686,6 +1039,20 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         return renderProfileSection();
       case 'security':
         return renderSecuritySection();
+      case 'limits':
+        return renderTransactionLimitsSection();
+      case 'admin-limits':
+        return isAdmin ? renderAdminLimitsSection() : (
+          <View style={[dynamicStyles.contentArea, { alignItems: 'center', justifyContent: 'center' }]}>
+            <Text style={{ fontSize: 48, marginBottom: theme.spacing.md }}>🚫</Text>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#666', marginBottom: theme.spacing.sm }}>
+              Access Denied
+            </Text>
+            <Text style={{ fontSize: 14, color: '#999', textAlign: 'center' }}>
+              Admin privileges required to access this section.
+            </Text>
+          </View>
+        );
       case 'support':
         return renderSupportSection();
       default:

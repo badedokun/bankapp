@@ -3,7 +3,7 @@
  * Tenant-aware input with comprehensive security features
  */
 
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import {
   View,
   TextInput,
@@ -22,7 +22,7 @@ export interface InputProps extends Omit<TextInputProps, 'ref'> {
   rightIcon?: React.ReactNode;
   onRightIconPress?: () => void;
   containerStyle?: any;
-  validationType?: 'email' | 'phone' | 'password' | 'amount' | 'accountNumber' | 'text';
+  validationType?: 'email' | 'phone' | 'password' | 'amount' | 'accountNumber' | 'text' | 'numeric';
   enableSecurityValidation?: boolean;
   maxLength?: number;
   onValidationChange?: (isValid: boolean, error?: string) => void;
@@ -52,6 +52,11 @@ export const Input = React.forwardRef<TextInput, InputProps>(({
   
   // Security monitoring
   const securityCheckCount = useRef(0);
+
+  // Sync internal value with external value prop changes
+  useEffect(() => {
+    setInternalValue(value || '');
+  }, [value]);
 
   // Secure input handling with validation
   const handleSecureTextChange = useCallback((text: string) => {
@@ -88,6 +93,17 @@ export const Input = React.forwardRef<TextInput, InputProps>(({
         break;
       case 'accountNumber':
         sanitizedText = InputSanitizer.sanitizeNumeric(text, false);
+        break;
+      case 'numeric':
+        // For numeric fields like PIN, bank code - allow only digits
+        sanitizedText = text.replace(/[^0-9]/g, '').substring(0, effectiveMaxLength);
+        break;
+      case 'text':
+        // For text fields like names, allow letters, spaces, apostrophes, hyphens, and dots
+        sanitizedText = text
+          .replace(/[^a-zA-Z\s'\-\.]/g, '') // Allow letters, spaces, apostrophes, hyphens, dots
+          .replace(/\s+/g, ' ') // Normalize multiple spaces to single space
+          .substring(0, effectiveMaxLength);
         break;
       default:
         sanitizedText = InputSanitizer.sanitizeText(text, effectiveMaxLength);
@@ -162,7 +178,7 @@ export const Input = React.forwardRef<TextInput, InputProps>(({
       case 'password':
         return {
           ...baseProps,
-          secureTextEntry: true,
+          // Don't override secureTextEntry if explicitly passed as prop
           textContentType: 'password',
           autoComplete: 'current-password',
           autoCapitalize: 'none',
@@ -177,6 +193,11 @@ export const Input = React.forwardRef<TextInput, InputProps>(({
           ...baseProps,
           keyboardType: 'number-pad',
           maxLength: 10,
+        };
+      case 'numeric':
+        return {
+          ...baseProps,
+          keyboardType: 'number-pad',
         };
       default:
         return baseProps;
@@ -233,8 +254,8 @@ export const Input = React.forwardRef<TextInput, InputProps>(({
       {label && <Text style={styles.label}>{label}</Text>}
       <View style={styles.inputContainer}>
         <TextInput
-          {...props}
           {...getSecureInputProps()}
+          {...props}
           ref={ref}
           value={internalValue}
           onChangeText={handleSecureTextChange}
