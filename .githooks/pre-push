@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# Pre-push hook to ensure comprehensive testing
+# This runs before pushing to prevent broken code reaching shared branches
+
+echo "🚀 Running pre-push validation..."
+
+# Get current branch
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+echo "📋 Current branch: $CURRENT_BRANCH"
+
+# Skip for certain branches if needed
+if [[ "$CURRENT_BRANCH" == "feature/hotfix-"* ]]; then
+    echo "⚠️  Hotfix branch detected, running minimal tests only"
+    npm run test:pre-commit
+    exit $?
+fi
+
+# Run full test suite
+echo "🧪 Running comprehensive test suite..."
+
+# Frontend tests
+echo "1/5 Running frontend tests..."
+npm run test:frontend
+if [ $? -ne 0 ]; then
+    echo "❌ Frontend tests failed"
+    exit 1
+fi
+
+# Backend tests
+echo "2/5 Running backend tests..."
+npm run test:backend
+if [ $? -ne 0 ]; then
+    echo "❌ Backend tests failed"
+    exit 1
+fi
+
+# Integration tests
+echo "3/5 Running integration tests..."
+npm run test:integration
+if [ $? -ne 0 ]; then
+    echo "❌ Integration tests failed"
+    exit 1
+fi
+
+# UX validation tests
+echo "4/5 Running UX validation tests..."
+npm run test:ux
+if [ $? -ne 0 ]; then
+    echo "❌ UX validation tests failed"
+    exit 1
+fi
+
+# E2E tests for main branches
+if [[ "$CURRENT_BRANCH" == "main" || "$CURRENT_BRANCH" == "develop" || "$CURRENT_BRANCH" == "staging" ]]; then
+    echo "5/5 Running E2E tests for critical branch..."
+    npm run test:e2e
+    if [ $? -ne 0 ]; then
+        echo "❌ E2E tests failed"
+        exit 1
+    fi
+else
+    echo "5/5 Skipping E2E tests for feature branch"
+fi
+
+echo "✅ All pre-push tests passed! Safe to push."
+exit 0

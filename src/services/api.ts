@@ -79,7 +79,7 @@ class APIService {
 
   private constructor() {
     this.baseURL = API_BASE_URL;
-    this.loadTokensFromStorage();
+    // Don't load tokens in constructor as it's async
   }
 
   static getInstance(): APIService {
@@ -96,6 +96,11 @@ class APIService {
     try {
       this.accessToken = await Storage.getItem('access_token');
       this.refreshToken = await Storage.getItem('refresh_token');
+      console.log('🔑 Loaded tokens from storage:', {
+        hasAccessToken: !!this.accessToken,
+        hasRefreshToken: !!this.refreshToken,
+        accessTokenLength: this.accessToken?.length || 0
+      });
     } catch (error) {
       console.error('Error loading tokens from storage:', error);
     }
@@ -110,6 +115,10 @@ class APIService {
       await Storage.setItem('refresh_token', refreshToken);
       this.accessToken = accessToken;
       this.refreshToken = refreshToken;
+      console.log('💾 Saved tokens to storage:', {
+        accessTokenLength: accessToken.length,
+        refreshTokenLength: refreshToken.length
+      });
     } catch (error) {
       console.error('Error saving tokens to storage:', error);
     }
@@ -172,6 +181,11 @@ class APIService {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<APIResponse<T>> {
+    // Ensure tokens are loaded before making requests
+    if (!this.accessToken) {
+      await this.loadTokensFromStorage();
+    }
+
     const url = `${this.baseURL}${endpoint}`;
     const tenantId = this.getTenantId();
 
@@ -185,6 +199,9 @@ class APIService {
     // Add authorization header if token exists
     if (this.accessToken) {
       headers.Authorization = `Bearer ${this.accessToken}`;
+      console.log('📡 Making authenticated API request to:', endpoint);
+    } else {
+      console.log('⚠️ Making unauthenticated API request to:', endpoint);
     }
 
     try {
@@ -499,7 +516,18 @@ class APIService {
     const response = await this.makeRequest<any>(`/api/transfers/history?${params.toString()}`);
 
     if (response.success && response.data) {
-      return response.data;
+      // Transform server response structure to match expected API service format
+      return {
+        transactions: response.data.transfers || [],
+        pagination: response.data.pagination || {
+          page: options?.page || 1,
+          limit: options?.limit || 20,
+          total: response.data.transfers?.length || 0,
+          totalPages: 1,
+          hasNext: false,
+          hasPrev: false
+        }
+      };
     }
 
     throw new Error(response.error || 'Failed to fetch transfer history');
@@ -670,13 +698,39 @@ class APIService {
       };
     };
   }> {
-    const response = await this.makeRequest<any>('/api/wallets/limits');
+    const response = await this.makeRequest<any>('/api/transaction-limits');
 
     if (response.success && response.data) {
       return response.data;
     }
 
     throw new Error(response.error || 'Failed to fetch transaction limits');
+  }
+
+  /**
+   * Update user transaction limits (admin only)
+   */
+  async updateUserLimits(userEmail: string, dailyLimit: number, monthlyLimit: number): Promise<{
+    success: boolean;
+    message: string;
+  }> {
+    const response = await this.makeRequest<any>('/api/transaction-limits', {
+      method: 'PUT',
+      body: JSON.stringify({
+        userEmail,
+        dailyLimit,
+        monthlyLimit,
+      }),
+    });
+
+    if (response.success) {
+      return {
+        success: true,
+        message: 'Transaction limits updated successfully',
+      };
+    }
+
+    throw new Error(response.error || 'Failed to update transaction limits');
   }
 
   /**

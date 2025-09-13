@@ -6,6 +6,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { SafeAreaView, StyleSheet, Text } from 'react-native';
 import { TenantProvider, useTenant, useTenantTheme } from './src/tenants/TenantContext';
+import { BankingAlertProvider } from './src/services/AlertService';
 import LoadingScreen from './src/components/common/LoadingScreen';
 import WebNavigator from './src/navigation/WebNavigator';
 import APIService from './src/services/api';
@@ -66,10 +67,12 @@ const AppContent: React.FC = () => {
   }
 
   return (
-    <WebNavigator 
-      isAuthenticated={isAuthenticated}
-      onLogin={handleLogin}
-    />
+    <BankingAlertProvider>
+      <WebNavigator 
+        isAuthenticated={isAuthenticated}
+        onLogin={handleLogin}
+      />
+    </BankingAlertProvider>
   );
 };
 

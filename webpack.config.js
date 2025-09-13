@@ -77,6 +77,11 @@ module.exports = {
       '@types': path.resolve(appDirectory, 'src/types'),
       '@tenants': path.resolve(appDirectory, 'src/tenants'),
       '@navigation': path.resolve(appDirectory, 'src/navigation'),
+      // Resolve React Native Paper icon dependencies
+      '@react-native-vector-icons/material-design-icons': false,
+      '@expo/vector-icons/MaterialCommunityIcons': false,
+      '@expo/vector-icons': false,
+      'react-native-vector-icons/MaterialCommunityIcons': false,
     },
     fallback: {
       "crypto": false,
@@ -112,6 +117,18 @@ module.exports = {
     }),
     new webpack.ProvidePlugin({
       process: 'process/browser',
+    }),
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^@react-native-vector-icons\/material-design-icons$/,
+    }),
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^@expo\/vector-icons\/MaterialCommunityIcons$/,
+    }),
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^@expo\/vector-icons$/,
+    }),
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^react-native-vector-icons\/MaterialCommunityIcons$/,
     }),
   ],
   devServer: {

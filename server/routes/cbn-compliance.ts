@@ -437,6 +437,58 @@ router.get('/audits',
 );
 
 /**
+ * GET /api/cbn-compliance/status
+ * Get overall CBN compliance status
+ */
+router.get('/status',
+  authenticateToken,
+  requireRole(['admin', 'compliance_officer', 'security_officer', 'auditor']),
+  async (req, res) => {
+    try {
+      const { tenantId } = (req as any).user;
+
+      const dashboard = await cbnCompliance.getComplianceDashboard(tenantId);
+      
+      // Extract status information from dashboard
+      const status = {
+        overallCompliance: dashboard.summary?.complianceScore > 80 ? 'COMPLIANT' : 'NON_COMPLIANT',
+        complianceScore: dashboard.summary?.complianceScore || 0,
+        lastAssessment: dashboard.lastUpdated,
+        criticalIssues: dashboard.summary?.criticalIncidents || 0,
+        pendingActions: dashboard.summary?.pendingActions || 0,
+        dataLocalizationStatus: 'COMPLIANT', // This would be calculated from actual checks
+        incidentReportingStatus: 'ACTIVE',
+        nextAuditDue: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 days from now
+        framework: 'CBN Cybersecurity Framework',
+        regulatoryReporting: {
+          monthlyReportDue: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+          quarterlyAssessmentDue: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000),
+          annualAuditDue: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000)
+        }
+      };
+
+      res.json({
+        success: true,
+        data: status,
+        metadata: {
+          generatedAt: new Date(),
+          framework: 'Central Bank of Nigeria Cybersecurity Framework',
+          complianceStandards: ['BSD/DIR/GEN/LAB/11/156', 'Data Localization Requirements']
+        }
+      });
+
+    } catch (error) {
+      console.error('Error fetching CBN compliance status:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to fetch CBN compliance status',
+        code: 'CBN_STATUS_ERROR'
+      });
+    }
+  }
+);
+
+/**
  * GET /api/cbn-compliance/dashboard
  * Get comprehensive CBN compliance dashboard
  */

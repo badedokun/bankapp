@@ -202,13 +202,19 @@ npm run db:reset         # Reset database (DESTRUCTIVE)
 npm run provision-tenant # Create new tenant database
 ```
 
-### **Testing**
+### **Testing** (COMPREHENSIVE FRAMEWORK)
 ```bash
 npm test                 # Run all tests (Frontend + Backend + Integration)
 npm run test:frontend    # React Native component tests
 npm run test:backend     # API and database tests  
-npm run test:integration # Full integration test suite
+npm run test:integration # Frontend-backend integration tests with real API responses
+npm run test:ux          # User experience validation tests
+npm run test:e2e         # End-to-end user journey tests (Playwright)
+npm run test:all         # Complete test suite (all layers)
+npm run test:feature     # Test only files related to staged changes
 npm run test:coverage    # Generate coverage report
+npm run test:pre-commit  # Quick tests run before every commit
+npm run test:pre-push    # Full validation before pushing code
 ```
 
 ---
@@ -333,9 +339,13 @@ bankapp/
 │   ├── provision-tenant-database.ts  # New tenant setup
 │   └── insert-fmfb-mock-data-final.sql  # FMFB test data
 │
-├── 🧪 Tests
-│   ├── backend/                 # Backend API tests
-│   ├── integration/             # Full integration tests  
+├── 🧪 Tests (COMPREHENSIVE FRAMEWORK)
+│   ├── backend/                 # Backend API tests (existing)
+│   ├── integration/             # Frontend-backend integration tests  
+│   ├── ux/                      # User experience validation tests
+│   ├── e2e/                     # End-to-end user journey tests (Playwright)
+│   ├── utils/                   # Universal test helpers and utilities
+│   ├── framework/               # Testing framework documentation
 │   └── src/                     # Frontend component tests
 │
 ├── ⚙️ Configuration
@@ -668,7 +678,7 @@ DEFAULT_TENANT=fmfb
 3. **Frontend Components**: Dashboard, transaction history screens
 4. **Multi-Tenant System**: Tenant detection and context switching
 5. **JWT Authentication**: Token generation, validation, refresh
-6. **Test Suite**: 40+ passing tests across backend and frontend
+6. **🧪 COMPREHENSIVE TESTING FRAMEWORK**: 4-layer testing (Unit, Integration, UX, E2E) with automated quality gates, universal test helpers, and mandatory test requirements that prevent integration issues
 7. **🎨 Complete Design System**: Enterprise-grade design system with 1700+ CSS classes, 7 banking widgets, multi-tenant theming, Nigerian compliance, and 3 interactive showcases
 
 ### **🔒 Security Components Required (CRITICAL GAPS)**
@@ -688,7 +698,192 @@ DEFAULT_TENANT=fmfb
 
 ---
 
-## 🧪 **Testing Architecture**
+## 🧪 **COMPREHENSIVE TESTING FRAMEWORK** (CRITICAL)
+
+### **🎯 Framework Purpose**
+**PREVENTS INTEGRATION ISSUES**: This testing framework was created after experiencing trial-and-error debugging with the transfer feature. It ensures that the remaining 80-85% of app development flows smoothly without frontend-backend integration issues.
+
+### **🏗️ 4-Layer Testing Architecture**
+
+```typescript
+TestingFramework/
+├── 1️⃣ Unit Tests (Existing)
+│   ├── Component testing with React Native Testing Library
+│   ├── API endpoint testing with supertest
+│   └── Database operation testing
+│
+├── 2️⃣ Integration Tests (NEW - CRITICAL)
+│   ├── Frontend-backend integration with real API responses
+│   ├── API response structure validation 
+│   ├── Property access error prevention (e.g., data.amount vs amount)
+│   └── Form behavior with actual backend data
+│
+├── 3️⃣ UX Validation Tests (NEW - CRITICAL)
+│   ├── User feedback requirement enforcement
+│   ├── Form closure behavior validation
+│   ├── Input preservation during auto-fill scenarios
+│   ├── Alert dismissal callback verification
+│   └── No console spam validation
+│
+└── 4️⃣ End-to-End Tests (NEW - CRITICAL)
+    ├── Complete user workflow testing (Playwright)
+    ├── Cross-browser compatibility testing
+    ├── Real user interaction simulation
+    └── Full system integration validation
+```
+
+### **🛡️ Quality Gates & Automation**
+
+**Pre-Commit Hooks**: Automatic test execution before every commit
+```bash
+# Runs automatically on git commit
+- ESLint validation
+- Frontend tests for modified files
+- Integration tests for modified files  
+- UX validation tests for UI components
+```
+
+**Pre-Push Hooks**: Comprehensive validation before sharing code
+```bash
+# Runs automatically on git push
+- Full frontend test suite
+- Complete backend test suite
+- All integration tests
+- UX validation tests
+- E2E tests (for main branches)
+```
+
+**CI/CD Pipeline**: Complete test automation in GitHub Actions
+```yaml
+# Automated testing on pull requests
+- Database setup and seeding
+- Backend API validation
+- Frontend component testing
+- Integration test execution
+- UX validation checks
+- E2E test execution with Playwright
+- Test result artifact uploads
+```
+
+### **📋 Mandatory Test Requirements**
+
+**Every new feature MUST include:**
+
+1. **API Response Structure Test**
+   ```typescript
+   test('should handle real [FEATURE] API response structure', async () => {
+     const mockResponse = { /* actual API response */ };
+     APIResponseValidator.validateSuccessResponse(mockResponse, requiredFields);
+     // Prevents property access errors
+   });
+   ```
+
+2. **User Feedback Test**
+   ```typescript
+   test('should provide proper user feedback for [FEATURE]', async () => {
+     // Execute feature action
+     AlertTestHelper.expectSuccessAlert('Expected Title', 'Expected Message');
+     // Ensures users always receive feedback
+   });
+   ```
+
+3. **Form Behavior Test**
+   ```typescript
+   test('should preserve user input during [FEATURE] operations', async () => {
+     UserInputValidator.validateInputPreservation(input, userValue, apiValue);
+     // Prevents auto-fill overriding user input
+   });
+   ```
+
+4. **Navigation Test**
+   ```typescript
+   test('should handle [FEATURE] navigation properly', async () => {
+     NavigationValidator.validateNoAutoNavigation(mockNavigationFn);
+     // Prevents forms closing without user acknowledgment
+   });
+   ```
+
+### **🔧 Universal Test Utilities**
+
+**Test Helpers** (`tests/utils/test-helpers.ts`):
+- `AlertTestHelper`: Validates user feedback patterns
+- `APIResponseValidator`: Ensures API response structure compatibility
+- `UserInputValidator`: Prevents input preservation issues
+- `NavigationValidator`: Validates proper navigation flows
+- `FormValidator`: Tests form state management
+- `APIMockGenerator`: Creates realistic mock responses
+
+### **🚀 Development Workflow**
+
+**For New Features:**
+1. Write failing tests first (TDD approach)
+2. Implement backend endpoint
+3. Test endpoint with real responses (integration tests)
+4. Implement frontend component  
+5. Run UX validation tests
+6. Implement E2E test for user journey
+7. **All tests must pass before merging**
+
+**For Bug Fixes:**
+1. Write test that reproduces bug
+2. Fix the bug
+3. Verify test passes
+4. Run full test suite for affected areas
+
+### **📊 Test Coverage Requirements**
+
+```typescript
+// jest.config.js coverage thresholds
+coverageThreshold: {
+  global: {
+    branches: 80,
+    functions: 80, 
+    lines: 80,
+    statements: 80,
+  },
+}
+```
+
+### **⚡ Quick Start**
+
+**Install Framework:**
+```bash
+./scripts/setup-test-framework.sh
+```
+
+**Run Tests During Development:**
+```bash
+npm run test:watch         # Watch mode for active development
+npm run test:feature       # Test only files related to your changes
+npm run test:all          # Full comprehensive test suite
+```
+
+### **🎯 Framework Benefits**
+
+1. **No More Trial-and-Error**: Issues caught at development time, not deployment
+2. **Faster Development**: Immediate feedback on integration problems  
+3. **Higher Quality**: UX validation ensures proper user experience
+4. **Future-Proof**: Framework scales with any feature complexity
+5. **Confidence**: Deploy knowing frontend-backend integration works
+6. **Consistency**: Standardized testing patterns across all features
+
+### **⚠️ CRITICAL: Framework Usage is MANDATORY**
+
+**❌ DO NOT:**
+- Skip integration tests for new features
+- Ignore UX validation test failures
+- Merge code without passing all test layers
+- Create features without proper user feedback tests
+
+**✅ ALWAYS:**
+- Run `npm run test:feature` before committing
+- Ensure all 4 test layers pass for new features
+- Use test helpers for consistent validation
+- Write tests that reproduce any reported bugs
+
+---
+
+## 🧪 **Legacy Testing Architecture** (Pre-Framework)
 
 ### **Multi-Project Jest Configuration**
 - **Frontend Tests**: React Native component testing
@@ -711,13 +906,19 @@ DEFAULT_TENANT=fmfb
 3. **Change multi-tenant architecture** - Core tenant isolation is implemented
 4. **Remove real data integration** - We moved away from hardcoded mock data
 5. **Break existing API routes** - All routes are tested and working
+6. **Skip the testing framework** - 4-layer testing is mandatory for all new features
+7. **Ignore integration test failures** - These prevent frontend-backend issues
+8. **Create features without UX validation** - User experience tests are required
 
 ### **✅ ALWAYS DO**
 1. **Read this document first** - Understand the complete architecture
-2. **Run tests before changes** - Ensure no regression
+2. **Run comprehensive tests before changes** - Use `npm run test:feature` before committing
 3. **Check existing implementations** - Avoid duplicate work
 4. **Preserve multi-tenant context** - Maintain tenant isolation
 5. **Validate against database schema** - Use real database structure
+6. **Use the testing framework** - Follow 4-layer testing for all new features
+7. **Write integration tests** - Test frontend-backend integration with real API responses
+8. **Validate user experience** - Ensure proper feedback and form behavior
 
 ---
 
@@ -730,7 +931,7 @@ DEFAULT_TENANT=fmfb
 - ✅ Frontend screens (dashboard, transactions, login)
 - ✅ Database integration with real data
 - ✅ Cross-platform support (mobile + web)
-- ✅ Comprehensive test suite
+- ✅ 🧪 **COMPREHENSIVE TESTING FRAMEWORK**: 4-layer testing architecture (Unit, Integration, UX, E2E) with automated quality gates, universal test helpers, Git hooks, CI/CD pipeline, and mandatory test requirements that prevent integration issues
 - ✅ 🎨 **Complete Design System**: Enterprise-grade UI system with 1700+ CSS classes, 7 Nigerian banking widgets, multi-tenant theming, and interactive showcases
 
 ### **Next Development Priorities**
@@ -747,6 +948,6 @@ DEFAULT_TENANT=fmfb
 
 ---
 
-*Last Updated: September 9, 2025*  
-*Version: 1.1 - Added Comprehensive Design System*  
+*Last Updated: September 10, 2025*  
+*Version: 1.2 - Added Comprehensive Testing Framework & Design System*  
 *Created for: Claude Code Agent Continuity*

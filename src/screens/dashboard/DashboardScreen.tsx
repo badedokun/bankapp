@@ -3,7 +3,7 @@
  * Main dashboard with balance, quick actions, AI assistant, and recent transactions
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -16,8 +16,11 @@ import {
   Dimensions,
   RefreshControl,
   TextInput,
+  Pressable,
+  Modal,
 } from 'react-native';
 import { useTenant, useTenantTheme } from '../../tenants/TenantContext';
+import { useBankingAlert } from '../../services/AlertService';
 import APIService from '../../services/api';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -69,15 +72,18 @@ export interface DashboardScreenProps {
   onNavigateToTransfer?: () => void;
   onNavigateToHistory?: () => void;
   onNavigateToSettings?: () => void;
+  onLogout?: () => void;
 }
 
 export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   onNavigateToTransfer,
   onNavigateToHistory,
   onNavigateToSettings,
+  onLogout,
 }) => {
   const { currentTenant } = useTenant();
   const theme = useTenantTheme();
+  const { showConfirm, showAlert } = useBankingAlert();
   
   // State
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
@@ -86,7 +92,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [notificationCount, setNotificationCount] = useState(3);
   const [userName, setUserName] = useState('User');
-  const [userInitials, setUserInitials] = useState('JD');
+  const [userInitials, setUserInitials] = useState('U');
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ x: 0, y: 0 });
+  const userProfileRef = useRef<TouchableOpacity>(null);
 
   // Load dashboard data
   const loadDashboardData = useCallback(async () => {
@@ -98,18 +107,27 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
         APIService.getTransactionLimits(),
       ]);
 
-      // Convert API transactions to dashboard format
-      const recentTransactions: Transaction[] = transactionsData.transactions.slice(0, 4).map((tx: any) => ({
-        id: tx.id,
-        type: tx.type === 'money_transfer' ? (tx.amount < 0 ? 'sent' : 'received') : 
-              tx.status === 'pending' ? 'pending' : 'sent',
-        title: tx.description || 'Transaction',
-        subtitle: tx.recipient_name ? `${tx.recipient_bank} • ${tx.recipient_name}` : 'Banking Transaction',
-        amount: tx.amount,
-        time: new Date(tx.created_at).toLocaleDateString(),
-        icon: tx.type === 'money_transfer' ? (tx.amount < 0 ? '↗️' : '↙️') : 
-              tx.type === 'cash_withdrawal' ? '💸' : '📋',
-      }));
+      // Convert API transactions to dashboard format with progressive balance calculation
+      let runningBalance = walletData.balance; // Start with current wallet balance
+      const recentTransactions: Transaction[] = transactionsData.transactions.slice(0, 4).map((tx: any, index: number) => {
+        // Calculate balance after this transaction (for display purposes)
+        const transactionAmount = tx.direction === 'sent' ? -Math.abs(tx.amount) : Math.abs(tx.amount);
+        
+        return {
+          id: tx.id,
+          type: tx.direction === 'sent' ? 'sent' : 'received',
+          title: tx.description || 'Money Transfer',
+          subtitle: tx.recipient?.accountName ? `Bank Transfer • ${tx.recipient.accountName}` : 'Banking Transaction',
+          amount: transactionAmount,
+          time: new Date(tx.createdAt).toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          }),
+          icon: tx.direction === 'sent' ? '↗️' : '↙️',
+        };
+      });
 
       // Generate AI suggestions based on transaction history
       const aiSuggestions: AISuggestion[] = [
@@ -131,14 +149,28 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
 
       setDashboardData({
         balance: walletData.balance,
-        availableBalance: walletData.availableBalance,
+        availableBalance: walletData.availableBalance || walletData.balance || 0,
         currency: walletData.currency,
         monthlyStats: {
           transactions: transactionsData.transactions.length,
           recipients: new Set(transactionsData.transactions.map((tx: any) => tx.recipient_name).filter(Boolean)).size,
           volume: `₦${(transactionsData.transactions.reduce((sum: number, tx: any) => sum + Math.abs(tx.amount || 0), 0) / 1000000).toFixed(1)}M`,
         },
-        transactionLimits: limitsData.limits,
+        transactionLimits: limitsData?.limits ? {
+          daily: {
+            limit: limitsData.limits.dailyLimit || 0,
+            used: limitsData.limits.dailySpent || 0,
+            remaining: limitsData.limits.dailyRemaining || 0
+          },
+          monthly: {
+            limit: limitsData.limits.monthlyLimit || 0,
+            used: limitsData.limits.monthlySpent || 0,
+            remaining: limitsData.limits.monthlyRemaining || 0
+          }
+        } : {
+          daily: { limit: 0, used: 0, remaining: 0 },
+          monthly: { limit: 0, used: 0, remaining: 0 }
+        },
         recentTransactions: recentTransactions,
         aiSuggestions: aiSuggestions,
       });
@@ -151,10 +183,29 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
     }
   }, []);
 
+  // Load user profile
+  const loadUserProfile = useCallback(async () => {
+    try {
+      const userProfile = await APIService.getProfile();
+      const fullName = `${userProfile.firstName} ${userProfile.lastName}`;
+      const initials = userProfile.firstName.charAt(0).toUpperCase() + 
+                     userProfile.lastName.charAt(0).toUpperCase();
+      
+      setUserName(fullName);
+      setUserInitials(initials);
+      
+      console.log(`👤 User profile loaded: ${fullName} (${initials})`);
+    } catch (error) {
+      console.error('Failed to load user profile:', error);
+      // Keep default values if profile loading fails
+    }
+  }, []);
+
   // Load data on mount
   useEffect(() => {
     loadDashboardData();
-  }, [loadDashboardData]);
+    loadUserProfile();
+  }, [loadDashboardData, loadUserProfile]);
 
   // Refresh handler
   const handleRefresh = useCallback(() => {
@@ -197,6 +248,157 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
     setNotificationCount(0);
   }, []);
 
+  const handleUserMenuToggle = useCallback(() => {
+    console.log('🔄 Avatar clicked! Current showUserDropdown:', showUserDropdown);
+    
+    if (!showUserDropdown && userProfileRef.current) {
+      // Measure the position of the avatar before showing dropdown
+      userProfileRef.current.measure((fx, fy, width, height, px, py) => {
+        console.log('📏 Avatar position:', { x: px, y: py, width, height });
+        setDropdownPosition({ 
+          x: px + width - 180, // Align right edge of dropdown with right edge of avatar
+          y: py + height + 5   // Position below the avatar with small gap
+        });
+        setShowUserDropdown(true);
+        console.log('🔄 Avatar clicked! New showUserDropdown: true');
+      });
+    } else {
+      setShowUserDropdown(false);
+      console.log('🔄 Avatar clicked! New showUserDropdown: false');
+    }
+  }, [showUserDropdown]);
+
+  const handleUserMenuOption = useCallback((option: 'settings' | 'logout') => {
+    setShowUserDropdown(false);
+    if (option === 'settings') {
+      onNavigateToSettings?.();
+    } else if (option === 'logout') {
+      handleSecureLogout();
+    }
+  }, [onNavigateToSettings]);
+
+  // Professional Banking Logout with Security Best Practices
+  const handleSecureLogout = useCallback(async () => {
+    const now = new Date();
+    const timeOfDay = now.getHours() < 12 ? 'morning' : now.getHours() < 18 ? 'afternoon' : 'evening';
+    
+    showConfirm({
+      title: '🔒 Secure Sign Out',
+      message: `Are you sure you want to sign out this ${timeOfDay}?\n\nFor your security:\n• Your session will be terminated immediately\n• You'll need to re-authenticate to access your account\n• Any unsaved data will be lost`,
+      buttons: [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+          onPress: () => {
+            // Log cancelled logout attempt for security monitoring
+            APIService.logSecurityEvent({
+              eventType: 'logout_cancelled',
+              description: 'User cancelled logout process',
+              severity: 'low',
+              source: 'dashboard_screen',
+              metadata: {
+                timestamp: now.toISOString(),
+                userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'mobile',
+                timeOfDay
+              }
+            }).catch(error => {
+              console.log('Failed to log security event:', error);
+            });
+          }
+        },
+        {
+          text: 'Sign Out Securely',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // Show security logout process
+              showAlert({
+                title: '🔐 Processing Secure Logout',
+                message: 'Invalidating session and clearing sensitive data...',
+                buttons: []
+              });
+
+              // Log successful logout initiation
+              await APIService.logSecurityEvent({
+                eventType: 'logout_initiated',
+                description: 'User initiated secure logout process',
+                severity: 'low',
+                source: 'dashboard_screen',
+                metadata: {
+                  timestamp: now.toISOString(),
+                  userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'mobile',
+                  sessionDuration: 'calculated_on_backend',
+                  timeOfDay
+                }
+              });
+
+              // Perform secure logout with backend session invalidation
+              await APIService.logout();
+
+              // Clear any cached sensitive data
+              setDashboardData(null);
+              setUserName('User');
+              setUserInitials('U');
+              setSearchQuery('');
+              setNotificationCount(0);
+
+              // Show success message
+              showAlert({
+                title: '✅ Secure Logout Complete',
+                message: `You've been safely signed out. Thank you for using our secure banking platform.\n\nTo sign back in, please use your registered credentials.`,
+                buttons: [
+                  {
+                    text: 'Return to Login',
+                    onPress: () => {
+                      // Call the parent component's logout handler
+                      onLogout?.();
+                    }
+                  }
+                ]
+              });
+
+            } catch (error) {
+              console.error('Secure logout failed:', error);
+              
+              // Log logout failure for security monitoring
+              await APIService.logSecurityEvent({
+                eventType: 'logout_failed',
+                description: 'Secure logout process encountered an error',
+                severity: 'medium',
+                source: 'dashboard_screen',
+                metadata: {
+                  timestamp: now.toISOString(),
+                  error: error.message || 'Unknown error',
+                  timeOfDay
+                }
+              }).catch(logError => {
+                console.log('Failed to log security event:', logError);
+              });
+
+              // Show error but still proceed with local cleanup for security
+              showAlert({
+                title: '⚠️ Logout Warning',
+                message: 'There was an issue with the secure logout process, but your local session has been cleared for security. Please ensure you\'re on a secure network.',
+                buttons: [
+                  {
+                    text: 'Return to Login',
+                    onPress: () => {
+                      // Even if logout failed, clear local state and redirect for security
+                      setDashboardData(null);
+                      setUserName('User');
+                      setUserInitials('U');
+                      onLogout?.();
+                    }
+                  }
+                ]
+              });
+            }
+          }
+        }
+      ]
+    });
+  }, [showConfirm, showAlert, onLogout]);
+
   // Quick actions
   const quickActions = [
     { icon: '💸', title: 'Send Money', subtitle: 'Transfer to any bank', onPress: handleSendMoney },
@@ -230,11 +432,13 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
       shadowOpacity: 0.05,
       shadowRadius: 10,
       elevation: 4,
+      overflow: 'visible',
     },
     headerContent: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
+      overflow: 'visible',
     },
     logoSection: {
       flexDirection: 'row',
@@ -306,6 +510,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
       fontWeight: 'bold',
     },
     userProfile: {
+      position: 'relative',
       flexDirection: 'row',
       alignItems: 'center',
       gap: 10,
@@ -322,6 +527,44 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
       color: '#ffffff',
       fontSize: 14,
       fontWeight: 'bold',
+    },
+    userDropdown: {
+      position: 'absolute',
+      top: 50,
+      right: 0,
+      backgroundColor: '#ffffff',
+      borderRadius: 12,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.15,
+      shadowRadius: 12,
+      elevation: 8,
+      minWidth: 180,
+      paddingVertical: theme.spacing.sm,
+      zIndex: 10000,
+      borderWidth: 2,
+      borderColor: '#ff0000',
+    },
+    dropdownItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.sm,
+      gap: 12,
+    },
+    dropdownItemText: {
+      fontSize: 16,
+      color: '#333',
+      fontWeight: '500',
+    },
+    dropdownLogout: {
+      borderTopWidth: 1,
+      borderTopColor: '#f1f5f9',
+      marginTop: theme.spacing.xs,
+      paddingTop: theme.spacing.sm,
+    },
+    dropdownLogoutText: {
+      color: theme.colors.error,
     },
     welcomeSection: {
       backgroundColor: theme.colors.primary,
@@ -687,12 +930,14 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             </TouchableOpacity>
 
             <TouchableOpacity 
+              ref={userProfileRef}
               style={dynamicStyles.userProfile}
-              onPress={onNavigateToSettings}
+              onPress={handleUserMenuToggle}
             >
               <View style={dynamicStyles.userAvatar}>
                 <Text style={dynamicStyles.avatarText}>{userInitials}</Text>
               </View>
+              
             </TouchableOpacity>
           </View>
         </View>
@@ -723,7 +968,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
               <View style={dynamicStyles.balanceDisplay}>
                 <Text style={dynamicStyles.balanceLabel}>Available Balance</Text>
                 <Text style={dynamicStyles.balanceAmount}>
-                  {dashboardData.currency}{dashboardData.availableBalance.toLocaleString()}
+                  ₦{(dashboardData.availableBalance || 0).toLocaleString()}
                 </Text>
                 <View style={dynamicStyles.balanceActions}>
                   <TouchableOpacity style={dynamicStyles.balanceAction} onPress={handleSendMoney}>
@@ -779,20 +1024,20 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                   <View style={dynamicStyles.limitHeader}>
                     <Text style={dynamicStyles.limitLabel}>Daily Limit</Text>
                     <Text style={dynamicStyles.limitValue}>
-                      ₦{dashboardData.transactionLimits.daily.remaining.toLocaleString()} remaining
+                      ₦{(dashboardData.transactionLimits?.daily?.remaining || 0).toLocaleString()} remaining
                     </Text>
                   </View>
                   <View style={dynamicStyles.progressBar}>
                     <View style={[
                       dynamicStyles.progressFill,
                       { 
-                        width: `${Math.min(100, (dashboardData.transactionLimits.daily.used / dashboardData.transactionLimits.daily.limit) * 100)}%`,
-                        backgroundColor: dashboardData.transactionLimits.daily.used / dashboardData.transactionLimits.daily.limit > 0.8 ? '#ef4444' : theme.colors.primary
+                        width: `${Math.min(100, ((dashboardData.transactionLimits?.daily?.used || 0) / Math.max(1, dashboardData.transactionLimits?.daily?.limit || 1)) * 100)}%`,
+                        backgroundColor: ((dashboardData.transactionLimits?.daily?.used || 0) / Math.max(1, dashboardData.transactionLimits?.daily?.limit || 1)) > 0.8 ? '#ef4444' : theme.colors.primary
                       }
                     ]} />
                   </View>
                   <Text style={dynamicStyles.limitSubtext}>
-                    ₦{dashboardData.transactionLimits.daily.used.toLocaleString()} of ₦{dashboardData.transactionLimits.daily.limit.toLocaleString()} used
+                    ₦{(dashboardData.transactionLimits?.daily?.used || 0).toLocaleString()} of ₦{(dashboardData.transactionLimits?.daily?.limit || 0).toLocaleString()} used
                   </Text>
                 </View>
 
@@ -801,20 +1046,20 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                   <View style={dynamicStyles.limitHeader}>
                     <Text style={dynamicStyles.limitLabel}>Monthly Limit</Text>
                     <Text style={dynamicStyles.limitValue}>
-                      ₦{dashboardData.transactionLimits.monthly.remaining.toLocaleString()} remaining
+                      ₦{(dashboardData.transactionLimits?.monthly?.remaining || 0).toLocaleString()} remaining
                     </Text>
                   </View>
                   <View style={dynamicStyles.progressBar}>
                     <View style={[
                       dynamicStyles.progressFill,
                       { 
-                        width: `${Math.min(100, (dashboardData.transactionLimits.monthly.used / dashboardData.transactionLimits.monthly.limit) * 100)}%`,
-                        backgroundColor: dashboardData.transactionLimits.monthly.used / dashboardData.transactionLimits.monthly.limit > 0.8 ? '#ef4444' : theme.colors.primary
+                        width: `${Math.min(100, ((dashboardData.transactionLimits?.monthly?.used || 0) / Math.max(1, dashboardData.transactionLimits?.monthly?.limit || 1)) * 100)}%`,
+                        backgroundColor: ((dashboardData.transactionLimits?.monthly?.used || 0) / Math.max(1, dashboardData.transactionLimits?.monthly?.limit || 1)) > 0.8 ? '#ef4444' : theme.colors.primary
                       }
                     ]} />
                   </View>
                   <Text style={dynamicStyles.limitSubtext}>
-                    ₦{dashboardData.transactionLimits.monthly.used.toLocaleString()} of ₦{dashboardData.transactionLimits.monthly.limit.toLocaleString()} used
+                    ₦{(dashboardData.transactionLimits?.monthly?.used || 0).toLocaleString()} of ₦{(dashboardData.transactionLimits?.monthly?.limit || 0).toLocaleString()} used
                   </Text>
                 </View>
               </View>
@@ -908,7 +1153,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                     transaction.type === 'received' ? dynamicStyles.amountReceived :
                     dynamicStyles.amountPending
                   ]}>
-                    {transaction.amount > 0 ? '+' : ''}₦{Math.abs(transaction.amount).toLocaleString()}
+                    {(transaction.amount || 0) > 0 ? '+' : ''}₦{Math.abs(transaction.amount || 0).toLocaleString()}
                   </Text>
                 </View>
               ))}
@@ -916,6 +1161,95 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
           )}
         </View>
       </ScrollView>
+
+      {/* User Dropdown Modal */}
+      <Modal
+        visible={showUserDropdown}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowUserDropdown(false)}
+      >
+        <Pressable 
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(0, 0, 0, 0.1)',
+          }}
+          onPress={() => setShowUserDropdown(false)}
+        >
+          <View
+            style={{
+              position: 'absolute',
+              top: dropdownPosition.y,
+              left: dropdownPosition.x,
+              width: 180,
+              backgroundColor: '#ffffff',
+              borderRadius: 12,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.15,
+              shadowRadius: 12,
+              elevation: 8,
+              zIndex: 9999,
+              borderWidth: 1,
+              borderColor: '#e1e5e9',
+            }}
+          >
+            <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                borderBottomWidth: 1,
+                borderBottomColor: '#f1f5f9',
+              }}
+              onPress={() => {
+                setShowUserDropdown(false);
+                console.log('👤 Profile clicked');
+              }}
+            >
+              <Text style={{ marginRight: 12, fontSize: 16 }}>👤</Text>
+              <Text style={{ fontSize: 14, color: '#333', fontWeight: '500' }}>Profile</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                borderBottomWidth: 1,
+                borderBottomColor: '#f1f5f9',
+              }}
+              onPress={() => {
+                setShowUserDropdown(false);
+                onNavigateToSettings();
+                console.log('⚙️ Settings clicked');
+              }}
+            >
+              <Text style={{ marginRight: 12, fontSize: 16 }}>⚙️</Text>
+              <Text style={{ fontSize: 14, color: '#333', fontWeight: '500' }}>Settings</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+              }}
+              onPress={() => {
+                setShowUserDropdown(false);
+                console.log('🚪 Logout clicked');
+                onLogout();
+              }}
+            >
+              <Text style={{ marginRight: 12, fontSize: 16 }}>🚪</Text>
+              <Text style={{ fontSize: 14, color: '#ef4444', fontWeight: '500' }}>Logout</Text>
+            </TouchableOpacity>
+          </View>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 };

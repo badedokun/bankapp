@@ -51,11 +51,15 @@ router.get('/balance', authenticateToken, validateTenantAccess, asyncHandler(asy
 
   const spending = spendingResult.rows[0];
 
+  const balanceValue = parseFloat(wallet.balance);
+  console.log(`💰 WALLET API RESPONSE: User ${req.user.id} | Balance: ${balanceValue} | Account: ${wallet.account_number}`);
+
   res.json({
     success: true,
     data: {
       accountNumber: wallet.account_number,
-      balance: parseFloat(wallet.balance),
+      balance: balanceValue,
+      availableBalance: balanceValue, // Available balance equals current balance for now
       currency: wallet.currency || 'NGN',
       walletType: wallet.wallet_type,
       status: wallet.status || 'active',
@@ -331,7 +335,7 @@ router.post('/transfer-between', authenticateToken, validateTenantAccess, [
  */
 router.post('/fund', authenticateToken, validateTenantAccess, [
   body('walletId').optional().isUUID().withMessage('Valid wallet ID required'),
-  body('amount').isFloat({ min: 100, max: 1000000 }).withMessage('Amount must be between ₦100 and ₦1,000,000'),
+  body('amount').isFloat({ min: 100 }).withMessage('Amount must be at least ₦100'),
   body('method').isIn(['bank_transfer', 'card', 'ussd']).withMessage('Valid funding method required'),
   body('reference').optional().isLength({ min: 5, max: 50 }).withMessage('Reference must be 5-50 characters')
 ], asyncHandler(async (req, res) => {
@@ -865,12 +869,15 @@ async function simulateFunding(method: string, amount: number, reference: string
   // In production, this would integrate with Paystack, Flutterwave, etc.
   
   // Simulate some failure scenarios for testing
+  // Note: Removed artificial funding limit to allow dynamic testing
+  /*
   if (amount > 500000) {
     return {
       success: false,
       message: 'Amount exceeds single transaction limit for this method'
     };
   }
+  */
 
   if (method === 'card' && Math.random() < 0.1) {
     return {

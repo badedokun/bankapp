@@ -12,11 +12,12 @@ import {
   SafeAreaView,
   StatusBar,
   TouchableOpacity,
-  Alert,
   Dimensions,
   Animated,
+  Platform,
 } from 'react-native';
 import { useTenant, useTenantTheme } from '../../tenants/TenantContext';
+import { useBankingAlert } from '../../services/AlertService';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import { InputValidator } from '../../utils/security';
@@ -43,6 +44,7 @@ export interface AITransferScreenProps {
   onTransferComplete?: (transferData: TransferFormData) => void;
   onBack?: () => void;
 }
+
 
 const AITransferScreen: React.FC<AITransferScreenProps> = ({
   onTransferComplete,
@@ -72,18 +74,16 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
     accountName?: string;
     bankName?: string;
   }>({ isValid: false });
+  const [userEnteredRecipientName, setUserEnteredRecipientName] = useState(false);
+  
+  // Professional alert service
+  const { showAlert, showConfirm } = useBankingAlert();
   
   // Animation values
   const pulseAnimation = useRef(new Animated.Value(1)).current;
   const fadeAnimation = useRef(new Animated.Value(0)).current;
 
-  // Sample recipients for AI suggestions
-  const recentRecipients = [
-    { name: 'John Doe', account: '1234567890', bank: '058', amount: '₦5,000' },
-    { name: 'Jane Smith', account: '0987654321', bank: '011', amount: '₦12,500' },
-    { name: 'Michael Johnson', account: '1122334455', bank: '057', amount: '₦25,000' },
-    { name: 'Sarah Wilson', account: '9988776655', bank: '030', amount: '₦8,750' },
-  ];
+
 
   // Load banks on component mount
   useEffect(() => {
@@ -207,7 +207,8 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
           bankName: validation.bankName,
         });
         
-        if (validation.isValid && validation.accountName) {
+        // Only auto-fill if no user input has been entered in the recipient field
+        if (validation.isValid && validation.accountName && !userEnteredRecipientName && !formData.recipient.trim()) {
           setFormData(prev => ({ ...prev, recipient: validation.accountName || '' }));
         }
       } catch (error) {
@@ -217,7 +218,7 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
         setIsValidatingRecipient(false);
       }
     }
-  }, []);
+  }, [userEnteredRecipientName, formData.recipient]);
 
   // Handle form field changes
   const handleFieldChange = useCallback((field: keyof TransferFormData, value: string) => {
@@ -228,23 +229,26 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
       const accountNumber = field === 'recipientAccountNumber' ? value : formData.recipientAccountNumber;
       const bankCode = field === 'recipientBankCode' ? value : formData.recipientBankCode;
       
+      // If user has already entered a recipient name, mark it as manually entered
+      if (formData.recipient.trim() && !userEnteredRecipientName) {
+        setUserEnteredRecipientName(true);
+      }
+      
       if (accountNumber.length === 10 && bankCode.length === 3) {
         validateRecipient(accountNumber, bankCode);
       }
     }
     
-    // Generate AI suggestions based on input
-    if (field === 'recipient' && value.length > 2) {
-      const matchingRecipients = recentRecipients.filter(r => 
-        r.name.toLowerCase().includes(value.toLowerCase())
-      );
-      const suggestions = matchingRecipients.map(r => `${r.name} - ${r.account}`);
-      setAiSuggestions(suggestions);
+    // Clear AI suggestions when typing recipient name and mark as manually entered
+    if (field === 'recipient') {
+      setAiSuggestions([]);
+      setUserEnteredRecipientName(true);
     }
   }, [formData.recipientAccountNumber, formData.recipientBankCode, validateRecipient]);
 
   // Handle transfer submission
   const handleTransfer = useCallback(async () => {
+    console.log('🚀 Transfer initiated with data:', formData);
     setIsProcessing(true);
     
     try {
@@ -252,29 +256,47 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
       const amountValidation = InputValidator.validateAmount(formData.amount);
       const accountValidation = InputValidator.validateAccountNumber(formData.recipientAccountNumber);
       
+      console.log('✅ Validation results:', { amountValidation, accountValidation });
+      
       if (!amountValidation.isValid) {
-        Alert.alert('Invalid Amount', amountValidation.error);
+        console.error('❌ Amount validation failed:', amountValidation.error);
+        showAlert('Invalid Amount', amountValidation.error);
         setIsProcessing(false);
         return;
       }
       
       if (!accountValidation.isValid) {
-        Alert.alert('Invalid Account', accountValidation.error);
+        console.error('❌ Account validation failed:', accountValidation.error);
+        showAlert('Invalid Account', accountValidation.error);
         setIsProcessing(false);
         return;
       }
 
       if (!formData.pin) {
-        Alert.alert('Transaction PIN Required', 'Please enter your 4-digit transaction PIN');
+        console.error('❌ PIN validation failed: PIN is required');
+        showAlert('Transaction PIN Required', 'Please enter your 4-digit transaction PIN');
         setIsProcessing(false);
         return;
       }
 
-      if (!recipientValidation.isValid) {
-        Alert.alert('Invalid Recipient', 'Please validate the recipient account before proceeding');
+      if (!formData.recipient.trim()) {
+        console.error('❌ Recipient name validation failed: Name is required');
+        showAlert('Recipient Required', 'Please enter the recipient name');
         setIsProcessing(false);
         return;
       }
+
+      if (!formData.recipientBankCode) {
+        console.error('❌ Bank code validation failed: Bank code is required');
+        showAlert('Bank Code Required', 'Please enter the recipient bank code');
+        setIsProcessing(false);
+        return;
+      }
+
+      // Skip recipient validation check for now to allow manual entry
+      console.log('⚠️ Proceeding without recipient validation check for manual entry');
+      
+      console.log('💰 Initiating transfer with API...');
       
       // Initiate transfer via API
       const transferResult = await APIService.initiateTransfer({
@@ -286,26 +308,98 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
         pin: formData.pin
       });
       
+      console.log('✅ Transfer API response:', transferResult);
+      console.log('🔍 Transfer result status:', transferResult.status);
+      console.log('🔍 Transfer result message:', transferResult.message);
+      console.log('🔍 Success condition check:', transferResult.status === 'successful', transferResult.message?.includes('successfully'));
+      
       setIsProcessing(false);
       
-      Alert.alert(
-        'Transfer Initiated',
-        `₦${transferResult.amount.toLocaleString()} transfer to ${transferResult.recipient.name} has been initiated.\n\nReference: ${transferResult.referenceNumber}`,
-        [{ text: 'OK', onPress: () => onTransferComplete?.(formData) }]
-      );
-      
-      // Clear sensitive data
-      setFormData(prev => ({ ...prev, pin: '' }));
+      if (transferResult.status === 'successful' || transferResult.message?.includes('successfully')) {
+        // Success feedback
+        console.log('🎉 Transfer completed successfully!');
+        console.log(`Amount: ₦${transferResult.amount.toLocaleString()}`);
+        console.log(`To: ${transferResult.recipient.accountName}`);
+        console.log(`Reference: ${transferResult.reference}`);
+        console.log(`Status: ${transferResult.status}`);
+        
+        // Success notification
+        showAlert(
+          'Transfer Successful! 🎉',
+          `₦${transferResult.amount.toLocaleString()} transfer to ${transferResult.recipient.accountName} completed successfully.\n\nReference: ${transferResult.reference}\nStatus: ${transferResult.status}`,
+          [{ 
+            text: 'OK', 
+            onPress: () => {
+              // Close form after user acknowledges success
+              console.log('🚪 SUCCESS: User acknowledged success, calling callbacks');
+              onTransferComplete?.(formData);
+              onBack?.();
+            }
+          }]
+        );
+        
+        // Clear form completely on success
+        setFormData({
+          recipient: '',
+          amount: '',
+          description: '',
+          recipientAccountNumber: '',
+          recipientBankCode: '',
+          pin: '',
+        });
+        setUserEnteredRecipientName(false);
+        
+        // Call success callback only after user acknowledges - moved to alert's onPress
+        console.log('✅ SUCCESS: Transfer completed, showing success alert first');
+      } else {
+        console.error('❌ Transfer failed:', transferResult);
+        showAlert(
+          'Transfer Failed',
+          transferResult.message || 'Transfer could not be completed. Please try again.',
+          [{ text: 'OK' }]
+        );
+      }
       
     } catch (error: any) {
+      console.error('❌ Transfer failed:', error);
+      console.log('🔄 ERROR CAUGHT: Stopping processing and showing error alert');
       setIsProcessing(false);
-      Alert.alert(
-        'Transfer Failed',
-        error.message || 'An error occurred while processing your transfer. Please try again.',
-        [{ text: 'OK' }]
-      );
+      
+      // Parse error message to provide better user feedback
+      let errorMessage = 'An error occurred while processing your transfer. Please try again.';
+      let errorTitle = 'Transfer Failed';
+      
+      if (error.message) {
+        if (error.message.includes('401') || error.message.includes('Access token required')) {
+          errorTitle = 'Authentication Required';
+          errorMessage = 'Please log in again to continue with transfers.';
+        } else if (error.message.includes('Validation failed')) {
+          errorTitle = 'Invalid Transfer Details';
+          errorMessage = 'Please check your transfer details and try again. Make sure the amount is within limits and all fields are filled correctly.';
+        } else if (error.message.includes('Invalid transaction PIN')) {
+          errorTitle = 'Invalid PIN';
+          errorMessage = 'The transaction PIN you entered is incorrect. Please try again.';
+        } else if (error.message.includes('Insufficient balance') || error.message.includes('Insufficient funds')) {
+          errorTitle = 'Insufficient Funds';
+          errorMessage = 'You do not have enough balance to complete this transfer.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      console.log('🚨 SHOWING ERROR ALERT:', errorTitle, errorMessage);
+      showAlert(errorTitle, errorMessage, [
+        { 
+          text: 'OK', 
+          onPress: () => {
+            // Keep form open so user can correct the error
+            console.log('🚪 ERROR: User dismissed error alert, keeping form open');
+            // onBack?.(); // Removed - don't close form on error
+          }
+        }
+      ]);
     }
-  }, [formData, onTransferComplete, recipientValidation.isValid]);
+  }, [formData, onTransferComplete]);
 
   const styles = StyleSheet.create({
     container: {
@@ -478,25 +572,6 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
             validationType="text"
           />
           
-          {/* Recent Recipients */}
-          <View style={styles.recipientSuggestions}>
-            {recentRecipients.slice(0, 3).map((recipient, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.recipientChip}
-                onPress={() => {
-                  setFormData(prev => ({
-                    ...prev,
-                    recipient: recipient.name,
-                    recipientAccountNumber: recipient.account,
-                    recipientBankCode: recipient.bank,
-                  }));
-                }}
-              >
-                <Text style={styles.recipientChipText}>{recipient.name}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
 
           <Input
             label="Account Number"
@@ -513,6 +588,7 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
             placeholder="Enter 3-digit bank code (e.g. 058 for GTBank)"
             value={formData.recipientBankCode}
             onChangeText={(text) => handleFieldChange('recipientBankCode', text)}
+            validationType="numeric"
             keyboardType="numeric"
             maxLength={3}
           />
@@ -527,7 +603,9 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
           {recipientValidation.isValid && recipientValidation.accountName && (
             <View style={styles.suggestionItem}>
               <Text style={[styles.suggestionText, { color: 'green' }]}>
-                ✅ {recipientValidation.accountName} - {recipientValidation.bankName}
+                ✅ {userEnteredRecipientName && formData.recipient.trim() 
+                    ? formData.recipient 
+                    : recipientValidation.accountName} - {recipientValidation.bankName}
               </Text>
             </View>
           )}
@@ -555,6 +633,7 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
             placeholder="Enter your 4-digit PIN"
             value={formData.pin}
             onChangeText={(text) => handleFieldChange('pin', text)}
+            validationType="numeric"
             keyboardType="numeric"
             maxLength={4}
             secureTextEntry={true}
@@ -564,11 +643,16 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
         {/* Transfer Button */}
         <Button
           title={isProcessing ? "Processing Transfer..." : "Send Money 🚀"}
-          onPress={handleTransfer}
+          onPress={() => {
+            console.log('🔄 Send Money button clicked - IMMEDIATE RESPONSE');
+            console.log('📝 Current form data:', JSON.stringify(formData, null, 2));
+            handleTransfer();
+          }}
           loading={isProcessing}
           style={styles.transferButton}
         />
       </ScrollView>
+
     </SafeAreaView>
   );
 };

@@ -12,8 +12,11 @@ import {
   TransactionHistoryScreen,
   SettingsScreen,
 } from '../screens';
+import CBNComplianceScreen from '../screens/security/CBNComplianceScreen';
+import PCIDSSComplianceScreen from '../screens/security/PCIDSSComplianceScreen';
+import SecurityMonitoringScreen from '../screens/security/SecurityMonitoringScreen';
 
-type Screen = 'Login' | 'Dashboard' | 'Transfer' | 'History' | 'Settings';
+type Screen = 'Login' | 'Dashboard' | 'Transfer' | 'History' | 'Settings' | 'CBNCompliance' | 'PCICompliance' | 'SecurityMonitoring';
 
 interface WebNavigatorProps {
   isAuthenticated: boolean;
@@ -37,10 +40,15 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
       case 'Login':
         return (
           <LoginScreen
-            onLogin={async () => {
-              onLogin();
-              setCurrentScreen('Dashboard');
-            }}
+            // Don't override onLogin - let LoginScreen use APIService.login
+            navigation={{
+              replace: (screen: string) => {
+                if (screen === 'MainApp') {
+                  onLogin();
+                  setCurrentScreen('Dashboard');
+                }
+              }
+            } as any}
           />
         );
       case 'Dashboard':
@@ -49,6 +57,14 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
             onNavigateToTransfer={() => navigate('Transfer')}
             onNavigateToHistory={() => navigate('History')}
             onNavigateToSettings={() => navigate('Settings')}
+            onLogout={async () => {
+              // Properly logout through API to clear tokens
+              const APIService = await import('../services/api');
+              await APIService.default.logout();
+              navigate('Login');
+              // Force reload to clear state
+              window.location.reload();
+            }}
           />
         );
       case 'Transfer':
@@ -71,13 +87,32 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
         return (
           <SettingsScreen
             onBack={() => navigate('Dashboard')}
-            onLogout={() => {
+            onLogout={async () => {
+              // Properly logout through API to clear tokens
+              const APIService = await import('../services/api');
+              await APIService.default.logout();
               navigate('Login');
+              // Force reload to clear state
+              window.location.reload();
             }}
           />
         );
       default:
-        return <DashboardScreen onNavigateToTransfer={() => navigate('Transfer')} onNavigateToHistory={() => navigate('History')} onNavigateToSettings={() => navigate('Settings')} />;
+        return (
+          <DashboardScreen 
+            onNavigateToTransfer={() => navigate('Transfer')} 
+            onNavigateToHistory={() => navigate('History')} 
+            onNavigateToSettings={() => navigate('Settings')} 
+            onLogout={async () => {
+              // Properly logout through API to clear tokens
+              const APIService = await import('../services/api');
+              await APIService.default.logout();
+              navigate('Login');
+              // Force reload to clear state
+              window.location.reload();
+            }}
+          />
+        );
     }
   };
 

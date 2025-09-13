@@ -53,6 +53,42 @@ module.exports = {
       preset: 'ts-jest',
       setupFilesAfterEnv: ['<rootDir>/tests/integration/setup.ts'],
     },
+    
+    // UX Validation tests
+    {
+      displayName: 'UX Tests',
+      preset: 'react-native',
+      testMatch: [
+        '<rootDir>/tests/ux/**/*.test.{ts,tsx}',
+      ],
+      moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+      setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+      transformIgnorePatterns: [
+        'node_modules/(?!(react-native|@react-native|react-native-vector-icons)/)',
+      ],
+      moduleNameMapper: {
+        '^@/(.*)$': '<rootDir>/src/$1',
+      },
+      testEnvironment: 'node',
+    },
+    
+    // Framework validation tests
+    {
+      displayName: 'Framework Tests',
+      preset: 'react-native',
+      testMatch: [
+        '<rootDir>/tests/framework/**/*.test.{ts,tsx}',
+      ],
+      moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+      setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+      transformIgnorePatterns: [
+        'node_modules/(?!(react-native|@react-native|react-native-vector-icons)/)',
+      ],
+      moduleNameMapper: {
+        '^@/(.*)$': '<rootDir>/src/$1',
+      },
+      testEnvironment: 'node',
+    },
   ],
   
   // Global settings

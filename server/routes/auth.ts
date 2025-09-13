@@ -25,7 +25,7 @@ const router = express.Router();
 router.post('/login', [
   body('email').isEmail().normalizeEmail().withMessage('Valid email required'),
   body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
-  body('tenantId').optional().isUUID().withMessage('Invalid tenant ID format')
+  body('tenantId').optional() // Remove UUID validation to accept tenant names
 ], asyncHandler(async (req, res) => {
   // Check validation errors
   const validationErrors = validationResult(req);
@@ -39,13 +39,34 @@ router.post('/login', [
   }
 
   const { email, password, deviceInfo = {} } = req.body;
-  const tenantId = req.body.tenantId || req.tenant?.id;
+  let tenantId = req.body.tenantId || req.tenant?.id;
+
+  console.log('🔐 Login attempt:', { email, tenantId, hasPassword: !!password });
 
   if (!tenantId) {
     throw errors.badRequest('Tenant context required', 'TENANT_REQUIRED');
   }
 
+  // If tenantId is not a UUID, look it up by name
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(tenantId)) {
+    const tenantResult = await query(`
+      SELECT id FROM platform.tenants WHERE name = $1 OR subdomain = $1
+    `, [tenantId]);
+    
+    if (tenantResult.rows.length > 0) {
+      tenantId = tenantResult.rows[0].id;
+      console.log('🏢 Tenant lookup successful:', { originalTenant: req.body.tenantId, resolvedTenantId: tenantId });
+    } else {
+      console.log('❌ Tenant lookup failed for:', req.body.tenantId);
+      throw errors.badRequest('Invalid tenant', 'INVALID_TENANT');
+    }
+  } else {
+    console.log('✅ Using UUID tenant:', tenantId);
+  }
+
   // Find user by email and tenant
+  console.log('🔍 Looking for user:', { email, tenantId });
   const userResult = await query(`
     SELECT u.*, tm.tenant_name, t.display_name as tenant_display_name,
            t.branding, t.security_settings
@@ -55,7 +76,17 @@ router.post('/login', [
     WHERE u.email = $1 AND u.tenant_id = $2
   `, [email, tenantId]);
 
+  console.log('👤 User query result:', { found: userResult.rows.length, email });
+
   if (userResult.rows.length === 0) {
+    // Check if user exists in any tenant
+    const anyUserResult = await query(`
+      SELECT u.email, u.tenant_id, t.name as tenant_name
+      FROM tenant.users u
+      JOIN platform.tenants t ON u.tenant_id = t.id
+      WHERE u.email = $1
+    `, [email]);
+    console.log('🔍 User exists in other tenants:', anyUserResult.rows);
     throw errors.unauthorized('Invalid credentials', 'INVALID_CREDENTIALS');
   }
 
@@ -67,7 +98,15 @@ router.post('/login', [
   }
 
   // Verify password
+  console.log('🔑 Password verification:', { 
+    providedPassword: password,
+    hasStoredHash: !!user.password_hash,
+    storedHashLength: user.password_hash?.length || 0
+  });
+  
   const isValidPassword = await bcrypt.compare(password, user.password_hash);
+  console.log('🔓 Password verification result:', { isValidPassword });
+  
   if (!isValidPassword) {
     // Increment failed login attempts
     await query(`
@@ -77,6 +116,7 @@ router.post('/login', [
       WHERE id = $1
     `, [user.id]);
 
+    console.log('❌ Password verification failed for:', { email, providedPassword: password });
     throw errors.unauthorized('Invalid credentials', 'INVALID_CREDENTIALS');
   }
 

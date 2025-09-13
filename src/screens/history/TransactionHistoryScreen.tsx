@@ -77,37 +77,57 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
   // Load transaction history
   const loadHistoryData = useCallback(async () => {
     try {
-      const transactionsData = await APIService.getTransferHistory({ 
-        page: 1, 
-        limit: 50,
-        status: statusFilter !== 'all' ? statusFilter : undefined,
-        type: typeFilter !== 'all' ? typeFilter : undefined,
-      });
-
-      // Convert API transactions to detailed format
-      const detailedTransactions: DetailedTransaction[] = transactionsData.transactions.map((tx: any) => ({
-        id: tx.id,
-        referenceNumber: tx.reference,
-        type: tx.type === 'money_transfer' ? (tx.amount < 0 ? 'sent' : 'received') : 
-              tx.type === 'cash_withdrawal' ? 'sent' : 'bills',
-        status: tx.status,
-        title: tx.description || `${tx.type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}`,
-        subtitle: tx.recipient_name ? `${tx.recipient_bank || 'Bank'} • ${tx.recipient_name}` : 'Banking Transaction',
-        amount: tx.amount,
-        fees: tx.total_fees || 0,
-        balance: 0, // Balance calculation would need additional API call
-        timestamp: new Date(tx.created_at).toLocaleDateString('en-US', { 
-          year: 'numeric', 
-          month: 'short', 
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
+      console.log('🔍 Loading transfer history data...');
+      const [transactionsData, walletData] = await Promise.all([
+        APIService.getTransferHistory({ 
+          page: 1, 
+          limit: 50,
+          status: statusFilter !== 'all' ? statusFilter : undefined,
+          type: typeFilter !== 'all' ? typeFilter : undefined,
         }),
-        date: tx.created_at,
-        icon: tx.type === 'money_transfer' ? (tx.amount < 0 ? '↗️' : '↙️') : 
-              tx.type === 'cash_withdrawal' ? '💸' : 
-              tx.type === 'bill_payment' ? '⚡' : '📋',
-      }));
+        APIService.getWalletBalance()
+      ]);
+
+      console.log('📊 Transfer history response:', transactionsData);
+      console.log('📋 Transactions array:', transactionsData.transactions);
+
+      // Calculate progressive balances starting from current balance
+      let runningBalance = walletData.balance;
+      
+      // Convert API transactions to detailed format with progressive balance calculation
+      const detailedTransactions: DetailedTransaction[] = (transactionsData.transactions || [])
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) // Most recent first
+        .map((tx: any, index: number) => {
+          // For balance calculation: sent transactions reduce balance, received increase it
+          const transactionAmount = tx.direction === 'sent' ? -Math.abs(tx.amount) : Math.abs(tx.amount);
+          const balanceAfterTransaction = index === 0 ? runningBalance : runningBalance;
+          
+          // Update running balance for next transaction (going backwards in time)
+          if (index > 0) {
+            runningBalance = runningBalance - transactionAmount;
+          }
+          
+          return {
+            id: tx.id,
+            referenceNumber: tx.reference,
+            type: tx.direction === 'sent' ? 'sent' : 'received',
+            status: tx.status === 'successful' ? 'completed' : tx.status,
+            title: tx.description || 'Money Transfer',
+            subtitle: tx.recipient ? `Bank Transfer • ${tx.recipient.accountName}` : 'Banking Transaction',
+            amount: transactionAmount,
+            fees: tx.fee || 0,
+            balance: balanceAfterTransaction,
+            timestamp: new Date(tx.createdAt).toLocaleDateString('en-US', { 
+              year: 'numeric', 
+              month: 'short', 
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            }),
+            date: tx.createdAt,
+            icon: tx.direction === 'sent' ? '↗️' : '↙️',
+          };
+        });
 
       const totalFees = detailedTransactions.reduce((sum, tx) => sum + tx.fees, 0);
       const totalVolume = detailedTransactions.reduce((sum, tx) => sum + Math.abs(tx.amount), 0);

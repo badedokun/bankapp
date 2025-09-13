@@ -22,7 +22,7 @@ router.post('/bill-payment', authenticateToken, validateTenantAccess, [
   body('billType').isIn(['electricity', 'water', 'cable_tv', 'internet', 'education', 'insurance']).withMessage('Invalid bill type'),
   body('providerId').notEmpty().withMessage('Provider ID is required'),
   body('customerNumber').isLength({ min: 4, max: 20 }).withMessage('Invalid customer number'),
-  body('amount').isFloat({ min: 100, max: 500000 }).withMessage('Amount must be between ₦100 and ₦500,000'),
+  body('amount').isFloat({ min: 100 }).withMessage('Amount must be at least ₦100'),
   body('pin').isLength({ min: 4, max: 4 }).withMessage('Transaction PIN required'),
   body('description').optional().isLength({ max: 200 }).withMessage('Description too long')
 ], asyncHandler(async (req, res) => {

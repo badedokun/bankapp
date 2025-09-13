@@ -24,6 +24,7 @@ import Button from '../../components/ui/Button';
 import { SecurityMonitor, SecurityConfig } from '../../utils/security';
 import APIService from '../../services/api';
 import DeploymentManager from '../../config/deployment';
+import { useBankingAlert } from '../../services/AlertService';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -50,6 +51,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   const theme = useTenantTheme();
   const branding = useTenantBranding();
   const deploymentBranding = DeploymentManager.getDeploymentBranding();
+  const { showAlert } = useBankingAlert();
 
   // Form state with security validation
   const [formData, setFormData] = useState<LoginFormData>({
@@ -109,10 +111,23 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     // Check if user is blocked due to too many attempts
     const attemptCheck = SecurityMonitor.trackLoginAttempt(formData.email || 'anonymous');
     if (attemptCheck.blocked) {
-      Alert.alert(
-        'Account Temporarily Locked',
-        'Too many failed login attempts. Please try again in 1 hour or contact support.',
-        [{ text: 'OK' }]
+      showAlert(
+        '🔒 Account Security Lock',
+        `Your account has been temporarily locked due to multiple failed login attempts.\n\nFor your security, please wait 1 hour before trying again, or contact our support team for immediate assistance.\n\nRemaining attempts will be reset automatically.`,
+        [
+          {
+            text: 'Contact Support',
+            onPress: () => {
+              // Log security event for support contact
+              console.log('User requested support for locked account:', formData.email);
+            }
+          },
+          {
+            text: 'OK',
+            onPress: () => {},
+            style: 'default'
+          }
+        ]
       );
       return;
     }
@@ -120,7 +135,17 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     // Validate form data
     const hasErrors = Object.values(formErrors).some(error => error !== undefined);
     if (hasErrors || !formData.email || !formData.password) {
-      Alert.alert('Validation Error', 'Please fix the errors and try again.');
+      showAlert(
+        '⚠️ Form Validation',
+        'Please ensure all fields are filled correctly before proceeding.\n\nCheck that your email address is valid and your password meets the security requirements.',
+        [
+          {
+            text: 'OK',
+            onPress: () => {},
+            style: 'default'
+          }
+        ]
+      );
       return;
     }
 
@@ -139,10 +164,18 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           timestamp: new Date().toISOString(),
         });
         
+        // Determine tenant from email domain
+        let tenantId = currentTenant?.id;
+        if (formData.email.includes('@fmfb.com')) {
+          tenantId = 'fmfb';
+        } else if (formData.email.includes('@default.com')) {
+          tenantId = 'default';
+        }
+        
         const loginResponse = await APIService.login({
           email: formData.email,
           password: formData.password,
-          tenantId: currentTenant?.id,
+          tenantId,
           deviceInfo: {
             rememberMe: formData.rememberMe,
             platform: Platform.OS,
@@ -150,74 +183,153 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           }
         });
         
+        console.log('🎉 Login API call successful! Response:', loginResponse);
+        console.log('👤 User object:', loginResponse.user);
+        console.log('💰 Wallet object:', loginResponse.user?.wallet);
+        
         // Reset attempts on successful login
         SecurityMonitor.resetLoginAttempts(formData.email);
         
-        Alert.alert(
-          'Login Successful',
-          `Welcome back, ${loginResponse.user.firstName}! You have ${loginResponse.user.wallet?.availableBalance ? `₦${loginResponse.user.wallet.availableBalance}` : '₦0'} available.`,
-          [
-            {
-              text: 'Continue',
-              onPress: () => {
-                console.log('Login successful, user data:', {
-                  id: loginResponse.user.id,
-                  name: `${loginResponse.user.firstName} ${loginResponse.user.lastName}`,
-                  tenant: loginResponse.user.tenant.displayName,
-                  balance: loginResponse.user.wallet?.availableBalance
-                });
-                
-                // Navigate to main app (would be handled by navigation prop)
-                if (navigation) {
-                  navigation.replace('MainApp');
-                }
-              }
-            }
-          ]
-        );
+        console.log('📱 About to navigate to dashboard...');
+        console.log('Login successful, user data:', {
+          id: loginResponse.user.id,
+          name: `${loginResponse.user.firstName} ${loginResponse.user.lastName}`,
+          tenant: loginResponse.user.tenant.displayName,
+          balance: loginResponse.user.wallet?.availableBalance
+        });
+        
+        // Navigate to main app immediately (Alert doesn't work well in web)
+        if (navigation) {
+          navigation.replace('MainApp');
+        } else {
+          console.error('❌ Navigation object not available');
+        }
       }
       
     } catch (error: any) {
       console.error('Login error:', error);
       setLoginAttempts(prev => prev + 1);
       
-      // Handle different error types
-      let errorMessage = 'Invalid email or password. Please try again.';
-      let errorTitle = 'Login Failed';
+      // Handle different error types with professional security messaging
+      let errorMessage = 'The credentials you entered are not valid. Please verify your email address and password, then try again.';
+      let errorTitle = '🔐 Authentication Failed';
+      let buttons: Array<{ text: string; onPress: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [];
       
       if (error?.message) {
         if (error.message.includes('Account locked') || error.message.includes('too many')) {
-          errorTitle = 'Account Locked';
-          errorMessage = 'Too many failed attempts. Please try again later or contact support.';
+          errorTitle = '🔒 Account Security Lock';
+          errorMessage = 'Your account has been temporarily locked for security purposes due to multiple unsuccessful login attempts.\n\nTo protect your account, please wait 1 hour before attempting to sign in again, or contact our support team for immediate assistance.';
+          buttons = [
+            {
+              text: 'Contact Support',
+              onPress: () => {
+                console.log('User requested support for locked account:', formData.email);
+              }
+            },
+            {
+              text: 'OK',
+              onPress: () => {},
+              style: 'default'
+            }
+          ];
         } else if (error.message.includes('Account is inactive') || error.message.includes('suspended')) {
-          errorTitle = 'Account Inactive';
-          errorMessage = 'Your account is currently inactive. Please contact support.';
+          errorTitle = '⚠️ Account Status';
+          errorMessage = 'Your account is currently inactive or suspended.\n\nThis may be due to pending verification or security measures. Please contact our support team to restore account access.';
+          buttons = [
+            {
+              text: 'Contact Support',
+              onPress: () => {
+                console.log('User requested support for inactive account:', formData.email);
+              }
+            },
+            {
+              text: 'OK',
+              onPress: () => {},
+              style: 'default'
+            }
+          ];
         } else if (error.message.includes('Server is not accessible')) {
-          errorTitle = 'Connection Error';
-          errorMessage = 'Unable to connect to server. Please check your internet connection.';
+          errorTitle = '🌐 Connection Issue';
+          errorMessage = 'We\'re unable to connect to our secure servers at the moment.\n\nPlease check your internet connection and try again. If the issue persists, our servers may be temporarily unavailable.';
+          buttons = [
+            {
+              text: 'Retry',
+              onPress: () => {
+                setTimeout(() => handleSubmit(), 1000);
+              }
+            },
+            {
+              text: 'OK',
+              onPress: () => {},
+              style: 'default'
+            }
+          ];
         } else if (error.message.includes('Invalid credentials')) {
-          errorMessage = 'The email or password you entered is incorrect. Please try again.';
+          errorTitle = '🔐 Authentication Failed';
+          errorMessage = 'The email address or password you entered is incorrect.\n\nPlease double-check your credentials and try again. If you\'ve forgotten your password, you can reset it using the "Forgot Password" link.';
+          buttons = [
+            {
+              text: 'Reset Password',
+              onPress: () => {
+                handleForgotPassword();
+              }
+            },
+            {
+              text: 'Try Again',
+              onPress: () => {},
+              style: 'default'
+            }
+          ];
         }
       }
       
-      Alert.alert(errorTitle, errorMessage, [{ text: 'OK' }]);
+      // Default buttons if none were set
+      if (buttons.length === 0) {
+        buttons = [
+          {
+            text: 'Reset Password',
+            onPress: () => {
+              handleForgotPassword();
+            }
+          },
+          {
+            text: 'Try Again',
+            onPress: () => {},
+            style: 'default'
+          }
+        ];
+      }
+      
+      showAlert(errorTitle, errorMessage, buttons);
     } finally {
       setIsSubmitting(false);
     }
-  }, [formData, formErrors, isSubmitting, onLogin, currentTenant]);
+  }, [formData, formErrors, isSubmitting, onLogin, currentTenant, showAlert, handleForgotPassword]);
 
   // Handle biometric authentication
   const handleBiometricAuth = useCallback((type: 'fingerprint' | 'faceId' | 'voice') => {
     if (onBiometricAuth) {
       onBiometricAuth(type);
     } else {
-      Alert.alert(
-        `${type.charAt(0).toUpperCase() + type.slice(1)} Authentication`,
-        `${type} authentication would be triggered here in a real app.`,
-        [{ text: 'OK' }]
+      const typeMap = {
+        fingerprint: { emoji: '👆', name: 'Fingerprint' },
+        faceId: { emoji: '😊', name: 'Face ID' },
+        voice: { emoji: '🎤', name: 'Voice' }
+      };
+      
+      showAlert(
+        `${typeMap[type].emoji} ${typeMap[type].name} Authentication`,
+        `${typeMap[type].name} authentication is not yet configured for this device.\n\nThis feature would securely authenticate using your device's biometric sensors in a production environment.`,
+        [
+          {
+            text: 'Set Up Later',
+            onPress: () => {},
+            style: 'default'
+          }
+        ]
       );
     }
-  }, [onBiometricAuth]);
+  }, [onBiometricAuth, showAlert]);
 
   // Toggle password visibility
   const togglePasswordVisibility = useCallback(() => {
@@ -229,9 +341,25 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     if (onForgotPassword) {
       onForgotPassword();
     } else {
-      Alert.alert('Forgot Password', 'Password reset functionality would be triggered here.');
+      showAlert(
+        '🔑 Password Reset',
+        'Password reset functionality is not yet available in this demo environment.\n\nIn a production application, you would receive a secure reset link via email to create a new password.',
+        [
+          {
+            text: 'Contact Support',
+            onPress: () => {
+              console.log('User requested support for password reset');
+            }
+          },
+          {
+            text: 'OK',
+            onPress: () => {},
+            style: 'default'
+          }
+        ]
+      );
     }
-  }, [onForgotPassword]);
+  }, [onForgotPassword, showAlert]);
 
   const styles = StyleSheet.create({
     container: {

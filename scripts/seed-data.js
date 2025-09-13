@@ -4,6 +4,7 @@
  */
 
 const { Client } = require('pg');
+const bcrypt = require('bcrypt');
 
 // Database configuration
 const DB_CONFIG = {
@@ -43,6 +44,10 @@ async function seedData() {
         tenant_name = EXCLUDED.tenant_name;
     `, [tenantId]);
     
+    // Hash passwords using bcrypt
+    const demoPasswordHash = await bcrypt.hash('Demo@123!', 10);
+    const adminPasswordHash = await bcrypt.hash('Admin@123!', 10);
+    
     // Insert demo users in the tenant schema
     await client.query(`
       INSERT INTO tenant.users (
@@ -55,10 +60,12 @@ async function seedData() {
         status,
         role
       ) VALUES 
-      ($1, 'demo@fmfb.com', '+2348012345678', 'Demo', 'User', crypt('Demo@123!', gen_salt('bf')), 'active', 'agent'),
-      ($1, 'admin@fmfb.com', '+2348012345679', 'Admin', 'User', crypt('Admin@123!', gen_salt('bf')), 'active', 'admin')
-      ON CONFLICT (email) DO NOTHING;
-    `, [tenantId]);
+      ($1, 'demo@fmfb.com', '+2348012345678', 'Demo', 'User', $2, 'active', 'agent'),
+      ($1, 'admin@fmfb.com', '+2348012345679', 'Admin', 'User', $3, 'active', 'admin')
+      ON CONFLICT (email) DO UPDATE SET 
+        password_hash = EXCLUDED.password_hash,
+        updated_at = CURRENT_TIMESTAMP;
+    `, [tenantId, demoPasswordHash, adminPasswordHash]);
     
     // Get the inserted user IDs and create wallets
     const usersResult = await client.query(`

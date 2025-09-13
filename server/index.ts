@@ -25,6 +25,7 @@ import kycRoutes from './routes/kyc';
 import cbnComplianceRoutes from './routes/cbn-compliance';
 import pciDssComplianceRoutes from './routes/pci-dss-compliance';
 import securityMonitoringRoutes from './routes/security-monitoring';
+import transactionLimitsRoutes from './routes/transaction-limits';
 
 // Import middleware
 import { errorHandler, notFound } from './middleware/errorHandler';
@@ -133,6 +134,7 @@ app.use('/api/kyc', kycRoutes);
 app.use('/api/cbn-compliance', authenticateToken, tenantMiddleware, cbnComplianceRoutes);
 app.use('/api/pci-dss-compliance', authenticateToken, tenantMiddleware, pciDssComplianceRoutes);
 app.use('/api/security-monitoring', authenticateToken, tenantMiddleware, securityMonitoringRoutes);
+app.use('/api/transaction-limits', authenticateToken, tenantMiddleware, transactionLimitsRoutes);
 
 // Error handling
 app.use(notFound);

@@ -114,6 +114,13 @@ const MainTabNavigator: React.FC = () => {
             onNavigateToTransfer={() => props.navigation.navigate('Transfer')}
             onNavigateToHistory={() => props.navigation.navigate('History')}
             onNavigateToSettings={() => props.navigation.navigate('Settings')}
+            onLogout={() => {
+              // Navigate back to auth
+              props.navigation.getParent()?.reset({
+                index: 0,
+                routes: [{ name: 'Auth' }],
+              });
+            }}
           />
         )}
       </Tab.Screen>
