@@ -429,6 +429,61 @@ java -version  # Should show JDK 21
 2. **Gradle Permission Issues**: Ensure `./android/gradlew` is executable
 3. **Build Cache Issues**: Run `./android/gradlew clean -p android` first
 4. **Native Module Conflicts**: Check react-native-screens compatibility
+5. **React Version Mismatch**: Ensure React and react-native-renderer versions match exactly
+
+#### 🚨 React Version Compatibility (CRITICAL)
+
+**Issue**: APK crashes with "Incompatible React versions" error
+**Symptoms**: App shows version mismatch between `react` and `react-native-renderer`
+
+**Solution**: Ensure React 18.2.0 compatibility with React Native 0.81.1
+```bash
+# 1. Verify package.json has correct versions
+npm list react react-dom react-native
+
+# Expected versions:
+# react@18.2.0
+# react-dom@18.2.0  
+# react-native@0.81.1
+
+# 2. Clear all caches and rebuild JavaScript bundle
+npx react-native bundle --platform android --dev false \
+  --entry-file index.js \
+  --bundle-output android/app/src/main/assets/index.android.bundle \
+  --assets-dest android/app/src/main/res --reset-cache
+
+# 3. Clean and rebuild APK
+cd android && ./gradlew clean
+export JAVA_HOME="/Users/bisiadedokun/.sdkman/candidates/java/21.0.4-tem"
+GRADLE_OPTS="--enable-native-access=ALL-UNNAMED" ./gradlew assembleDebug
+
+# 4. Verify APK contains correct React version
+ls -la android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+**Prevention**: Always use `--reset-cache` when rebuilding after React version changes
+
+#### Mobile-Cloud Integration Testing
+
+After building APK, verify mobile app connectivity to cloud endpoints:
+```bash
+# Run comprehensive integration test
+node test-integration.js
+
+# Test results should show:
+# ✅ APK Found (size, build date)
+# ✅ JavaScript Bundle Found  
+# ✅ All security endpoints (CBN, PCI DSS, SIEM) responding
+# ✅ 100% endpoint success rate
+```
+
+The integration test validates:
+- APK build status and metadata
+- JavaScript bundle presence
+- React version compatibility
+- All Phase 1 security endpoints
+- Mobile-cloud connectivity
+- Authentication flow
 
 ### Code Review Checklist
 - [ ] Database schema validated
