@@ -5,11 +5,11 @@
 
 import { Storage } from '../utils/storage';
 import JWTManager from '../utils/jwt';
+import { ENV_CONFIG, buildApiUrl } from '../config/environment';
 
-// API Configuration
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://api.orokii.com' 
-  : 'http://localhost:3001';
+// API Configuration - Use centralized environment config
+const API_BASE_URL = ENV_CONFIG.API_BASE_URL;
+const API_TIMEOUT = ENV_CONFIG.API_TIMEOUT;
 
 interface APIResponse<T = any> {
   success: boolean;
@@ -186,7 +186,7 @@ class APIService {
       await this.loadTokensFromStorage();
     }
 
-    const url = `${this.baseURL}${endpoint}`;
+    const url = buildApiUrl(endpoint);
     const tenantId = this.getTenantId();
 
     // Prepare headers
@@ -249,7 +249,7 @@ class APIService {
     }
 
     try {
-      const response = await fetch(`${this.baseURL}/api/auth/refresh`, {
+      const response = await fetch(buildApiUrl('/api/auth/refresh'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -445,7 +445,7 @@ class APIService {
    */
   async healthCheck(): Promise<any> {
     try {
-      const response = await fetch(`${this.baseURL}/health`);
+      const response = await fetch(buildApiUrl('/health'));
       return await response.json();
     } catch (error) {
       throw new Error('Server is not accessible');

@@ -7,9 +7,11 @@
 ### Before Starting Development
 ```bash
 # Essential pre-development checks
-npm run db:migrate          # Apply database migrations
-npm run test:integration     # Verify existing functionality
-npm run db:verify-schema     # Check table existence
+cp .env.local.example .env.local  # Set up local environment
+npm run db:migrate                # Apply database migrations
+npm run test:integration           # Verify existing functionality
+npm run db:verify-schema          # Check table existence
+node test-environment-config.js   # Verify environment configuration
 ```
 
 ### Core Development Principles
@@ -37,6 +39,144 @@ npm run db:verify-schema     # Check table existence
    - **Issue**: Password length validation (7 chars vs 8+ required)
    - **Impact**: All transfer tests failing due to auth issues
    - **Prevention**: Test authentication flow independently first
+
+---
+
+## 🌍 Environment Configuration System (NEW)
+
+### Overview
+The application now uses a **centralized environment configuration system** that automatically detects deployment environments and configures URLs accordingly. This eliminates the need for manual URL changes when switching between local development and cloud deployments.
+
+### ⚠️ BREAKING CHANGE ALERT
+**Previous hardcoded localhost references have been replaced with centralized configuration.**
+
+### Key Features
+- **🔍 Automatic Detection**: Detects local vs cloud environments
+- **🔗 Smart URL Resolution**: Absolute URLs locally, relative URLs in cloud
+- **🎯 Zero Configuration**: Switch environments without code changes
+- **☁️ Multi-Cloud Support**: GCP, AWS, Vercel, Netlify, Heroku
+
+### Environment Setup
+
+#### For Local Development:
+```bash
+# Copy and configure local environment
+cp .env.local.example .env.local
+# Default values work for most cases - no editing required
+
+# Start applications
+npm run server  # API server on localhost:3001
+npm run web     # Web app on localhost:3000
+```
+
+#### For Cloud Deployment:
+```bash
+# Copy and configure cloud environment
+cp .env.cloud.example .env
+# Edit with your cloud-specific values (database, secrets, etc.)
+nano .env
+
+# Deploy (environment URLs are handled automatically)
+./deploy.sh
+```
+
+### Environment Configuration Files
+
+| File | Purpose | Usage |
+|------|---------|-------|
+| `src/config/environment.ts` | Main frontend config | Automatic environment detection |
+| `src/config/testEnvironment.js` | Test files config | Used by test files and CI/CD |
+| `.env.local.example` | Local development template | Copy to `.env.local` |
+| `.env.cloud.example` | Cloud deployment template | Copy to `.env` |
+| `ENVIRONMENT_SETUP.md` | Detailed setup guide | Comprehensive documentation |
+
+### URL Resolution Strategy
+
+#### Local Development
+- **API URLs**: `http://localhost:3001/api/endpoint`
+- **Web URLs**: `http://localhost:3000/path`
+- **WebSocket**: `ws://localhost:3000`
+
+#### Cloud Deployment
+- **API URLs**: `/api/endpoint` (relative to same domain)
+- **Web URLs**: `/path` (relative to same domain)
+- **WebSocket**: Relative WebSocket URLs
+
+### Usage in Code
+
+#### ✅ CORRECT - New Centralized Approach:
+```javascript
+import { buildApiUrl, buildWebUrl } from '../config/environment';
+
+// Automatically resolves to correct URL for environment
+const apiUrl = buildApiUrl('/api/transfers/initiate');
+const webUrl = buildWebUrl('/dashboard');
+```
+
+#### ❌ INCORRECT - Old Hardcoded Approach:
+```javascript
+// DON'T DO THIS ANYMORE - This breaks cloud deployments
+const apiUrl = 'http://localhost:3001/api/transfers/initiate';
+const webUrl = 'http://localhost:3000/dashboard';
+```
+
+### Testing Environment Configuration
+```bash
+# Verify environment configuration works correctly
+node test-environment-config.js
+
+# Should show 100% success rate:
+# ✅ Local URLs contain localhost
+# ✅ Cloud URLs are relative (empty)
+# ✅ Custom URLs match environment variables
+# ✅ buildApiUrl handles relative URLs correctly
+# ✅ buildApiUrl handles absolute URLs correctly
+```
+
+### Migration Guide
+If you encounter hardcoded localhost URLs in your code:
+
+1. **Replace hardcoded URLs**:
+   ```javascript
+   // Before
+   const baseUrl = 'http://localhost:3001/api';
+   
+   // After
+   import { ENV_CONFIG } from '../config/environment';
+   const baseUrl = ENV_CONFIG.API_URL;
+   ```
+
+2. **Update test files**:
+   ```javascript
+   // Before
+   const testUrl = 'http://localhost:3001/api';
+   
+   // After
+   const { API_URL } = require('./src/config/testEnvironment');
+   const testUrl = API_URL;
+   ```
+
+3. **Verify configuration**:
+   ```bash
+   npm run test:integration  # Ensure tests still pass
+   node test-environment-config.js  # Verify environment switching
+   ```
+
+### Troubleshooting
+
+#### API calls failing in cloud?
+- **Check**: `REACT_APP_API_URL` should be empty for same-domain deployment
+- **Solution**: Use relative URLs by leaving `REACT_APP_API_URL=` empty
+
+#### Tests using wrong URLs?
+- **Check**: Test files importing from `testEnvironment.js`
+- **Solution**: Update tests to use centralized configuration
+
+#### Debug environment detection:
+```javascript
+import { ENV_CONFIG } from './src/config/environment';
+console.log('Environment Config:', ENV_CONFIG);
+```
 
 ---
 
@@ -178,7 +318,7 @@ npm run typecheck          # Verify TypeScript types
 psql -c "SELECT table_name FROM information_schema.tables WHERE table_name = 'transfers'"
 
 # API endpoint testing
-curl -X POST localhost:3001/api/transfers/initiate \
+curl -X POST http://localhost:3001/api/transfers/initiate \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN" \
   -d '{"amount": 10000, "pin": "1234", ...}'
@@ -261,6 +401,35 @@ git add . && git commit -m "feat: descriptive message"
 git push origin feature-branch
 ```
 
+### Android APK Build Process
+```bash
+# CRITICAL: Use JDK 21 (JDK 24 causes CMake errors)
+source "/Users/bisiadedokun/.sdkman/bin/sdkman-init.sh"
+sdk use java 21.0.4-tem
+
+# Verify Java version
+java -version  # Should show JDK 21
+
+# Clean and build APK
+./android/gradlew clean -p android
+./android/gradlew assembleDebug -p android
+
+# APK location: android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+#### Java Version Compatibility Matrix
+| JDK Version | Status | Notes |
+|------------|--------|--------|
+| JDK 21 | ✅ Recommended | Perfect compatibility with react-native-screens |
+| JDK 17 | ✅ Compatible | Also works well |
+| JDK 24 | ❌ FAILS | CMake "restricted method" error with JEP 472 |
+
+#### APK Build Troubleshooting
+1. **CMake "Restricted Method" Error**: Switch to JDK 21
+2. **Gradle Permission Issues**: Ensure `./android/gradlew` is executable
+3. **Build Cache Issues**: Run `./android/gradlew clean -p android` first
+4. **Native Module Conflicts**: Check react-native-screens compatibility
+
 ### Code Review Checklist
 - [ ] Database schema validated
 - [ ] Tests use real database for banking operations  
@@ -269,6 +438,7 @@ git push origin feature-branch
 - [ ] Error handling includes proper HTTP status codes
 - [ ] Authentication flow tested independently
 - [ ] No hardcoded credentials or test data in production code
+- [ ] APK builds successfully with JDK 21 (for Android releases)
 
 ---
 
