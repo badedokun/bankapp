@@ -1,9 +1,15 @@
+#!/usr/bin/env node
+
 /**
- * Integration Test for Phase 1 Security Endpoints
- * Tests all CBN, PCI DSS, and SIEM endpoints with proper authentication
+ * Mobile-Cloud Integration Test Script
+ * Tests connectivity between mobile app and cloud endpoints
+ * Including Phase 1 Security Endpoints (CBN, PCI DSS, SIEM)
  */
 
 const jwt = require('jsonwebtoken');
+const { exec } = require('child_process');
+const util = require('util');
+const execPromise = util.promisify(exec);
 
 // Create a properly signed JWT token
 function createTestToken() {
@@ -63,14 +69,64 @@ async function testEndpoint(url, method = 'GET', body = null, token, description
   }
 }
 
+async function checkMobileReadiness() {
+  console.log('📱 Mobile App Readiness Check');
+  console.log('================================\n');
+  
+  // Check APK status
+  try {
+    const { stdout } = await execPromise('ls -la android/app/build/outputs/apk/debug/app-debug.apk 2>/dev/null');
+    if (stdout) {
+      const stats = stdout.split(/\s+/);
+      const size = parseInt(stats[4]);
+      const date = `${stats[5]} ${stats[6]} ${stats[7]}`;
+      
+      console.log('✅ APK Found');
+      console.log(`   Size: ${(size / 1024 / 1024).toFixed(2)} MB`);
+      console.log(`   Built: ${date}`);
+      console.log(`   Path: android/app/build/outputs/apk/debug/app-debug.apk\n`);
+    }
+  } catch (error) {
+    console.log('⚠️  No APK found. Build with: cd android && ./gradlew assembleDebug\n');
+  }
+  
+  // Check JavaScript bundle
+  try {
+    const { stdout } = await execPromise('ls -la android/app/src/main/assets/index.android.bundle 2>/dev/null');
+    if (stdout) {
+      const stats = stdout.split(/\s+/);
+      const size = parseInt(stats[4]);
+      console.log('✅ JavaScript Bundle Found');
+      console.log(`   Size: ${(size / 1024 / 1024).toFixed(2)} MB\n`);
+    }
+  } catch (error) {
+    console.log('⚠️  No JS bundle found\n');
+  }
+  
+  // Check React version in bundle
+  try {
+    const { stdout } = await execPromise('grep -o "React\\.version[^;]*" android/app/src/main/assets/index.android.bundle | head -1');
+    if (stdout) {
+      console.log('📦 React Version in Bundle:');
+      console.log(`   ${stdout.trim()}\n`);
+    }
+  } catch (error) {
+    // Silently continue
+  }
+}
+
 async function runIntegrationTests() {
-  console.log('🚀 Phase 1 Security Endpoints Integration Test\n');
+  console.log('🚀 Mobile-Cloud Integration Test\n');
   console.log('================================================\n');
+  
+  // Check mobile app readiness first
+  await checkMobileReadiness();
   
   const token = createTestToken();
   console.log(`✅ Test token generated\n`);
   
-  const baseUrl = 'http://localhost:3001/api';
+  const { API_URL } = require('./src/config/testEnvironment');
+  const baseUrl = API_URL;
   const results = [];
   
   // Test groups
