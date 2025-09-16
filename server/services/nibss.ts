@@ -101,10 +101,11 @@ export interface NIBSSTransactionStatusRequest {
 interface NIBSSConfig {
   baseUrl: string;
   apiKey: string;
-  secretKey: string;
-  merchantId: string;
+  clientId: string;
+  clientSecret: string;
   environment: 'sandbox' | 'production';
   timeout: number;
+  resetUrl?: string;
 }
 
 export class NIBSSService {
@@ -112,12 +113,13 @@ export class NIBSSService {
 
   constructor() {
     this.config = {
-      baseUrl: process.env.NIBSS_BASE_URL || 'https://api.nibss-plc.com.ng',
+      baseUrl: process.env.NIBSS_BASE_URL || 'https://apitest.nibss-plc.com.ng',
       apiKey: process.env.NIBSS_API_KEY || 'STUBBED_API_KEY',
-      secretKey: process.env.NIBSS_SECRET_KEY || 'STUBBED_SECRET_KEY',
-      merchantId: process.env.NIBSS_MERCHANT_ID || 'STUBBED_MERCHANT_ID',
+      clientId: process.env.NIBSS_CLIENT_ID || 'STUBBED_CLIENT_ID',
+      clientSecret: process.env.NIBSS_CLIENT_SECRET || 'STUBBED_CLIENT_SECRET',
       environment: (process.env.NIBSS_ENVIRONMENT as 'sandbox' | 'production') || 'sandbox',
       timeout: parseInt(process.env.NIBSS_TIMEOUT || '30000'),
+      resetUrl: process.env.NIBSS_RESET_URL || 'https://apitest.nibss-plc.com.ng/v2/reset',
     };
   }
 
@@ -349,9 +351,10 @@ export class NIBSSService {
     return {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${this.config.apiKey}`,
+      'X-Client-ID': this.config.clientId,
+      'X-Client-Secret': this.config.clientSecret,
       'X-Timestamp': timestamp,
       'X-Signature': signature,
-      'X-Merchant-ID': this.config.merchantId,
     };
   }
 

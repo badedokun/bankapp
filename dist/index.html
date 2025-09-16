@@ -1,0 +1,117 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="theme-color" content="#007bff"><meta name="description" content="OrokiiPay - AI-Enhanced Multi-Tenant Nigerian Money Transfer System"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="OrokiiPay"><link rel="manifest" href="/manifest.json"><title>OrokiiPay - Money Transfer System</title><style>* {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background: #f8fafc;
+        }
+        
+        #root {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Loading screen styles */
+        .loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        
+        .loading-content {
+            text-align: center;
+            color: white;
+        }
+        
+        .loading-logo {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+        }
+        
+        .loading-text {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        .loading-spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }</style><script>// Tenant detection script
+        window.detectTenant = function() {
+            const hostname = window.location.hostname;
+            const subdomain = hostname.split('.')[0];
+            const tenantParam = new URLSearchParams(window.location.search).get('tenant');
+            
+            // Detect tenant from subdomain or query parameter
+            let tenant = 'default';
+            if (tenantParam) {
+                tenant = tenantParam;
+            } else if (subdomain && subdomain !== 'localhost' && subdomain !== 'www') {
+                tenant = subdomain;
+            }
+            
+            // Store tenant information
+            window.__TENANT__ = tenant;
+            localStorage.setItem('currentTenant', tenant);
+            
+            // Update theme color based on tenant
+            const tenantThemes = {
+                'bank-a': '#007bff',
+                'bank-b': '#e31e24',
+                'bank-c': '#00a651',
+                'default': '#007bff'
+            };
+            
+            const themeColor = tenantThemes[tenant] || tenantThemes.default;
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', themeColor);
+            
+            return tenant;
+        };
+        
+        // Detect tenant on load
+        window.addEventListener('DOMContentLoaded', function() {
+            window.detectTenant();
+        });</script></head><body><noscript><div style="padding: 20px; text-align: center;"><h1>JavaScript Required</h1><p>Please enable JavaScript to use OrokiiPay Money Transfer System.</p></div></noscript><div id="loading" class="loading-container"><div class="loading-content"><div class="loading-logo">O</div><div class="loading-text">OrokiiPay</div><div class="loading-spinner"></div></div></div><div id="root"></div><script>// Hide loading screen when app is ready
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                const loading = document.getElementById('loading');
+                if (loading) {
+                    loading.style.transition = 'opacity 0.3s';
+                    loading.style.opacity = '0';
+                    setTimeout(function() {
+                        loading.style.display = 'none';
+                    }, 300);
+                }
+            }, 500);
+        });</script><script defer="defer" src="/main.c6c01b264fc44c91c851.bundle.js"></script></body></html>

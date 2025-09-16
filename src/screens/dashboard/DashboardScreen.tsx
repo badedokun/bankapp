@@ -72,6 +72,7 @@ export interface DashboardScreenProps {
   onNavigateToTransfer?: () => void;
   onNavigateToHistory?: () => void;
   onNavigateToSettings?: () => void;
+  onNavigateToTransactionDetails?: (transactionId: string) => void;
   onLogout?: () => void;
 }
 
@@ -79,6 +80,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   onNavigateToTransfer,
   onNavigateToHistory,
   onNavigateToSettings,
+  onNavigateToTransactionDetails,
   onLogout,
 }) => {
   const { currentTenant } = useTenant();
@@ -95,7 +97,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   const [userInitials, setUserInitials] = useState('U');
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ x: 0, y: 0 });
-  const userProfileRef = useRef<TouchableOpacity>(null);
+  const userProfileRef = useRef<any>(null);
 
   // Load dashboard data
   const loadDashboardData = useCallback(async () => {
@@ -1132,7 +1134,11 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
               </View>
 
               {dashboardData.recentTransactions.map((transaction) => (
-                <View key={transaction.id} style={dynamicStyles.activityItem}>
+                <TouchableOpacity
+                  key={transaction.id}
+                  style={dynamicStyles.activityItem}
+                  onPress={() => onNavigateToTransactionDetails?.(transaction.id)}
+                >
                   <View style={[
                     dynamicStyles.activityIcon,
                     { 
@@ -1149,13 +1155,13 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                   </View>
                   <Text style={[
                     dynamicStyles.activityAmount,
-                    transaction.type === 'sent' ? dynamicStyles.amountSent : 
+                    transaction.type === 'sent' ? dynamicStyles.amountSent :
                     transaction.type === 'received' ? dynamicStyles.amountReceived :
                     dynamicStyles.amountPending
                   ]}>
                     {(transaction.amount || 0) > 0 ? '+' : ''}₦{Math.abs(transaction.amount || 0).toLocaleString()}
                   </Text>
-                </View>
+                </TouchableOpacity>
               ))}
             </View>
           )}

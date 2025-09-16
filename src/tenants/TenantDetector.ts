@@ -9,6 +9,14 @@ import { TenantConfig, TenantID } from '../types/tenant';
 import JWTManager from '../utils/jwt';
 import DeploymentManager from '../config/deployment';
 
+/**
+ * React Native Compatibility Check
+ * Determines if running in React Native environment
+ */
+const isReactNative = (): boolean => {
+  return typeof window === 'undefined' && typeof navigator !== 'undefined' && navigator.product === 'ReactNative';
+};
+
 export enum TenantDetectionMethod {
   JWT_TOKEN = 'jwt_token',
   SUBDOMAIN = 'subdomain',
@@ -123,7 +131,8 @@ class TenantDetector {
    * Detect tenant from web environment (subdomain, query params, etc.)
    */
   private detectFromWeb(): TenantID | null {
-    if (typeof window === 'undefined') return null;
+    // Skip web detection in React Native environment
+    if (isReactNative() || typeof window === 'undefined') return null;
 
     try {
       // Check query parameter

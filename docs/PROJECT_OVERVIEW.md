@@ -8,6 +8,7 @@ Multi-tenant banking application with React Native frontend and Express.js backe
 - **✅ Authentication**: Working with JWT tokens and session management
 - **✅ Database**: PostgreSQL with multi-tenant architecture
 - **✅ Fraud Detection**: AI-powered risk assessment integration
+- **✅ Android APK**: Successfully builds with JDK 21 (103.9 MB)
 - **⚠️ Missing Tables**: `recipients`, `transaction_logs` (currently mocked)
 
 ## 🎯 Key Architecture Components
@@ -75,6 +76,23 @@ npm test                    # Run test suite
 npm run lint                # Code quality check
 ```
 
+### Android APK Build
+```bash
+# Use JDK 21 (CRITICAL - JDK 24 fails with CMake errors)
+source "/Users/bisiadedokun/.sdkman/bin/sdkman-init.sh"
+sdk use java 21.0.4-tem
+
+# Build APK
+./android/gradlew clean -p android
+./android/gradlew assembleDebug -p android
+```
+**APK Location**: `android/app/build/outputs/apk/debug/app-debug.apk`
+
+#### ⚠️ JDK Compatibility
+- ✅ **JDK 21**: Works perfectly (recommended)
+- ✅ **JDK 17**: Also compatible
+- ❌ **JDK 24**: CMake "restricted method" error with react-native-screens
+
 ### Banking-Specific Validation
 ```bash
 npm run test:transfers      # Test money transfer functionality
@@ -96,8 +114,13 @@ DB_NAME=bank_app_platform
 JWT_SECRET=your-super-secure-jwt-secret
 JWT_REFRESH_SECRET=your-refresh-secret
 
-# External Services
-NIBSS_API_URL=https://api.nibss.com
+# NIBSS API Configuration
+NIBSS_BASE_URL=https://apitest.nibss-plc.com.ng
+NIBSS_API_KEY=your-nibss-api-key
+NIBSS_CLIENT_ID=your-client-id
+NIBSS_CLIENT_SECRET=your-client-secret
+NIBSS_RESET_URL=https://apitest.nibss-plc.com.ng/v2/reset
+NIBSS_ENVIRONMENT=sandbox
 FRAUD_DETECTION_API_URL=https://fraud-api.example.com
 ```
 

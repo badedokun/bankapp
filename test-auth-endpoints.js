@@ -60,7 +60,8 @@ async function runTests() {
   const token = createDemoToken();
   console.log(`Generated demo token: ${token.substring(0, 50)}...`);
   
-  const baseUrl = 'http://localhost:3001/api';
+  const { API_URL } = require('./src/config/testEnvironment');
+  const baseUrl = API_URL;
   
   // Test each Phase 1 endpoint
   const tests = [

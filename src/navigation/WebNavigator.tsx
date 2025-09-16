@@ -10,13 +10,22 @@ import {
   DashboardScreen,
   AITransferScreen,
   TransactionHistoryScreen,
+  TransactionDetailsScreen,
   SettingsScreen,
 } from '../screens';
 import CBNComplianceScreen from '../screens/security/CBNComplianceScreen';
+
+/**
+ * React Native Compatibility Check
+ * Determines if running in React Native environment
+ */
+const isReactNative = (): boolean => {
+  return typeof window === 'undefined' && typeof navigator !== 'undefined' && navigator.product === 'ReactNative';
+};
 import PCIDSSComplianceScreen from '../screens/security/PCIDSSComplianceScreen';
 import SecurityMonitoringScreen from '../screens/security/SecurityMonitoringScreen';
 
-type Screen = 'Login' | 'Dashboard' | 'Transfer' | 'History' | 'Settings' | 'CBNCompliance' | 'PCICompliance' | 'SecurityMonitoring';
+type Screen = 'Login' | 'Dashboard' | 'Transfer' | 'History' | 'TransactionDetails' | 'Settings' | 'CBNCompliance' | 'PCICompliance' | 'SecurityMonitoring';
 
 interface WebNavigatorProps {
   isAuthenticated: boolean;
@@ -25,9 +34,15 @@ interface WebNavigatorProps {
 
 const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin }) => {
   const [currentScreen, setCurrentScreen] = useState<Screen>(isAuthenticated ? 'Dashboard' : 'Login');
+  const [selectedTransactionId, setSelectedTransactionId] = useState<string>('');
 
   const navigate = (screen: Screen) => {
     setCurrentScreen(screen);
+  };
+
+  const handleTransactionDetails = (transactionId: string) => {
+    setSelectedTransactionId(transactionId);
+    setCurrentScreen('TransactionDetails');
   };
 
   const renderScreen = () => {
@@ -57,13 +72,16 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
             onNavigateToTransfer={() => navigate('Transfer')}
             onNavigateToHistory={() => navigate('History')}
             onNavigateToSettings={() => navigate('Settings')}
+            onNavigateToTransactionDetails={handleTransactionDetails}
             onLogout={async () => {
               // Properly logout through API to clear tokens
               const APIService = await import('../services/api');
               await APIService.default.logout();
               navigate('Login');
-              // Force reload to clear state
-              window.location.reload();
+              // Force reload to clear state (web only)
+              if (!isReactNative() && typeof window !== 'undefined') {
+                window.location.reload();
+              }
             }}
           />
         );
@@ -78,9 +96,7 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
         return (
           <TransactionHistoryScreen
             onBack={() => navigate('Dashboard')}
-            onTransactionDetails={(transactionId) => {
-              console.log('Show transaction details for:', transactionId);
-            }}
+            onTransactionDetails={handleTransactionDetails}
           />
         );
       case 'Settings':
@@ -92,24 +108,44 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
               const APIService = await import('../services/api');
               await APIService.default.logout();
               navigate('Login');
-              // Force reload to clear state
-              window.location.reload();
+              // Force reload to clear state (web only)
+              if (!isReactNative() && typeof window !== 'undefined') {
+                window.location.reload();
+              }
+            }}
+          />
+        );
+      case 'TransactionDetails':
+        return (
+          <TransactionDetailsScreen
+            transactionId={selectedTransactionId}
+            onBack={() => navigate('History')}
+            onReport={(transactionId) => {
+              console.log('Report issue for transaction:', transactionId);
+              // TODO: Implement report functionality
+            }}
+            onRetry={(transactionId) => {
+              console.log('Retry transaction:', transactionId);
+              navigate('Transfer');
             }}
           />
         );
       default:
         return (
-          <DashboardScreen 
-            onNavigateToTransfer={() => navigate('Transfer')} 
-            onNavigateToHistory={() => navigate('History')} 
-            onNavigateToSettings={() => navigate('Settings')} 
+          <DashboardScreen
+            onNavigateToTransfer={() => navigate('Transfer')}
+            onNavigateToHistory={() => navigate('History')}
+            onNavigateToSettings={() => navigate('Settings')}
+            onNavigateToTransactionDetails={handleTransactionDetails}
             onLogout={async () => {
               // Properly logout through API to clear tokens
               const APIService = await import('../services/api');
               await APIService.default.logout();
               navigate('Login');
-              // Force reload to clear state
-              window.location.reload();
+              // Force reload to clear state (web only)
+              if (!isReactNative() && typeof window !== 'undefined') {
+                window.location.reload();
+              }
             }}
           />
         );

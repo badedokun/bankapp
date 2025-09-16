@@ -45,10 +45,41 @@ npm run db:migrate && npm run test:integration
 2. Valid tenant ID required
 3. JWT tokens properly formatted
 
+## 🔐 **NIBSS API CONFIGURATION**
+```bash
+# FirstMidas Microfinance Bank Limited
+NIBSS_BASE_URL=https://apitest.nibss-plc.com.ng
+NIBSS_API_KEY=o1rjrqtLdaZou7PQApzXQVHygLqEnoWi
+NIBSS_CLIENT_ID=d86e0fe1-2468-4490-96bb-588e32af9a89
+NIBSS_CLIENT_SECRET='~Ou8Q~NPF7jfauwivWFSDOviFex..VWCdqTSIdpa'
+NIBSS_RESET_URL=https://apitest.nibss-plc.com.ng/v2/reset
+NIBSS_ENVIRONMENT=sandbox
+NIBSS_APP_NAME=NIP_MINI_SERVICE
+# Whitelisted GCP IP: 34.59.143.25
+```
+
+## 📱 **ANDROID APK BUILD**
+```bash
+# Use JDK 21 (CRITICAL - JDK 24 fails with CMake errors)
+source "/Users/bisiadedokun/.sdkman/bin/sdkman-init.sh"
+sdk use java 21.0.4-tem
+
+# Build APK
+./android/gradlew clean -p android
+./android/gradlew assembleDebug -p android
+```
+**APK Location**: `android/app/build/outputs/apk/debug/app-debug.apk`
+
+### ⚠️ **JDK Compatibility**
+- ✅ **JDK 21**: Works perfectly (recommended)
+- ✅ **JDK 17**: Also compatible
+- ❌ **JDK 24**: CMake "restricted method" error with react-native-screens
+
 ## 📊 **CURRENT STATUS**
 - **Transfer Tests**: 14/14 passing (100%) ✅
 - **Coverage**: 47.97% overall, 68.26% transfer routes
 - **Critical Path**: Money transfers fully tested and working
+- **APK Build**: ✅ Working with JDK 21
 
 ## 📚 **FULL DOCUMENTATION**
 - **Development Guide**: `docs/DEVELOPMENT_GUIDE.md`

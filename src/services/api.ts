@@ -7,6 +7,14 @@ import { Storage } from '../utils/storage';
 import JWTManager from '../utils/jwt';
 import { ENV_CONFIG, buildApiUrl } from '../config/environment';
 
+/**
+ * React Native Compatibility Check
+ * Determines if running in React Native environment
+ */
+const isReactNative = (): boolean => {
+  return typeof window === 'undefined' && typeof navigator !== 'undefined' && navigator.product === 'ReactNative';
+};
+
 // API Configuration - Use centralized environment config
 const API_BASE_URL = ENV_CONFIG.API_BASE_URL;
 const API_TIMEOUT = ENV_CONFIG.API_TIMEOUT;
@@ -155,8 +163,8 @@ class APIService {
       }
     }
 
-    // Try to get from current domain
-    if (typeof window !== 'undefined') {
+    // Try to get from current domain (only if not React Native)
+    if (!isReactNative() && typeof window !== 'undefined') {
       const hostname = window.location.hostname;
       const subdomain = hostname.split('.')[0];
       
@@ -170,7 +178,7 @@ class APIService {
       return subdomainMap[subdomain] || 'fmfb';
     }
 
-    // Default to FMFB
+    // Default to FMFB (for React Native and fallback)
     return 'fmfb';
   }
 
@@ -544,6 +552,31 @@ class APIService {
     }
 
     throw new Error(response.error || 'Failed to fetch transfer details');
+  }
+
+  /**
+   * Get comprehensive transaction details for transaction details screen
+   */
+  async getTransactionDetails(transactionId: string): Promise<any> {
+    try {
+      // Try the dedicated transaction details endpoint first
+      const response = await this.makeRequest<any>(`/api/transactions/${transactionId}/details`);
+
+      if (response.success && response.data) {
+        return response.data;
+      }
+    } catch (error) {
+      console.log('Dedicated transaction details endpoint not available, falling back to transfer details');
+    }
+
+    // Fallback to transfer details endpoint
+    const response = await this.makeRequest<any>(`/api/transfers/${transactionId}`);
+
+    if (response.success && response.data) {
+      return response.data;
+    }
+
+    throw new Error(response.error || 'Failed to fetch transaction details');
   }
 
   /**

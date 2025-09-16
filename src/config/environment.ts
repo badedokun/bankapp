@@ -29,8 +29,17 @@ export interface EnvironmentConfig {
 }
 
 /**
+ * React Native Compatibility Check
+ * Determines if running in React Native environment
+ */
+const isReactNative = (): boolean => {
+  return typeof window === 'undefined' && typeof navigator !== 'undefined' && navigator.product === 'ReactNative';
+};
+
+/**
  * Environment Detection
  * Automatically detects if running in cloud or local environment
+ * Compatible with both web and React Native
  */
 const detectEnvironment = (): 'local' | 'development' | 'staging' | 'production' => {
   // Check for explicit environment variable first
@@ -49,10 +58,14 @@ const detectEnvironment = (): 'local' | 'development' | 'staging' | 'production'
     process.env.NETLIFY ||
     process.env.HEROKU ||
     process.env.AWS_LAMBDA_FUNCTION_NAME ||
-    process.env.GOOGLE_CLOUD_PROJECT ||
-    (typeof window !== 'undefined' && window.location.hostname !== 'localhost')
+    process.env.GOOGLE_CLOUD_PROJECT
   ) {
     return 'development'; // Cloud development environment
+  }
+  
+  // Check web environment (only if not React Native)
+  if (!isReactNative() && typeof window !== 'undefined' && window.location?.hostname !== 'localhost') {
+    return 'development'; // Web cloud environment
   }
   
   return 'local';
@@ -64,9 +77,13 @@ const detectEnvironment = (): 'local' | 'development' | 'staging' | 'production'
 const getBaseUrls = (environment: string, isCloudDeployment: boolean) => {
   // For cloud deployment, use relative URLs or environment-specific URLs
   if (isCloudDeployment) {
+    const webUrl = process.env.REACT_APP_WEB_URL || 
+                   (!isReactNative() && typeof window !== 'undefined' && window.location?.origin) || 
+                   '';
+    
     return {
       API_BASE_URL: process.env.REACT_APP_API_URL || '', // Relative URL for same-origin requests
-      WEB_URL: process.env.REACT_APP_WEB_URL || window?.location?.origin || '',
+      WEB_URL: webUrl,
       WS_URL: process.env.REACT_APP_WS_URL || ''
     };
   }
