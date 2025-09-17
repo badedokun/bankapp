@@ -48,53 +48,82 @@ class TenantDetector {
     try {
       // Try multiple detection methods in order of priority
       let tenantId: string | null = null;
-      
-      // 1. First priority: JWT token (most secure)
-      tenantId = await this.detectFromJWT();
-      
-      // 2. Second priority: Web environment detection
-      if (!tenantId && Platform.OS === 'web') {
-        tenantId = this.detectFromWeb();
-      }
-      
-      // 3. Third priority: Stored tenant (for offline scenarios)
-      if (!tenantId) {
-        tenantId = await this.detectFromStorage();
-      }
-      
-      // 4. Last resort: Configuration/environment
-      if (!tenantId) {
-        tenantId = await this.detectFromConfig();
+
+      console.log('🔍 Starting tenant detection...');
+
+      // 1. First priority: Deployment configuration override in development
+      if (process.env.NODE_ENV === 'development') {
+        const deploymentConfig = DeploymentManager.getConfig();
+        console.log('🚀 Development mode - checking deployment config:', deploymentConfig);
+        if (deploymentConfig.defaultTenant && this.isValidTenantId(deploymentConfig.defaultTenant)) {
+          tenantId = deploymentConfig.defaultTenant;
+          console.log(`✅ Using deployment default tenant: ${tenantId}`);
+          // Force save this tenant to override any cached data
+          this.currentTenantId = tenantId as TenantID;
+          await this.saveTenantToStorage(this.currentTenantId);
+          console.log(`🎯 Forced tenant to: ${this.currentTenantId}`);
+          return this.currentTenantId;
+        }
       }
 
-      // 5. Deployment-specific default (maintains multi-tenancy)
+      // 2. Second priority: JWT token (most secure)
+      if (!tenantId) {
+        tenantId = await this.detectFromJWT();
+        if (tenantId) console.log(`🔐 Detected tenant from JWT: ${tenantId}`);
+      }
+
+      // 3. Third priority: Web environment detection
+      if (!tenantId && Platform.OS === 'web') {
+        tenantId = this.detectFromWeb();
+        if (tenantId) console.log(`🌐 Detected tenant from web: ${tenantId}`);
+      }
+
+      // 4. Fourth priority: Stored tenant (for offline scenarios)
+      if (!tenantId) {
+        tenantId = await this.detectFromStorage();
+        if (tenantId) console.log(`💾 Detected tenant from storage: ${tenantId}`);
+      }
+
+      // 5. Fifth priority: Configuration/environment
+      if (!tenantId) {
+        tenantId = await this.detectFromConfig();
+        if (tenantId) console.log(`⚙️ Detected tenant from config: ${tenantId}`);
+      }
+
+      // 6. Last resort: Deployment-specific default (maintains multi-tenancy)
       if (!tenantId) {
         const deploymentConfig = DeploymentManager.getConfig();
         if (deploymentConfig.defaultTenant && this.isValidTenantId(deploymentConfig.defaultTenant)) {
           tenantId = deploymentConfig.defaultTenant;
+          console.log(`🏗️ Using deployment fallback tenant: ${tenantId}`);
         }
       }
-      
+
       // If no tenant detected, throw error instead of defaulting
       if (!tenantId) {
+        console.error('❌ No valid tenant could be detected');
         throw new Error('No valid tenant could be detected. Please authenticate or provide tenant information.');
       }
 
       // Validate tenant is allowed in this deployment
       if (!DeploymentManager.isTenantAllowed(tenantId)) {
+        console.error(`❌ Tenant '${tenantId}' is not allowed in this deployment`);
         throw new Error(`Tenant '${tenantId}' is not allowed in this deployment.`);
       }
-      
+
       this.currentTenantId = tenantId as TenantID;
       await this.saveTenantToStorage(this.currentTenantId);
-      
+
+      console.log(`🎯 Final selected tenant: ${this.currentTenantId}`);
       return this.currentTenantId;
     } catch (error) {
       console.error('Error detecting tenant:', error);
-      // Only fallback to default in development mode
+      // Only fallback to deployment default in development mode
       if (process.env.NODE_ENV === 'development') {
-        console.warn('Development mode: Falling back to default tenant');
-        this.currentTenantId = 'default';
+        const deploymentConfig = DeploymentManager.getConfig();
+        console.warn(`Development mode: Falling back to deployment default tenant: ${deploymentConfig.defaultTenant}`);
+        this.currentTenantId = deploymentConfig.defaultTenant as TenantID;
+        await this.saveTenantToStorage(this.currentTenantId);
         return this.currentTenantId;
       }
       throw error;
