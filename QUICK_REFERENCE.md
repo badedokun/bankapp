@@ -45,6 +45,27 @@ npm run db:migrate && npm run test:integration
 2. Valid tenant ID required
 3. JWT tokens properly formatted
 
+## 🌐 **PRODUCTION DOMAINS (SSL ENABLED)**
+| **Domain** | **Tenant** | **Purpose** |
+|------------|------------|-------------|
+| `https://fmfb-34-59-143-25.nip.io` | `fmfb` | FMFB Banking |
+| `https://orokii-34-59-143-25.nip.io` | `default` | OrokiiPay Platform |
+| `https://banking-34-59-143-25.nip.io` | Any | Generic Banking |
+
+**SSL Status**: ✅ All domains have trusted Let's Encrypt certificates (no browser warnings!)
+
+### **TENANT SWITCHING**
+```bash
+# Switch to FMFB Banking
+DEPLOYMENT_TYPE=fmfb_production
+
+# Switch to OrokiiPay Platform
+DEPLOYMENT_TYPE=saas_production
+
+# Switch to Development Mode
+DEPLOYMENT_TYPE=development
+```
+
 ## 🔐 **NIBSS API CONFIGURATION**
 ```bash
 # FirstMidas Microfinance Bank Limited

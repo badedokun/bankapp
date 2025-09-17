@@ -406,6 +406,7 @@ The application supports automatic tenant switching via the `DEPLOYMENT_TYPE` en
 - **Logo**: FMFB logo displayed on login and dashboard
 - **Tenant Switching**: Disabled (single-tenant deployment)
 - **Colors**: Blue theme (#010080)
+- **Recommended Domain**: `https://fmfb-34-59-143-25.nip.io`
 
 #### SaaS Production (`saas_production`)
 - **Default Tenant**: default
@@ -413,25 +414,65 @@ The application supports automatic tenant switching via the `DEPLOYMENT_TYPE` en
 - **Logo**: Dynamic based on selected tenant
 - **Tenant Switching**: Enabled (multi-tenant deployment)
 - **Colors**: Standard theme (#007bff)
+- **Recommended Domain**: `https://orokii-34-59-143-25.nip.io`
 
 #### Development (`development`)
 - **Default Tenant**: fmfb (for testing)
 - **Branding**: FMFB with development features
 - **Tenant Switching**: Enabled (testing mode)
 - **Colors**: FMFB blue theme
+- **Recommended Domain**: `https://banking-34-59-143-25.nip.io`
+
+### Multi-Domain SSL Configuration
+
+The platform now supports **tenant-specific domains** with **trusted SSL certificates**:
+
+| Domain | Purpose | Tenant Configuration | SSL Status |
+|--------|---------|---------------------|------------|
+| `https://fmfb-34-59-143-25.nip.io` | FMFB Banking | `DEPLOYMENT_TYPE=fmfb_production` | ✅ Let's Encrypt |
+| `https://orokii-34-59-143-25.nip.io` | OrokiiPay Platform | `DEPLOYMENT_TYPE=saas_production` | ✅ Let's Encrypt |
+| `https://banking-34-59-143-25.nip.io` | Generic Banking | Any deployment type | ✅ Let's Encrypt |
+
+### SSL Certificate Features
+- **Trusted Certificates**: All domains use Let's Encrypt certificates
+- **No Browser Warnings**: Users see secure lock icons instead of scary warnings
+- **Auto-Renewal**: Certificates automatically renew every 90 days
+- **Valid Until**: December 16, 2025
 
 ### Switching Between Tenants
 To deploy for a different tenant, simply change the `DEPLOYMENT_TYPE` in `.env`:
 
 ```bash
-# For FMFB deployment
+# For FMFB deployment (use fmfb domain)
 DEPLOYMENT_TYPE=fmfb_production
 
-# For multi-tenant SaaS deployment
+# For multi-tenant SaaS deployment (use orokii domain)
 DEPLOYMENT_TYPE=saas_production
 
-# For development
+# For development (use generic banking domain)
 DEPLOYMENT_TYPE=development
+```
+
+### SSL Certificate Management
+
+#### Check Certificate Status
+```bash
+# List all certificates
+sudo certbot certificates
+
+# Test specific domain
+curl -I https://fmfb-34-59-143-25.nip.io
+curl -I https://orokii-34-59-143-25.nip.io
+curl -I https://banking-34-59-143-25.nip.io
+```
+
+#### Renew Certificates (Automatic)
+```bash
+# Certificates auto-renew, but you can test renewal
+sudo certbot renew --dry-run
+
+# Force renewal if needed
+sudo certbot renew --force-renewal
 ```
 
 ### Automatic Configuration
@@ -442,6 +483,8 @@ The following are automatically configured based on `DEPLOYMENT_TYPE`:
 - ✅ Logo display on login and dashboard
 - ✅ Tenant detection logic
 - ✅ UI branding elements
+- ✅ SSL certificates and domain routing
+- ✅ Secure HTTPS redirects
 
 No manual code changes are required when switching tenants.
 
@@ -467,13 +510,18 @@ No manual code changes are required when switching tenants.
 
 ### Server Details Template
 ```
-Server IP: [SERVER_IP]
+Server IP: 34.59.143.25
 SSH Key: ~/.ssh/orokiipay-bankapp
 SSH User: bisi.adedokun
 Application Path: /opt/bankapp
 Database Port: 5433
 Application Port: 3001
 PM2 Process: bankapp
+
+Available Domains:
+- FMFB Banking: https://fmfb-34-59-143-25.nip.io
+- OrokiiPay Platform: https://orokii-34-59-143-25.nip.io
+- Generic Banking: https://banking-34-59-143-25.nip.io
 ```
 
 ### Important File Locations

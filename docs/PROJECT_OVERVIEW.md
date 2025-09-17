@@ -67,6 +67,49 @@ import BackButton from '../components/ui/BackButton';
 
 ---
 
+## 🌐 **MULTI-DOMAIN DEPLOYMENT MODEL**
+
+### Tenant-Specific Domains with SSL Certificates
+
+The application now supports **dedicated domains** for each tenant with **trusted SSL certificates**:
+
+| **Domain** | **Purpose** | **Tenant** | **SSL Status** |
+|------------|-------------|------------|----------------|
+| `https://fmfb-34-59-143-25.nip.io` | FMFB Banking Platform | `fmfb` | ✅ Let's Encrypt |
+| `https://orokii-34-59-143-25.nip.io` | OrokiiPay Multi-Tenant Platform | `default` | ✅ Let's Encrypt |
+| `https://banking-34-59-143-25.nip.io` | Generic Banking Platform | Any tenant | ✅ Let's Encrypt |
+
+### Key Features
+- **🛡️ No Browser Warnings**: Trusted Let's Encrypt certificates eliminate scary red warnings
+- **🔄 Auto-Renewal**: Certificates automatically renew every 90 days
+- **🎨 Tenant-Specific Branding**: Each domain shows appropriate logos and branding
+- **⚡ Easy Switching**: Change `DEPLOYMENT_TYPE` environment variable to switch tenants
+
+### Deployment Configuration
+```bash
+# FMFB Banking (Single Tenant)
+DEPLOYMENT_TYPE=fmfb_production
+# Access via: https://fmfb-34-59-143-25.nip.io
+
+# OrokiiPay Platform (Multi-Tenant)
+DEPLOYMENT_TYPE=saas_production
+# Access via: https://orokii-34-59-143-25.nip.io
+
+# Development/Testing
+DEPLOYMENT_TYPE=development
+# Access via: https://banking-34-59-143-25.nip.io
+```
+
+### Multi-Tenant Database
+7 tenants configured in the platform:
+- **fmfb** - Firstmidas Microfinance Bank Limited
+- **default** - Multi-Tenant Banking Platform (OrokiiPay)
+- **bank-a, bank-b, bank-c** - Demo banking tenants
+- **development** - Development Environment
+- **system-admin** - System Administration
+
+---
+
 ## 📚 **ESSENTIAL DOCUMENTATION FOR DEVELOPERS**
 
 > **🚨 READ THESE BEFORE STARTING DEVELOPMENT OR USING CLAUDE CODE**
