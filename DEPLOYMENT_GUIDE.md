@@ -201,7 +201,7 @@ NODE_ENV=production
 PORT=3001
 DEPLOYMENT_TYPE=fmfb_production
 
-# Tenant Configuration - FMFB Only
+# Tenant Configuration - FMFB Only (Auto-configured via deployment type)
 DEFAULT_TENANT=fmfb
 TENANT_DETECTION_METHOD=default
 ALLOW_TENANT_SWITCHING=false
@@ -392,6 +392,58 @@ gzip /tmp/backup_*.sql
 # Transfer backup to secure location
 scp /tmp/backup_*.sql.gz user@backup-server:/backups/
 ```
+
+## Multi-Tenant Deployment Configuration
+
+### Tenant Switching
+The application supports automatic tenant switching via the `DEPLOYMENT_TYPE` environment variable. This enables seamless deployment of different tenant configurations without code changes.
+
+### Available Deployment Types
+
+#### FMFB Production (`fmfb_production`)
+- **Default Tenant**: fmfb
+- **Branding**: First Midas Microfinance Bank
+- **Logo**: FMFB logo displayed on login and dashboard
+- **Tenant Switching**: Disabled (single-tenant deployment)
+- **Colors**: Blue theme (#010080)
+
+#### SaaS Production (`saas_production`)
+- **Default Tenant**: default
+- **Branding**: OrokiiPay multi-tenant platform
+- **Logo**: Dynamic based on selected tenant
+- **Tenant Switching**: Enabled (multi-tenant deployment)
+- **Colors**: Standard theme (#007bff)
+
+#### Development (`development`)
+- **Default Tenant**: fmfb (for testing)
+- **Branding**: FMFB with development features
+- **Tenant Switching**: Enabled (testing mode)
+- **Colors**: FMFB blue theme
+
+### Switching Between Tenants
+To deploy for a different tenant, simply change the `DEPLOYMENT_TYPE` in `.env`:
+
+```bash
+# For FMFB deployment
+DEPLOYMENT_TYPE=fmfb_production
+
+# For multi-tenant SaaS deployment
+DEPLOYMENT_TYPE=saas_production
+
+# For development
+DEPLOYMENT_TYPE=development
+```
+
+### Automatic Configuration
+The following are automatically configured based on `DEPLOYMENT_TYPE`:
+- ✅ Page title and meta tags
+- ✅ Loading screen branding
+- ✅ Theme colors and styling
+- ✅ Logo display on login and dashboard
+- ✅ Tenant detection logic
+- ✅ UI branding elements
+
+No manual code changes are required when switching tenants.
 
 ## Environment-Specific Configurations
 

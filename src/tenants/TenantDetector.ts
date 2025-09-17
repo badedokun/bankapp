@@ -51,28 +51,27 @@ class TenantDetector {
 
       console.log('🔍 Starting tenant detection...');
 
-      // 1. First priority: Deployment configuration override in development
-      if (process.env.NODE_ENV === 'development') {
-        const deploymentConfig = DeploymentManager.getConfig();
-        console.log('🚀 Development mode - checking deployment config:', deploymentConfig);
-        if (deploymentConfig.defaultTenant && this.isValidTenantId(deploymentConfig.defaultTenant)) {
-          tenantId = deploymentConfig.defaultTenant;
-          console.log(`✅ Using deployment default tenant: ${tenantId}`);
-          // Force save this tenant to override any cached data
-          this.currentTenantId = tenantId as TenantID;
-          await this.saveTenantToStorage(this.currentTenantId);
-          console.log(`🎯 Forced tenant to: ${this.currentTenantId}`);
-          return this.currentTenantId;
-        }
+      // 1. FIRST PRIORITY: Deployment configuration (most important)
+      const deploymentConfig = DeploymentManager.getConfig();
+      console.log('🚀 Checking deployment config:', deploymentConfig);
+      if (deploymentConfig.defaultTenant && this.isValidTenantId(deploymentConfig.defaultTenant)) {
+        tenantId = deploymentConfig.defaultTenant;
+        console.log(`✅ Using deployment default tenant: ${tenantId}`);
+
+        // Save this tenant and return immediately - deployment config is the source of truth
+        this.currentTenantId = tenantId as TenantID;
+        await this.saveTenantToStorage(this.currentTenantId);
+        console.log(`🎯 Deployment config selected tenant: ${this.currentTenantId}`);
+        return this.currentTenantId;
       }
 
-      // 2. Second priority: JWT token (most secure)
+      // 2. Second priority: JWT token (for authenticated sessions)
       if (!tenantId) {
         tenantId = await this.detectFromJWT();
         if (tenantId) console.log(`🔐 Detected tenant from JWT: ${tenantId}`);
       }
 
-      // 3. Third priority: Web environment detection
+      // 3. Third priority: Web environment detection (subdomain, query params)
       if (!tenantId && Platform.OS === 'web') {
         tenantId = this.detectFromWeb();
         if (tenantId) console.log(`🌐 Detected tenant from web: ${tenantId}`);
@@ -88,15 +87,6 @@ class TenantDetector {
       if (!tenantId) {
         tenantId = await this.detectFromConfig();
         if (tenantId) console.log(`⚙️ Detected tenant from config: ${tenantId}`);
-      }
-
-      // 6. Last resort: Deployment-specific default (maintains multi-tenancy)
-      if (!tenantId) {
-        const deploymentConfig = DeploymentManager.getConfig();
-        if (deploymentConfig.defaultTenant && this.isValidTenantId(deploymentConfig.defaultTenant)) {
-          tenantId = deploymentConfig.defaultTenant;
-          console.log(`🏗️ Using deployment fallback tenant: ${tenantId}`);
-        }
       }
 
       // If no tenant detected, throw error instead of defaulting

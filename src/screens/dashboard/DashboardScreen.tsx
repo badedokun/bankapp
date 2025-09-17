@@ -69,6 +69,24 @@ interface AISuggestion {
   description: string;
 }
 
+/**
+ * Get time-based greeting based on user's local time
+ */
+const getTimeBasedGreeting = (): string => {
+  const now = new Date();
+  const hour = now.getHours();
+
+  if (hour >= 5 && hour < 12) {
+    return 'Good morning';
+  } else if (hour >= 12 && hour < 17) {
+    return 'Good afternoon';
+  } else if (hour >= 17 && hour < 22) {
+    return 'Good evening';
+  } else {
+    return 'Good night';
+  }
+};
+
 export interface DashboardScreenProps {
   onNavigateToTransfer?: () => void;
   onNavigateToHistory?: () => void;
@@ -980,7 +998,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
         <View style={dynamicStyles.welcomeSection}>
           <View style={dynamicStyles.welcomeContent}>
             <View style={dynamicStyles.welcomeText}>
-              <Text style={dynamicStyles.welcomeTitle}>Good morning, {userName}! 👋</Text>
+              <Text style={dynamicStyles.welcomeTitle}>{getTimeBasedGreeting()}, {userName}! 👋</Text>
               <Text style={dynamicStyles.welcomeSubtitle}>
                 Ready to make some transfers? Your AI assistant is here to help.
               </Text>
