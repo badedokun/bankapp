@@ -25,6 +25,45 @@ Multi-tenant banking application with React Native frontend and Express.js backe
 - **State Management**: Context API with hooks
 - **Navigation**: React Navigation v6
 - **UI Components**: Custom banking-specific components
+- **Reusable Components**: Banking Alert System, BackButton, Enhanced UI kit
+- **Web Compatibility**: React Native Web-compatible alert system
+
+## 🧩 **REUSABLE COMPONENTS**
+
+### Banking Alert System (`src/services/AlertService.ts`)
+React Native Web-compatible alert system that replaces Alert.alert():
+
+```typescript
+import { useBankingAlert } from '../services/AlertService';
+
+const { showAlert, showConfirm } = useBankingAlert();
+showAlert('Success', 'Transaction completed');
+```
+
+**Why use this:** Works on both mobile and web, tenant-aware theming, consistent UX.
+
+### BackButton Component (`src/components/ui/BackButton.tsx`)
+Standardized back navigation with multiple variants:
+
+```typescript
+import BackButton from '../components/ui/BackButton';
+
+<BackButton
+  onPress={() => navigation.goBack()}
+  variant="transparent"
+  size="medium"
+/>
+```
+
+**Variants:** `primary`, `transparent`, `light` with responsive sizing.
+
+### UI Component Library
+- **Button** (`src/components/ui/Button.tsx`): Multi-variant button with loading states
+- **Input** (`src/components/ui/Input.tsx`): Enhanced input with validation
+- **Card** (`src/components/ui/Card.tsx`): Consistent card layouts
+- **Modal** (`src/components/ui/Modal.tsx`): Cross-platform modal dialogs
+
+**For Future Developers:** Always use these components instead of creating custom alert/navigation solutions. They ensure React Native Web compatibility and consistent theming.
 
 ---
 

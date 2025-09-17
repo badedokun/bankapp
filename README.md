@@ -233,6 +233,49 @@ This banking application uses:
 - **Real database testing** for banking transaction integrity
 - **Security-first design** with proper authentication and validation
 
+## 🧩 Reusable Components
+
+### Banking Alert System
+The application includes a React Native Web-compatible alert system that replaces native Alert.alert() calls:
+
+```typescript
+import { useBankingAlert } from '../services/AlertService';
+
+const { showAlert, showConfirm } = useBankingAlert();
+
+// Simple alert
+showAlert('Success', 'Transaction completed successfully');
+
+// Confirmation dialog
+showConfirm(
+  'Confirm Transfer',
+  'Are you sure you want to proceed?',
+  () => console.log('Confirmed'),
+  () => console.log('Cancelled')
+);
+```
+
+**Why use this instead of Alert.alert():**
+- ✅ Works on both React Native and React Native Web
+- ✅ Consistent styling across platforms
+- ✅ Tenant-aware theming
+- ✅ Banking-specific UX patterns
+
+### BackButton Component
+Reusable back navigation component with consistent styling:
+
+```typescript
+import BackButton from '../components/ui/BackButton';
+
+<BackButton
+  onPress={() => navigation.goBack()}
+  variant="transparent"  // 'primary' | 'transparent' | 'light'
+  size="medium"         // 'small' | 'medium' | 'large'
+  title="Back"          // Optional custom text
+  showArrow={true}      // Show/hide arrow
+/>
+```
+
 ## 🔒 Security Notes
 
 - **Production deployments**: Always use strong secrets and encrypted connections
