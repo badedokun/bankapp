@@ -17,6 +17,7 @@ import {
   TextInput,
   Pressable,
   Modal,
+  Image,
 } from 'react-native';
 import { useTenant, useTenantTheme } from '../../tenants/TenantContext';
 import { useBankingAlert } from '../../services/AlertService';
@@ -898,10 +899,26 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
       <View style={dynamicStyles.header}>
         <View style={dynamicStyles.headerContent}>
           <View style={dynamicStyles.logoSection}>
-            <View style={dynamicStyles.tenantLogo}>
-              <Text style={dynamicStyles.logoText}>
-                {currentTenant?.name?.substring(0, 2).toUpperCase() || 'OP'}
-              </Text>
+            <View style={[
+              dynamicStyles.tenantLogo,
+              currentTenant?.id === 'fmfb' && { backgroundColor: '#FFFFFF' }
+            ]}>
+              {currentTenant?.id === 'fmfb' ? (
+                <Image
+                  source={{ uri: `http://localhost:3001/api/tenants/by-name/fmfb/assets/logo/default` }}
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 16,
+                  }}
+                  resizeMode="contain"
+                  onError={() => console.log('Failed to load FMFB logo in dashboard, falling back to initials')}
+                />
+              ) : (
+                <Text style={dynamicStyles.logoText}>
+                  {currentTenant?.name?.substring(0, 2).toUpperCase() || 'OP'}
+                </Text>
+              )}
             </View>
             <View style={dynamicStyles.logoInfo}>
               <Text style={dynamicStyles.logoTitle}>
