@@ -12,13 +12,13 @@ import {
   SafeAreaView,
   StatusBar,
   TouchableOpacity,
-  Alert,
   Dimensions,
   RefreshControl,
   Modal,
   TextInput,
 } from 'react-native';
 import { useTenant, useTenantTheme } from '../../tenants/TenantContext';
+import { useBankingAlert } from '../../services/AlertService';
 import APIService from '../../services/api';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -79,6 +79,7 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
 }) => {
   const { currentTenant } = useTenant();
   const theme = useTenantTheme();
+  const { showAlert } = useBankingAlert();
   
   // State
   const [complianceData, setComplianceData] = useState<CBNComplianceData | null>(null);
@@ -114,7 +115,7 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
       });
     } catch (error) {
       console.error('Failed to load CBN compliance data:', error);
-      Alert.alert('Error', 'Failed to load CBN compliance data. Please try again.');
+      showAlert('Error', 'Failed to load CBN compliance data. Please try again.');
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -135,13 +136,13 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
   // Report incident handler
   const handleReportIncident = useCallback(async () => {
     if (!incidentReport.type || !incidentReport.description) {
-      Alert.alert('Error', 'Please fill in all required fields.');
+      showAlert('Error', 'Please fill in all required fields.');
       return;
     }
 
     try {
       const response = await APIService.reportCBNIncident(incidentReport);
-      Alert.alert(
+      showAlert(
         'Incident Reported',
         `Incident reported successfully. ID: ${response.incidentId}. CBN reporting deadline: ${new Date(response.cbnReportingDeadline).toLocaleDateString()}`
       );
@@ -155,7 +156,7 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
       });
       handleRefresh();
     } catch (error) {
-      Alert.alert('Error', 'Failed to report incident. Please try again.');
+      showAlert('Error', 'Failed to report incident. Please try again.');
     }
   }, [incidentReport, handleRefresh]);
 

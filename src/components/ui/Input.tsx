@@ -11,9 +11,9 @@ import {
   TouchableOpacity,
   StyleSheet,
   TextInputProps,
-  Alert,
 } from 'react-native';
 import { useTenantTheme } from '../../tenants/TenantContext';
+import { useBankingAlert } from '../../services/AlertService';
 import { InputSanitizer, InputValidator, SecurityMonitor, SecurityConfig } from '../../utils/security';
 
 export interface InputProps extends Omit<TextInputProps, 'ref'> {
@@ -46,6 +46,7 @@ export const Input = React.forwardRef<TextInput, InputProps>(({
   ...props
 }, ref) => {
   const theme = useTenantTheme();
+  const { showAlert } = useBankingAlert();
   const [isFocused, setIsFocused] = useState(false);
   const [internalValue, setInternalValue] = useState(value || '');
   const [validationError, setValidationError] = useState<string | undefined>(error);
@@ -68,10 +69,9 @@ export const Input = React.forwardRef<TextInput, InputProps>(({
       const suspiciousCheck = SecurityMonitor.detectSuspiciousInput(text);
       if (suspiciousCheck.suspicious) {
         console.warn('Suspicious input detected:', suspiciousCheck.reasons);
-        Alert.alert(
+        showAlert(
           'Security Warning',
-          'Invalid characters detected. Please enter valid information.',
-          [{ text: 'OK' }]
+          'Invalid characters detected. Please enter valid information.'
         );
         return; // Don't update input
       }

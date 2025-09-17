@@ -35,14 +35,26 @@ interface WebNavigatorProps {
 const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin }) => {
   const [currentScreen, setCurrentScreen] = useState<Screen>(isAuthenticated ? 'Dashboard' : 'Login');
   const [selectedTransactionId, setSelectedTransactionId] = useState<string>('');
+  const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
+  const [transactionCache, setTransactionCache] = useState<Record<string, any>>({});
 
   const navigate = (screen: Screen) => {
     setCurrentScreen(screen);
   };
 
-  const handleTransactionDetails = (transactionId: string) => {
-    setSelectedTransactionId(transactionId);
-    setCurrentScreen('TransactionDetails');
+  const handleTransactionDetails = (transactionId: string, transaction?: any) => {
+
+    // Cache the transaction data for reliable access
+    if (transaction) {
+      setTransactionCache(prev => ({ ...prev, [transactionId]: transaction }));
+    }
+
+    // Use React 18's automatic batching by wrapping in a callback
+    React.startTransition(() => {
+      setSelectedTransactionId(transactionId);
+      setSelectedTransaction(transaction);
+      setCurrentScreen('TransactionDetails');
+    });
   };
 
   const renderScreen = () => {
@@ -116,9 +128,13 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
           />
         );
       case 'TransactionDetails':
+        const cachedTransaction = transactionCache[selectedTransactionId];
+        const transactionToUse = selectedTransaction || cachedTransaction;
+
         return (
           <TransactionDetailsScreen
             transactionId={selectedTransactionId}
+            transaction={transactionToUse}
             onBack={() => navigate('History')}
             onReport={(transactionId) => {
               console.log('Report issue for transaction:', transactionId);

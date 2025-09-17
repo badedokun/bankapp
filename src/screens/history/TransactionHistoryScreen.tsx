@@ -12,12 +12,12 @@ import {
   SafeAreaView,
   StatusBar,
   TouchableOpacity,
-  Alert,
   Dimensions,
   RefreshControl,
   TextInput,
 } from 'react-native';
 import { useTenant, useTenantTheme } from '../../tenants/TenantContext';
+import { useBankingAlert } from '../../services/AlertService';
 import APIService from '../../services/api';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -49,11 +49,12 @@ interface DetailedTransaction {
   timestamp: string;
   date: string;
   icon: string;
+  originalTransaction?: any; // Store the original API transaction data
 }
 
 export interface TransactionHistoryScreenProps {
   onBack?: () => void;
-  onTransactionDetails?: (transactionId: string) => void;
+  onTransactionDetails?: (transactionId: string, transaction?: any) => void;
 }
 
 export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> = ({
@@ -62,6 +63,7 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
 }) => {
   const { currentTenant } = useTenant();
   const theme = useTenantTheme();
+  const { showAlert } = useBankingAlert();
   
   // State
   const [historyData, setHistoryData] = useState<TransactionHistoryData | null>(null);
@@ -117,15 +119,16 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
             amount: transactionAmount,
             fees: tx.fee || 0,
             balance: balanceAfterTransaction,
-            timestamp: new Date(tx.createdAt).toLocaleDateString('en-US', { 
-              year: 'numeric', 
-              month: 'short', 
+            timestamp: new Date(tx.createdAt).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'short',
               day: 'numeric',
               hour: '2-digit',
               minute: '2-digit'
             }),
             date: tx.createdAt,
             icon: tx.direction === 'sent' ? '↗️' : '↙️',
+            originalTransaction: tx, // Store the complete original transaction data
           };
         });
 
@@ -150,7 +153,7 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       setFilteredTransactions(detailedTransactions);
     } catch (error) {
       console.error('Failed to load transaction history:', error);
-      Alert.alert('Error', 'Failed to load transaction history. Please try again.');
+      showAlert('Error', 'Failed to load transaction history. Please try again.');
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -207,17 +210,17 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
 
   // Handle AI suggestion
   const handleAISuggestion = useCallback((suggestion: string) => {
-    Alert.alert('AI Assistant', `I'll help you ${suggestion.toLowerCase()}. This feature is coming soon!`);
+    showAlert('AI Assistant', `I'll help you ${suggestion.toLowerCase()}. This feature is coming soon!`);
   }, []);
 
   // Export transactions
   const handleExport = useCallback(() => {
-    Alert.alert('Export', 'Exporting transaction history... This feature is coming soon!');
+    showAlert('Export', 'Exporting transaction history... This feature is coming soon!');
   }, []);
 
   // Analytics
   const handleAnalytics = useCallback(() => {
-    Alert.alert('Analytics', 'Opening transaction analytics... This feature is coming soon!');
+    showAlert('Analytics', 'Opening transaction analytics... This feature is coming soon!');
   }, []);
 
   if (isLoading) {
@@ -839,12 +842,14 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
               </Text>
             </View>
           ) : (
-            filteredTransactions.map((transaction) => (
-              <TouchableOpacity
-                key={transaction.id}
-                style={dynamicStyles.transactionItem}
-                onPress={() => onTransactionDetails?.(transaction.id)}
-              >
+            <View testID="transaction-list">
+              {filteredTransactions.map((transaction) => (
+                <TouchableOpacity
+                  key={transaction.id}
+                  style={dynamicStyles.transactionItem}
+                  onPress={() => onTransactionDetails?.(transaction.id, transaction.originalTransaction)}
+                  testID="transaction-item"
+                >
                 <View style={dynamicStyles.transactionMain}>
                   <View style={[dynamicStyles.transactionIcon, getTransactionIconStyle(transaction.type)]}>
                     <Text style={{ fontSize: 20 }}>{transaction.icon}</Text>
@@ -876,8 +881,9 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
                     </Text>
                   </View>
                 </View>
-              </TouchableOpacity>
-            ))
+                </TouchableOpacity>
+              ))}
+            </View>
           )}
         </View>
       </ScrollView>

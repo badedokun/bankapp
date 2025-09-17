@@ -22,6 +22,8 @@ import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import { InputValidator } from '../../utils/security';
 import APIService from '../../services/api';
+import { BankSelector } from '../../components/BankSelector';
+import { Bank } from '../../types/banking';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -30,14 +32,8 @@ interface TransferFormData {
   amount: string;
   description: string;
   recipientAccountNumber: string;
-  recipientBankCode: string;
+  recipientBank: Bank | null;
   pin: string;
-}
-
-interface Bank {
-  code: string;
-  name: string;
-  slug: string;
 }
 
 export interface AITransferScreenProps {
@@ -59,7 +55,7 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
     amount: '',
     description: '',
     recipientAccountNumber: '',
-    recipientBankCode: '',
+    recipientBank: null,
     pin: '',
   });
   
@@ -67,7 +63,6 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
   const [voiceCommand, setVoiceCommand] = useState('');
   const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [banks, setBanks] = useState<Bank[]>([]);
   const [isValidatingRecipient, setIsValidatingRecipient] = useState(false);
   const [recipientValidation, setRecipientValidation] = useState<{
     isValid: boolean;
@@ -85,19 +80,6 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
 
 
 
-  // Load banks on component mount
-  useEffect(() => {
-    const loadBanks = async () => {
-      try {
-        const response = await APIService.getBanks();
-        setBanks(response.banks);
-      } catch (error) {
-        console.error('Failed to load banks:', error);
-      }
-    };
-    
-    loadBanks();
-  }, []);
 
   // Voice command animation
   useEffect(() => {
@@ -196,17 +178,17 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
   }, [formData.amount]);
 
   // Validate recipient account
-  const validateRecipient = useCallback(async (accountNumber: string, bankCode: string) => {
-    if (accountNumber.length === 10 && bankCode.length === 3) {
+  const validateRecipient = useCallback(async (accountNumber: string, bank: Bank | null) => {
+    if (accountNumber.length === 10 && bank?.code?.length === 3) {
       setIsValidatingRecipient(true);
       try {
-        const validation = await APIService.validateRecipient(accountNumber, bankCode);
+        const validation = await APIService.validateRecipient(accountNumber, bank.code);
         setRecipientValidation({
           isValid: validation.isValid,
           accountName: validation.accountName,
           bankName: validation.bankName,
         });
-        
+
         // Only auto-fill if no user input has been entered in the recipient field
         if (validation.isValid && validation.accountName && !userEnteredRecipientName && !formData.recipient.trim()) {
           setFormData(prev => ({ ...prev, recipient: validation.accountName || '' }));
@@ -223,28 +205,35 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
   // Handle form field changes
   const handleFieldChange = useCallback((field: keyof TransferFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    
-    // Validate recipient when account number and bank code are complete
-    if (field === 'recipientAccountNumber' || field === 'recipientBankCode') {
-      const accountNumber = field === 'recipientAccountNumber' ? value : formData.recipientAccountNumber;
-      const bankCode = field === 'recipientBankCode' ? value : formData.recipientBankCode;
-      
+
+    // Validate recipient when account number is complete and bank is selected
+    if (field === 'recipientAccountNumber') {
       // If user has already entered a recipient name, mark it as manually entered
       if (formData.recipient.trim() && !userEnteredRecipientName) {
         setUserEnteredRecipientName(true);
       }
-      
-      if (accountNumber.length === 10 && bankCode.length === 3) {
-        validateRecipient(accountNumber, bankCode);
+
+      if (value.length === 10 && formData.recipientBank) {
+        validateRecipient(value, formData.recipientBank);
       }
     }
-    
+
     // Clear AI suggestions when typing recipient name and mark as manually entered
     if (field === 'recipient') {
       setAiSuggestions([]);
       setUserEnteredRecipientName(true);
     }
-  }, [formData.recipientAccountNumber, formData.recipientBankCode, validateRecipient]);
+  }, [formData.recipientAccountNumber, formData.recipientBank, formData.recipient, userEnteredRecipientName, validateRecipient]);
+
+  // Handle bank selection
+  const handleBankSelect = useCallback((bank: Bank) => {
+    setFormData(prev => ({ ...prev, recipientBank: bank }));
+
+    // Validate recipient if account number is already entered
+    if (formData.recipientAccountNumber.length === 10) {
+      validateRecipient(formData.recipientAccountNumber, bank);
+    }
+  }, [formData.recipientAccountNumber, validateRecipient]);
 
   // Handle transfer submission
   const handleTransfer = useCallback(async () => {
@@ -286,9 +275,9 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
         return;
       }
 
-      if (!formData.recipientBankCode) {
-        console.error('❌ Bank code validation failed: Bank code is required');
-        showAlert('Bank Code Required', 'Please enter the recipient bank code');
+      if (!formData.recipientBank) {
+        console.error('❌ Bank validation failed: Bank selection is required');
+        showAlert('Bank Required', 'Please select the recipient bank');
         setIsProcessing(false);
         return;
       }
@@ -301,7 +290,7 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
       // Initiate transfer via API
       const transferResult = await APIService.initiateTransfer({
         recipientAccountNumber: formData.recipientAccountNumber,
-        recipientBankCode: formData.recipientBankCode,
+        recipientBankCode: formData.recipientBank.code,
         recipientName: formData.recipient,
         amount: parseFloat(formData.amount),
         description: formData.description,
@@ -344,7 +333,7 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
           amount: '',
           description: '',
           recipientAccountNumber: '',
-          recipientBankCode: '',
+          recipientBank: null,
           pin: '',
         });
         setUserEnteredRecipientName(false);
@@ -410,7 +399,30 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
       backgroundColor: theme.colors.primary,
       paddingVertical: theme.spacing.lg,
       paddingHorizontal: theme.spacing.lg,
+    },
+    headerContent: {
+      flexDirection: 'row',
       alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    backButton: {
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.sm,
+      borderRadius: 12,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    backButtonText: {
+      color: '#ffffff',
+      fontSize: 16,
+      fontWeight: '500',
+    },
+    headerTitleContainer: {
+      flex: 1,
+      alignItems: 'center',
+      marginLeft: theme.spacing.md,
     },
     headerTitle: {
       fontSize: theme.typography.sizes.xl,
@@ -421,6 +433,7 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
     headerSubtitle: {
       fontSize: theme.typography.sizes.sm,
       color: 'rgba(255, 255, 255, 0.9)',
+      textAlign: 'center',
     },
     content: {
       flex: 1,
@@ -524,10 +537,18 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
       
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>AI Money Transfer</Text>
-        <Text style={styles.headerSubtitle}>
-          Voice-enabled smart transfers with {currentTenant?.displayName || 'OrokiiPay'}
-        </Text>
+        <View style={styles.headerContent}>
+          <TouchableOpacity style={styles.backButton} onPress={onBack}>
+            <Text style={styles.backButtonText}>← Back</Text>
+          </TouchableOpacity>
+
+          <View style={styles.headerTitleContainer}>
+            <Text style={styles.headerTitle}>AI Money Transfer</Text>
+            <Text style={styles.headerSubtitle}>
+              Voice-enabled smart transfers with {currentTenant?.displayName || 'OrokiiPay'}
+            </Text>
+          </View>
+        </View>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -583,14 +604,11 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
             maxLength={10}
           />
 
-          <Input
-            label="Bank Code"
-            placeholder="Enter 3-digit bank code (e.g. 058 for GTBank)"
-            value={formData.recipientBankCode}
-            onChangeText={(text) => handleFieldChange('recipientBankCode', text)}
-            validationType="numeric"
-            keyboardType="numeric"
-            maxLength={3}
+          <BankSelector
+            selectedBank={formData.recipientBank}
+            onBankSelect={handleBankSelect}
+            placeholder="Select recipient bank"
+            testID="recipient-bank-selector"
           />
 
           {/* Account Validation Status */}
@@ -603,9 +621,9 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
           {recipientValidation.isValid && recipientValidation.accountName && (
             <View style={styles.suggestionItem}>
               <Text style={[styles.suggestionText, { color: 'green' }]}>
-                ✅ {userEnteredRecipientName && formData.recipient.trim() 
-                    ? formData.recipient 
-                    : recipientValidation.accountName} - {recipientValidation.bankName}
+                ✅ {userEnteredRecipientName && formData.recipient.trim()
+                    ? formData.recipient
+                    : recipientValidation.accountName} - {formData.recipientBank?.name || recipientValidation.bankName}
               </Text>
             </View>
           )}

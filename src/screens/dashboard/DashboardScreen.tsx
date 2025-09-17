@@ -12,7 +12,6 @@ import {
   SafeAreaView,
   StatusBar,
   TouchableOpacity,
-  Alert,
   Dimensions,
   RefreshControl,
   TextInput,
@@ -58,6 +57,7 @@ interface Transaction {
   amount: number;
   time: string;
   icon: string;
+  originalTransaction?: any; // Store the original API transaction data
 }
 
 interface AISuggestion {
@@ -72,7 +72,7 @@ export interface DashboardScreenProps {
   onNavigateToTransfer?: () => void;
   onNavigateToHistory?: () => void;
   onNavigateToSettings?: () => void;
-  onNavigateToTransactionDetails?: (transactionId: string) => void;
+  onNavigateToTransactionDetails?: (transactionId: string, transaction?: any) => void;
   onLogout?: () => void;
 }
 
@@ -109,6 +109,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
         APIService.getTransactionLimits(),
       ]);
 
+
       // Convert API transactions to dashboard format with progressive balance calculation
       let runningBalance = walletData.balance; // Start with current wallet balance
       const recentTransactions: Transaction[] = transactionsData.transactions.slice(0, 4).map((tx: any, index: number) => {
@@ -121,13 +122,14 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
           title: tx.description || 'Money Transfer',
           subtitle: tx.recipient?.accountName ? `Bank Transfer • ${tx.recipient.accountName}` : 'Banking Transaction',
           amount: transactionAmount,
-          time: new Date(tx.createdAt).toLocaleDateString('en-US', { 
-            month: 'short', 
+          time: new Date(tx.createdAt).toLocaleDateString('en-US', {
+            month: 'short',
             day: 'numeric',
             hour: '2-digit',
             minute: '2-digit'
           }),
           icon: tx.direction === 'sent' ? '↗️' : '↙️',
+          originalTransaction: tx, // Store the complete original transaction data
         };
       });
 
@@ -154,7 +156,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
         availableBalance: walletData.availableBalance || walletData.balance || 0,
         currency: walletData.currency,
         monthlyStats: {
-          transactions: transactionsData.transactions.length,
+          // Use totalCount from pagination if available, otherwise fall back to array length
+          transactions: transactionsData.pagination?.totalCount || transactionsData.transactions.length,
           recipients: new Set(transactionsData.transactions.map((tx: any) => tx.recipient_name).filter(Boolean)).size,
           volume: `₦${(transactionsData.transactions.reduce((sum: number, tx: any) => sum + Math.abs(tx.amount || 0), 0) / 1000000).toFixed(1)}M`,
         },
@@ -178,7 +181,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
       });
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
-      Alert.alert('Error', 'Failed to load dashboard data. Please try again.');
+      showAlert('Error', 'Failed to load dashboard data. Please try again.');
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -231,19 +234,19 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   const handleAISuggestion = useCallback((suggestion: AISuggestion) => {
     switch (suggestion.type) {
       case 'repeat':
-        Alert.alert('AI Assistant', 'I can help you send ₦50,000 to Adebayo Michael again. Would you like me to prepare the transfer?');
+        showAlert('AI Assistant', 'I can help you send ₦50,000 to Adebayo Michael again. Would you like me to prepare the transfer?');
         break;
       case 'bills':
-        Alert.alert('AI Assistant', 'Your EKEDC bill is ₦15,750. I can set up automatic payment if you\'d like!');
+        showAlert('AI Assistant', 'Your EKEDC bill is ₦15,750. I can set up automatic payment if you\'d like!');
         break;
       case 'budget':
-        Alert.alert('AI Assistant', 'You\'ve spent ₦932,000 out of ₦1,200,000 this month. Most spending was on transfers (68%) and bills (22%).');
+        showAlert('AI Assistant', 'You\'ve spent ₦932,000 out of ₦1,200,000 this month. Most spending was on transfers (68%) and bills (22%).');
         break;
     }
   }, []);
 
   const handleNotifications = useCallback(() => {
-    Alert.alert(
+    showAlert(
       'Notifications',
       '• Transfer completed: ₦25,000 to Adebayo\n• Budget alert: 78% monthly limit reached\n• New recipient added: Ibrahim Yusuf'
     );
@@ -404,9 +407,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   // Quick actions
   const quickActions = [
     { icon: '💸', title: 'Send Money', subtitle: 'Transfer to any bank', onPress: handleSendMoney },
-    { icon: '📱', title: 'Mobile Top-up', subtitle: 'Airtime & Data', onPress: () => Alert.alert('Coming Soon', 'Mobile top-up feature coming soon!') },
-    { icon: '💡', title: 'Pay Bills', subtitle: 'Utilities & Services', onPress: () => Alert.alert('Coming Soon', 'Bill payment feature coming soon!') },
-    { icon: '📊', title: 'Analytics', subtitle: 'Spending insights', onPress: () => Alert.alert('Coming Soon', 'Analytics feature coming soon!') },
+    { icon: '📱', title: 'Mobile Top-up', subtitle: 'Airtime & Data', onPress: () => showAlert('Coming Soon', 'Mobile top-up feature coming soon!') },
+    { icon: '💡', title: 'Pay Bills', subtitle: 'Utilities & Services', onPress: () => showAlert('Coming Soon', 'Bill payment feature coming soon!') },
+    { icon: '📊', title: 'Analytics', subtitle: 'Spending insights', onPress: () => showAlert('Coming Soon', 'Analytics feature coming soon!') },
   ];
 
   if (isLoading) {
@@ -1015,7 +1018,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             <View style={dynamicStyles.limitsPanel}>
               <View style={dynamicStyles.sectionHeader}>
                 <Text style={dynamicStyles.sectionTitle}>🔒 Transaction Limits</Text>
-                <TouchableOpacity onPress={() => Alert.alert('Limits Info', 'Transaction limits help protect your account. Contact support to request increases.')}>
+                <TouchableOpacity onPress={() => showAlert('Limits Info', 'Transaction limits help protect your account. Contact support to request increases.')}>
                   <Text style={dynamicStyles.seeAll}>Info</Text>
                 </TouchableOpacity>
               </View>
@@ -1125,7 +1128,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
 
           {/* Recent Activity */}
           {dashboardData && (
-            <View style={dynamicStyles.recentActivity}>
+            <View style={dynamicStyles.recentActivity} testID="recent-transactions">
               <View style={dynamicStyles.sectionHeader}>
                 <Text style={dynamicStyles.sectionTitle}>📝 Recent Activity</Text>
                 <TouchableOpacity onPress={onNavigateToHistory}>
@@ -1137,7 +1140,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                 <TouchableOpacity
                   key={transaction.id}
                   style={dynamicStyles.activityItem}
-                  onPress={() => onNavigateToTransactionDetails?.(transaction.id)}
+                  onPress={() => onNavigateToTransactionDetails?.(transaction.id, transaction.originalTransaction)}
+                  testID="transaction-item"
                 >
                   <View style={[
                     dynamicStyles.activityIcon,

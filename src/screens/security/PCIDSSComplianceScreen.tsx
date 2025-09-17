@@ -12,13 +12,13 @@ import {
   SafeAreaView,
   StatusBar,
   TouchableOpacity,
-  Alert,
   Dimensions,
   RefreshControl,
   Modal,
   TextInput,
 } from 'react-native';
 import { useTenant, useTenantTheme } from '../../tenants/TenantContext';
+import { useBankingAlert } from '../../services/AlertService';
 import APIService from '../../services/api';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -91,6 +91,7 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
 }) => {
   const { currentTenant } = useTenant();
   const theme = useTenantTheme();
+  const { showAlert } = useBankingAlert();
   
   // State
   const [complianceData, setComplianceData] = useState<PCIDSSComplianceData | null>(null);
@@ -129,7 +130,7 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
       });
     } catch (error) {
       console.error('Failed to load PCI DSS compliance data:', error);
-      Alert.alert('Error', 'Failed to load PCI DSS compliance data. Please try again.');
+      showAlert('Error', 'Failed to load PCI DSS compliance data. Please try again.');
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -150,13 +151,13 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
   // Create assessment handler
   const handleCreateAssessment = useCallback(async () => {
     if (!newAssessment.scope || !newAssessment.plannedDate) {
-      Alert.alert('Error', 'Please fill in all required fields.');
+      showAlert('Error', 'Please fill in all required fields.');
       return;
     }
 
     try {
       const response = await APIService.createPCIDSSAssessment(newAssessment);
-      Alert.alert(
+      showAlert(
         'Assessment Created',
         `Assessment created successfully. ID: ${response.assessmentId}`
       );
@@ -168,7 +169,7 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
       });
       handleRefresh();
     } catch (error) {
-      Alert.alert('Error', 'Failed to create assessment. Please try again.');
+      showAlert('Error', 'Failed to create assessment. Please try again.');
     }
   }, [newAssessment, handleRefresh]);
 

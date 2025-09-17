@@ -12,13 +12,13 @@ import {
   SafeAreaView,
   StatusBar,
   TouchableOpacity,
-  Alert,
   Dimensions,
   RefreshControl,
   Modal,
   TextInput,
 } from 'react-native';
 import { useTenant, useTenantTheme } from '../../tenants/TenantContext';
+import { useBankingAlert } from '../../services/AlertService';
 import APIService from '../../services/api';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -101,6 +101,7 @@ export const SecurityMonitoringScreen: React.FC<SecurityMonitoringScreenProps> =
 }) => {
   const { currentTenant } = useTenant();
   const theme = useTenantTheme();
+  const { showAlert } = useBankingAlert();
   
   // State
   const [monitoringData, setMonitoringData] = useState<SecurityMonitoringData | null>(null);
@@ -153,7 +154,7 @@ export const SecurityMonitoringScreen: React.FC<SecurityMonitoringScreenProps> =
       });
     } catch (error) {
       console.error('Failed to load security monitoring data:', error);
-      Alert.alert('Error', 'Failed to load security monitoring data. Please try again.');
+      showAlert('Error', 'Failed to load security monitoring data. Please try again.');
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -178,13 +179,13 @@ export const SecurityMonitoringScreen: React.FC<SecurityMonitoringScreenProps> =
   // Log security event handler
   const handleLogEvent = useCallback(async () => {
     if (!newEvent.eventType || !newEvent.description) {
-      Alert.alert('Error', 'Please fill in all required fields.');
+      showAlert('Error', 'Please fill in all required fields.');
       return;
     }
 
     try {
       const response = await APIService.logSecurityEvent(newEvent);
-      Alert.alert('Event Logged', `Security event logged successfully. ID: ${response.eventId}`);
+      showAlert('Event Logged', `Security event logged successfully. ID: ${response.eventId}`);
       setShowEventModal(false);
       setNewEvent({
         eventType: '',
@@ -194,7 +195,7 @@ export const SecurityMonitoringScreen: React.FC<SecurityMonitoringScreenProps> =
       });
       handleRefresh();
     } catch (error) {
-      Alert.alert('Error', 'Failed to log security event. Please try again.');
+      showAlert('Error', 'Failed to log security event. Please try again.');
     }
   }, [newEvent, handleRefresh]);
 
