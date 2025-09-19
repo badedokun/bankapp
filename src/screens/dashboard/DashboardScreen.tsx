@@ -22,8 +22,48 @@ import {
 import { useTenant, useTenantTheme } from '../../tenants/TenantContext';
 import { useBankingAlert } from '../../services/AlertService';
 import APIService from '../../services/api';
+import { ENV_CONFIG, buildApiUrl } from '../../config/environment';
 
-const { width: screenWidth } = Dimensions.get('window');
+// Get responsive dimensions for cross-platform compatibility
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+// Responsive logo size configuration table
+const LOGO_SIZE_BREAKPOINTS = [
+  {
+    name: 'small_mobile',
+    maxWidth: 400,
+    logoSize: 52,
+    containerSize: 60,
+    description: 'Small mobile screens'
+  },
+  {
+    name: 'standard_mobile',
+    maxWidth: 768,
+    logoSize: 60,
+    containerSize: 68,
+    description: 'Standard mobile screens'
+  },
+  {
+    name: 'tablet_large_mobile',
+    maxWidth: 1024,
+    logoSize: 68,
+    containerSize: 76,
+    description: 'Tablets and large mobile screens'
+  },
+  {
+    name: 'desktop_web',
+    maxWidth: Infinity,
+    logoSize: 72,
+    containerSize: 80,
+    description: 'Desktop and web screens'
+  }
+];
+
+// Calculate responsive logo sizes based on screen width using configuration table
+const getResponsiveLogoSize = () => {
+  const breakpoint = LOGO_SIZE_BREAKPOINTS.find(bp => screenWidth < bp.maxWidth);
+  return breakpoint || LOGO_SIZE_BREAKPOINTS[LOGO_SIZE_BREAKPOINTS.length - 1];
+};
 
 interface DashboardData {
   balance: number;
@@ -105,6 +145,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   const { currentTenant } = useTenant();
   const theme = useTenantTheme();
   const { showConfirm, showAlert } = useBankingAlert();
+  
+  // Get responsive logo dimensions
+  const { logoSize, containerSize } = getResponsiveLogoSize();
   
   // State
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
@@ -470,16 +513,16 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
       gap: 15,
     },
     tenantLogo: {
-      width: 50,
-      height: 50,
+      width: containerSize,
+      height: containerSize,
       backgroundColor: theme.colors.primary,
-      borderRadius: 25,
+      borderRadius: containerSize / 2,
       alignItems: 'center',
       justifyContent: 'center',
     },
     logoText: {
       color: '#ffffff',
-      fontSize: 20,
+      fontSize: Math.max(16, containerSize * 0.3), // Scale font size with container, minimum 16px
       fontWeight: 'bold',
     },
     logoInfo: {
@@ -502,7 +545,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
     },
     searchBox: {
       position: 'relative',
-      width: screenWidth < 400 ? 150 : 200,
+      minWidth: 150,
+      maxWidth: 200,
+      flex: 1,
     },
     searchInput: {
       paddingHorizontal: theme.spacing.md,
@@ -718,13 +763,16 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
       flexDirection: 'row',
       flexWrap: 'wrap',
       gap: theme.spacing.md,
+      justifyContent: 'space-between',
     },
     actionCard: {
       backgroundColor: '#f8fafc',
       borderRadius: 16,
       padding: theme.spacing.lg,
       alignItems: 'center',
-      width: (screenWidth - theme.spacing.lg * 2 - theme.spacing.lg * 2 - theme.spacing.md) / 2,
+      flex: 1,
+      minWidth: '45%',
+      maxWidth: '48%',
       minHeight: 120,
     },
     actionIcon: {
@@ -923,11 +971,11 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             ]}>
               {currentTenant?.id === 'fmfb' ? (
                 <Image
-                  source={{ uri: `http://localhost:3001/api/tenants/by-name/fmfb/assets/logo/default` }}
+                  source={{ uri: buildApiUrl('tenants/by-name/fmfb/assets/logo/default') }}
                   style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: 16,
+                    width: logoSize,
+                    height: logoSize,
+                    borderRadius: logoSize / 2,
                   }}
                   resizeMode="contain"
                   onError={() => console.log('Failed to load FMFB logo in dashboard, falling back to initials')}

@@ -124,47 +124,13 @@ class DemoAuthManager {
     } catch (error: any) {
       console.error('API login failed, falling back to demo mode:', error);
       
-      // Fallback to demo tokens if API is not available  
-      // Note: These should match the actual users in the database
-      const validCredentials = [
-        { username: 'demo@fmfb.com', password: 'Demo@123!', tenantId: 'fmfb', name: 'Demo User' },
-        { username: 'admin@fmfb.com', password: 'Admin@123!', tenantId: 'fmfb', name: 'Admin User' },
-        { username: 'demo@default.com', password: 'Demo@123!', tenantId: 'default', name: 'Default User' }
-      ];
-
-      const user = validCredentials.find(
-        cred => cred.username === username && 
-                cred.password === password && 
-                cred.tenantId === tenantId
-      );
-
-      if (!user) {
-        return {
-          success: false,
-          error: error?.message || 'Invalid credentials or tenant mismatch'
-        };
-      }
-
-      const token = this.createDemoToken({
-        tenantId: user.tenantId,
-        userId: user.username,
-        roles: username.includes('admin') ? ['admin', 'user'] : ['user'],
-        permissions: username.includes('admin') 
-          ? ['transfer', 'read', 'write', 'admin', 'voice_assistant']
-          : ['transfer', 'read', 'voice_assistant']
-      });
-
-      await Storage.setItem('access_token', token);
-      await Storage.setItem('demo_mode', 'true');
-
+      // API is not available - this is a development/demo scenario only
+      // For production, authentication should ALWAYS go through the API
+      console.warn('API authentication failed - this should not happen in production');
+      
       return {
-        success: true,
-        token,
-        user: {
-          id: user.username,
-          name: user.name,
-          tenant: user.tenantId
-        }
+        success: false,
+        error: 'Authentication service unavailable. Please contact support.'
       };
     }
   }
@@ -192,23 +158,19 @@ class DemoAuthManager {
 
   /**
    * Get available demo tenants
+   * Note: Credentials are stored in the database for security
    */
   getDemoTenants() {
     return [
       {
         id: 'fmfb',
         name: 'Firstmidas Microfinance Bank',
-        credentials: [
-          { username: 'demo@fmfb.com', password: 'Demo@123!', role: 'agent' },
-          { username: 'admin@fmfb.com', password: 'Admin@123!', role: 'admin' }
-        ]
+        description: 'Use your database-stored credentials to login'
       },
       {
         id: 'default',
         name: 'Default Tenant',
-        credentials: [
-          { username: 'demo@default.com', password: 'Demo@123!', role: 'agent' }
-        ]
+        description: 'Use your database-stored credentials to login'
       }
     ];
   }
