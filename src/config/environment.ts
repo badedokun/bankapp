@@ -75,23 +75,32 @@ const detectEnvironment = (): 'local' | 'development' | 'staging' | 'production'
  * Get Base URLs based on environment
  */
 const getBaseUrls = (environment: string, isCloudDeployment: boolean) => {
-  // For cloud deployment, use relative URLs or environment-specific URLs
-  if (isCloudDeployment) {
-    const webUrl = process.env.REACT_APP_WEB_URL || 
-                   (!isReactNative() && typeof window !== 'undefined' && window.location?.origin) || 
-                   '';
-    
+  // For React Native (APK) - always use production FMFB URLs
+  if (isReactNative()) {
     return {
-      API_BASE_URL: process.env.REACT_APP_API_URL || '', // Relative URL for same-origin requests
+      API_BASE_URL: 'https://fmfb-34-59-143-25.nip.io/api',
+      WEB_URL: 'https://fmfb-34-59-143-25.nip.io',
+      WS_URL: 'wss://fmfb-34-59-143-25.nip.io'
+    };
+  }
+
+  // For cloud deployment (web browser), use relative URLs or environment-specific URLs
+  if (isCloudDeployment) {
+    const webUrl = process.env.REACT_APP_WEB_URL ||
+                   (!isReactNative() && typeof window !== 'undefined' && window.location?.origin) ||
+                   '';
+
+    return {
+      API_BASE_URL: process.env.REACT_APP_API_URL || '/api', // Relative URL for same-origin requests
       WEB_URL: webUrl,
       WS_URL: process.env.REACT_APP_WS_URL || ''
     };
   }
-  
+
   // For local development
-  const API_PORT = process.env.REACT_APP_API_PORT || '3001';
-  const WEB_PORT = process.env.REACT_APP_WEB_PORT || '3000';
-  
+  const API_PORT = process.env.REACT_APP_API_PORT || '8082';
+  const WEB_PORT = process.env.REACT_APP_WEB_PORT || '8083';
+
   return {
     API_BASE_URL: process.env.REACT_APP_API_URL || `http://localhost:${API_PORT}`,
     WEB_URL: process.env.REACT_APP_WEB_URL || `http://localhost:${WEB_PORT}`,
@@ -157,13 +166,20 @@ export const isCloudDeployment = () => ENV_CONFIG.IS_CLOUD_DEPLOYMENT;
 // Export URL builders
 export const buildApiUrl = (endpoint: string): string => {
   if (!ENV_CONFIG.API_BASE_URL) {
-    // For relative URLs, ensure endpoint starts with /
-    return endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    // For relative URLs, ensure endpoint starts with /api/
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+    return `/api/${cleanEndpoint}`;
   }
   
   // Remove leading slash from endpoint if base URL exists
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
-  return `${ENV_CONFIG.API_BASE_URL}/${cleanEndpoint}`;
+  
+  // Check if API_BASE_URL already includes /api
+  if (ENV_CONFIG.API_BASE_URL.endsWith('/api')) {
+    return `${ENV_CONFIG.API_BASE_URL}/${cleanEndpoint}`;
+  } else {
+    return `${ENV_CONFIG.API_BASE_URL}/api/${cleanEndpoint}`;
+  }
 };
 
 export const buildWebUrl = (path: string = ''): string => {
