@@ -132,6 +132,7 @@ export interface DashboardScreenProps {
   onNavigateToHistory?: () => void;
   onNavigateToSettings?: () => void;
   onNavigateToTransactionDetails?: (transactionId: string, transaction?: any) => void;
+  onNavigateToAIChat?: () => void;
   onLogout?: () => void;
 }
 
@@ -140,6 +141,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   onNavigateToHistory,
   onNavigateToSettings,
   onNavigateToTransactionDetails,
+  onNavigateToAIChat,
   onLogout,
 }) => {
   const { currentTenant } = useTenant();
@@ -195,23 +197,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
         };
       });
 
-      // Generate AI suggestions based on transaction history
-      const aiSuggestions: AISuggestion[] = [
-        {
-          id: '1',
-          type: 'repeat',
-          icon: '🔄',
-          title: 'Quick Actions',
-          description: 'View your recent transactions or start a new transfer.',
-        },
-        {
-          id: '2',
-          type: 'bills',
-          icon: '📊',
-          title: 'Transaction History',
-          description: `You have ${transactionsData.transactions.length} transactions this month.`,
-        },
-      ];
+      // AI suggestions removed - only Open AI Chat button will be available
+      const aiSuggestions: AISuggestion[] = [];
 
       setDashboardData({
         balance: walletData.balance,
@@ -293,19 +280,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
     handleRefresh();
   }, [handleRefresh]);
 
-  const handleAISuggestion = useCallback((suggestion: AISuggestion) => {
-    switch (suggestion.type) {
-      case 'repeat':
-        showAlert('AI Assistant', 'I can help you send ₦50,000 to Adebayo Michael again. Would you like me to prepare the transfer?');
-        break;
-      case 'bills':
-        showAlert('AI Assistant', 'Your EKEDC bill is ₦15,750. I can set up automatic payment if you\'d like!');
-        break;
-      case 'budget':
-        showAlert('AI Assistant', 'You\'ve spent ₦932,000 out of ₦1,200,000 this month. Most spending was on transfers (68%) and bills (22%).');
-        break;
-    }
-  }, []);
+  // handleAISuggestion function removed - no longer needed since AI suggestions are empty
 
   const handleNotifications = useCallback(() => {
     showAlert(
@@ -349,10 +324,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
     const now = new Date();
     const timeOfDay = now.getHours() < 12 ? 'morning' : now.getHours() < 18 ? 'afternoon' : 'evening';
     
-    showConfirm({
-      title: '🔒 Secure Sign Out',
-      message: `Are you sure you want to sign out this ${timeOfDay}?\n\nFor your security:\n• Your session will be terminated immediately\n• You'll need to re-authenticate to access your account\n• Any unsaved data will be lost`,
-      buttons: [
+    showConfirm(
+      '🔒 Secure Sign Out',
+      `Are you sure you want to sign out this ${timeOfDay}?\n\nFor your security:\n• Your session will be terminated immediately\n• You'll need to re-authenticate to access your account\n• Any unsaved data will be lost`,
+      [
         {
           text: 'Cancel',
           style: 'cancel',
@@ -379,11 +354,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
           onPress: async () => {
             try {
               // Show security logout process
-              showAlert({
-                title: '🔐 Processing Secure Logout',
-                message: 'Invalidating session and clearing sensitive data...',
-                buttons: []
-              });
+              showAlert(
+                '🔐 Processing Secure Logout',
+                'Invalidating session and clearing sensitive data...'
+              );
 
               // Log successful logout initiation
               await APIService.logSecurityEvent({
@@ -410,10 +384,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
               setNotificationCount(0);
 
               // Show success message
-              showAlert({
-                title: '✅ Secure Logout Complete',
-                message: `You've been safely signed out. Thank you for using our secure banking platform.\n\nTo sign back in, please use your registered credentials.`,
-                buttons: [
+              showAlert(
+                '✅ Secure Logout Complete',
+                `You've been safely signed out. Thank you for using our secure banking platform.\n\nTo sign back in, please use your registered credentials.`,
+                [
                   {
                     text: 'Return to Login',
                     onPress: () => {
@@ -422,7 +396,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                     }
                   }
                 ]
-              });
+              );
 
             } catch (error) {
               console.error('Secure logout failed:', error);
@@ -443,10 +417,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
               });
 
               // Show error but still proceed with local cleanup for security
-              showAlert({
-                title: '⚠️ Logout Warning',
-                message: 'There was an issue with the secure logout process, but your local session has been cleared for security. Please ensure you\'re on a secure network.',
-                buttons: [
+              showAlert(
+                '⚠️ Logout Warning',
+                'There was an issue with the secure logout process, but your local session has been cleared for security. Please ensure you\'re on a secure network.',
+                [
                   {
                     text: 'Return to Login',
                     onPress: () => {
@@ -458,12 +432,12 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                     }
                   }
                 ]
-              });
+              );
             }
           }
         }
       ]
-    });
+    );
   }, [showConfirm, showAlert, onLogout]);
 
   // Quick actions
@@ -846,6 +820,32 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
       color: '#666',
       lineHeight: 16,
     },
+    aiChatButton: {
+      backgroundColor: '#007bff',
+      borderRadius: 16,
+      padding: theme.spacing.md,
+      marginBottom: theme.spacing.md,
+      alignItems: 'center',
+      shadowColor: '#007bff',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    aiChatButtonIcon: {
+      fontSize: 20,
+      marginBottom: 4,
+    },
+    aiChatButtonText: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: '#ffffff',
+      marginBottom: 2,
+    },
+    aiChatButtonSubtext: {
+      fontSize: 12,
+      color: 'rgba(255, 255, 255, 0.8)',
+    },
     recentActivity: {
       backgroundColor: '#ffffff',
       borderRadius: 20,
@@ -990,7 +990,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
               <Text style={dynamicStyles.logoTitle}>
                 {currentTenant?.displayName || 'OrokiiPay'}
               </Text>
-              <Text style={dynamicStyles.logoSubtitle}>Money Transfer</Text>
+              <Text style={dynamicStyles.logoSubtitle}>Secure Banking App</Text>
             </View>
           </View>
 
@@ -1190,6 +1190,15 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                   <Text style={dynamicStyles.statusText}>Online & Ready</Text>
                 </View>
               </View>
+
+              <TouchableOpacity
+                style={dynamicStyles.aiChatButton}
+                onPress={() => onNavigateToAIChat?.()}
+              >
+                <Text style={dynamicStyles.aiChatButtonIcon}>💬</Text>
+                <Text style={dynamicStyles.aiChatButtonText}>Open AI Chat</Text>
+                <Text style={dynamicStyles.aiChatButtonSubtext}>Full conversational assistant</Text>
+              </TouchableOpacity>
 
               {dashboardData.aiSuggestions.map((suggestion) => (
                 <TouchableOpacity

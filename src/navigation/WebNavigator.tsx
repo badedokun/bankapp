@@ -12,6 +12,7 @@ import {
   TransactionHistoryScreen,
   TransactionDetailsScreen,
   SettingsScreen,
+  AIChatScreen,
 } from '../screens';
 import CBNComplianceScreen from '../screens/security/CBNComplianceScreen';
 
@@ -25,7 +26,7 @@ const isReactNative = (): boolean => {
 import PCIDSSComplianceScreen from '../screens/security/PCIDSSComplianceScreen';
 import SecurityMonitoringScreen from '../screens/security/SecurityMonitoringScreen';
 
-type Screen = 'Login' | 'Dashboard' | 'Transfer' | 'History' | 'TransactionDetails' | 'Settings' | 'CBNCompliance' | 'PCICompliance' | 'SecurityMonitoring';
+type Screen = 'Login' | 'Dashboard' | 'Transfer' | 'History' | 'TransactionDetails' | 'Settings' | 'CBNCompliance' | 'PCICompliance' | 'SecurityMonitoring' | 'AIChat';
 
 interface WebNavigatorProps {
   isAuthenticated: boolean;
@@ -85,6 +86,7 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
             onNavigateToHistory={() => navigate('History')}
             onNavigateToSettings={() => navigate('Settings')}
             onNavigateToTransactionDetails={handleTransactionDetails}
+            onNavigateToAIChat={() => navigate('AIChat')}
             onLogout={async () => {
               // Properly logout through API to clear tokens
               const APIService = await import('../services/api');
@@ -146,6 +148,8 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
             }}
           />
         );
+      case 'AIChat':
+        return <AIChatScreen onBack={() => navigate('Dashboard')} />;
       default:
         return (
           <DashboardScreen
@@ -153,6 +157,7 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
             onNavigateToHistory={() => navigate('History')}
             onNavigateToSettings={() => navigate('Settings')}
             onNavigateToTransactionDetails={handleTransactionDetails}
+            onNavigateToAIChat={() => navigate('AIChat')}
             onLogout={async () => {
               // Properly logout through API to clear tokens
               const APIService = await import('../services/api');
@@ -200,6 +205,16 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
           <Text style={styles.tabIcon}>📊</Text>
           <Text style={[styles.tabLabel, currentScreen === 'History' && styles.activeLabel]}>
             History
+          </Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity
+          style={[styles.tab, currentScreen === 'AIChat' && styles.activeTab]}
+          onPress={() => navigate('AIChat')}
+        >
+          <Text style={styles.tabIcon}>🤖</Text>
+          <Text style={[styles.tabLabel, currentScreen === 'AIChat' && styles.activeLabel]}>
+            AI Assistant
           </Text>
         </TouchableOpacity>
         
