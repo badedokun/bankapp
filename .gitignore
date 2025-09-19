@@ -86,3 +86,18 @@ database/*.sqlite3
 .env
 .env.local
 .env.*.local
+
+# Backup folders
+scripts/backup-deployment-scripts/
+scripts/backup-*/
+
+# Old deployment archives and scripts
+*.tar.gz
+deploy-*.sh
+*deploy*.sh
+!deploy-to-gcp.sh
+!setup-local-nibss.sh
+
+# APK files
+*.apk
+bankapp-*.apk
