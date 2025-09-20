@@ -1,0 +1,7 @@
+/**
+ * Enhanced Wallet Management Routes
+ * Complete wallet operations, balance management, and funding
+ */
+declare const router: import("express-serve-static-core").Router;
+export default router;
+//# sourceMappingURL=wallets.d.ts.map

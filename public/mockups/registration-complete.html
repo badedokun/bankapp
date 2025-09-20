@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrokiiPay - Registration Complete</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        
+        .success-icon {
+            font-size: 80px;
+            color: #10b981;
+            margin-bottom: 20px;
+        }
+        
+        .logo h1 {
+            color: #667eea;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .logo p {
+            color: #6b7280;
+            font-size: 1rem;
+            margin-bottom: 30px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #10b981;
+            width: 100%;
+            border-radius: 4px;
+            animation: progressComplete 1s ease-in-out;
+        }
+        
+        @keyframes progressComplete {
+            from { width: 90%; }
+            to { width: 100%; }
+        }
+        
+        .success-title {
+            color: #065f46;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        
+        .success-message {
+            color: #374151;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .status-card {
+            background: #f0fdf4;
+            border: 2px solid #bbf7d0;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .status-list {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #d1fae5;
+        }
+        
+        .status-icon {
+            font-size: 20px;
+        }
+        
+        .status-text {
+            color: #374151;
+            font-weight: 500;
+        }
+        
+        .status-description {
+            color: #6b7280;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .pending-status {
+            background: #fef3c7;
+            border-color: #fcd34d;
+        }
+        
+        .pending-icon {
+            color: #d97706;
+        }
+        
+        .next-steps {
+            text-align: left;
+            margin-bottom: 30px;
+        }
+        
+        .next-steps h3 {
+            color: #374151;
+            margin-bottom: 15px;
+        }
+        
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .step-text {
+            color: #374151;
+            font-size: 15px;
+        }
+        
+        .btn {
+            padding: 14px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin: 0 10px 10px 0;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .btn.secondary {
+            background: #6b7280;
+        }
+        
+        .btn.secondary:hover {
+            background: #4b5563;
+        }
+        
+        .contact-info {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .contact-info h4 {
+            color: #374151;
+            margin-bottom: 10px;
+        }
+        
+        .contact-info p {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .social-links {
+            margin-top: 20px;
+        }
+        
+        .social-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 14px;
+        }
+        
+        .social-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon">🎉</div>
+        
+        <div class="logo">
+            <h1>OrokiiPay</h1>
+            <p>Multi-Tenant Banking Platform</p>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+        
+        <h2 class="success-title">Registration Successful!</h2>
+        <p class="success-message">Welcome to OrokiiPay! Your account has been created and you're ready to start your digital banking journey.</p>
+        
+        <div class="status-card">
+            <h3 style="color: #065f46; margin-bottom: 20px;">Account Status</h3>
+            
+            <div class="status-list">
+                <div class="status-item">
+                    <div class="status-icon">✅</div>
+                    <div>
+                        <div class="status-text">Account Created</div>
+                        <div class="status-description">Your OrokiiPay account is now active</div>
+                    </div>
+                </div>
+                
+                <div class="status-item">
+                    <div class="status-icon">✅</div>
+                    <div>
+                        <div class="status-text">Contact Verified</div>
+                        <div class="status-description">Email and phone number confirmed</div>
+                    </div>
+                </div>
+                
+                <div class="status-item">
+                    <div class="status-icon">✅</div>
+                    <div>
+                        <div class="status-text">Profile Complete</div>
+                        <div class="status-description">Personal details and address saved</div>
+                    </div>
+                </div>
+                
+                <div class="status-item" id="kyc-status">
+                    <div class="status-icon pending-icon">⏳</div>
+                    <div>
+                        <div class="status-text">KYC Under Review</div>
+                        <div class="status-description">Documents being processed (24-48 hours)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="next-steps">
+            <h3>What's Next?</h3>
+            
+            <div class="step-item">
+                <div class="step-number">1</div>
+                <div class="step-text">Check your email for account activation and important updates</div>
+            </div>
+            
+            <div class="step-item">
+                <div class="step-number">2</div>
+                <div class="step-text">Download the OrokiiPay mobile app for easy access on the go</div>
+            </div>
+            
+            <div class="step-item">
+                <div class="step-number">3</div>
+                <div class="step-text">Complete your KYC verification to unlock all features</div>
+            </div>
+            
+            <div class="step-item">
+                <div class="step-number">4</div>
+                <div class="step-text">Start sending money, paying bills, and managing your finances</div>
+            </div>
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            <a href="#" class="btn" onclick="goToDashboard()">Access My Dashboard</a>
+            <a href="#" class="btn secondary" onclick="downloadApp()">Download App</a>
+        </div>
+        
+        <div class="contact-info">
+            <h4>Need Help?</h4>
+            <p>📧 Email: support@orokii.com</p>
+            <p>📞 Phone: +234 (0) 1 234 5678</p>
+            <p>💬 Live Chat: Available 24/7 in your dashboard</p>
+            
+            <div class="social-links">
+                <a href="#">Twitter</a>
+                <a href="#">Facebook</a>
+                <a href="#">Instagram</a>
+                <a href="#">LinkedIn</a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Check if KYC was skipped
+        const kycSkipped = localStorage.getItem('kycSkipped');
+        if (kycSkipped) {
+            const kycStatus = document.getElementById('kyc-status');
+            kycStatus.innerHTML = `
+                <div class="status-icon pending-icon">⚠️</div>
+                <div>
+                    <div class="status-text">KYC Pending</div>
+                    <div class="status-description">Complete document verification in your dashboard</div>
+                </div>
+            `;
+            kycStatus.classList.add('pending-status');
+        }
+        
+        function goToDashboard() {
+            // In a real app, this would redirect to the actual dashboard
+            alert('Dashboard access would be implemented here. For this mockup, you can view the registration status endpoint at http://localhost:3001/api/registration/status/' + localStorage.getItem('registrationUserId'));
+        }
+        
+        function downloadApp() {
+            alert('Mobile app download links would be provided here (App Store, Google Play)');
+        }
+        
+        // Clear registration data from localStorage after successful completion
+        setTimeout(() => {
+            // Keep essential data, clear temporary registration data
+            const userId = localStorage.getItem('registrationUserId');
+            const email = localStorage.getItem('registrationEmail');
+            
+            localStorage.clear();
+            
+            // Store essential user info for the session
+            if (userId) localStorage.setItem('userId', userId);
+            if (email) localStorage.setItem('userEmail', email);
+        }, 5000);
+        
+        // Add some celebratory animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate the success icon
+            const icon = document.querySelector('.success-icon');
+            setTimeout(() => {
+                icon.style.transform = 'scale(1.1)';
+                icon.style.transition = 'transform 0.3s ease';
+                setTimeout(() => {
+                    icon.style.transform = 'scale(1)';
+                }, 300);
+            }, 500);
+        });
+    </script>
+</body>
+</html>

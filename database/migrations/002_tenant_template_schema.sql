@@ -20,7 +20,7 @@ CREATE SCHEMA IF NOT EXISTS analytics;
 CREATE SCHEMA IF NOT EXISTS audit;
 
 -- Set default search path
-ALTER DATABASE CURRENT SET search_path TO tenant, ai, analytics, audit, public;
+-- ALTER DATABASE will be handled by setup script with actual database name
 
 -- Store tenant metadata in each database
 CREATE TABLE tenant.tenant_metadata (
@@ -849,10 +849,22 @@ ALTER TABLE tenant.notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE tenant.documents ENABLE ROW LEVEL SECURITY;
 
 -- Create roles for different access levels
-CREATE ROLE tenant_admin;
-CREATE ROLE tenant_agent;
-CREATE ROLE tenant_viewer;
-CREATE ROLE tenant_api;
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'tenant_admin') THEN
+        CREATE ROLE tenant_admin;
+    END IF;
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'tenant_agent') THEN
+        CREATE ROLE tenant_agent;
+    END IF;
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'tenant_viewer') THEN
+        CREATE ROLE tenant_viewer;
+    END IF;
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'tenant_api') THEN
+        CREATE ROLE tenant_api;
+    END IF;
+END
+$$;
 
 -- Grant schema usage
 GRANT USAGE ON SCHEMA tenant, ai, analytics, audit TO tenant_admin, tenant_agent, tenant_viewer, tenant_api;
