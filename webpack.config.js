@@ -114,6 +114,11 @@ module.exports = {
       'process.env.DEPLOYMENT_TYPE': JSON.stringify(
         process.env.DEPLOYMENT_TYPE || 'development'
       ),
+      'window.__WEBPACK_ENV__': JSON.stringify({
+        DEPLOYMENT_TYPE: process.env.DEPLOYMENT_TYPE || 'development',
+        NODE_ENV: process.env.NODE_ENV || 'development',
+        TENANT_DETECTION_METHOD: process.env.TENANT_DETECTION_METHOD || 'subdomain'
+      }),
     }),
     new webpack.ProvidePlugin({
       process: 'process/browser',

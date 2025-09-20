@@ -75,18 +75,24 @@ echo "📦 Installing Node.js dependencies..."
 npm install --production
 
 # Create production environment file
-echo "⚙️ Creating production environment configuration..."
+echo "⚙️ Creating FMFB production environment configuration..."
 cat > /opt/orokiipay/.env << 'ENV_EOF'
+# FMFB Production Configuration
 NODE_ENV=production
 PORT=3001
+DEPLOYMENT_TYPE=fmfb_production
 
-# Database Configuration - PLEASE UPDATE WITH YOUR ACTUAL DATABASE DETAILS
-DATABASE_URL=postgresql://orokiipay_user:secure_password_123@localhost:5432/orokiipay_production
+# Tenant Configuration - FMFB Only (Auto-configured via deployment type)
+DEFAULT_TENANT=fmfb
+TENANT_DETECTION_METHOD=default
+ALLOW_TENANT_SWITCHING=false
+
+# Database Configuration - SCRAM-SHA-256 Secured
 DB_HOST=localhost
-DB_USER=orokiipay_user
-DB_PASSWORD=secure_password_123
-DB_NAME=orokiipay_production
-DB_PORT=5432
+DB_PORT=5433
+DB_USER=bisiadedokun
+DB_PASSWORD=orokiipay_secure_banking_2024!@#
+DB_NAME=bank_app_platform
 
 # JWT Configuration - PLEASE UPDATE WITH YOUR SECURE KEYS
 JWT_SECRET=orokiipay-super-secure-jwt-secret-key-minimum-32-characters-for-production-use-2024
@@ -238,13 +244,15 @@ sudo ufw allow http
 sudo ufw allow https
 sudo ufw allow 3001
 
-echo "✅ OrokiiPay Banking Platform deployment completed!"
+echo "✅ FMFB Banking Platform deployment completed!"
 echo ""
-echo "📋 Deployment Summary:"
-echo "======================"
-echo "🌐 Application URL: http://34.134.124.178"
-echo "🏥 Health Check: http://34.134.124.178/health"
-echo "📊 API Base: http://34.134.124.178/api"
+echo "📋 FMFB Deployment Summary:"
+echo "=========================="
+echo "🏦 Bank: First Midas Microfinance Bank (FMFB)"
+echo "🌐 Application URL: http://34.59.143.25"
+echo "🏥 Health Check: http://34.59.143.25/health"
+echo "📊 API Base: http://34.59.143.25/api"
+echo "🎯 Tenant: FMFB Production (auto-configured)"
 echo ""
 echo "🔧 Service Management:"
 echo "sudo systemctl status orokiipay    # Check app status"
@@ -267,10 +275,15 @@ echo "🚀 Transferring and executing deployment script on remote server..."
 scp -i "$SSH_KEY" deploy-remote.sh "$SSH_USER@$SERVER_IP:/tmp/"
 ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" "chmod +x /tmp/deploy-remote.sh && /tmp/deploy-remote.sh"
 
-echo "✅ Deployment completed successfully!"
+echo "✅ FMFB deployment completed successfully!"
 echo ""
-echo "🌐 Your OrokiiPay Banking Platform is now accessible at:"
+echo "🏦 Your FMFB Banking Platform is now accessible at:"
 echo "   http://34.59.143.25"
+echo ""
+echo "🎯 Deployed with FMFB tenant configuration:"
+echo "   - Automatic FMFB branding and logos"
+echo "   - Time-based personalized greetings"
+echo "   - FMFB-specific banking features"
 echo ""
 echo "🔧 To check the deployment status:"
 echo "   ssh -i ~/.ssh/orokiipay-bankapp bisi.adedokun@34.59.143.25 'sudo systemctl status orokiipay'"

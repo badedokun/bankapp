@@ -17,6 +17,106 @@ const tenant_1 = require("../middleware/tenant");
 const errorHandler_1 = require("../middleware/errorHandler");
 const router = express_1.default.Router();
 /**
+ * GET /api/transactions/history
+ * Get transaction history for the authenticated user
+ */
+router.get('/history', auth_1.authenticateToken, tenant_1.validateTenantAccess, [
+    (0, express_validator_1.query)('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
+    (0, express_validator_1.query)('offset').optional().isInt({ min: 0 }).withMessage('Offset must be 0 or greater'),
+    (0, express_validator_1.query)('type').optional().isIn(['all', 'debit', 'credit', 'transfer', 'bill_payment', 'airtime', 'data']).withMessage('Invalid transaction type')
+], (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const validationErrors = (0, express_validator_1.validationResult)(req);
+    if (!validationErrors.isEmpty()) {
+        return res.status(400).json({
+            success: false,
+            error: 'Validation failed',
+            code: 'VALIDATION_ERROR',
+            details: validationErrors.array()
+        });
+    }
+    const userId = req.user.id;
+    const tenantId = req.user.tenantId;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = parseInt(req.query.offset) || 0;
+    const type = req.query.type || 'all';
+    try {
+        // Get transaction history from both tables to capture all transactions
+        const transactionsResult = await (0, database_1.query)(`
+      SELECT 
+        t.id,
+        t.type as transaction_type,
+        t.amount,
+        t.fee,
+        t.description,
+        t.reference,
+        t.status,
+        CASE 
+          WHEN t.type = 'transfer' THEN tr.recipient_account_number
+          ELSE NULL
+        END as recipient_account,
+        CASE 
+          WHEN t.type = 'transfer' THEN tr.recipient_name
+          ELSE NULL
+        END as recipient_name,
+        CASE 
+          WHEN t.type = 'transfer' THEN tr.recipient_bank_name
+          ELSE NULL
+        END as recipient_bank,
+        t.metadata,
+        t.created_at
+      FROM transactions t
+      LEFT JOIN transfers tr ON t.reference = tr.reference AND t.type = 'transfer'
+      WHERE t.user_id = $1 AND t.tenant_id = $2 ${type !== 'all' ? 'AND t.type = $3' : ''}
+      ORDER BY t.created_at DESC
+      LIMIT $${type !== 'all' ? '4' : '3'} OFFSET $${type !== 'all' ? '5' : '4'}
+    `, type !== 'all' ? [userId, tenantId, type, limit, offset] : [userId, tenantId, limit, offset]);
+        // Get total count for pagination
+        const countResult = await (0, database_1.query)(`
+      SELECT COUNT(*) as total 
+      FROM transactions t
+      WHERE t.user_id = $1 AND t.tenant_id = $2 ${type !== 'all' ? 'AND t.type = $3' : ''}
+    `, type !== 'all' ? [userId, tenantId, type] : [userId, tenantId]);
+        const total = parseInt(countResult.rows[0].total);
+        // Format transactions for response
+        const transactions = transactionsResult.rows.map(tx => ({
+            id: tx.id,
+            type: tx.transaction_type,
+            amount: parseFloat(tx.amount),
+            fee: parseFloat(tx.fee || 0),
+            description: tx.description,
+            reference: tx.reference,
+            status: tx.status,
+            recipient: tx.recipient_account ? {
+                account: tx.recipient_account,
+                name: tx.recipient_name,
+                bank: tx.recipient_bank
+            } : null,
+            metadata: tx.metadata,
+            date: tx.created_at
+        }));
+        res.json({
+            success: true,
+            data: {
+                transactions,
+                pagination: {
+                    total,
+                    limit,
+                    offset,
+                    hasMore: (offset + limit) < total
+                }
+            }
+        });
+    }
+    catch (error) {
+        console.error('Transaction history error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch transaction history',
+            code: 'TRANSACTION_HISTORY_ERROR'
+        });
+    }
+}));
+/**
  * POST /api/transactions/bill-payment
  * Process bill payments (electricity, water, cable TV, etc.)
  */
@@ -340,107 +440,6 @@ router.post('/airtime-purchase', auth_1.authenticateToken, tenant_1.validateTena
         console.error('Airtime Purchase Error:', error);
         throw errorHandler_1.errors.internalError('Airtime purchase failed');
     }
-}));
-/**
- * GET /api/transactions/history
- * Get user's complete transaction history with filtering and pagination
- */
-router.get('/history', auth_1.authenticateToken, tenant_1.validateTenantAccess, [
-    (0, express_validator_1.query)('page').optional().isInt({ min: 1 }).withMessage('Invalid page number'),
-    (0, express_validator_1.query)('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Invalid limit'),
-    (0, express_validator_1.query)('type').optional().isIn(['transfer', 'bill_payment', 'airtime_purchase', 'data_purchase']).withMessage('Invalid transaction type'),
-    (0, express_validator_1.query)('status').optional().isIn(['pending', 'processing', 'completed', 'failed']).withMessage('Invalid status'),
-    (0, express_validator_1.query)('startDate').optional().isISO8601().withMessage('Invalid start date'),
-    (0, express_validator_1.query)('endDate').optional().isISO8601().withMessage('Invalid end date')
-], (0, errorHandler_1.asyncHandler)(async (req, res) => {
-    const validationErrors = (0, express_validator_1.validationResult)(req);
-    if (!validationErrors.isEmpty()) {
-        return res.status(400).json({
-            success: false,
-            error: 'Validation failed',
-            code: 'VALIDATION_ERROR',
-            details: validationErrors.array()
-        });
-    }
-    const userId = req.user.id;
-    const tenantId = req.user.tenantId;
-    const page = parseInt(req.query.page) || 1;
-    const limit = Math.min(parseInt(req.query.limit) || 20, 100);
-    const offset = (page - 1) * limit;
-    // Build dynamic query based on filters
-    const filters = [];
-    const params = [userId, tenantId];
-    let paramIndex = 2;
-    if (req.query.type) {
-        filters.push(`t.type = $${++paramIndex}`);
-        params.push(req.query.type);
-    }
-    if (req.query.status) {
-        filters.push(`t.status = $${++paramIndex}`);
-        params.push(req.query.status);
-    }
-    if (req.query.startDate) {
-        filters.push(`t.created_at >= $${++paramIndex}`);
-        params.push(req.query.startDate);
-    }
-    if (req.query.endDate) {
-        filters.push(`t.created_at <= $${++paramIndex}`);
-        params.push(req.query.endDate);
-    }
-    const whereClause = filters.length > 0 ? `AND ${filters.join(' AND ')}` : '';
-    const transactionsQuery = `
-    SELECT t.*, 
-           CASE 
-             WHEN t.type = 'transfer' THEN tr.recipient_name
-             ELSE NULL
-           END as recipient_name,
-           CASE 
-             WHEN t.type = 'transfer' THEN tr.recipient_account_number
-             ELSE NULL
-           END as recipient_account
-    FROM transactions t
-    LEFT JOIN transfers tr ON t.reference = tr.reference AND t.type = 'transfer'
-    WHERE t.user_id = $1 AND t.tenant_id = $2 ${whereClause}
-    ORDER BY t.created_at DESC
-    LIMIT $${++paramIndex} OFFSET $${++paramIndex}
-  `;
-    params.push(limit, offset);
-    const transactions = await (0, database_1.query)(transactionsQuery, params);
-    // Get total count for pagination
-    const countQuery = `
-    SELECT COUNT(*) as total
-    FROM transactions t
-    WHERE t.user_id = $1 AND t.tenant_id = $2 ${whereClause}
-  `;
-    const countResult = await (0, database_1.query)(countQuery, params.slice(0, -2)); // Remove limit and offset
-    const total = parseInt(countResult.rows[0].total);
-    const totalPages = Math.ceil(total / limit);
-    res.json({
-        success: true,
-        data: {
-            transactions: transactions.rows.map(t => ({
-                id: t.id,
-                reference: t.reference,
-                type: t.type,
-                amount: parseFloat(t.amount),
-                fee: parseFloat(t.fee || '0'),
-                status: t.status,
-                description: t.description,
-                createdAt: t.created_at,
-                updatedAt: t.updated_at,
-                metadata: t.metadata ? JSON.parse(t.metadata) : null,
-                recipientName: t.recipient_name,
-                recipientAccount: t.recipient_account
-            })),
-            pagination: {
-                currentPage: page,
-                totalPages,
-                totalCount: total,
-                hasNext: page < totalPages,
-                hasPrev: page > 1
-            }
-        }
-    });
 }));
 /**
  * GET /api/transactions/:reference/status

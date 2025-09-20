@@ -257,7 +257,7 @@ class APIService {
     }
 
     try {
-      const response = await fetch(buildApiUrl('/api/auth/refresh'), {
+      const response = await fetch(buildApiUrl('auth/refresh'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -291,7 +291,7 @@ class APIService {
   async login(credentials: LoginRequest): Promise<LoginResponse> {
     const tenantId = credentials.tenantId || this.getTenantId();
     
-    const response = await this.makeRequest<LoginResponse>('/api/auth/login', {
+    const response = await this.makeRequest<LoginResponse>('auth/login', {
       method: 'POST',
       body: JSON.stringify({
         ...credentials,
@@ -327,7 +327,7 @@ class APIService {
   async logout(): Promise<void> {
     try {
       if (this.accessToken) {
-        await this.makeRequest('/api/auth/logout', {
+        await this.makeRequest('auth/logout', {
           method: 'POST'
         });
       }
@@ -345,7 +345,7 @@ class APIService {
   async logoutAll(): Promise<void> {
     try {
       if (this.accessToken) {
-        await this.makeRequest('/api/auth/logout-all', {
+        await this.makeRequest('auth/logout-all', {
           method: 'POST'
         });
       }
@@ -360,7 +360,7 @@ class APIService {
    * Get user profile
    */
   async getProfile(): Promise<LoginResponse['user']> {
-    const response = await this.makeRequest<{ user: LoginResponse['user'] }>('/api/auth/profile');
+    const response = await this.makeRequest<{ user: LoginResponse['user'] }>('auth/profile');
     
     if (response.success && response.data) {
       return response.data.user;
@@ -379,7 +379,7 @@ class APIService {
     profileData?: any;
     aiPreferences?: any;
   }): Promise<void> {
-    const response = await this.makeRequest('/api/auth/profile', {
+    const response = await this.makeRequest('auth/profile', {
       method: 'PUT',
       body: JSON.stringify(updates)
     });
@@ -393,7 +393,7 @@ class APIService {
    * Change password
    */
   async changePassword(currentPassword: string, newPassword: string): Promise<void> {
-    const response = await this.makeRequest('/api/auth/change-password', {
+    const response = await this.makeRequest('auth/change-password', {
       method: 'POST',
       body: JSON.stringify({
         currentPassword,
@@ -410,7 +410,7 @@ class APIService {
    * Get user sessions
    */
   async getSessions(): Promise<any[]> {
-    const response = await this.makeRequest<{ sessions: any[] }>('/api/auth/sessions');
+    const response = await this.makeRequest<{ sessions: any[] }>('auth/sessions');
     
     if (response.success && response.data) {
       return response.data.sessions;
@@ -453,7 +453,7 @@ class APIService {
    */
   async healthCheck(): Promise<any> {
     try {
-      const response = await fetch(buildApiUrl('/health'));
+      const response = await fetch(buildApiUrl('health'));
       return await response.json();
     } catch (error) {
       throw new Error('Server is not accessible');
@@ -484,7 +484,7 @@ class APIService {
     status: string;
     createdAt: string;
   }> {
-    const response = await this.makeRequest<any>('/api/transfers/initiate', {
+    const response = await this.makeRequest<any>('transfers/initiate', {
       method: 'POST',
       body: JSON.stringify(transferData)
     });
@@ -521,7 +521,7 @@ class APIService {
     if (options?.status) params.append('status', options.status);
     if (options?.type) params.append('type', options.type);
 
-    const response = await this.makeRequest<any>(`/api/transfers/history?${params.toString()}`);
+    const response = await this.makeRequest<any>(`transfers/history?${params.toString()}`);
 
     if (response.success && response.data) {
       // Transform server response structure to match expected API service format
@@ -545,7 +545,7 @@ class APIService {
    * Get transfer details by ID
    */
   async getTransferDetails(transactionId: string): Promise<any> {
-    const response = await this.makeRequest<any>(`/api/transfers/${transactionId}`);
+    const response = await this.makeRequest<any>(`transfers/${transactionId}`);
 
     if (response.success && response.data) {
       return response.data;
@@ -560,7 +560,7 @@ class APIService {
   async getTransactionDetails(transactionId: string): Promise<any> {
     try {
       // Try the dedicated transaction details endpoint first
-      const response = await this.makeRequest<any>(`/api/transactions/${transactionId}/details`);
+      const response = await this.makeRequest<any>(`transactions/${transactionId}/details`);
 
       if (response.success && response.data) {
         return response.data;
@@ -570,7 +570,7 @@ class APIService {
     }
 
     // Fallback to transfer details endpoint
-    const response = await this.makeRequest<any>(`/api/transfers/${transactionId}`);
+    const response = await this.makeRequest<any>(`transfers/${transactionId}`);
 
     if (response.success && response.data) {
       return response.data;
@@ -589,7 +589,7 @@ class APIService {
     accountName: string;
     isValid: boolean;
   }> {
-    const response = await this.makeRequest<any>('/api/transfers/validate-recipient', {
+    const response = await this.makeRequest<any>('transfers/validate-recipient', {
       method: 'POST',
       body: JSON.stringify({ accountNumber, bankCode })
     });
@@ -611,7 +611,7 @@ class APIService {
       slug: string;
     }>;
   }> {
-    const response = await this.makeRequest<any>('/api/transfers/banks');
+    const response = await this.makeRequest<any>('transfers/banks');
 
     if (response.success && response.data) {
       return response.data;
@@ -638,7 +638,7 @@ class APIService {
     createdAt: string;
     updatedAt: string;
   }> {
-    const response = await this.makeRequest<any>('/api/wallets/balance');
+    const response = await this.makeRequest<any>('wallets/balance');
 
     if (response.success && response.data) {
       return response.data;
@@ -675,7 +675,7 @@ class APIService {
     if (options?.limit) params.append('limit', options.limit.toString());
     if (options?.type) params.append('type', options.type);
 
-    const response = await this.makeRequest<any>(`/api/wallets/statement?${params.toString()}`);
+    const response = await this.makeRequest<any>(`wallets/statement?${params.toString()}`);
 
     if (response.success && response.data) {
       return response.data;
@@ -688,7 +688,7 @@ class APIService {
    * Set transaction PIN
    */
   async setTransactionPin(newPin: string, confirmPin: string, currentPin?: string): Promise<void> {
-    const response = await this.makeRequest('/api/wallets/set-pin', {
+    const response = await this.makeRequest('wallets/set-pin', {
       method: 'POST',
       body: JSON.stringify({ newPin, confirmPin, currentPin })
     });
@@ -702,7 +702,7 @@ class APIService {
    * Verify transaction PIN
    */
   async verifyTransactionPin(pin: string): Promise<{ isValid: boolean }> {
-    const response = await this.makeRequest<any>('/api/wallets/verify-pin', {
+    const response = await this.makeRequest<any>('wallets/verify-pin', {
       method: 'POST',
       body: JSON.stringify({ pin })
     });
@@ -731,7 +731,7 @@ class APIService {
       };
     };
   }> {
-    const response = await this.makeRequest<any>('/api/transaction-limits');
+    const response = await this.makeRequest<any>('transaction-limits');
 
     if (response.success && response.data) {
       return response.data;
@@ -747,7 +747,7 @@ class APIService {
     success: boolean;
     message: string;
   }> {
-    const response = await this.makeRequest<any>('/api/transaction-limits', {
+    const response = await this.makeRequest<any>('transaction-limits', {
       method: 'PUT',
       body: JSON.stringify({
         userEmail,
@@ -773,7 +773,7 @@ class APIService {
     requestId: string;
     submittedAt: string;
   }> {
-    const response = await this.makeRequest<any>('/api/wallets/request-limit-increase', {
+    const response = await this.makeRequest<any>('wallets/request-limit-increase', {
       method: 'POST',
       body: JSON.stringify({ type, requestedAmount, reason })
     });
@@ -793,7 +793,7 @@ class APIService {
    * Get CBN compliance status
    */
   async getCBNComplianceStatus(): Promise<any> {
-    const response = await this.makeRequest<any>('/api/cbn-compliance/status');
+    const response = await this.makeRequest<any>('cbn-compliance/status');
     
     if (response.success && response.data) {
       return response.data;
@@ -806,7 +806,7 @@ class APIService {
    * Get CBN compliance dashboard
    */
   async getCBNComplianceDashboard(): Promise<any> {
-    const response = await this.makeRequest<any>('/api/cbn-compliance/dashboard');
+    const response = await this.makeRequest<any>('cbn-compliance/dashboard');
     
     if (response.success && response.data) {
       return response.data;
@@ -829,7 +829,7 @@ class APIService {
     reportedAt: string;
     cbnReportingDeadline: string;
   }> {
-    const response = await this.makeRequest<any>('/api/cbn-compliance/incidents', {
+    const response = await this.makeRequest<any>('cbn-compliance/incidents', {
       method: 'POST',
       body: JSON.stringify(incident)
     });
@@ -864,7 +864,7 @@ class APIService {
     if (options?.status) params.append('status', options.status);
     if (options?.severity) params.append('severity', options.severity);
 
-    const response = await this.makeRequest<any>(`/api/cbn-compliance/incidents?${params.toString()}`);
+    const response = await this.makeRequest<any>(`cbn-compliance/incidents?${params.toString()}`);
     
     if (response.success && response.data) {
       return response.data;
@@ -884,7 +884,7 @@ class APIService {
       compliant: boolean;
     }>;
   }> {
-    const response = await this.makeRequest<any>('/api/cbn-compliance/data-localization/check', {
+    const response = await this.makeRequest<any>('cbn-compliance/data-localization/check', {
       method: 'POST'
     });
     
@@ -901,7 +901,7 @@ class APIService {
    * Get PCI DSS compliance status
    */
   async getPCIDSSComplianceStatus(): Promise<any> {
-    const response = await this.makeRequest<any>('/api/pci-dss-compliance/status');
+    const response = await this.makeRequest<any>('pci-dss-compliance/status');
     
     if (response.success && response.data) {
       return response.data;
@@ -914,7 +914,7 @@ class APIService {
    * Get PCI DSS compliance dashboard
    */
   async getPCIDSSComplianceDashboard(): Promise<any> {
-    const response = await this.makeRequest<any>('/api/pci-dss-compliance/dashboard');
+    const response = await this.makeRequest<any>('pci-dss-compliance/dashboard');
     
     if (response.success && response.data) {
       return response.data;
@@ -935,7 +935,7 @@ class APIService {
     createdAt: string;
     status: string;
   }> {
-    const response = await this.makeRequest<any>('/api/pci-dss-compliance/assessments', {
+    const response = await this.makeRequest<any>('pci-dss-compliance/assessments', {
       method: 'POST',
       body: JSON.stringify(assessment)
     });
@@ -953,7 +953,7 @@ class APIService {
   async getPCIDSSAssessments(): Promise<{
     assessments: any[];
   }> {
-    const response = await this.makeRequest<any>('/api/pci-dss-compliance/assessments');
+    const response = await this.makeRequest<any>('pci-dss-compliance/assessments');
     
     if (response.success && response.data) {
       return response.data;
@@ -977,7 +977,7 @@ class APIService {
     scanId: string;
     submittedAt: string;
   }> {
-    const response = await this.makeRequest<any>('/api/pci-dss-compliance/vulnerability-scans', {
+    const response = await this.makeRequest<any>('pci-dss-compliance/vulnerability-scans', {
       method: 'POST',
       body: JSON.stringify(scan)
     });
@@ -995,7 +995,7 @@ class APIService {
   async getVulnerabilityScans(): Promise<{
     scans: any[];
   }> {
-    const response = await this.makeRequest<any>('/api/pci-dss-compliance/vulnerability-scans');
+    const response = await this.makeRequest<any>('pci-dss-compliance/vulnerability-scans');
     
     if (response.success && response.data) {
       return response.data;
@@ -1010,7 +1010,7 @@ class APIService {
    * Get security monitoring dashboard
    */
   async getSecurityMonitoringDashboard(): Promise<any> {
-    const response = await this.makeRequest<any>('/api/security-monitoring/dashboard');
+    const response = await this.makeRequest<any>('security-monitoring/dashboard');
     
     if (response.success && response.data) {
       return response.data;
@@ -1042,7 +1042,7 @@ class APIService {
     if (options?.severity) params.append('severity', options.severity);
     if (options?.status) params.append('status', options.status);
 
-    const response = await this.makeRequest<any>(`/api/security-monitoring/alerts?${params.toString()}`);
+    const response = await this.makeRequest<any>(`security-monitoring/alerts?${params.toString()}`);
     
     if (response.success && response.data) {
       return response.data;
@@ -1064,7 +1064,7 @@ class APIService {
     eventId: string;
     loggedAt: string;
   }> {
-    const response = await this.makeRequest<any>('/api/security-monitoring/events', {
+    const response = await this.makeRequest<any>('security-monitoring/events', {
       method: 'POST',
       body: JSON.stringify(event)
     });
@@ -1101,7 +1101,7 @@ class APIService {
     if (options?.page) params.append('page', options.page.toString());
     if (options?.limit) params.append('limit', options.limit.toString());
 
-    const response = await this.makeRequest<any>(`/api/security-monitoring/audit-trail?${params.toString()}`);
+    const response = await this.makeRequest<any>(`security-monitoring/audit-trail?${params.toString()}`);
     
     if (response.success && response.data) {
       return response.data;

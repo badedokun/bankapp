@@ -29,6 +29,7 @@ const cbn_compliance_1 = __importDefault(require("./routes/cbn-compliance"));
 const pci_dss_compliance_1 = __importDefault(require("./routes/pci-dss-compliance"));
 const security_monitoring_1 = __importDefault(require("./routes/security-monitoring"));
 const transaction_limits_1 = __importDefault(require("./routes/transaction-limits"));
+const ai_chat_1 = __importDefault(require("./routes/ai-chat"));
 // Import middleware
 const errorHandler_1 = require("./middleware/errorHandler");
 const auth_2 = require("./middleware/auth");
@@ -50,6 +51,8 @@ app.use((0, cors_1.default)({
         const allowedOrigins = [
             'http://localhost:3000',
             'https://localhost:3000',
+            'http://localhost:8083', // New frontend port
+            'https://localhost:8083', // New frontend port (HTTPS)
             /^https?:\/\/.*\.orokii\.com$/,
             'https://fmfb.orokii.com',
             'http://localhost:8080', // React Native debugger
@@ -123,6 +126,7 @@ app.use('/api/cbn-compliance', auth_2.authenticateToken, tenant_1.tenantMiddlewa
 app.use('/api/pci-dss-compliance', auth_2.authenticateToken, tenant_1.tenantMiddleware, pci_dss_compliance_1.default);
 app.use('/api/security-monitoring', auth_2.authenticateToken, tenant_1.tenantMiddleware, security_monitoring_1.default);
 app.use('/api/transaction-limits', auth_2.authenticateToken, tenant_1.tenantMiddleware, transaction_limits_1.default);
+app.use('/api/ai', auth_2.authenticateToken, tenant_1.tenantMiddleware, ai_chat_1.default);
 // Error handling
 app.use(errorHandler_1.notFound);
 app.use(errorHandler_1.errorHandler);

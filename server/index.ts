@@ -26,6 +26,7 @@ import cbnComplianceRoutes from './routes/cbn-compliance';
 import pciDssComplianceRoutes from './routes/pci-dss-compliance';
 import securityMonitoringRoutes from './routes/security-monitoring';
 import transactionLimitsRoutes from './routes/transaction-limits';
+import aiChatRoutes from './routes/ai-chat';
 
 // Import middleware
 import { errorHandler, notFound } from './middleware/errorHandler';
@@ -51,6 +52,8 @@ app.use(cors({
     const allowedOrigins = [
       'http://localhost:3000',
       'https://localhost:3000',
+      'http://localhost:8083', // New frontend port
+      'https://localhost:8083', // New frontend port (HTTPS)
       /^https?:\/\/.*\.orokii\.com$/,
       'https://fmfb.orokii.com',
       'http://localhost:8080', // React Native debugger
@@ -135,6 +138,7 @@ app.use('/api/cbn-compliance', authenticateToken, tenantMiddleware, cbnComplianc
 app.use('/api/pci-dss-compliance', authenticateToken, tenantMiddleware, pciDssComplianceRoutes);
 app.use('/api/security-monitoring', authenticateToken, tenantMiddleware, securityMonitoringRoutes);
 app.use('/api/transaction-limits', authenticateToken, tenantMiddleware, transactionLimitsRoutes);
+app.use('/api/ai', authenticateToken, tenantMiddleware, aiChatRoutes);
 
 // Error handling
 app.use(notFound);

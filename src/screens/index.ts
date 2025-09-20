@@ -21,6 +21,9 @@ export { default as TransactionDetailsScreen } from './transactions/TransactionD
 // Settings screens
 export { default as SettingsScreen } from './settings/SettingsScreen';
 
+// AI screens
+export { default as AIChatScreen } from './AIChatScreen';
+
 // Export types
 export type { LoginScreenProps } from './auth/LoginScreen';
 export type { DashboardScreenProps } from './dashboard/DashboardScreen';

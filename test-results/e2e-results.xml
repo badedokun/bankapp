@@ -1,0 +1,85 @@
+<testsuites id="" name="" tests="2" failures="2" skipped="0" errors="0" time="90.77930400000001">
+<testsuite name="bank-selection.test.ts" timestamp="2025-09-16T20:18:54.511Z" hostname="chromium" tests="1" failures="1" skipped="0" time="58.767" errors="0">
+<testcase name="Bank Selection Component › should load banks from backend API" classname="bank-selection.test.ts" time="58.767">
+<failure message="bank-selection.test.ts:21:7 should load banks from backend API" type="FAILURE">
+<![CDATA[  [chromium] › bank-selection.test.ts:21:7 › Bank Selection Component › should load banks from backend API 
+
+    Error: page.click: Target page, context or browser has been closed
+    Call log:
+      - waiting for locator('button:has-text("Sign In")')
+
+
+      15 |     await page.fill('input[placeholder*="email"]', 'admin@fmfb.com');
+      16 |     await page.fill('input[type="password"]', 'Admin@123!');
+    > 17 |     await page.click('button:has-text("Sign In")');
+         |                ^
+      18 |     await expect(page.locator('text=Dashboard')).toBeVisible();
+      19 |   });
+      20 |
+        at /Users/bisiadedokun/bankapp/tests/e2e/bank-selection.test.ts:17:16
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../test-results/bank-selection-Bank-Select-78dd5-load-banks-from-backend-API-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|bank-selection-Bank-Select-78dd5-load-banks-from-backend-API-chromium/video.webm]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="bank-selection.test.ts" timestamp="2025-09-16T20:18:54.511Z" hostname="webkit" tests="1" failures="1" skipped="0" time="90.087" errors="0">
+<testcase name="Bank Selection Component › should load banks from backend API" classname="bank-selection.test.ts" time="90.087">
+<failure message="bank-selection.test.ts:21:7 should load banks from backend API" type="FAILURE">
+<![CDATA[  [webkit] › bank-selection.test.ts:21:7 › Bank Selection Component › should load banks from backend API 
+
+    Test timeout of 90000ms exceeded while running "beforeEach" hook.
+
+       7 |
+       8 | test.describe('Bank Selection Component', () => {
+    >  9 |   test.beforeEach(async ({ page }) => {
+         |        ^
+      10 |     // Start with clean state and login
+      11 |     await page.goto('http://localhost:3000');
+      12 |     await page.waitForLoadState('networkidle');
+        at /Users/bisiadedokun/bankapp/tests/e2e/bank-selection.test.ts:9:8
+
+    Error: page.click: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for locator('button:has-text("Sign In")')
+
+
+      15 |     await page.fill('input[placeholder*="email"]', 'admin@fmfb.com');
+      16 |     await page.fill('input[type="password"]', 'Admin@123!');
+    > 17 |     await page.click('button:has-text("Sign In")');
+         |                ^
+      18 |     await expect(page.locator('text=Dashboard')).toBeVisible();
+      19 |   });
+      20 |
+        at /Users/bisiadedokun/bankapp/tests/e2e/bank-selection.test.ts:17:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../test-results/bank-selection-Bank-Select-78dd5-load-banks-from-backend-API-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../test-results/bank-selection-Bank-Select-78dd5-load-banks-from-backend-API-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../test-results/bank-selection-Bank-Select-78dd5-load-banks-from-backend-API-webkit/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|bank-selection-Bank-Select-78dd5-load-banks-from-backend-API-webkit/test-failed-1.png]]
+
+[[ATTACHMENT|bank-selection-Bank-Select-78dd5-load-banks-from-backend-API-webkit/video.webm]]
+
+[[ATTACHMENT|bank-selection-Bank-Select-78dd5-load-banks-from-backend-API-webkit/error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+</testsuites>

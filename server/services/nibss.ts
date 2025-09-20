@@ -106,6 +106,7 @@ interface NIBSSConfig {
   environment: 'sandbox' | 'production';
   timeout: number;
   resetUrl?: string;
+  merchantId?: string;
 }
 
 export class NIBSSService {
@@ -120,6 +121,7 @@ export class NIBSSService {
       environment: (process.env.NIBSS_ENVIRONMENT as 'sandbox' | 'production') || 'sandbox',
       timeout: parseInt(process.env.NIBSS_TIMEOUT || '30000'),
       resetUrl: process.env.NIBSS_RESET_URL || 'https://apitest.nibss-plc.com.ng/v2/reset',
+      merchantId: process.env.NIBSS_MERCHANT_ID || 'STUBBED_MERCHANT_ID',
     };
   }
 
@@ -144,7 +146,6 @@ export class NIBSSService {
         narration: request.narration,
         reference: request.reference,
         beneficiaryName: request.beneficiaryName,
-        merchantId: this.config.merchantId,
       };
 
       const headers = this.buildHeaders();
@@ -201,7 +202,6 @@ export class NIBSSService {
       const payload = {
         accountNumber: request.accountNumber,
         bankCode: request.bankCode,
-        merchantId: this.config.merchantId,
       };
 
       const headers = this.buildHeaders();
@@ -298,7 +298,6 @@ export class NIBSSService {
       const payload = {
         reference: request.reference,
         transactionId: request.transactionId,
-        merchantId: this.config.merchantId,
       };
 
       const headers = this.buildHeaders();

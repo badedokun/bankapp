@@ -25,6 +25,7 @@ import { SecurityMonitor, SecurityConfig } from '../../utils/security';
 import APIService from '../../services/api';
 import DeploymentManager from '../../config/deployment';
 import { useBankingAlert } from '../../services/AlertService';
+import { ENV_CONFIG, buildApiUrl } from '../../config/environment';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -65,7 +66,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   const [loginAttempts, setLoginAttempts] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState<'weak' | 'medium' | 'strong'>('weak');
-  
+  const [fmfbLogoError, setFmfbLogoError] = useState(false);
+  const [fmfbLogoLoading, setFmfbLogoLoading] = useState(true);
+
   // Refs for input fields
   const passwordInputRef = useRef<any>(null);
 
@@ -557,12 +560,31 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
               currentTenant?.id === 'fmfb' && { backgroundColor: '#FFFFFF' }
             ]}>
               {currentTenant?.id === 'fmfb' ? (
-                <Image 
-                  source={{ uri: `http://localhost:3001/api/tenants/by-name/fmfb/assets/logo/default` }}
-                  style={styles.tenantLogoImage}
-                  resizeMode="contain"
-                  onError={() => console.log('Failed to load FMFB logo, falling back to initials')}
-                />
+                !fmfbLogoError ? (
+                  <Image
+                    source={{ uri: buildApiUrl('tenants/by-name/fmfb/assets/logo/default') }}
+                    style={styles.tenantLogoImage}
+                    resizeMode="contain"
+                    onLoad={() => {
+                      console.log('✅ FMFB logo loaded successfully');
+                      setFmfbLogoLoading(false);
+                    }}
+                    onError={(error) => {
+                      console.log('❌ FMFB logo failed to load:', {
+                        apiBaseUrl: ENV_CONFIG.API_BASE_URL,
+                        fullUrl: buildApiUrl('tenants/by-name/fmfb/assets/logo/default'),
+                        error: error.nativeEvent.error,
+                        isReactNative: typeof navigator !== 'undefined' && navigator.product === 'ReactNative'
+                      });
+                      setFmfbLogoError(true);
+                      setFmfbLogoLoading(false);
+                    }}
+                  />
+                ) : (
+                  <Text style={styles.tenantLogoText}>
+                    FMFB
+                  </Text>
+                )
               ) : (
                 <Text style={styles.tenantLogoText}>
                   {getTenantLogoInitials()}
@@ -573,7 +595,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
               {currentTenant?.displayName || deploymentBranding.loginPageTitle}
             </Text>
             <Text style={styles.tenantSubtitle}>
-              {currentTenant ? 'Secure Money Transfer' : 'AI-Enhanced Banking Platform'}
+              {currentTenant ? 'Secure Banking App' : 'AI-Enhanced Banking Platform'}
             </Text>
           </View>
 
