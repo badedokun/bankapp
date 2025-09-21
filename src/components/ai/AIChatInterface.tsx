@@ -225,7 +225,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
   const sendToAIService = async (text: string) => {
     try {
       const lowerText = text.toLowerCase();
-      
+
       // Handle transfer cancellation at any step
       if (transferData && (lowerText.includes('cancel') || lowerText === 'cancel transfer')) {
         setTransferData(null);
@@ -235,39 +235,144 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
           actions: ['Check Balance', 'Send Money', 'View Transactions']
         };
       }
-      
+
       // If we're in a transfer flow, process the step
       if (transferData) {
         return await processTransferStep(text);
       }
-      
-      // Enhanced intent detection with broader keyword coverage
-      // Check for transfer/send money keywords FIRST before balance checks
-      if (lowerText.includes('send') || 
+
+      // Check for specific banking actions first
+      if (lowerText.includes('send') ||
           lowerText.includes('transfer') ||
           lowerText.includes('pay') ||
           lowerText.includes('remit')) {
         return await startTransfer();
-      } else if (lowerText.includes('transaction') || 
-                 lowerText.includes('history') || 
+      } else if (lowerText.includes('transaction') ||
+                 lowerText.includes('history') ||
                  lowerText.includes('recent') ||
                  lowerText.includes('payment') ||
                  lowerText.includes('record') ||
                  lowerText.includes('activity') ||
                  lowerText.includes('statement')) {
         return await fetchTransactions();
-      } else if (lowerText.includes('balance') || 
-          lowerText.includes('account balance') || 
-          lowerText.includes('how much') || 
-          lowerText.includes('funds') || 
+      } else if (lowerText.includes('balance') ||
+          lowerText.includes('account balance') ||
+          lowerText.includes('how much') ||
+          lowerText.includes('funds') ||
           lowerText.includes('money') ||
           lowerText.includes('amount') ||
           lowerText.includes('wallet')) {
         return await fetchBalance();
-      } else if (lowerText.includes('help') || 
-                 lowerText.includes('what can you do') ||
-                 lowerText.includes('assist') ||
-                 lowerText.includes('support')) {
+      }
+
+      // Use enhanced AI Intelligence Services for complex queries
+      return await callEnhancedAIService(text);
+    } catch (error) {
+      console.error('AI service error:', error);
+      throw new Error('AI service unavailable');
+    }
+  };
+
+  const callEnhancedAIService = async (text: string) => {
+    try {
+      const token = await getAuthToken();
+      const baseURL = 'http://localhost:3001'; // Use the correct backend URL
+
+      // Fetch user's actual transaction data for context
+      let recentTransactions = [];
+      let accountBalance = 0;
+
+      try {
+        // Get recent transactions
+        const transactionsData = await APIService.getTransferHistory({ page: 1, limit: 10 });
+        if (transactionsData.transactions) {
+          recentTransactions = transactionsData.transactions.map((tx: any) => ({
+            amount: Math.abs(tx.amount || 0),
+            type: tx.direction === 'sent' ? 'debit' : 'credit',
+            description: tx.description || tx.recipient?.accountName || 'Transaction',
+            date: tx.createdAt,
+            category: tx.category || 'general'
+          }));
+        }
+
+        // Get account balance
+        const balanceResponse = await fetch(`${baseURL}/api/wallets/balance`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (balanceResponse.ok) {
+          const balanceData = await balanceResponse.json();
+          if (balanceData.success && balanceData.data) {
+            accountBalance = balanceData.data.balance || 0;
+          }
+        }
+      } catch (error) {
+        console.log('Could not fetch user transaction data:', error);
+        // Continue without transaction data
+      }
+
+      const response = await fetch(`${baseURL}/api/ai/chat`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: text,
+          userId: await getUserId(),
+          context: {
+            userId: await getUserId(),
+            tenantId: currentTenant?.id,
+            conversationId: `conversation-${Date.now()}`,
+            sessionId: Date.now().toString(),
+            language: 'en',
+            conversationHistory: messages.slice(-5).map(m => ({
+              role: m.sender === 'user' ? 'user' : 'assistant',
+              content: m.text
+            })),
+            bankingContext: {
+              accountBalance: accountBalance,
+              recentTransactions: recentTransactions,
+              userProfile: await getUserProfile(),
+              capabilities: ['balance_inquiry', 'transaction_analysis', 'spending_insights']
+            }
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`AI service error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Handle direct response from AI service (no success wrapper)
+      if (data.message || data.response) {
+        // Format smart suggestions as action buttons
+        const suggestionActions = data.suggestions?.map((s: any) => s.title || s.text) || [];
+        const standardActions = ['Check Balance', 'Send Money', 'View Transactions', 'Help'];
+
+        return {
+          message: data.response || data.message,
+          intent: data.intent || 'ai_response',
+          actions: [...suggestionActions.slice(0, 3), ...standardActions].slice(0, 6)
+        };
+      } else {
+        throw new Error(data.message || 'AI service failed');
+      }
+    } catch (error) {
+      console.error('Enhanced AI service error:', error);
+
+      // Fallback to basic response
+      const lowerText = text.toLowerCase();
+      if (lowerText.includes('help') ||
+          lowerText.includes('what can you do') ||
+          lowerText.includes('assist') ||
+          lowerText.includes('support')) {
         return {
           message: 'I can help you with: checking balances, sending money, viewing transactions, paying bills, and managing your FMFB account. What would you like to do?',
           intent: 'help',
@@ -285,24 +390,21 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
           actions: ['Check Balance', 'Send Money', 'View Transactions', 'Help']
         };
       } else {
-        // Enhanced fallback response with clearer capabilities
         return {
           message: `I understand you're asking about "${text}". I can help you with:\n\n• Checking your account balance\n• Viewing recent transactions\n• Sending money to others\n• General banking support\n\nWhat specific task would you like me to help you with?`,
           intent: 'general_inquiry',
           actions: ['Check Balance', 'Send Money', 'View Transactions', 'Help']
         };
       }
-    } catch (error) {
-      console.error('AI service error:', error);
-      throw new Error('AI service unavailable');
     }
   };
 
   const fetchBalance = async () => {
     try {
       const token = await getAuthToken();
-      
-      const response = await fetch('http://localhost:8082/api/wallets/balance', {
+      const baseURL = 'http://localhost:3001'; // Use the correct backend URL
+
+      const response = await fetch(`${baseURL}/api/wallets/balance`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -528,8 +630,9 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
 
     try {
       const token = await getAuthToken();
-      
-      const response = await fetch('http://localhost:8082/api/transfers/initiate', {
+      const baseURL = 'http://localhost:3001'; // Use the correct backend URL
+
+      const response = await fetch(`${baseURL}/api/transfers/initiate`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -575,19 +678,42 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
   };
 
   const getAuthToken = async () => {
-    // Only use real JWT tokens from storage
     try {
-      // Use the correct token key that matches the API service (access_token, not accessToken)
-      const accessToken = await Storage.getItem('access_token');
-      if (accessToken) {
-        console.log('🔐 Using access token from storage');
-        return accessToken;
+      const token = APIService.getAccessToken();
+      if (token) {
+        console.log('🔐 Using access token from APIService');
+        return token;
       }
     } catch (error) {
-      console.log('⚠️ Could not load tokens from storage:', error);
+      console.log('⚠️ Could not get token from APIService:', error);
     }
-    
+
     throw new Error('No valid authentication token available. Please log in again.');
+  };
+
+  const getUserId = async () => {
+    try {
+      const profile = await APIService.getProfile();
+      return profile.id || 'current-user';
+    } catch (error) {
+      console.log('⚠️ Could not get user profile from APIService:', error);
+      return 'current-user';
+    }
+  };
+
+  const getUserProfile = async () => {
+    try {
+      const profile = await APIService.getProfile();
+      return {
+        name: `${profile.firstName} ${profile.lastName}`.trim(),
+        email: profile.email,
+        accountType: profile.role,
+        tier: profile.kycLevel
+      };
+    } catch (error) {
+      console.log('⚠️ Could not get user profile from APIService:', error);
+      return null;
+    }
   };
 
   const showNotification = (message: string, type: 'info' | 'error' | 'success' = 'info') => {
