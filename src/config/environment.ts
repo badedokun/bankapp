@@ -98,8 +98,8 @@ const getBaseUrls = (environment: string, isCloudDeployment: boolean) => {
   }
 
   // For local development
-  const API_PORT = process.env.REACT_APP_API_PORT || '8082';
-  const WEB_PORT = process.env.REACT_APP_WEB_PORT || '8083';
+  const API_PORT = process.env.REACT_APP_API_PORT || '3001';
+  const WEB_PORT = process.env.REACT_APP_WEB_PORT || '3000';
 
   return {
     API_BASE_URL: process.env.REACT_APP_API_URL || `http://localhost:${API_PORT}`,
