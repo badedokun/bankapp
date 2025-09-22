@@ -41,8 +41,8 @@ sudo cp -r "$APP_DIR" "${APP_DIR}-backup-$(date +%Y%m%d-%H%M%S)"
 # Update from git
 echo "🔄 Pulling latest changes..."
 git fetch origin
-git checkout feature/transaction-details
-git pull origin feature/transaction-details
+git checkout feature/enhanced-ai-assistant
+git pull origin feature/enhanced-ai-assistant
 
 # Install dependencies and build
 echo "📦 Installing dependencies..."
