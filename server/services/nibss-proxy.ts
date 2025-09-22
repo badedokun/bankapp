@@ -7,7 +7,7 @@ import { HttpsProxyAgent } from 'https-proxy-agent';
 import fetch from 'node-fetch';
 
 export class NIBSSProxyService {
-  private proxyAgent: HttpsProxyAgent<string> | null = null;
+  private proxyAgent: HttpsProxyAgent | null = null;
 
   constructor() {
     if (process.env.NODE_ENV === 'development' && process.env.NIBSS_PROXY_URL) {
