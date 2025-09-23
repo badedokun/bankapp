@@ -111,4 +111,12 @@ export class SmartSuggestionsEngine {
       }
     ];
   }
+
+  static async getPersonalizedSuggestions(userId: string, context?: any): Promise<SmartSuggestion[]> {
+    const engine = new SmartSuggestionsEngine();
+    return engine.generateSuggestions({
+      userId,
+      ...context
+    });
+  }
 }
