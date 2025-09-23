@@ -140,7 +140,11 @@ router.post('/login', [
 
     // Create session record
     const sessionToken = require('crypto').randomUUID();
-    const refreshTokenValue = generateRefreshToken({ userId: user.id, tenantId: user.tenant_id });
+    const refreshTokenValue = generateRefreshToken({
+      userId: user.id,
+      tenantId: user.tenant_id,
+      sessionId: require('crypto').randomUUID()
+    });
     
     const sessionResult = await client.query(`
       INSERT INTO tenant.user_sessions (
