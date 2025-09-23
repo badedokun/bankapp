@@ -6,7 +6,6 @@ import EntityExtractionService from '../services/ai-intelligence-service/nlp/Ent
 import { AIIntelligenceManager } from '../services/ai-intelligence-service/AIIntelligenceManager';
 import { query } from '../config/database';
 import { DevelopmentControls } from '../services/ai-intelligence-service/utils/DevelopmentControls';
-// import { MockAIResponseGenerator } from '../services/ai-intelligence-service/utils/MockResponses';
 
 const router = express.Router();
 
@@ -14,7 +13,12 @@ const router = express.Router();
 const aiService = new ConversationalAIService();
 const intentService = new IntentClassificationService();
 const entityService = new EntityExtractionService();
-const aiManager = new AIIntelligenceManager();
+const aiManager = new AIIntelligenceManager({
+  enableSmartSuggestions: process.env.ENABLE_SMART_SUGGESTIONS === 'true',
+  enableAnalyticsInsights: process.env.ENABLE_ANALYTICS_INSIGHTS === 'true',
+  enableContextualRecommendations: process.env.ENABLE_CONTEXTUAL_RECOMMENDATIONS === 'true',
+  enablePredictiveText: false
+});
 
 // Initialize development controls
 const devControls = DevelopmentControls.getInstance();
@@ -261,78 +265,60 @@ router.post('/chat', authenticateToken, async (req, res) => {
 
     let response;
 
-    // Always use real OpenAI with real data (unless API key is placeholder)
-    if (process.env.OPENAI_API_KEY?.includes('placeholder')) {
-      console.log('⚠️ OpenAI API key is placeholder - using mock responses');
-      const mockResponse = MockAIResponseGenerator.generateConversationalResponse(message, enrichedContext);
-      response = {
-        response: mockResponse.response,
-        confidence: mockResponse.confidence,
-        intent: mockResponse.intent,
-        entities: mockResponse.entities,
-        suggestions: mockResponse.suggestions,
-        metadata: {
-          source: 'mock',
-          reason: 'placeholder_api_key',
-          enrichedContext: !!enrichedContext?.bankingContext?.user
-        }
-      };
-    } else {
-      try {
-        // Use real OpenAI with real database data
-        console.log('🤖 Using real OpenAI with enriched banking data and Smart Suggestions');
-        response = await aiManager.processEnhancedMessage(message, enrichedContext, enhancedOptions);
+    try {
+      // Always use real database data for AI processing
+      console.log('🤖 Using AI with real database data');
+      response = await aiManager.processEnhancedMessage(message, enrichedContext, enhancedOptions);
 
-        // Add metadata to show real data usage
-        response.metadata = {
-          ...response.metadata,
-          source: 'openai',
+      // Add metadata to show real data usage
+      response.metadata = {
+        ...response.metadata,
+        source: 'database',
+        realData: true,
+        enrichedContext: !!enrichedContext?.bankingContext?.user,
+        accountBalance: enrichedContext?.bankingContext?.accountBalance,
+        transactionCount: enrichedContext?.bankingContext?.recentTransactions?.length || 0
+      };
+    } catch (error) {
+      console.log('❌ OpenAI failed, using Smart Suggestions Engine only:', error.message);
+
+      // Fallback: Use Smart Suggestions Engine directly without OpenAI
+      const smartSuggestions = await aiManager.getPersonalizedSuggestions(enrichedContext);
+      const analyticsInsights = await aiManager.getAnalyticsInsights(enrichedContext);
+
+      // Generate a contextual response based on the message intent
+      let contextualResponse = "I can help you with your banking needs. Here are some personalized suggestions based on your account activity:";
+
+      if (message.toLowerCase().includes('investment') || message.toLowerCase().includes('invest')) {
+        contextualResponse = "Based on your account balance, here are some investment options and financial suggestions for you:";
+      } else if (message.toLowerCase().includes('spending') || message.toLowerCase().includes('pattern')) {
+        contextualResponse = "I've analyzed your spending patterns. Here are insights and suggestions to optimize your finances:";
+      } else if (message.toLowerCase().includes('saving') || message.toLowerCase().includes('save')) {
+        contextualResponse = "Here are some smart saving options tailored to your financial profile:";
+      } else if (message.toLowerCase().includes('budget') || message.toLowerCase().includes('money')) {
+        contextualResponse = "Let me help you manage your finances better with these personalized recommendations:";
+      } else if (message.toLowerCase().includes('balance') || message.toLowerCase().includes('account')) {
+        contextualResponse = "Here's what you can do with your account and some smart suggestions:";
+      } else if (message.toLowerCase().includes('analyze') || message.toLowerCase().includes('insight')) {
+        contextualResponse = "Here's an analysis of your financial data with actionable insights:";
+      }
+
+      response = {
+        response: contextualResponse,
+        suggestions: smartSuggestions,
+        insights: analyticsInsights,
+        confidence: 0.85,
+        metadata: {
+          source: 'smart-suggestions-engine',
+          reason: 'openai_quota_exceeded',
           realData: true,
           enrichedContext: !!enrichedContext?.bankingContext?.user,
           accountBalance: enrichedContext?.bankingContext?.accountBalance,
-          transactionCount: enrichedContext?.bankingContext?.recentTransactions?.length || 0
-        };
-      } catch (error) {
-        console.log('❌ OpenAI failed, using Smart Suggestions Engine only:', error.message);
-
-        // Fallback: Use Smart Suggestions Engine directly without OpenAI
-        const smartSuggestions = await aiManager.getPersonalizedSuggestions(enrichedContext);
-        const analyticsInsights = await aiManager.getAnalyticsInsights(enrichedContext);
-
-        // Generate a contextual response based on the message intent
-        let contextualResponse = "I can help you with your banking needs. Here are some personalized suggestions based on your account activity:";
-
-        if (message.toLowerCase().includes('investment') || message.toLowerCase().includes('invest')) {
-          contextualResponse = "Based on your account balance, here are some investment options and financial suggestions for you:";
-        } else if (message.toLowerCase().includes('spending') || message.toLowerCase().includes('pattern')) {
-          contextualResponse = "I've analyzed your spending patterns. Here are insights and suggestions to optimize your finances:";
-        } else if (message.toLowerCase().includes('saving') || message.toLowerCase().includes('save')) {
-          contextualResponse = "Here are some smart saving options tailored to your financial profile:";
-        } else if (message.toLowerCase().includes('budget') || message.toLowerCase().includes('money')) {
-          contextualResponse = "Let me help you manage your finances better with these personalized recommendations:";
-        } else if (message.toLowerCase().includes('balance') || message.toLowerCase().includes('account')) {
-          contextualResponse = "Here's what you can do with your account and some smart suggestions:";
-        } else if (message.toLowerCase().includes('analyze') || message.toLowerCase().includes('insight')) {
-          contextualResponse = "Here's an analysis of your financial data with actionable insights:";
+          transactionCount: enrichedContext?.bankingContext?.recentTransactions?.length || 0,
+          smartSuggestionsCount: smartSuggestions?.length || 0,
+          analyticsInsightsCount: analyticsInsights?.length || 0
         }
-
-        response = {
-          response: contextualResponse,
-          suggestions: smartSuggestions,
-          insights: analyticsInsights,
-          confidence: 0.85,
-          metadata: {
-            source: 'smart-suggestions-engine',
-            reason: 'openai_quota_exceeded',
-            realData: true,
-            enrichedContext: !!enrichedContext?.bankingContext?.user,
-            accountBalance: enrichedContext?.bankingContext?.accountBalance,
-            transactionCount: enrichedContext?.bankingContext?.recentTransactions?.length || 0,
-            smartSuggestionsCount: smartSuggestions?.length || 0,
-            analyticsInsightsCount: analyticsInsights?.length || 0
-          }
-        };
-      }
+      };
     }
 
     // Record the request for usage tracking
@@ -598,7 +584,8 @@ router.post('/validate-entities', authenticateToken, async (req, res) => {
 });
 
 // Enhanced AI Intelligence endpoints
-router.get('/suggestions/smart', authenticateToken, async (req, res) => {
+// Alias for backwards compatibility
+router.get('/smart-suggestions', authenticateToken, async (req, res) => {
   try {
     const { context, category, limit = 5 } = req.query;
     const userId = (req as any).user?.id || 'anonymous';
@@ -620,27 +607,26 @@ router.get('/suggestions/smart', authenticateToken, async (req, res) => {
 
     let suggestions;
 
-    // Always use real data unless API key is placeholder
-    if (process.env.OPENAI_API_KEY?.includes('placeholder')) {
-      console.log('⚠️ OpenAI API key is placeholder - using mock smart suggestions');
-      suggestions = MockAIResponseGenerator.generateSmartSuggestions(
-        category as string || 'financial',
-        parseInt(limit as string)
-      );
-    } else {
-      console.log('🤖 Generating smart suggestions with real banking data');
-      suggestions = await aiManager.getPersonalizedSuggestions(
-        contextObj,
-        category as any,
-        parseInt(limit as string)
-      );
-    }
+    // Always use real database data
+    console.log('🤖 Generating smart suggestions with real banking data');
+    suggestions = await aiManager.getPersonalizedSuggestions(
+      contextObj,
+      category as any,
+      parseInt(limit as string)
+    );
 
     // Record the request
     devControls.recordRequest(userId);
     devControls.logUsageInfo(userId, 'smart-suggestions', JSON.stringify(suggestions).length);
 
-    res.json({ suggestions });
+    res.json({
+      suggestions,
+      metadata: {
+        category: category || 'all',
+        count: suggestions.length,
+        userId
+      }
+    });
 
   } catch (error) {
     console.error('Smart Suggestions Error:', error);
@@ -651,7 +637,8 @@ router.get('/suggestions/smart', authenticateToken, async (req, res) => {
   }
 });
 
-router.get('/analytics/insights', authenticateToken, async (req, res) => {
+// Alias for backwards compatibility
+router.get('/analytics-insights', authenticateToken, async (req, res) => {
   try {
     const { context, type, timeframe = 'month' } = req.query;
     const userId = (req as any).user?.id;
@@ -671,21 +658,13 @@ router.get('/analytics/insights', authenticateToken, async (req, res) => {
 
     let insights;
 
-    // Always use real data unless API key is placeholder
-    if (process.env.OPENAI_API_KEY?.includes('placeholder')) {
-      console.log('⚠️ OpenAI API key is placeholder - using mock analytics insights');
-      insights = MockAIResponseGenerator.generateAnalyticsInsights(
-        type as string || 'spending',
-        timeframe as string || 'month'
-      );
-    } else {
-      console.log('🤖 Generating analytics insights with real banking data');
-      insights = await aiManager.getAnalyticsInsights(
-        contextObj,
-        type as any,
-        timeframe as any
-      );
-    }
+    // Always use real database data
+    console.log('🤖 Generating analytics insights with real banking data');
+    insights = await aiManager.getAnalyticsInsights(
+      contextObj,
+      type as any,
+      timeframe as any
+    );
 
     res.json({ insights });
 
@@ -710,7 +689,7 @@ router.post('/translate', authenticateToken, async (req, res) => {
 
     const result = await aiManager.translateMessage(text, sourceLanguage, targetLanguage, context);
 
-    res.json(result);
+    res.json({ translation: result });
 
   } catch (error) {
     console.error('Translation Error:', error);
@@ -745,6 +724,38 @@ router.get('/languages', (req, res) => {
     res.json({ languages });
   } catch (error) {
     console.error('Languages Error:', error);
+    res.status(500).json({
+      error: 'Failed to get supported languages',
+      languages: []
+    });
+  }
+});
+
+// Alias for backwards compatibility
+router.get('/localized-suggestions', authenticateToken, async (req, res) => {
+  try {
+    const { language = 'en', type = 'banking' } = req.query;
+
+    const suggestions = await aiManager.getLocalizedSuggestions(language as string, type as any);
+
+    res.json({ suggestions });
+
+  } catch (error) {
+    console.error('Localized Suggestions Error:', error);
+    res.status(500).json({
+      error: 'Failed to get localized suggestions',
+      suggestions: []
+    });
+  }
+});
+
+// Alias for backwards compatibility
+router.get('/supported-languages', authenticateToken, (req, res) => {
+  try {
+    const languages = aiManager.getSupportedLanguages();
+    res.json({ languages });
+  } catch (error) {
+    console.error('Supported Languages Error:', error);
     res.status(500).json({
       error: 'Failed to get supported languages',
       languages: []
@@ -811,13 +822,59 @@ router.get('/analytics/export', authenticateToken, async (req, res) => {
 
     const report = await aiManager.exportAnalyticsReport(userId, format as any);
 
-    res.setHeader('Content-Disposition', `attachment; filename="${report.filename}"`);
-    res.json(report.data);
+    res.json({ report });
 
   } catch (error) {
     console.error('Analytics Export Error:', error);
     res.status(500).json({
       error: 'Failed to export analytics report'
+    });
+  }
+});
+
+// Alias routes for suggestion tracking with URL params
+router.post('/suggestions/:id/used', authenticateToken, async (req, res) => {
+  try {
+    const suggestionId = req.params.id;
+    const userId = req.body.userId || (req as any).user?.id;
+
+    if (!suggestionId || !userId) {
+      return res.status(400).json({
+        error: 'Suggestion ID and user ID are required'
+      });
+    }
+
+    await aiManager.markSuggestionAsUsed(suggestionId, userId);
+
+    res.json({ success: true });
+
+  } catch (error) {
+    console.error('Mark Suggestion Used Error:', error);
+    res.status(500).json({
+      error: 'Failed to mark suggestion as used'
+    });
+  }
+});
+
+router.post('/suggestions/:id/dismissed', authenticateToken, async (req, res) => {
+  try {
+    const suggestionId = req.params.id;
+    const userId = req.body.userId || (req as any).user?.id;
+
+    if (!suggestionId || !userId) {
+      return res.status(400).json({
+        error: 'Suggestion ID and user ID are required'
+      });
+    }
+
+    await aiManager.markSuggestionAsDismissed(suggestionId, userId);
+
+    res.json({ success: true });
+
+  } catch (error) {
+    console.error('Mark Suggestion Dismissed Error:', error);
+    res.status(500).json({
+      error: 'Failed to mark suggestion as dismissed'
     });
   }
 });
@@ -828,11 +885,13 @@ router.get('/health', async (req, res) => {
     const performanceMetrics = aiManager.getPerformanceMetrics();
 
     res.json({
-      status: serviceHealth.overall,
-      services: serviceHealth.services,
-      performance: performanceMetrics,
-      lastHealthCheck: serviceHealth.lastHealthCheck,
-      timestamp: new Date().toISOString()
+      health: {
+        status: serviceHealth.status || 'healthy',
+        services: serviceHealth.services,
+        lastHealthCheck: serviceHealth.lastHealthCheck,
+        timestamp: new Date().toISOString()
+      },
+      metrics: performanceMetrics
     });
 
   } catch (error) {
@@ -848,7 +907,7 @@ router.get('/health', async (req, res) => {
 router.get('/config', authenticateToken, async (req, res) => {
   try {
     const configuration = aiManager.getConfiguration();
-    res.json({ configuration });
+    res.json({ config: configuration });
   } catch (error) {
     console.error('Configuration Error:', error);
     res.status(500).json({

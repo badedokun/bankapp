@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mockResponses = void 0;
+exports.MockAIResponseGenerator = exports.mockResponses = void 0;
 exports.getMockResponse = getMockResponse;
 exports.getAllMockIntents = getAllMockIntents;
 exports.mockResponses = {
@@ -35,4 +35,39 @@ function getMockResponse(intent) {
 function getAllMockIntents() {
     return Object.keys(exports.mockResponses).filter(key => key !== 'default');
 }
+class MockAIResponseGenerator {
+    static generateConversationalResponse(message, context) {
+        return {
+            message: `I understand you said: "${message}". How can I assist you with your banking needs?`,
+            intent: 'general',
+            confidence: 0.75,
+            suggestions: ['Check balance', 'View transactions', 'Transfer money'],
+            context
+        };
+    }
+    static generateSmartSuggestions(category, limit) {
+        const suggestions = [
+            { id: '1', type: 'transfer', text: 'Pay utility bills', priority: 'high' },
+            { id: '2', type: 'savings', text: 'Save for emergency fund', priority: 'medium' },
+            { id: '3', type: 'investment', text: 'Review investment options', priority: 'low' }
+        ];
+        return suggestions.slice(0, limit);
+    }
+    static generateAnalyticsInsights(type, timeframe) {
+        return {
+            type,
+            timeframe,
+            insights: [
+                { category: 'spending', value: 'Your spending increased by 15% this month' },
+                { category: 'income', value: 'Regular income pattern detected' },
+                { category: 'savings', value: 'You saved 20% of your income' }
+            ],
+            recommendations: [
+                'Consider setting up automatic savings',
+                'Review recurring expenses'
+            ]
+        };
+    }
+}
+exports.MockAIResponseGenerator = MockAIResponseGenerator;
 //# sourceMappingURL=MockResponses.js.map

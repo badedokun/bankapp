@@ -17,8 +17,10 @@ export declare class SmartSuggestionsEngine {
     private dataProvider;
     constructor(tenantId?: string);
     generateSuggestions(context: SmartSuggestionsContext): Promise<SmartSuggestion[]>;
+    private getUserDataFromDatabase;
+    private getDailySummary;
     private detectRecurringPayments;
     private getDefaultSuggestions;
-    static getPersonalizedSuggestions(userId: string, context?: any): Promise<SmartSuggestion[]>;
+    static getPersonalizedSuggestions(request: any): Promise<SmartSuggestion[]>;
 }
 //# sourceMappingURL=SmartSuggestionsEngine.d.ts.map
