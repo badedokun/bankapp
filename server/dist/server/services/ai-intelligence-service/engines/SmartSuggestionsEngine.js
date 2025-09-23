@@ -86,6 +86,13 @@ class SmartSuggestionsEngine {
             }
         ];
     }
+    static async getPersonalizedSuggestions(userId, context) {
+        const engine = new SmartSuggestionsEngine();
+        return engine.generateSuggestions({
+            userId,
+            ...context
+        });
+    }
 }
 exports.SmartSuggestionsEngine = SmartSuggestionsEngine;
 //# sourceMappingURL=SmartSuggestionsEngine.js.map

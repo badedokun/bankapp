@@ -3,10 +3,10 @@ import { authenticateToken } from '../middleware/auth';
 import { ConversationalAIService } from '../services/ai-intelligence-service/core/ConversationalAIService';
 import IntentClassificationService from '../services/ai-intelligence-service/nlp/IntentClassificationService';
 import EntityExtractionService from '../services/ai-intelligence-service/nlp/EntityExtractionService';
-import AIIntelligenceManager from '../services/ai-intelligence-service/AIIntelligenceManager';
+import { AIIntelligenceManager } from '../services/ai-intelligence-service/AIIntelligenceManager';
 import { query } from '../config/database';
-import DevelopmentControls from '../services/ai-intelligence-service/utils/DevelopmentControls';
-import MockAIResponseGenerator from '../services/ai-intelligence-service/utils/MockResponses';
+import { DevelopmentControls } from '../services/ai-intelligence-service/utils/DevelopmentControls';
+// import { MockAIResponseGenerator } from '../services/ai-intelligence-service/utils/MockResponses';
 
 const router = express.Router();
 

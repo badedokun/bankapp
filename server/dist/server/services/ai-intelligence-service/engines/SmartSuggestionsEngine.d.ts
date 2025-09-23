@@ -19,5 +19,6 @@ export declare class SmartSuggestionsEngine {
     generateSuggestions(context: SmartSuggestionsContext): Promise<SmartSuggestion[]>;
     private detectRecurringPayments;
     private getDefaultSuggestions;
+    static getPersonalizedSuggestions(userId: string, context?: any): Promise<SmartSuggestion[]>;
 }
 //# sourceMappingURL=SmartSuggestionsEngine.d.ts.map

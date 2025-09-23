@@ -41,18 +41,17 @@ const auth_1 = require("../middleware/auth");
 const ConversationalAIService_1 = require("../services/ai-intelligence-service/core/ConversationalAIService");
 const IntentClassificationService_1 = __importDefault(require("../services/ai-intelligence-service/nlp/IntentClassificationService"));
 const EntityExtractionService_1 = __importDefault(require("../services/ai-intelligence-service/nlp/EntityExtractionService"));
-const AIIntelligenceManager_1 = __importDefault(require("../services/ai-intelligence-service/AIIntelligenceManager"));
+const AIIntelligenceManager_1 = require("../services/ai-intelligence-service/AIIntelligenceManager");
 const database_1 = require("../config/database");
-const DevelopmentControls_1 = __importDefault(require("../services/ai-intelligence-service/utils/DevelopmentControls"));
-const MockResponses_1 = __importDefault(require("../services/ai-intelligence-service/utils/MockResponses"));
+// import { MockAIResponseGenerator } from '../services/ai-intelligence-service/utils/MockResponses';
 const router = express.Router();
 // Initialize services
 const aiService = new ConversationalAIService_1.ConversationalAIService();
 const intentService = new IntentClassificationService_1.default();
 const entityService = new EntityExtractionService_1.default();
-const aiManager = new AIIntelligenceManager_1.default();
+const aiManager = new AIIntelligenceManager_1.AIIntelligenceManager();
 // Initialize development controls
-const devControls = DevelopmentControls_1.default.getInstance();
+const devControls = DevelopmentControls_1.DevelopmentControls.getInstance();
 // Helper function to enrich context with comprehensive real user banking data
 async function enrichContextWithUserData(context, userId) {
     try {
@@ -256,7 +255,7 @@ router.post('/chat', auth_1.authenticateToken, async (req, res) => {
         // Always use real OpenAI with real data (unless API key is placeholder)
         if (process.env.OPENAI_API_KEY?.includes('placeholder')) {
             console.log('⚠️ OpenAI API key is placeholder - using mock responses');
-            const mockResponse = MockResponses_1.default.generateConversationalResponse(message, enrichedContext);
+            const mockResponse = MockAIResponseGenerator.generateConversationalResponse(message, enrichedContext);
             response = {
                 response: mockResponse.response,
                 confidence: mockResponse.confidence,
@@ -566,7 +565,7 @@ router.get('/suggestions/smart', auth_1.authenticateToken, async (req, res) => {
         // Always use real data unless API key is placeholder
         if (process.env.OPENAI_API_KEY?.includes('placeholder')) {
             console.log('⚠️ OpenAI API key is placeholder - using mock smart suggestions');
-            suggestions = MockResponses_1.default.generateSmartSuggestions(category || 'financial', parseInt(limit));
+            suggestions = MockAIResponseGenerator.generateSmartSuggestions(category || 'financial', parseInt(limit));
         }
         else {
             console.log('🤖 Generating smart suggestions with real banking data');
@@ -604,7 +603,7 @@ router.get('/analytics/insights', auth_1.authenticateToken, async (req, res) => 
         // Always use real data unless API key is placeholder
         if (process.env.OPENAI_API_KEY?.includes('placeholder')) {
             console.log('⚠️ OpenAI API key is placeholder - using mock analytics insights');
-            insights = MockResponses_1.default.generateAnalyticsInsights(type || 'spending', timeframe || 'month');
+            insights = MockAIResponseGenerator.generateAnalyticsInsights(type || 'spending', timeframe || 'month');
         }
         else {
             console.log('🤖 Generating analytics insights with real banking data');
