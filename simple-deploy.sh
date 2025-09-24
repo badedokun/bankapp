@@ -50,7 +50,7 @@ git pull origin "$BRANCH"
 
 # Install dependencies and build
 echo "📦 Installing dependencies..."
-npm ci --include=dev
+npm install --legacy-peer-deps
 
 echo "🔨 Building server..."
 npm run server:build
