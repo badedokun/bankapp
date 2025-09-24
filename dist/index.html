@@ -1,0 +1,171 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="theme-color" content="#007bff"><meta name="description" content="Multi-Tenant Banking Platform"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="Banking Platform"><link rel="manifest" href="/manifest.json"><title>Banking Platform</title><style>* {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background: #f8fafc;
+        }
+        
+        #root {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Loading screen styles */
+        .loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        
+        .loading-content {
+            text-align: center;
+            color: white;
+        }
+        
+        .loading-logo {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+        }
+        
+        .loading-text {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        .loading-spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }</style><script>// Dynamic tenant detection using deployment configuration
+        window.detectTenant = function() {
+            // Get deployment type from window.__WEBPACK_ENV__ set by webpack or fallback to 'development'
+            const deploymentType = (window.__WEBPACK_ENV__ && window.__WEBPACK_ENV__.DEPLOYMENT_TYPE) || 'development';
+
+            // Deployment configurations (mirrored from deployment.ts)
+            const deploymentConfigs = {
+                fmfb_production: { defaultTenant: 'fmfb', colors: { primary: '#010080', theme: '#010080' } },
+                saas_production: { defaultTenant: 'default', colors: { primary: '#007bff', theme: '#007bff' } },
+                development: { defaultTenant: 'fmfb', colors: { primary: '#010080', theme: '#010080' } }
+            };
+
+            const config = deploymentConfigs[deploymentType] || deploymentConfigs.development;
+            const tenant = config.defaultTenant;
+
+            console.log('🏦 HTML Template: Using deployment config', deploymentType, '-> tenant:', tenant);
+
+            // Clear any existing tenant data and use deployment config
+            localStorage.removeItem('currentTenant');
+            window.__TENANT__ = tenant;
+            localStorage.setItem('currentTenant', tenant);
+
+            // Update theme color based on deployment config
+            const themeColor = config.colors.theme;
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', themeColor);
+
+            // Update page title and meta tags dynamically
+            const tenantBranding = {
+                'fmfb': {
+                    title: 'First Midas Microfinance Bank - Banking Platform',
+                    description: 'First Midas Microfinance Bank - Secure Money Transfer System',
+                    appTitle: 'FMFB Banking',
+                    loadingText: 'First Midas Bank',
+                    loadingLogo: 'F'
+                },
+                'default': {
+                    title: 'OrokiiPay - Money Transfer System',
+                    description: 'OrokiiPay - AI-Enhanced Multi-Tenant Nigerian Money Transfer System',
+                    appTitle: 'OrokiiPay',
+                    loadingText: 'OrokiiPay',
+                    loadingLogo: 'O'
+                }
+            };
+
+            const branding = tenantBranding[tenant] || tenantBranding.default;
+
+            // Update page title
+            document.title = branding.title;
+
+            // Update meta description
+            const metaDescription = document.querySelector('meta[name="description"]');
+            if (metaDescription) {
+                metaDescription.setAttribute('content', branding.description);
+            }
+
+            // Update app title meta tag
+            const appTitleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+            if (appTitleMeta) {
+                appTitleMeta.setAttribute('content', branding.appTitle);
+            }
+
+            // Update loading screen text
+            const loadingText = document.querySelector('.loading-text');
+            if (loadingText) {
+                loadingText.textContent = branding.loadingText;
+            }
+
+            // Update loading logo
+            const loadingLogo = document.querySelector('.loading-logo');
+            if (loadingLogo) {
+                loadingLogo.textContent = branding.loadingLogo;
+            }
+
+            // Update loading screen background gradient
+            const loadingContainer = document.querySelector('.loading-container');
+            if (loadingContainer) {
+                if (tenant === 'fmfb') {
+                    loadingContainer.style.background = 'linear-gradient(135deg, #010080 0%, #000060 100%)';
+                } else {
+                    loadingContainer.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                }
+            }
+
+            return tenant;
+        };
+        
+        // Detect tenant on load
+        window.addEventListener('DOMContentLoaded', function() {
+            window.detectTenant();
+        });</script></head><body><noscript><div style="padding: 20px; text-align: center;"><h1>JavaScript Required</h1><p>Please enable JavaScript to use this Banking Platform.</p></div></noscript><div id="loading" class="loading-container"><div class="loading-content"><div class="loading-logo">B</div><div class="loading-text">Banking Platform</div><div class="loading-spinner"></div></div></div><div id="root"></div><script>// Hide loading screen when app is ready
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                const loading = document.getElementById('loading');
+                if (loading) {
+                    loading.style.transition = 'opacity 0.3s';
+                    loading.style.opacity = '0';
+                    setTimeout(function() {
+                        loading.style.display = 'none';
+                    }, 300);
+                }
+            }, 500);
+        });</script><script defer="defer" src="/main.56595c2adfd5b008bf0a.bundle.js"></script></body></html>

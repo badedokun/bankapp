@@ -12,9 +12,10 @@ echo "🚀 Updating OrokiiPay deployment on $SERVER_IP"
 
 # First, let's commit our changes
 echo "📝 Committing local changes..."
+CURRENT_BRANCH=$(git branch --show-current)
 git add -A
-git commit -m "fix: Resolve TypeScript build errors for deployment" || true
-git push origin feature/transaction-details || true
+git commit -m "fix: Update deployment - $(date +%Y-%m-%d)" || true
+git push origin "$CURRENT_BRANCH" || true
 
 # Deploy using git pull on the server
 ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" << 'REMOTE_SCRIPT'
@@ -41,8 +42,11 @@ sudo cp -r "$APP_DIR" "${APP_DIR}-backup-$(date +%Y%m%d-%H%M%S)"
 # Update from git
 echo "🔄 Pulling latest changes..."
 git fetch origin
-git checkout feature/enhanced-ai-assistant
-git pull origin feature/enhanced-ai-assistant
+
+# Use the branch from environment or default to feature/enhanced-ai-assistant
+BRANCH="${DEPLOY_BRANCH:-feature/enhanced-ai-assistant}"
+git checkout "$BRANCH"
+git pull origin "$BRANCH"
 
 # Install dependencies and build
 echo "📦 Installing dependencies..."

@@ -1,0 +1,913 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "NIBSS EasyPay",
+    "description": "Introduction\n==\nThe NIBSS EasyPay is a RESTful service that allows financial intermediaries to perform online real-time transactions.\nThis service consists of 4 methods namely:\n1. Balance Enquiry (BE): this is used to retrieve the balance of the target account number provided\n2. Name Enquiry (NE): this is used to confirm the name on the account number provided.\n3. Fund Transfer (FT): this is used to transfer funds by debiting an originator account to credit a beneficiary account.\n4. Transaction Status Query (TSQ): this is used to confirm the status of a Fund transfer credit transaction\n\nWhat You Need to Get Started\n==\n\nTo get started with the NIBSS EasyPay API, you need to be profiled on the NIBSS Developer portal.\nYou have to fill in some basic information for identification purposes. This information is collected in the [REQUEST CREDENTIALS FORM](https://forms.office.com/pages/responsepage.aspx?id=G3ucJwa6e0KmgcilSS0pPcemIqHoBy9KvH3iwjGMrclUMTY5VVA5NEowUFJNMVJJRk40TlZMSkpVQy4u&origin=lprLink&route=shorturl). The form requires you to fill in your email address and why you want to be profiled on the NIBSS Easypay service application.\nOnce you submit the request, You will receive an email containing these credentials: [CLIENT ID](https://docs.google.com/document/d/1yokMozd-CMn24MbFVvBLtBNgpZHch3RZwRdD7E6nlds/edit) and [CLIENT SECRET](https://docs.google.com/document/d/1yokMozd-CMn24MbFVvBLtBNgpZHch3RZwRdD7E6nlds/edit).\nThe CLIENT ID and CLIENT SECRET are the credentials that would be used to identify you as a client on the application. Below explains what each credential means:\n\n**Client ID**\n\nThis is a unique identifier assigned to you as a client/customer for every request made on the application. This is mainly used when you want to generate a [TOKEN](https://docs.google.com/document/d/1yokMozd-CMn24MbFVvBLtBNgpZHch3RZwRdD7E6nlds/edit) for another request call on the application. Check [AUTHENTICATION](https://docs.google.com/document/d/1yokMozd-CMn24MbFVvBLtBNgpZHch3RZwRdD7E6nlds/edit)  to know how to use this credential to obtain a token.\n\n\n **Client SECRET**\n\nThis is a unique set of numbers/text that is denoted as a password for every request sent. This is also used for generating an [AUTHENTICATION](https://docs.google.com/document/d/1yokMozd-CMn24MbFVvBLtBNgpZHch3RZwRdD7E6nlds/edit)  token when you want to request the NIBSS application.\n\nCheck [AUTHENTICATION](https://docs.google.com/document/d/1yokMozd-CMn24MbFVvBLtBNgpZHch3RZwRdD7E6nlds/edit) to see how you can generate an access token to enable you to make successful calls to the NIBSS Easypay service.  \n\nIf you do not receive this email within 8 hours of filling the form during the working days, please contact the [NIBSS CERTIFICATION SUPPORT REPRESENTATIVE](mailto:certification@nibss-plc.com.ng) for assistance with the delay of your request.\n\n**N.B:** You have to be profiled on the NIBSS Direct Debit service in order to access the methods under the NIBSS Easypay service. Please contact the [NIBSS CERTIFICATION SUPPORT REPRESENTATIVE](mailto:certification@nibss-plc.com.ng) for assistance.\n\n\nResponse codes\n==\n\nThe system gives these response codes as feedback when you get HTTP Status 200 - \"OK\".\n\n|  |  |\n|--|--|\n|**01 -** Status unknown, please wait for settlement report|  **03 -** Invalid Sender|\n| **05 -** Do not honor | **06 -** Dormant Account |\n|  **07 -** Invalid Account|  **08 -** Account Name Mismatch|\n| **09 -** Request processing in progress | **12 -** Invalid transaction|\n| **13 -** Invalid Amount | **14 -** Invalid Batch Number |\n|**15 -** Invalid Session or Record ID|**16 -** Unknown Bank Code|\n|**17 -** Invalid Channel|**18 -** Wrong Method Call|\n|**21 -** No action taken|**25 -** Unable to locate record|\n|**26 -** Duplicate record|**30 -** Format error|\n|**34 -** Suspected fraud|**35 -** Contact sending bank|\n|**51 -** Insufficient funds|**57 -** Transaction not permitted to sender|\n|**58 -** Transaction not permitted on channel|**61 -** Transfer limit Exceeded|\n|**63 -** Security violation|**65 -** Exceeds withdrawal frequency|\n|**68 -** Response received too late|**69 -** Unsuccessful Account/Amount block|\n|**70 -** Unsuccessful Account/Amount unblock|**71 -** Empty Mandate Reference Number|\n|**91 -** Beneficiary Bank not available|**92 -** Routing error|\n|**94 -** Duplicate transaction|**96 -** System malfunction|\n|**97 -** Timeout waiting for response from destination|**A1 -** Client disabled|\n|**A2 -** Not found|**A3 -** Expired|\n|**A4 -** Empty value|**A5 -** Invalid value|\n|**A6 -** invalid data provided|**A7 -** Remote IP not permitted|\n|**A8 -** Invalid client ID|**A9 -** Unable to process request, please try again|\n|**B0 -** Mandate Bank mismatch|**B1 -** Mandate Account Mismatch|",
+    "termsOfService": "https://www.nibss-plc.com.ng/services/terms-of-use/",
+    "contact": {
+      "name": "NIBSS Technical Implementation Support",
+      "email": "technicalimplementation@nibss-plc.com.ng",
+      "url": "https://contactcentre.nibss-plc.com.ng/support/home"
+    },
+    "license": {
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html",
+      "name": "Apache 2.0"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://apitest.nibss-plc.com.ng/nipservice/v1",
+      "description": "Test"
+    }
+  ],
+  "paths": {
+    "/nip/balanceenquiry": {
+      "post": {
+        "summary": "Balance Enquiry",
+        "description": "This service is used by an institution to retrieve the account balance of a target account provided.",
+        "operationId": "balanceenquiry",
+        "requestBody": {
+          "description": "",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BalanceEnquiryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "This is the response you get when your API call to retrieve the balance of an account is successful.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BalanceEnquiryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "This is the response you get when your API call to retrieve the balance of an account fails. This can occur as a result of multiple reasons such as, incorrect account number provided, lack of valid mandate to retrieve the balance of the account number provided etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BalanceEnquiryErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "https://apitest.nibss-plc.com.ng/nipservice/v1",
+            "description": "Test"
+          }
+        ]
+      }
+    },
+    "/nip/nameenquiry": {
+      "post": {
+        "summary": "Name Enquiry",
+        "description": "This service is used to confirm the beneficiary account name of the destination account number intended for a transaction. This service precedes any Fund Transfer request.",
+        "operationId": "/nameenquiry",
+        "requestBody": {
+          "description": "",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NameEnquiryRequest"
+              },
+              "examples": {
+                "Example 1": {
+                  "value": {
+                    "accountNumber": "0112345678",
+                    "channelCode": "1",
+                    "destinationInstitutionCode": "999998",
+                    "transactionId": "000034220608111630100001000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "This is the response you get when your call to make a Name Enquiry request is successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NameEnquiryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "This is the response you get when your call to make a Name Enquiry fails.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NameEnquiryErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "https://apitest.nibss-plc.com.ng/nipservice/v1",
+            "description": "Test"
+          }
+        ]
+      }
+    },
+    "/nip/fundstransfer": {
+      "post": {
+        "summary": "Fund Transfer",
+        "description": "This service is used for end to end transactions. It debits an account called the “Originator” account to credit another account called the “Destination” or “Beneficiary” account.",
+        "operationId": "/fundstransfer",
+        "requestBody": {
+          "description": "",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "string",
+                    "description": "This is the total amount of money being transacted.It is provided in Naira and Kobo as a number with two decimals. The maximum amount allowed is 10 million Naira while the minimum allowed is 1 Naira.",
+                    "example": "100"
+                  },
+                  "beneficiaryAccountName": {
+                    "type": "string",
+                    "description": "Full name of the customer whose account is at the receiving end of a Fund Transfer request. It includes first name, last name, and middle name (if supplied). It can only take alphabetical characters of not more than 100 characters and special characters are not allowed.",
+                    "example": "John Doe"
+                  },
+                  "beneficiaryAccountNumber": {
+                    "type": "string",
+                    "description": "This is the 10-digit NUBAN (Nigerian Uuniform Bbank Aaccount Nnumber) of the account at the receiving end of a Balance Enquiry request e.g “7654987654”",
+                    "example": "0112345678"
+                  },
+                  "beneficiaryBankVerificationNumber": {
+                    "type": "string",
+                    "description": "This is the BVN of the account at the receiving end of a Fund Transfer request. It is a unique 11-digit number assigned  to customers. ",
+                    "example": "22222222226"
+                  },
+                  "beneficiaryKYCLevel": {
+                    "type": "string",
+                    "description": "This is an integer identifier that denotes the Know Your Customer Level of the account at the receiving end of a Fund Transfer request. ",
+                    "example": "1"
+                  },
+                  "channelCode": {
+                    "type": "string",
+                    "description": "This is an integer identifier used to denote the source channel of a transaction. Each transaction has a corresponding value that signifies the channel used in initiating the transaction. There are 11 integers, each with a corresponding channel it denotes and they are:\r\n\r\n1 - Bank Teller\r\n\r\n2 - Internet Banking\r\n\r\n3 - Mobile Phones\r\n\r\n4 - POS Terminals\r\n\r\n5 - ATM\r\n\r\n6 - Vendor/Merchant Web Portal\r\n\r\n7 - Third-Party Payment Platform\r\n\r\n8 - Unstructured Supplementary Service Data (USSD)\r\n\r\n9 - Other Channels\r\n\r\n10- Social Media\r\n\r\n11 - Agency Banking\r\n\r\n12 - NQR",
+                    "example": "1"
+                  },
+                  "originatorAccountName": {
+                    "type": "string",
+                    "description": "This is the Full name on the account initiating the Fund Transfer request. It includes First name, Last name, and middle name(if supplied). It can only take alphabetical characters of not more than 100 characters.\n",
+                    "maxLength": 100,
+                    "example": "Vee Test"
+                  },
+                  "originatorAccountNumber": {
+                    "type": "string",
+                    "description": "This is the 10-digit NUBAN (Nigerian uniform bank account number) of the account initiating the Fund Transfer request. ",
+                    "example": "112345678"
+                  },
+                  "originatorKYCLevel": {
+                    "type": "string",
+                    "description": "This is an integer identifier that denotes the Know Your Customer Level of the account initiating the Fund Transfer request. The field expects just one character.",
+                    "example": "1"
+                  },
+                  "mandateReferenceNumber": {
+                    "type": "string",
+                    "description": "This is a unique Alphanumeric code generated  after a mandate to perform a debit for a Fund Transfer  request on an account  has been successfully created. It is a code that indicates that you are permitted to perform a debit request on the account. It is generated once a mandate for the specified account is created on the NIBSS Direct Debit.",
+                    "example": "MA-0112345678-2022315-53097"
+                  },
+                  "paymentReference": {
+                    "type": "string",
+                    "description": "This is a field for  any unique alphanumeric code that you want to attribute to a Fund Transfer transaction. it can be written in any format of your choice. The maximum length allowed is 50 characters and no special characters are allowed. \n",
+                    "example": "1/999999191106195503191106195503/6015007956/0231116887"
+                  },
+                  "transactionLocation": {
+                    "type": "string",
+                    "description": "This refers to the coordinates (i.e longitude and latitude) of the place where the transaction occurred. A maximum of 5 decimal places each is allowed for the coordinates .\n",
+                    "example": "1.38716,3.05117"
+                  },
+                  "originatorNarration": {
+                    "type": "string",
+                    "description": "This is the payment description provided by the person initiating the Fund Transfer request. The maximum characters allowed is 50 characters and special characters are not allowed.\n",
+                    "example": "Payment from 0112345678 to 1780004070"
+                  },
+                  "beneficiaryNarration": {
+                    "type": "string",
+                    "description": "This is the payment description provided by the person at the receiving end of a Fund Transfer request. The maximum number of characters allowed is 50 characters and special characters are not allowed.",
+                    "example": "Payment to 0112345678 from 1780004070"
+                  },
+                  "billerId": {
+                    "type": "string",
+                    "description": "This is a unique ID assigned to the institution making the Debit or Balance Enquiry Request. The ID is generated and assigned to the institution on successful profiling on the NIBSS Direct Debit (NDD) platform. This ID will be shared with the client on profiling on the NDD.",
+                    "example": "ADC19BDC-7D3A-4C00-4F7B-08DA06684F59"
+                  },
+                  "destinationInstitutionCode": {
+                    "type": "string",
+                    "description": "This is a 6 digits identification code assigned by NIBSS to the institution at the receiving end of your request. E.g ‘888564’.",
+                    "example": "999998"
+                  },
+                  "sourceInstitutionCode": {
+                    "type": "string",
+                    "description": "This is the 6 digits identification code assigned by NIBSS to the institution making the request.",
+                    "example": "999998"
+                  },
+                  "transactionId": {
+                    "type": "string",
+                    "description": "This is a unique 30 digits number used to identify a transaction. It is derived using the formula:\r\n\r\nClient code + date and time in YYMMDDHHMMSS + random 12 digits\r\n\r\nE.g “000034220608141930350786190072”\r\n\r\nWhere:\r\n\r\nClient code is a 6 digits identification code assigned by NIBSS to the institution making the request i.e 000034\r\n\r\nDate and time in YYYYMMDD is 220608141930\r\n\r\nThe random 12 digit is 350786190072 as seen in the example above.",
+                    "minLength": 30,
+                    "maxLength": 30,
+                    "example": "000034220608141930350786190072"
+                  },
+                  "originatorBankVerificationNumber": {
+                    "type": "string",
+                    "description": "This is the BVN number of the account initiating the  Fund Transfer request. It is a unique 11-digit number assigned to  customers.",
+                    "example": "33333333333"
+                  },
+                  "nameEnquiryRef": {
+                    "type": "string",
+                    "description": "This refers to the “Session ID” generated in the response returned after successfully making a Name Enquiry request.",
+                    "example": "999999191106195503191106195503"
+                  },
+                  "InitiatorAccountName": {
+                    "type": "string",
+                    "description": "The name that would reflect on the credit message",
+                    "example": "Test Account Name"
+                  },
+                  "InitiatorAccountNumber": {
+                    "type": "string",
+                    "description": "The account number that would reflect the credit message",
+                    "example": "0012332100"
+                  }
+                }
+              },
+              "examples": {
+                "Example 1": {
+                  "value": {
+                    "amount": "100",
+                    "beneficiaryAccountName": "John Doe",
+                    "beneficiaryAccountNumber": "0112345678",
+                    "beneficiaryBankVerificationNumber": "22222222226",
+                    "beneficiaryKYCLevel": "1",
+                    "channelCode": "1",
+                    "originatorAccountName": "Vee Test",
+                    "originatorAccountNumber": "112345678",
+                    "originatorKYCLevel": "1",
+                    "mandateReferenceNumber": "MA-0112345678-2022315-53097",
+                    "paymentReference": "1/999999191106195503191106195503/6015007956/0231116887",
+                    "transactionLocation": "1.38716,3.05117",
+                    "originatorNarration": "Payment from 0112345678 to 1780004070",
+                    "beneficiaryNarration": "Payment to 0112345678 from 1780004070",
+                    "billerId": "ADC19BDC-7D3A-4C00-4F7B-08DA06684F59",
+                    "destinationInstitutionCode": "999998",
+                    "sourceInstitutionCode": "999998",
+                    "transactionId": "000034220608141930350786190072",
+                    "originatorBankVerificationNumber": "33333333333",
+                    "nameEnquiryRef": "999999191106195503191106195503",
+                    "InitiatorAccountName": "Test Account Name",
+                    "InitiatorAccountNumber": "0012332100"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "This is the response you get when you successfully initiate a transfer of funds from one account to another.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "responseCode": {
+                      "type": "string",
+                      "description": "Code showing the status of \r\ntransaction",
+                      "example": "00"
+                    },
+                    "sessionID": {
+                      "type": "string",
+                      "description": "Unique number that identifies \r\ntransactions in the following \r\nformat:\r\nChar 1 – 6: Senders bank’s \r\ncode\r\nChar 7 – 18: Date and time (in \r\nthe format yymmddHHmmss –\r\nHH is 24 hour clock)\r\nChar 19 – 30: 12 – character \r\nunique number (either serial \r\nor random number)",
+                      "example": "999999220608140828280645462287"
+                    },
+                    "transactionId": {
+                      "type": "string",
+                      "description": "This is a unique 30 digits number used to identify a transaction. It is derived using the formula:\r\n\r\nClient code + date and time in YYMMDDHHMMSS + random 12 digits\r\n\r\nE.g “000034220608141930350786190072”\r\n\r\nWhere:\r\n\r\nClient code is a 6 digits identification code assigned by NIBSS to the institution making the request i.e 000034\r\n\r\nDate and time in YYYYMMDD is 220608141930\r\n\r\nThe random 12 digit is 350786190072 as seen in the example above.",
+                      "example": "000034220608141930350786190072"
+                    },
+                    "channelCode": {
+                      "type": "string",
+                      "description": "This is an integer identifier used to denote the source channel of a transaction. Each transaction has a corresponding value that signifies the channel used in initiating the transaction. There are 11 integers, each with a corresponding channel it denotes and they are:\r\n\r\n1 - Bank Teller\r\n\r\n2 - Internet Banking\r\n\r\n3 - Mobile Phones\r\n\r\n4 - POS Terminals\r\n\r\n5 - ATM\r\n\r\n6 - Vendor/Merchant Web Portal\r\n\r\n7 - Third-Party Payment Platform\r\n\r\n8 - Unstructured Supplementary Service Data (USSD)\r\n\r\n9 - Other Channels\r\n\r\n10- Social Media\r\n\r\n11 - Agency Banking\r\n\r\n12 - NQR",
+                      "example": "1"
+                    },
+                    "nameEnquiryRef": {
+                      "type": "string",
+                      "description": "This refers to the “Session ID” generated in the response returned after successfully making a Name Enquiry request.",
+                      "example": "9.999992206081408e+29"
+                    },
+                    "destinationInstitutionCode": {
+                      "type": "string",
+                      "description": "This is a 6 digits identification code assigned by NIBSS to the institution at the receiving end of your request. E.g ‘888564’.",
+                      "example": "999998"
+                    },
+                    "beneficiaryAccountName": {
+                      "type": "string",
+                      "description": "Full name of the customer whose account is at the receiving end of a Fund Transfer request. It includes first name, last name, and middle name (if supplied). It can only take alphabetical characters of not more than 100 characters and special characters are not allowed.",
+                      "example": "Ake Mobolaji Temabo"
+                    },
+                    "beneficiaryAccountNumber": {
+                      "type": "string",
+                      "description": "This is the 10-digit NUBAN (Nigerian Uuniform Bbank Aaccount Nnumber) of the account at the receiving end of a Balance Enquiry request e.g “7654987654”",
+                      "example": "'1780004070'"
+                    },
+                    "beneficiaryKYCLevel": {
+                      "type": "string",
+                      "description": "This is an integer identifier that denotes the Know Your Customer Level of the account at the receiving end of a Fund Transfer request.",
+                      "example": "1"
+                    },
+                    "beneficiaryBankVerificationNumber": {
+                      "type": "string",
+                      "description": "This is the BVN of the account at the receiving end of a Fund Transfer request. It is a unique 11-digit number assigned to customers.",
+                      "example": "22222222226"
+                    },
+                    "originatorAccountName": {
+                      "type": "string",
+                      "description": "This is the Full name on the account initiating the Fund Transfer request. It includes First name, Last name, and middle name(if supplied). It can only take alphabetical characters of not more than 100 characters.",
+                      "example": "vee Test"
+                    },
+                    "originatorAccountNumber": {
+                      "type": "string",
+                      "description": "This is the 10-digit NUBAN (Nigerian uniform bank account number) of the account initiating the Fund Transfer request.",
+                      "example": "0112345678"
+                    },
+                    "originatorBankVerificationNumber": {
+                      "type": "string",
+                      "description": "This is the BVN number of the account initiating the Fund Transfer request. It is a unique 11-digit number assigned to customers.",
+                      "example": "33333333333"
+                    },
+                    "originatorKYCLevel": {
+                      "type": "string",
+                      "description": "This is an integer identifier that denotes the Know Your Customer Level of the account initiating the Fund Transfer request. The field expects just one character.",
+                      "example": "1"
+                    },
+                    "transactionLocation": {
+                      "type": "string",
+                      "description": "This refers to the coordinates (i.e longitude and latitude) of the place where the transaction occurred. A maximum of 5 decimal places each is allowed for the coordinates .",
+                      "example": "1.38716,3.05117"
+                    },
+                    "narration": {
+                      "type": "string",
+                      "description": "Description of transaction",
+                      "example": "Payment to 0112345678 from 1780004070"
+                    },
+                    "paymentReference": {
+                      "type": "string",
+                      "description": "This is a field for any unique alphanumeric code that you want to attribute to a Fund Transfer transaction. it can be written in any format of your choice. The maximum length allowed is 50 characters and no special characters are allowed.",
+                      "example": "NIPMINI/EBILLSPAY/999999191106195503191106195503/6015007956/0231116887"
+                    },
+                    "amount": {
+                      "type": "string",
+                      "description": "This is the total amount of money being transacted.It is provided in Naira and Kobo as a number with two decimals. The maximum amount allowed is 10 million Naira while the minimum allowed is 1 Naira.",
+                      "example": "100"
+                    }
+                  }
+                },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "responseCode": "00",
+                      "sessionID": "999999220608140828280645462287",
+                      "transactionId": "000034220608140800123456789012",
+                      "channelCode": "1",
+                      "nameEnquiryRef": "9.999992206081408e+29",
+                      "destinationInstitutionCode": "999998",
+                      "beneficiaryAccountName": "Ake Mobolaji Temabo",
+                      "beneficiaryAccountNumber": "'1780004070'",
+                      "beneficiaryKYCLevel": "1",
+                      "beneficiaryBankVerificationNumber": "22222222226",
+                      "originatorAccountName": "vee Test",
+                      "originatorAccountNumber": "0112345678",
+                      "originatorBankVerificationNumber": "33333333333",
+                      "originatorKYCLevel": "1",
+                      "transactionLocation": "1.38716,3.05117",
+                      "narration": "Payment to 0112345678 from 1780004070",
+                      "paymentReference": "NIPMINI/EBILLSPAY/999999191106195503191106195503/6015007956/0231116887",
+                      "amount": "100"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "This is the response you get when your API call to initiate a Fund Transfer from one account to another fails.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundTransferErrorResponse"
+                },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "timestamp": "2022-06-09 11:29:34",
+                      "code": "07",
+                      "message": "Mandate Limit Exceeded"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "https://apitest.nibss-plc.com.ng/nipservice/v1",
+            "description": "Test"
+          }
+        ]
+      }
+    },
+    "/nip/tsq": {
+      "post": {
+        "summary": "Transaction Status Query",
+        "description": "The Transaction Status Query (TSQ) service allows financial institutions to confirm the status and validity of a previously sent Fund Transfer credit request.\n\nIt is important to mention that the following conditions govern the calling of the TSQ endpoint:\n\n-   You can only initiate TSQ on a transaction after receiving a response from NIBSS Easypay for the Fund Transfer\n-   In a situation where no fund transfer response is received, TSQ should be initiated only after 60 seconds and a response code 25 (Unable to locate record) will be returned for transactions that did not get to NIBSS Easypay or are not available in NIBSS Easypay transaction records. After this initial TSQ call, a TSQ retrial can be attempted twice with a 60 seconds interval between each retrial, and if a response code 25 is received on the third attempt, the transaction can be reversed.  \n-   TSQ should only be re-attempted a maximum of three (3) times after the 1st attempt of no response for TSQ within a minimum space interval of 60 seconds.    \n-   On no account shall the Client reverse a debit for which a definite status response has not been received from the NIBSS Easypay for both Fund Transfer and Transaction Status Query requests.\n    \n*N.B: In all cases, reversals shall be subject to absolute confirmation of transaction status from NIBSS Easypay. All transactions will only be available for re-query (TSQ) for a maximum of 24 hours from transaction time, and all TSQs processed for transactions after 24 hours of transaction initiation time will fail with response code 25 (Unable to locate Record).*",
+        "operationId": "/nip/tsq",
+        "requestBody": {
+          "description": "",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransactionStatusQueryRequest"
+              },
+              "examples": {
+                "Example 1": {
+                  "value": {
+                    "transactionId": "000034220608140800123456789012"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "This is the response you get when you successfully initiate a transfer of funds from one account to another.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionStatusQueryResponse"
+                },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "responseCode": "00",
+                      "sessionID": "999999220608140828280645462287",
+                      "transactionId": "000034220608140800123456789012",
+                      "channelCode": "1",
+                      "sourceInstitutionCode": "999998"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "This is the response you get when your API call to initiate a Fund Transfer from one account to another fails.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionStatusQueryErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "https://apitest.nibss-plc.com.ng/nipservice/v1",
+            "description": "Test"
+          }
+        ]
+      }
+    },
+    "/nip/institutions": {
+      "get": {
+        "summary": "Get Financial Institutions",
+        "description": "This endpoint is called to get the list of Financial Institutions.",
+        "operationId": "get-nip-institutions",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "institutionCode": {
+                        "type": "string",
+                        "example": "999001"
+                      },
+                      "institutionName": {
+                        "type": "string",
+                        "example": "ADH"
+                      },
+                      "category": {
+                        "type": "integer",
+                        "example": 3
+                      },
+                      "categoryCode": {
+                        "type": "string",
+                        "example": "3"
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "Example 1": {
+                    "value": [
+                      {
+                        "institutionCode": "999001",
+                        "institutionName": "ADH",
+                        "category": 3,
+                        "categoryCode": "3"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "https://apitest.nibss-plc.com.ng/nipservice/v1",
+            "description": "Test"
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "BalanceEnquiryRequest": {
+        "type": "object",
+        "properties": {
+          "channelCode": {
+            "type": "string",
+            "description": "This is an integer identifier used to denote the source channel of a transaction.  Each transaction has a corresponding value that signifies the channel used in initiating the transaction. There are 11 integers, each with a corresponding channel it denotes and they are:\n1 - Bank Teller\n2 - Internet Banking\n3 - Mobile Phones\n4 - POS Terminals\n5 - ATM\n6 - Vendor/Merchant Web Portal\n7 - Third–Party Payment Platform\n8 - Unstructured Supplementary Service Data (USSD)\n9 - Other Channels\n10 - Social Media\n11 - Agency Banking",
+            "example": "1"
+          },
+          "targetAccountName": {
+            "type": "string",
+            "description": "Full name of the customer whose account is at the receiving end of a Balance Enquiry request. It includes First name, Last name, and middle name (if supplied)  \nThis field can only take Alphabetical characters of not more than 100 characters.Full name of the customer whose account is at the receiving end of a Bbalance Eenquiry request. It includes First name, Last name, and middle name(if supplied) e.g. Adebayo Lawal Bola. This field can only take Alphabetical characters of not more than 100 characters.",
+            "example": "vee Test"
+          },
+          "targetAccountNumber": {
+            "type": "string",
+            "description": "This is the 10-digit NUBAN (Nigerian Uuniform Bbank Aaccount Nnumber) of the account at the receiving end of a Balance Enquiry request e.g “7654987654”",
+            "example": "0112345678"
+          },
+          "targetBankVerificationNumber": {
+            "type": "string",
+            "description": "This is the BVN number of the account at the receiving end of a Balance Enquiry request. It is a unique 11-digit number peculiar to the customer e.g “34569527891”",
+            "example": "33333333333"
+          },
+          "authorizationCode": {
+            "type": "string",
+            "description": "This is a unique alphanumeric code generated  after a mandate to perform a Balance Enquiry request on a specified account  has been successfully created. It is a code that indicates that you are permitted to perform a Balance Enquiry request on the account. It is generated once a mandate for the specified account is created on the NIBSS Direct Debit (NDD) platform. E.g “MA-0112345678-2022315-53097”",
+            "example": "MA-0112345678-2022315-53097"
+          },
+          "destinationInstitutionCode": {
+            "type": "string",
+            "description": "This is a 6 digits identification code assigned by NIBSS to the institution at the receiving end of your request. E.g ‘888564’.",
+            "example": "888564"
+          },
+          "billerId": {
+            "type": "string",
+            "description": "This is a unique ID assigned to the institution making the Debit or Balance Enquiry Request. The ID is generated and assigned to the institution on successful profiling on the NIBSS Direct Debit (NDD) platform. This ID will be shared with the client on profiling on the NDD. e.g “ADC19BDC-7D3A-4C00-4F7B-08DA06684F59",
+            "example": "ADC19BDC-7D3A-4C00-4F7B-08DA06684F59"
+          },
+          "transactionId": {
+            "type": "string",
+            "description": "This is a unique 30 digits number used to identify a transaction. It is derived using the formula:\n\n  \n\nClient code + date and time in YYMMDDHHMMSS + random 12 digits\n\nE.g “**000034220608141930350786190072**”\n\n  \n\nWhere:\n\nClient code is a 6 digits identification code assigned by NIBSS to the institution making the request i.e **000034**\n\nDate and time in YYYYMMDD is **220608141930** \n\nThe random 12 digit is **350786190072** as seen in the example above.",
+            "example": "000034220608141930350786190072"
+          }
+        }
+      },
+      "BalanceEnquiryResponse": {
+        "type": "object",
+        "properties": {
+          "responseCode": {
+            "type": "string",
+            "description": "Code showing the status of \r\ntransaction",
+            "example": "00"
+          },
+          "sessionID": {
+            "type": "string",
+            "description": "Unique number that identifies \r\ntransactions in the following \r\nformat:\r\nChar 1 – 6: Senders bank’s \r\ncode\r\nChar 7 – 18: Date and time (in \r\nthe format yymmddHHmmss –\r\nHH is 24 hour clock)\r\nChar 19 – 30: 12 – character \r\nunique number (either serial \r\nor random number)",
+            "example": "999999220608140828280645462287"
+          },
+          "transactionId": {
+            "type": "string",
+            "description": "This is a unique 30 digits number used to identify a transaction. It is derived using the formula:\r\n\r\nClient code + date and time in YYMMDDHHMMSS + random 12 digits\r\n\r\nE.g “000034220608141930350786190072”\r\n\r\nWhere:\r\n\r\nClient code is a 6 digits identification code assigned by NIBSS to the institution making the request i.e 000034\r\n\r\nDate and time in YYYYMMDD is 220608141930\r\n\r\nThe random 12 digit is 350786190072 as seen in the example above.",
+            "example": "000034220608140800123456789012"
+          },
+          "channelCode": {
+            "type": "string",
+            "description": "This is an integer identifier used to denote the source channel of a transaction. Each transaction has a corresponding value that signifies the channel used in initiating the transaction. There are 11 integers, each with a corresponding channel it denotes and they are:\r\n\r\n1 - Bank Teller\r\n\r\n2 - Internet Banking\r\n\r\n3 - Mobile Phones\r\n\r\n4 - POS Terminals\r\n\r\n5 - ATM\r\n\r\n6 - Vendor/Merchant Web Portal\r\n\r\n7 - Third-Party Payment Platform\r\n\r\n8 - Unstructured Supplementary Service Data (USSD)\r\n\r\n9 - Other Channels\r\n\r\n10- Social Media\r\n\r\n11 - Agency Banking\r\n\r\n12 - NQR",
+            "example": "1"
+          },
+          "destinationInstitutionCode": {
+            "type": "string",
+            "description": "This is a 6 digits identification code assigned by NIBSS to the institution at the receiving end of your request. E.g ‘888564’.",
+            "example": "999998"
+          },
+          "authorizationCode": {
+            "type": "string",
+            "description": "Code authorizing balance \r\nenquiry transaction",
+            "example": "NIPMINI1/1647351897985"
+          },
+          "targetAccountName": {
+            "type": "string",
+            "description": "Account Name of financial \r\ninstitution’s customer",
+            "example": "vee Test"
+          },
+          "targetBankVerificationNumber": {
+            "type": "string",
+            "description": "Bank Verification Number of \r\nfinancial institution’s customer",
+            "example": "33333333333"
+          },
+          "targetAccountNumber": {
+            "type": "string",
+            "description": "Account Number of financial \r\ninstitution’s customer",
+            "example": "0112345678"
+          },
+          "availableBalance": {
+            "type": "string",
+            "description": "Available balance of the \r\naccount of financial \r\ninstitution’s customer",
+            "example": "561100555602.82"
+          }
+        }
+      },
+      "BalanceEnquiryErrorResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "Timestamp reflecting \r\ndate and time \r\nresponse provided to \r\nAPI client\r\n",
+            "example": "2022-06-08 12:13:15"
+          },
+          "code": {
+            "type": "string",
+            "description": "Response code showing the status of \r\ntransaction",
+            "example": "99"
+          },
+          "message": {
+            "type": "string",
+            "description": "Description of \r\nresponse provided to \r\nClient",
+            "example": "No Mandate found for this biller"
+          }
+        }
+      },
+      "NameEnquiryRequest": {
+        "type": "object",
+        "properties": {
+          "accountNumber": {
+            "type": "string",
+            "description": "This is the 10-digit NUBAN (Nigerian Uniform Bank Account Number)  of the individual who is the target of a Name Enquiry request. E.g “8906549871”",
+            "example": "0112345678"
+          },
+          "channelCode": {
+            "type": "string",
+            "description": "This is an integer identifier used to denote the source channel of a transaction. Each transaction has a corresponding value that signifies the channel used in initiating the transaction. There are 11 integers, each with a corresponding channel it denotes and they are:\n\n1 - Bank Teller\n\n2 - Internet Banking\n\n3 - Mobile Phones\n\n4 - POS Terminals\n\n5 - ATM\n\n6 - Vendor/Merchant Web Portal\n\n7 - Third-Party Payment Platform\n\n8 - Unstructured Supplementary Service Data (USSD)\n\n9 - Other Channels\n\n10- Social Media\n\n11 - Agency Banking\n\n12 - NQR",
+            "example": "1"
+          },
+          "destinationInstitutionCode": {
+            "type": "string",
+            "description": "This is a 6 digits identification code assigned by NIBSS to the institution at the receiving end of your request. E.g ‘888564’.",
+            "example": "999998"
+          },
+          "transactionId": {
+            "type": "string",
+            "description": "This is a unique 30 digits number used to identify a transaction. It is derived using the formula:\n\n  \n\nClient code + date and time in YYMMDDHHMMSS + random 12 digits\n\nE.g “**000034220608141930350786190072**”\n\n  \n\nWhere:\n\nClient code is a 6 digits identification code assigned by NIBSS to the institution making the request i.e **000034**\n\nDate and time in YYYYMMDD is **220608141930** \n\nThe random 12 digit is **350786190072** as seen in the example above.",
+            "example": "000034220608111630100001000001"
+          }
+        }
+      },
+      "NameEnquiryResponse": {
+        "type": "object",
+        "properties": {
+          "responseCode": {
+            "type": "string",
+            "description": "Code showing the status of \r\ntransaction",
+            "example": "00"
+          },
+          "sessionID": {
+            "type": "string",
+            "description": "Unique number that identifies \r\ntransactions in the following \r\nformat:\r\nChar 1 – 6: Senders bank’s \r\ncode\r\nChar 7 – 18: Date and time (in \r\nthe format yymmddHHmmss –\r\nHH is 24 hour clock)\r\nChar 19 – 30: 12 – character \r\nunique number (either serial \r\nor random number)",
+            "example": "999999220608140828280645462287"
+          },
+          "transactionId": {
+            "type": "string",
+            "description": "This is a unique 30 digits number used to identify a transaction. It is derived using the formula:\r\n\r\nClient code + date and time in YYMMDDHHMMSS + random 12 digits\r\n\r\nE.g “000034220608141930350786190072”\r\n\r\nWhere:\r\n\r\nClient code is a 6 digits identification code assigned by NIBSS to the institution making the request i.e 000034\r\n\r\nDate and time in YYYYMMDD is 220608141930\r\n\r\nThe random 12 digit is 350786190072 as seen in the example above.",
+            "example": "000034220608140800123456789012"
+          },
+          "channelCode": {
+            "type": "string",
+            "description": "This is an integer identifier used to denote the source channel of a transaction. Each transaction has a corresponding value that signifies the channel used in initiating the transaction. There are 11 integers, each with a corresponding channel it denotes and they are:\r\n\r\n1 - Bank Teller\r\n\r\n2 - Internet Banking\r\n\r\n3 - Mobile Phones\r\n\r\n4 - POS Terminals\r\n\r\n5 - ATM\r\n\r\n6 - Vendor/Merchant Web Portal\r\n\r\n7 - Third-Party Payment Platform\r\n\r\n8 - Unstructured Supplementary Service Data (USSD)\r\n\r\n9 - Other Channels\r\n\r\n10- Social Media\r\n\r\n11 - Agency Banking\r\n\r\n12 - NQR",
+            "example": "1"
+          },
+          "destinationInstitutionCode": {
+            "type": "string",
+            "description": "This is a 6 digits identification code assigned by NIBSS to the institution at the receiving end of your request. E.g ‘888564’.",
+            "example": "999998"
+          },
+          "accountNumber": {
+            "type": "string",
+            "description": "Account Number of financial institution’s customer.",
+            "example": "112345678"
+          },
+          "bankVerificationNumber": {
+            "type": "string",
+            "description": "Bank Verification Number of \r\nfinancial institution’s customer",
+            "example": "33333333332"
+          },
+          "accountName": {
+            "type": "string",
+            "description": "Account Name of financial institution’s customer.",
+            "example": "vee Test"
+          },
+          "kycLevel": {
+            "type": "string",
+            "description": "Know Your Customer Level of \r\ncustomer’s account that \r\nreturned in response to Name \r\nEnquiry",
+            "example": "1"
+          }
+        }
+      },
+      "NameEnquiryErrorResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "Timestamp reflecting \r\ndate and time \r\nresponse provided to \r\nAPI client\r\n",
+            "example": "2022-06-09 11:29:34"
+          },
+          "code": {
+            "type": "string",
+            "description": "Response code showing the status of \r\ntransaction",
+            "example": "07"
+          },
+          "message": {
+            "type": "string",
+            "description": "Description of \r\nresponse provided to \r\nClient",
+            "example": "Invalid Transaction Id provided"
+          }
+        }
+      },
+      "FundTransferErrorResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "Timestamp reflecting \r\ndate and time \r\nresponse provided to \r\nAPI client\r\n",
+            "example": "2022-06-09 11:29:34"
+          },
+          "code": {
+            "type": "string",
+            "description": "Response code showing the status of \r\ntransaction",
+            "example": "07"
+          },
+          "message": {
+            "type": "string",
+            "description": "Description of \r\nresponse provided to \r\nClient",
+            "example": "Mandate Limit Exceeded"
+          }
+        }
+      },
+      "TransactionStatusQueryRequest": {
+        "type": "object",
+        "properties": {
+          "transactionId": {
+            "type": "string",
+            "description": "This is a unique 30 digits number used to identify a transaction. It is derived using the formula:\n\n  \n\nClient code + date and time in YYMMDDHHMMSS + random 12 digits\n\nE.g “**000034220608141930350786190072**”\n\n  \n\nWhere:\n\nClient code is a 6 digits identification code assigned by NIBSS to the institution making the request i.e **000034**\n\nDate and time in YYYYMMDD is **220608141930** \n\nThe random 12 digit is **350786190072** as seen in the example above.",
+            "example": "000034220608140800123456789012"
+          }
+        }
+      },
+      "TransactionStatusQueryResponse": {
+        "type": "object",
+        "properties": {
+          "responseCode": {
+            "type": "string",
+            "description": "Code showing the status of \r\ntransaction",
+            "example": "00"
+          },
+          "sessionID": {
+            "type": "string",
+            "description": "Unique number that identifies \r\ntransactions in the following \r\nformat:\r\nChar 1 – 6: Senders bank’s \r\ncode\r\nChar 7 – 18: Date and time (in \r\nthe format yymmddHHmmss –\r\nHH is 24 hour clock)\r\nChar 19 – 30: 12 – character \r\nunique number (either serial \r\nor random number)",
+            "example": "999999220608140828280645462287"
+          },
+          "transactionId": {
+            "type": "string",
+            "description": "This is a unique 30 digits number used to identify a transaction. It is derived using the formula:\r\n\r\nClient code + date and time in YYMMDDHHMMSS + random 12 digits\r\n\r\nE.g “000034220608141930350786190072”\r\n\r\nWhere:\r\n\r\nClient code is a 6 digits identification code assigned by NIBSS to the institution making the request i.e 000034\r\n\r\nDate and time in YYYYMMDD is 220608141930\r\n\r\nThe random 12 digit is 350786190072 as seen in the example above.",
+            "example": "000034220608140800123456789012"
+          },
+          "channelCode": {
+            "type": "string",
+            "description": "This is an integer identifier used to denote the source channel of a transaction. Each transaction has a corresponding value that signifies the channel used in initiating the transaction. There are 11 integers, each with a corresponding channel it denotes and they are:\r\n\r\n1 - Bank Teller\r\n\r\n2 - Internet Banking\r\n\r\n3 - Mobile Phones\r\n\r\n4 - POS Terminals\r\n\r\n5 - ATM\r\n\r\n6 - Vendor/Merchant Web Portal\r\n\r\n7 - Third-Party Payment Platform\r\n\r\n8 - Unstructured Supplementary Service Data (USSD)\r\n\r\n9 - Other Channels\r\n\r\n10- Social Media\r\n\r\n11 - Agency Banking\r\n\r\n12 - NQR",
+            "example": "1"
+          },
+          "sourceInstitutionCode": {
+            "type": "string",
+            "description": "This is the 6 digits identification code assigned by NIBSS to the institution making the request.",
+            "example": "999998"
+          }
+        }
+      },
+      "TransactionStatusQueryErrorResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "description": "Timestamp reflecting \r\ndate and time \r\nresponse provided to \r\nAPI client\r\n",
+            "example": "2022-06-09 11:29:34"
+          },
+          "code": {
+            "type": "string",
+            "description": "Response code showing the status of \r\ntransaction",
+            "example": "'25'"
+          },
+          "message": {
+            "type": "string",
+            "description": "Description of \r\nresponse provided to \r\nClient",
+            "example": "Unable to locate record"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
+  "x-internal": true,
+  "x-headmatter": {
+    "readable_by": [
+      "NIBSSInternalTeam",
+      "AuthenticatedDevs",
+      "MicrofinanceBanks",
+      "PSSP",
+      "Banks",
+      "MMO",
+      "vendor",
+      "CBN-Regulatory"
+    ]
+  }
+}

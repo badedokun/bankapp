@@ -75,10 +75,13 @@ app.use(express_1.default.json({ limit: '10mb' }));
 app.use(express_1.default.urlencoded({ extended: true }));
 // Logging
 app.use((0, morgan_1.default)('combined'));
-// Rate limiting
+// Environment-based rate limiting configuration
+const isProduction = process.env.NODE_ENV === 'production';
+const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
+// Rate limiting - Relaxed for development, strict for production
 const limiter = (0, express_rate_limit_1.rateLimit)({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per windowMs
+    max: isDevelopment ? 1000 : 100, // Dev: 1000 requests, Prod: 100 requests per 15min
     message: {
         error: 'Too many requests from this IP, please try again later.',
         code: 'RATE_LIMIT_EXCEEDED'
@@ -88,16 +91,22 @@ const limiter = (0, express_rate_limit_1.rateLimit)({
 });
 // Apply rate limiting to all requests
 app.use(limiter);
-// Stricter rate limiting for auth endpoints
+// Auth rate limiting - Relaxed for development/QA, strict for production
 const authLimiter = (0, express_rate_limit_1.rateLimit)({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // Limit each IP to 5 auth requests per windowMs
+    max: isDevelopment ? 100 : 5, // Dev: 100 logins, Prod: 5 logins per 15min
     skipSuccessfulRequests: true,
     message: {
-        error: 'Too many authentication attempts, please try again later.',
+        error: isDevelopment
+            ? 'Rate limit reached. For QA/testing: 100 attempts per 15min allowed.'
+            : 'Too many authentication attempts, please try again later.',
         code: 'AUTH_RATE_LIMIT_EXCEEDED'
     }
 });
+// Log rate limit configuration on startup
+console.log(`🔒 Rate Limiting: ${isDevelopment ? 'RELAXED (Development/QA)' : 'STRICT (Production)'}`);
+console.log(`   - General: ${isDevelopment ? '1000' : '100'} requests per 15min`);
+console.log(`   - Auth: ${isDevelopment ? '100' : '5'} attempts per 15min`);
 // Serve static files (HTML mockups)
 app.use('/mockups', express_1.default.static(path_1.default.join(__dirname, '../public/mockups')));
 // Serve design system files

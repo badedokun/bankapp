@@ -66,6 +66,21 @@ DEPLOYMENT_TYPE=saas_production
 DEPLOYMENT_TYPE=development
 ```
 
+## 🔒 **RATE LIMITING (Environment-Based)**
+| Environment | General Requests | Auth/Login | Notes |
+|-------------|------------------|------------|-------|
+| **Development/QA** | 1000 per 15min | **100 per 15min** | ✅ Relaxed for testing |
+| **Production** | 100 per 15min | **5 per 15min** | 🔒 Strict security |
+
+**To Enable Production Limits:**
+```bash
+NODE_ENV=production npm run server
+```
+
+**Current Behavior:**
+- If `NODE_ENV` not set or `development`: **RELAXED** limits (100 logins per 15min)
+- If `NODE_ENV=production`: **STRICT** limits (5 logins per 15min)
+
 ## 🔐 **NIBSS API CONFIGURATION**
 ```bash
 # FirstMidas Microfinance Bank Limited
@@ -102,10 +117,31 @@ sdk use java 21.0.4-tem
 - **Critical Path**: Money transfers fully tested and working
 - **APK Build**: ✅ Working with JDK 21
 
+## 🚀 **FAST DEPLOYMENT**
+```bash
+# Deploy to production in 3-5 minutes
+./simple-deploy.sh
+
+# View deployment guide
+cat FAST_DEPLOYMENT_GUIDE.md
+```
+
+## 📋 **PHASE 3 ROADMAP (Next Implementation)**
+- **NIBSS Production Integration** (6 weeks) - Name Enquiry, Fund Transfer, TSQ
+- **Savings & Loans Platform** (6 weeks) - 4 savings products, progressive loan system
+- **Integration & Testing** (4 weeks) - 65 test scenarios
+- **See**: `PHASE3_IMPLEMENTATION_PLAN.md` for complete 16-week plan
+
 ## 📚 **FULL DOCUMENTATION**
 - **Development Guide**: `docs/DEVELOPMENT_GUIDE.md`
-- **Claude Code Guide**: `docs/CLAUDE_CODE_INTEGRATION.md`  
-- **Project Overview**: `docs/PROJECT_OVERVIEW.md`
+- **Claude Code Guide**: `docs/CLAUDE_CODE_INTEGRATION.md`
+- **Project Overview**: `PROJECT_OVERVIEW.md`
+- **Roadmap**: `PROJECT_IMPLEMENTATION_ROADMAP.md`
+- **Phase 2 AI**: `PHASE2_AI_ENHANCEMENTS.md`
+- **Phase 3 Plan**: `PHASE3_IMPLEMENTATION_PLAN.md`
+- **NIBSS Endpoints**: `PRODUCTION_TRANSFER_ENDPOINTS.md`
+- **Savings/Loans**: `docs/saving-loans-req.md`
 
 ---
-*Based on real experience achieving 100% test pass rate*
+*Last Updated: September 24, 2025*
+*Version: 2.0 - Added Phase 3 roadmap, deployment guide, comprehensive docs*
