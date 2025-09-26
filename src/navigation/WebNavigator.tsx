@@ -13,6 +13,7 @@ import {
   TransactionDetailsScreen,
   SettingsScreen,
   AIChatScreen,
+  RBACManagementScreen,
 } from '../screens';
 import CBNComplianceScreen from '../screens/security/CBNComplianceScreen';
 
@@ -26,7 +27,7 @@ const isReactNative = (): boolean => {
 import PCIDSSComplianceScreen from '../screens/security/PCIDSSComplianceScreen';
 import SecurityMonitoringScreen from '../screens/security/SecurityMonitoringScreen';
 
-type Screen = 'Login' | 'Dashboard' | 'Transfer' | 'History' | 'TransactionDetails' | 'Settings' | 'CBNCompliance' | 'PCICompliance' | 'SecurityMonitoring' | 'AIChat';
+type Screen = 'Login' | 'Dashboard' | 'Transfer' | 'History' | 'TransactionDetails' | 'Settings' | 'CBNCompliance' | 'PCICompliance' | 'SecurityMonitoring' | 'AIChat' | 'RBACManagement';
 
 interface WebNavigatorProps {
   isAuthenticated: boolean;
@@ -87,6 +88,16 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
             onNavigateToSettings={() => navigate('Settings')}
             onNavigateToTransactionDetails={handleTransactionDetails}
             onNavigateToAIChat={() => navigate('AIChat')}
+            onNavigateToFeature={(feature: string, params?: any) => {
+              // Handle specific feature navigation
+              switch (feature) {
+                case 'rbac_management':
+                  navigate('RBACManagement');
+                  break;
+                default:
+                  break;
+              }
+            }}
             onLogout={async () => {
               // Properly logout through API to clear tokens
               const APIService = await import('../services/api');
@@ -139,17 +150,17 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
             transaction={transactionToUse}
             onBack={() => navigate('History')}
             onReport={(transactionId) => {
-              console.log('Report issue for transaction:', transactionId);
               // TODO: Implement report functionality
             }}
             onRetry={(transactionId) => {
-              console.log('Retry transaction:', transactionId);
               navigate('Transfer');
             }}
           />
         );
       case 'AIChat':
         return <AIChatScreen onBack={() => navigate('Dashboard')} />;
+      case 'RBACManagement':
+        return <RBACManagementScreen onGoBack={() => navigate('Dashboard')} />;
       default:
         return (
           <DashboardScreen
@@ -158,6 +169,16 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
             onNavigateToSettings={() => navigate('Settings')}
             onNavigateToTransactionDetails={handleTransactionDetails}
             onNavigateToAIChat={() => navigate('AIChat')}
+            onNavigateToFeature={(feature: string, params?: any) => {
+              // Handle specific feature navigation
+              switch (feature) {
+                case 'rbac_management':
+                  navigate('RBACManagement');
+                  break;
+                default:
+                  break;
+              }
+            }}
             onLogout={async () => {
               // Properly logout through API to clear tokens
               const APIService = await import('../services/api');

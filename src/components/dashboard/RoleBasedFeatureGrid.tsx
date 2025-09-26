@@ -259,6 +259,17 @@ const ALL_BANKING_FEATURES: BankingFeature[] = [
 
   // PLATFORM ADMINISTRATION (Platform Admin only)
   {
+    id: 'rbac_management',
+    title: 'RBAC Management',
+    subtitle: 'Roles & permissions admin',
+    icon: '🛡️',
+    category: 'platform',
+    requiredPermission: 'platform_administration',
+    minPermissionLevel: 'full',
+    priority: 1,
+    rolesWithAccess: ['platform_admin', 'ceo']
+  },
+  {
     id: 'tenant_management',
     title: 'Tenant Management',
     subtitle: 'Bank onboarding',
@@ -266,7 +277,7 @@ const ALL_BANKING_FEATURES: BankingFeature[] = [
     category: 'platform',
     requiredPermission: 'create_new_tenant',
     minPermissionLevel: 'full',
-    priority: 1,
+    priority: 2,
     rolesWithAccess: ['platform_admin']
   },
   {
@@ -277,7 +288,7 @@ const ALL_BANKING_FEATURES: BankingFeature[] = [
     category: 'platform',
     requiredPermission: 'cross_tenant_analytics',
     minPermissionLevel: 'read',
-    priority: 2,
+    priority: 3,
     rolesWithAccess: ['platform_admin']
   },
   {
@@ -288,7 +299,7 @@ const ALL_BANKING_FEATURES: BankingFeature[] = [
     category: 'platform',
     requiredPermission: 'platform_system_health',
     minPermissionLevel: 'read',
-    priority: 3,
+    priority: 4,
     rolesWithAccess: ['platform_admin']
   }
 ];
@@ -384,16 +395,6 @@ export const RoleBasedFeatureGrid: React.FC<RoleBasedFeatureGridProps> = ({
     })
     .sort((a, b) => a.priority - b.priority); // Sort by priority
 
-  // Debug logging
-  console.log('🔍 RoleBasedFeatureGrid Debug:', {
-    userRole,
-    isDevAdmin,
-    totalFeatures: ALL_BANKING_FEATURES.length,
-    accessibleFeatures: accessibleFeatures.length,
-    availableFeatures: availableFeatures.length,
-    sampleFeatureIds: accessibleFeatures.slice(0, 5).map(f => f.id),
-    allAvailableFeatureIds: availableFeatures
-  });
 
   // Group features by category
   const featuresByCategory = accessibleFeatures.reduce((acc, feature) => {
