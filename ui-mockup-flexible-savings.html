@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flexible Savings - OrokiiPay Banking Platform</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --surface-color: #ffffff;
+            --background-color: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --gradient-savings: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            background: var(--surface-color);
+            min-height: 100vh;
+            box-shadow: var(--shadow);
+        }
+
+        /* Header */
+        .header {
+            background: var(--gradient-savings);
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+        }
+
+        .header-title h1 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .header-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        /* Content */
+        .content {
+            padding: 20px;
+        }
+
+        /* Product Hero */
+        .product-hero {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .product-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-savings);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+            margin: 0 auto 20px;
+        }
+
+        .product-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .product-subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .interest-rate {
+            background: rgba(13, 148, 136, 0.1);
+            color: var(--success-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        /* Features */
+        .features-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .feature-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .feature-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .feature-subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Savings Calculator */
+        .calculator-section {
+            background: rgba(13, 148, 136, 0.05);
+            border: 1px solid rgba(13, 148, 136, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .calculator-title {
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            background: var(--surface-color);
+            transition: all 0.2s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--success-color);
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+        }
+
+        .frequency-options {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .frequency-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--surface-color);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .frequency-btn.active {
+            background: var(--success-color);
+            color: white;
+            border-color: var(--success-color);
+        }
+
+        .projection-result {
+            background: var(--gradient-savings);
+            color: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        .projection-amount {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .projection-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .projection-breakdown {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 12px;
+        }
+
+        /* Terms & Conditions */
+        .terms-section {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .terms-list {
+            list-style: none;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .terms-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .terms-list li::before {
+            content: '•';
+            color: var(--success-color);
+            font-weight: bold;
+            min-width: 8px;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            position: sticky;
+            bottom: 0;
+            background: var(--surface-color);
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-savings {
+            background: var(--gradient-savings);
+            color: white;
+            margin-bottom: 12px;
+        }
+
+        .btn-savings:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 15px rgba(13, 148, 136, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--surface-color);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(37, 99, 235, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .frequency-options {
+                flex-direction: column;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .content > * {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <button class="back-btn" onclick="goBack()">← Back</button>
+                <div class="header-title">
+                    <h1>Flexible Savings</h1>
+                    <div class="header-subtitle">Save at your own pace</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Product Hero -->
+            <div class="product-hero">
+                <div class="product-icon">💰</div>
+                <div class="product-title">Flexible Savings</div>
+                <div class="product-subtitle">Save daily, weekly, or monthly with flexible withdrawals</div>
+                <div class="interest-rate">Up to 4.5% per annum</div>
+            </div>
+
+            <!-- Features -->
+            <div class="features-section">
+                <h3 class="section-title">Key Features</h3>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🔓</div>
+                        <div class="feature-title">No Lock-in</div>
+                        <div class="feature-subtitle">Withdraw anytime</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📈</div>
+                        <div class="feature-title">Flexible Schedule</div>
+                        <div class="feature-subtitle">Daily, weekly, monthly</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <div class="feature-title">Auto-Save</div>
+                        <div class="feature-subtitle">Automatic deductions</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💳</div>
+                        <div class="feature-title">Easy Access</div>
+                        <div class="feature-subtitle">Mobile & web platform</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Savings Calculator -->
+            <div class="calculator-section">
+                <div class="calculator-title">💡 Savings Calculator</div>
+
+                <div class="input-group">
+                    <label class="input-label">How much do you want to save?</label>
+                    <input type="text" class="input-field" id="amount-input" placeholder="Enter amount" value="5,000">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Savings frequency</label>
+                    <div class="frequency-options">
+                        <button class="frequency-btn" onclick="setFrequency('daily')">Daily</button>
+                        <button class="frequency-btn active" onclick="setFrequency('weekly')">Weekly</button>
+                        <button class="frequency-btn" onclick="setFrequency('monthly')">Monthly</button>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Duration (months)</label>
+                    <input type="range" class="input-field" id="duration-slider" min="1" max="24" value="12" oninput="updateProjection()">
+                    <div style="text-align: center; margin-top: 8px; font-size: 14px; color: var(--text-secondary);">
+                        <span id="duration-value">12</span> months
+                    </div>
+                </div>
+
+                <!-- Projection Result -->
+                <div class="projection-result">
+                    <div class="projection-amount" id="total-amount">₦62,400</div>
+                    <div class="projection-label">Estimated balance after 12 months</div>
+                    <div class="projection-breakdown">
+                        <span>Principal: <span id="principal-amount">₦60,000</span></span>
+                        <span>Interest: <span id="interest-amount">₦2,400</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terms & Conditions -->
+            <div class="terms-section">
+                <h4 class="section-title">Terms & Conditions</h4>
+                <ul class="terms-list">
+                    <li>Interest rate is admin-controlled and may vary based on market conditions</li>
+                    <li>Interest is calculated monthly and paid at withdrawal</li>
+                    <li>VAT deductions apply on accrued interest</li>
+                    <li>No minimum balance requirement after initial deposit</li>
+                    <li>Withdrawals can be made at any time without penalties</li>
+                    <li>Auto-save can be paused or modified anytime</li>
+                    <li>Interest rate subject to change with 30 days notice</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="btn btn-savings" onclick="startSaving()">Start Saving Now</button>
+            <button class="btn btn-secondary" onclick="learnMore()">Learn More</button>
+        </div>
+    </div>
+
+    <script>
+        let currentFrequency = 'weekly';
+
+        function setFrequency(frequency) {
+            // Update active button
+            document.querySelectorAll('.frequency-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            currentFrequency = frequency;
+            updateProjection();
+        }
+
+        function updateProjection() {
+            const amountInput = document.getElementById('amount-input');
+            const durationSlider = document.getElementById('duration-slider');
+            const durationValue = document.getElementById('duration-value');
+
+            // Parse amount and remove commas
+            let amount = parseFloat(amountInput.value.replace(/,/g, '')) || 0;
+            let duration = parseInt(durationSlider.value);
+
+            // Update duration display
+            durationValue.textContent = duration;
+
+            // Calculate based on frequency
+            let totalDeposits;
+            switch(currentFrequency) {
+                case 'daily':
+                    totalDeposits = amount * 30 * duration; // Approximate 30 days per month
+                    break;
+                case 'weekly':
+                    totalDeposits = amount * 4 * duration; // 4 weeks per month
+                    break;
+                case 'monthly':
+                    totalDeposits = amount * duration;
+                    break;
+                default:
+                    totalDeposits = amount * duration;
+            }
+
+            // Calculate interest (4.5% per annum, calculated monthly)
+            const annualRate = 0.045;
+            const monthlyRate = annualRate / 12;
+            let interest = 0;
+
+            // Compound interest calculation for progressive deposits
+            for (let month = 1; month <= duration; month++) {
+                const monthlyDeposit = currentFrequency === 'daily' ? amount * 30 :
+                                     currentFrequency === 'weekly' ? amount * 4 : amount;
+                interest += monthlyDeposit * monthlyRate * (duration - month + 1);
+            }
+
+            const totalAmount = totalDeposits + interest;
+
+            // Update display
+            document.getElementById('total-amount').textContent = `₦${Math.round(totalAmount).toLocaleString()}`;
+            document.getElementById('principal-amount').textContent = `₦${Math.round(totalDeposits).toLocaleString()}`;
+            document.getElementById('interest-amount').textContent = `₦${Math.round(interest).toLocaleString()}`;
+        }
+
+        // Format amount input
+        document.getElementById('amount-input').addEventListener('input', function() {
+            let value = this.value.replace(/[^\d]/g, '');
+            if (value) {
+                value = parseInt(value).toLocaleString();
+                this.value = value;
+            }
+            updateProjection();
+        });
+
+        function startSaving() {
+            const amount = document.getElementById('amount-input').value;
+            const duration = document.getElementById('duration-slider').value;
+
+            if (!amount || amount === '0') {
+                alert('Please enter a valid savings amount');
+                return;
+            }
+
+            alert(`Creating Flexible Savings plan:\n• Amount: ₦${amount} ${currentFrequency}\n• Duration: ${duration} months\n• Interest: 4.5% p.a.`);
+            // Navigate to account setup/confirmation page
+        }
+
+        function learnMore() {
+            alert('Opening detailed product information...');
+        }
+
+        function goBack() {
+            window.history.back();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateProjection();
+        });
+    </script>
+</body>
+</html>

@@ -5,6 +5,20 @@
 npm run db:migrate && npm run test:integration
 ```
 
+## 🚨 **CRITICAL: PLATFORM ADMIN ARCHITECTURE**
+**UNIFIED APPLICATION APPROACH** (Industry Best Practice - Slack, GitHub, GitLab)
+
+- ✅ **Same Application**: Single React Native + Web codebase for all users
+- ✅ **Same Database**: Single PostgreSQL with role-based query scoping
+- ✅ **Subdomain Access**: `admin.orokiipay.com` vs `{tenant}.orokiipay.com`
+- ✅ **JWT Context**: Role-based UI rendering (`platform_admin` flag)
+
+**📚 REFERENCE DOCS:**
+- `TENANT_MANAGEMENT_SAAS_UNIFIED.md` - Complete architecture spec
+- `FRONTEND_UNIFIED_IMPLEMENTATION.md` - Implementation roadmap
+
+**❌ DO NOT create separate apps or databases for platform admin!**
+
 ## 🤖 **BEFORE USING CLAUDE CODE**
 1. **Read**: `docs/CLAUDE_CODE_INTEGRATION.md`
 2. **Verify Schema**: Check table existence first
@@ -91,6 +105,9 @@ NIBSS_CLIENT_SECRET='~Ou8Q~NPF7jfauwivWFSDOviFex..VWCdqTSIdpa'
 NIBSS_RESET_URL=https://apitest.nibss-plc.com.ng/v2/reset
 NIBSS_ENVIRONMENT=sandbox
 NIBSS_APP_NAME=NIP_MINI_SERVICE
+NIBSS_INSTITUTION_CODE=090575
+NIBSS_MANDATE_REFERENCE=RC0220310/1349/0009291032
+FCMB_BILLER_ID=362
 # Whitelisted GCP IP: 34.59.143.25
 ```
 

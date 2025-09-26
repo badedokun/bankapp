@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banking Dashboard</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --surface-color: #ffffff;
+            --background-color: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --gradient-success: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            --gradient-warning: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+            --gradient-purple: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+            --gradient-teal: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            background: var(--surface-color);
+            min-height: 100vh;
+            box-shadow: var(--shadow);
+        }
+
+        /* Header */
+        .header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .bank-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .bank-logo {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .header-title h1 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .tenant-badge {
+            font-size: 11px;
+            opacity: 0.9;
+            color: #e0e7ff;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .user-details {
+            font-size: 12px;
+        }
+
+        .role-badge {
+            background: var(--success-color);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        /* Banking Stats */
+        .banking-stats {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            background: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .stat-card {
+            background: var(--gradient-primary);
+            padding: 16px;
+            border-radius: 12px;
+            color: white;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card.customers { background: var(--gradient-primary); }
+        .stat-card.transactions { background: var(--gradient-success); }
+        .stat-card.revenue { background: var(--gradient-warning); }
+        .stat-card.loans { background: var(--gradient-purple); }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            opacity: 0.9;
+        }
+
+        .stat-change {
+            font-size: 10px;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            padding: 20px;
+            background: var(--surface-color);
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .action-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .action-card:active {
+            transform: scale(0.98);
+            background: #f1f5f9;
+        }
+
+        .action-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            color: white;
+            font-size: 18px;
+        }
+
+        .action-icon.transfers { background: var(--gradient-primary); }
+        .action-icon.savings { background: var(--gradient-success); }
+        .action-icon.loans { background: var(--gradient-warning); }
+        .action-icon.bills { background: var(--gradient-purple); }
+        .action-icon.reversal { background: var(--gradient-teal); }
+        .action-icon.kyc { background: var(--danger-color); }
+
+        .action-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .action-subtitle {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        /* AI Assistant */
+        .ai-assistant {
+            margin: 20px;
+            padding: 16px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #0ea5e9;
+            border-radius: 12px;
+        }
+
+        .ai-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .ai-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        .ai-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .ai-status {
+            color: var(--success-color);
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        .ai-suggestions {
+            background: white;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .ai-suggestions ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .ai-suggestions li {
+            font-size: 12px;
+            color: #0369a1;
+            padding: 4px 0;
+            border-bottom: 1px solid #f0f9ff;
+        }
+
+        .ai-suggestions li:last-child {
+            border-bottom: none;
+        }
+
+        .ai-input-container {
+            display: flex;
+            gap: 8px;
+        }
+
+        .ai-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .ai-send {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* Feature Categories */
+        .feature-categories {
+            padding: 0 20px 20px;
+        }
+
+        .category-section {
+            margin-bottom: 24px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .category-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        .category-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .feature-list {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        .feature-item:last-child {
+            border-bottom: none;
+        }
+
+        .feature-item:active {
+            background: #f8fafc;
+        }
+
+        .feature-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .feature-status {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        .feature-status.available {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .feature-status.premium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .feature-status.admin-only {
+            background: #ede9fe;
+            color: #6b46c1;
+        }
+
+        /* Recent Activity */
+        .recent-activity {
+            margin: 0 20px 20px;
+            padding: 16px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .activity-icon.transfer { background: var(--primary-color); }
+        .activity-icon.deposit { background: var(--success-color); }
+        .activity-icon.loan { background: var(--warning-color); }
+        .activity-icon.reversal { background: var(--danger-color); }
+
+        .activity-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .activity-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .activity-time {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .activity-amount {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* FAB */
+        .fab {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            z-index: 100;
+        }
+
+        .fab:active {
+            transform: scale(0.95);
+        }
+
+        /* Desktop Responsive */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 768px;
+            }
+
+            .banking-stats {
+                grid-template-columns: repeat(4, 1fr);
+                padding: 30px;
+            }
+
+            .actions-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .quick-actions {
+                padding: 30px;
+            }
+
+            .feature-categories {
+                padding: 0 30px 30px;
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 30px;
+            }
+
+            .recent-activity {
+                margin: 0 30px 30px;
+            }
+
+            .ai-assistant {
+                margin: 30px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 1200px;
+            }
+
+            .banking-stats {
+                padding: 40px;
+            }
+
+            .actions-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .quick-actions {
+                padding: 40px;
+            }
+
+            .feature-categories {
+                grid-template-columns: repeat(3, 1fr);
+                padding: 0 40px 40px;
+            }
+
+            .recent-activity {
+                margin: 0 40px 40px;
+            }
+
+            .ai-assistant {
+                margin: 40px;
+            }
+        }
+
+        /* Loading States */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="bank-info">
+                    <div class="bank-logo" id="tenantLogo">--</div>
+                    <div class="header-title">
+                        <h1 id="dashboardTitle">Loading...</h1>
+                        <div class="tenant-badge" id="tenantName">Loading tenant...</div>
+                    </div>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">--</div>
+                    <div class="user-details">
+                        <div id="userName" style="font-size: 11px; font-weight: 600;">Loading...</div>
+                        <div class="role-badge" id="userRole">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Banking Stats -->
+        <div class="banking-stats">
+            <div class="stat-card customers">
+                <div class="stat-value" id="customerCount">--</div>
+                <div class="stat-label">Customers</div>
+                <div class="stat-change" id="customerGrowth">--</div>
+            </div>
+            <div class="stat-card transactions">
+                <div class="stat-value" id="monthlyVolume">--</div>
+                <div class="stat-label">Monthly Volume</div>
+                <div class="stat-change" id="volumeGrowth">--</div>
+            </div>
+            <div class="stat-card revenue">
+                <div class="stat-value" id="monthlyRevenue">--</div>
+                <div class="stat-label">Monthly Revenue</div>
+                <div class="stat-change" id="revenueGrowth">--</div>
+            </div>
+            <div class="stat-card loans">
+                <div class="stat-value" id="loansOutstanding">--</div>
+                <div class="stat-label">Loans Outstanding</div>
+                <div class="stat-change" id="loansGrowth">--</div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <h3 class="section-title">Banking Operations</h3>
+            <div class="actions-grid">
+                <div class="action-card" data-feature="transfers">
+                    <div class="action-icon transfers">📤</div>
+                    <div class="action-title">Money Transfer</div>
+                    <div class="action-subtitle">Internal & External</div>
+                </div>
+                <div class="action-card" data-feature="savings">
+                    <div class="action-icon savings">🏦</div>
+                    <div class="action-title">Savings</div>
+                    <div class="action-subtitle">All Products</div>
+                </div>
+                <div class="action-card" data-feature="loans">
+                    <div class="action-icon loans">💰</div>
+                    <div class="action-title">Loans</div>
+                    <div class="action-subtitle">Processing & Approval</div>
+                </div>
+                <div class="action-card" data-feature="bills">
+                    <div class="action-icon bills">🧾</div>
+                    <div class="action-title">Bill Payments</div>
+                    <div class="action-subtitle">All Billers</div>
+                </div>
+                <div class="action-card" data-feature="reversal">
+                    <div class="action-icon reversal">↩️</div>
+                    <div class="action-title">Reversal</div>
+                    <div class="action-subtitle">Transaction Reversal</div>
+                </div>
+                <div class="action-card" data-feature="kyc">
+                    <div class="action-icon kyc">✅</div>
+                    <div class="action-title">KYC</div>
+                    <div class="action-subtitle">Customer Onboarding</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Assistant -->
+        <div class="ai-assistant">
+            <div class="ai-header">
+                <div class="ai-avatar">🤖</div>
+                <div>
+                    <div class="ai-title">AI Banking Assistant</div>
+                    <div class="ai-status">● Online & Ready</div>
+                </div>
+            </div>
+            <div class="ai-suggestions">
+                <ul id="aiSuggestions">
+                    <li>• Loading smart suggestions...</li>
+                </ul>
+            </div>
+            <div class="ai-input-container">
+                <input type="text" class="ai-input" id="aiInput" placeholder="Ask about banking operations...">
+                <button class="ai-send" id="aiSend">Send</button>
+            </div>
+        </div>
+
+        <!-- Feature Categories -->
+        <div class="feature-categories">
+            <!-- Transfer Operations -->
+            <div class="category-section">
+                <div class="category-header">
+                    <div class="category-icon transfers" style="background: var(--gradient-primary);">📤</div>
+                    <div class="category-title">Transfer Operations</div>
+                </div>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <span class="feature-name">Enhanced Money Transfer</span>
+                        <span class="feature-status available">Available</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-name">Internal Transfers</span>
+                        <span class="feature-status available">Available</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-name">External NIBSS Transfers</span>
+                        <span class="feature-status available">Available</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-name">Complete Transfer Suite</span>
+                        <span class="feature-status available">Available</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Savings Products -->
+            <div class="category-section">
+                <div class="category-header">
+                    <div class="category-icon savings" style="background: var(--gradient-success);">🏦</div>
+                    <div class="category-title">Savings Products</div>
+                </div>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <span class="feature-name">Flexible Savings</span>
+                        <span class="feature-status premium">Premium</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-name">Target Savings</span>
+                        <span class="feature-status premium">Premium</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-name">Locked Savings</span>
+                        <span class="feature-status premium">Premium</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-name">Group Savings</span>
+                        <span class="feature-status premium">Premium</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-name">Save-as-You-Transact</span>
+                        <span class="feature-status premium">Premium</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loan Products -->
+            <div class="category-section">
+                <div class="category-header">
+                    <div class="category-icon loans" style="background: var(--gradient-warning);">💰</div>
+                    <div class="category-title">Loan Products</div>
+                </div>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <span class="feature-name">Personal Loans</span>
+                        <span class="feature-status available">Available</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-name">Business Loans</span>
+                        <span class="feature-status available">Available</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-name">Quick Loans</span>
+                        <span class="feature-status available">Available</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Operations Management -->
+            <div class="category-section">
+                <div class="category-header">
+                    <div class="category-icon management" style="background: var(--gradient-purple);">⚙️</div>
+                    <div class="category-title">Operations Management</div>
+                </div>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <span class="feature-name">Transaction Reversal</span>
+                        <span class="feature-status admin-only">Admin Only</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-name">Multi-Account Management</span>
+                        <span class="feature-status available">Available</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-name">Bill Payments</span>
+                        <span class="feature-status available">Available</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-name">KYC Onboarding</span>
+                        <span class="feature-status admin-only">Admin Only</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="recent-activity">
+            <h3 class="section-title">Recent Activity</h3>
+            <div id="recentActivities">
+                <div class="activity-item">
+                    <div class="activity-icon transfer">→</div>
+                    <div class="activity-details">
+                        <div class="activity-title">Loading recent activities...</div>
+                        <div class="activity-time">Please wait</div>
+                    </div>
+                    <div class="activity-amount">--</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <div class="fab" id="fab">+</div>
+
+    <script>
+        // Tenant configuration and dynamic loading
+        let tenantConfig = null;
+        let currentUser = null;
+
+        // Load tenant information from backend
+        async function loadTenantInformation() {
+            try {
+                // Get subdomain to identify tenant
+                const hostname = window.location.hostname;
+                const subdomain = hostname.split('.')[0];
+
+                // Fetch tenant configuration from backend
+                const response = await fetch(`/api/v1/tenant/config`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+                        'X-Tenant-Code': subdomain
+                    }
+                });
+
+                if (response.ok) {
+                    tenantConfig = await response.json();
+                    updateTenantUI(tenantConfig);
+                } else {
+                    console.error('Failed to load tenant configuration');
+                    showFallbackUI();
+                }
+            } catch (error) {
+                console.error('Error loading tenant information:', error);
+                showFallbackUI();
+            }
+        }
+
+        // Update UI with tenant-specific information
+        function updateTenantUI(config) {
+            // Update page title
+            document.title = `${config.shortName || config.name} Banking Dashboard`;
+
+            // Update dashboard header
+            document.getElementById('tenantLogo').textContent = config.shortName || config.name.substring(0, 4).toUpperCase();
+            document.getElementById('dashboardTitle').textContent = `${config.shortName || config.name} Dashboard`;
+            document.getElementById('tenantName').textContent = config.fullName || config.name;
+
+            // Update logo background color if provided
+            if (config.brandColor) {
+                document.getElementById('tenantLogo').style.background = config.brandColor;
+            }
+        }
+
+        // Fallback UI for demo/error scenarios
+        function showFallbackUI() {
+            document.getElementById('tenantLogo').textContent = 'BANK';
+            document.getElementById('dashboardTitle').textContent = 'Banking Dashboard';
+            document.getElementById('tenantName').textContent = 'Banking Platform';
+        }
+
+        // Load user information from backend
+        async function loadUserInformation() {
+            try {
+                const response = await fetch('/api/v1/auth/current-user', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+                    }
+                });
+
+                if (response.ok) {
+                    currentUser = await response.json();
+                    updateUserUI(currentUser);
+                }
+            } catch (error) {
+                console.error('Error loading user information:', error);
+            }
+        }
+
+        // Update UI with user information
+        function updateUserUI(user) {
+            // Update user avatar with initials
+            const initials = user.fullName
+                .split(' ')
+                .map(name => name[0])
+                .join('')
+                .toUpperCase()
+                .substring(0, 2);
+
+            document.getElementById('userAvatar').textContent = initials;
+            document.getElementById('userName').textContent = user.fullName;
+            document.getElementById('userRole').textContent = formatRole(user.role);
+
+            // Set role badge color based on role
+            const roleBadge = document.getElementById('userRole');
+            switch(user.role) {
+                case 'bank_admin':
+                    roleBadge.style.background = 'var(--success-color)';
+                    break;
+                case 'bank_manager':
+                    roleBadge.style.background = 'var(--primary-color)';
+                    break;
+                case 'bank_teller':
+                    roleBadge.style.background = 'var(--warning-color)';
+                    break;
+                default:
+                    roleBadge.style.background = 'var(--text-secondary)';
+            }
+        }
+
+        // Format role for display
+        function formatRole(role) {
+            const roleMap = {
+                'bank_admin': 'Admin',
+                'bank_manager': 'Manager',
+                'bank_teller': 'Teller',
+                'bank_user': 'User',
+                'customer': 'Customer'
+            };
+            return roleMap[role] || role;
+        }
+
+        // Load dashboard data from backend
+        async function loadDashboardData() {
+            try {
+                const tenantId = tenantConfig?.id || localStorage.getItem('tenant_id');
+
+                const response = await fetch(`/api/v1/dashboard/tenant/${tenantId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+                    }
+                });
+
+                if (response.ok) {
+                    const dashboardData = await response.json();
+                    updateDashboardMetrics(dashboardData);
+                    updateRecentActivities(dashboardData.recentActivities || []);
+                    updateAISuggestions(dashboardData.aiSuggestions || []);
+                }
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        // Update dashboard metrics with real data
+        function updateDashboardMetrics(data) {
+            document.getElementById('customerCount').textContent = formatNumber(data.customerCount || 0);
+            document.getElementById('customerGrowth').textContent = formatPercentage(data.customerGrowth || 0);
+
+            document.getElementById('monthlyVolume').textContent = formatCurrency(data.monthlyVolume || 0);
+            document.getElementById('volumeGrowth').textContent = formatPercentage(data.volumeGrowth || 0);
+
+            document.getElementById('monthlyRevenue').textContent = formatCurrency(data.monthlyRevenue || 0);
+            document.getElementById('revenueGrowth').textContent = formatPercentage(data.revenueGrowth || 0);
+
+            document.getElementById('loansOutstanding').textContent = formatCurrency(data.loansOutstanding || 0);
+            document.getElementById('loansGrowth').textContent = formatPercentage(data.loansGrowth || 0);
+        }
+
+        // Update recent activities
+        function updateRecentActivities(activities) {
+            const container = document.getElementById('recentActivities');
+
+            if (activities.length === 0) {
+                container.innerHTML = `
+                    <div class="activity-item">
+                        <div class="activity-icon transfer">ℹ️</div>
+                        <div class="activity-details">
+                            <div class="activity-title">No recent activities</div>
+                            <div class="activity-time">Start banking to see activities here</div>
+                        </div>
+                        <div class="activity-amount">--</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = activities.slice(0, 5).map(activity => `
+                <div class="activity-item">
+                    <div class="activity-icon ${activity.type}">${getActivityIcon(activity.type)}</div>
+                    <div class="activity-details">
+                        <div class="activity-title">${activity.description}</div>
+                        <div class="activity-time">${formatTime(activity.timestamp)}</div>
+                    </div>
+                    <div class="activity-amount">${formatCurrency(activity.amount)}</div>
+                </div>
+            `).join('');
+        }
+
+        // Update AI suggestions
+        function updateAISuggestions(suggestions) {
+            const container = document.getElementById('aiSuggestions');
+
+            if (suggestions.length === 0) {
+                container.innerHTML = '<li>• No suggestions available at this time</li>';
+                return;
+            }
+
+            container.innerHTML = suggestions.slice(0, 4).map(suggestion => `
+                <li>• ${suggestion}</li>
+            `).join('');
+        }
+
+        // Helper functions
+        function getActivityIcon(type) {
+            const icons = {
+                'transfer': '→',
+                'deposit': '+',
+                'withdrawal': '−',
+                'loan': '💰',
+                'reversal': '↩️',
+                'payment': '🧾'
+            };
+            return icons[type] || 'ℹ️';
+        }
+
+        function formatNumber(num) {
+            return new Intl.NumberFormat('en-NG').format(num);
+        }
+
+        function formatCurrency(amount) {
+            if (amount >= 1000000000) {
+                return `₦${(amount / 1000000000).toFixed(1)}B`;
+            } else if (amount >= 1000000) {
+                return `₦${(amount / 1000000).toFixed(1)}M`;
+            } else if (amount >= 1000) {
+                return `₦${(amount / 1000).toFixed(1)}K`;
+            }
+            return `₦${formatNumber(amount)}`;
+        }
+
+        function formatPercentage(value) {
+            const sign = value >= 0 ? '+' : '';
+            return `${sign}${value}%`;
+        }
+
+        function formatTime(timestamp) {
+            return new Date(timestamp).toLocaleTimeString('en-NG', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Event handlers
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Load tenant and user information first
+            await loadTenantInformation();
+            await loadUserInformation();
+
+            // Then load dashboard data
+            await loadDashboardData();
+
+            // Set up periodic refresh
+            setInterval(loadDashboardData, 60000); // Refresh every minute
+
+            // Action card handlers
+            document.querySelectorAll('.action-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const feature = this.dataset.feature;
+                    handleActionCard(feature);
+                });
+            });
+
+            // AI input handler
+            document.getElementById('aiSend').addEventListener('click', handleAIInput);
+            document.getElementById('aiInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleAIInput();
+                }
+            });
+
+            // FAB handler
+            document.getElementById('fab').addEventListener('click', function() {
+                alert('Quick Action Menu - This would show a menu of common banking actions');
+            });
+
+            // Feature item handlers
+            document.querySelectorAll('.feature-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const featureName = this.querySelector('.feature-name').textContent;
+                    alert(`Opening ${featureName}...`);
+                });
+            });
+        });
+
+        function handleActionCard(feature) {
+            const featureMap = {
+                'transfers': 'Money Transfer',
+                'savings': 'Savings Management',
+                'loans': 'Loan Processing',
+                'bills': 'Bill Payments',
+                'reversal': 'Transaction Reversal',
+                'kyc': 'KYC Management'
+            };
+
+            alert(`Opening ${featureMap[feature] || feature}...`);
+        }
+
+        function handleAIInput() {
+            const input = document.getElementById('aiInput');
+            const message = input.value.trim();
+
+            if (message) {
+                alert(`AI Assistant: Processing "${message}"... This would connect to our AI service for banking assistance.`);
+                input.value = '';
+            }
+        }
+    </script>
+</body>
+</html>

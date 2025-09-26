@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Savings & Loans - OrokiiPay Banking Platform</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --surface-color: #ffffff;
+            --background-color: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --gradient-success: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            --gradient-savings: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+            --gradient-loans: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            background: var(--surface-color);
+            min-height: 100vh;
+            box-shadow: var(--shadow);
+        }
+
+        /* Header */
+        .header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+        }
+
+        .header-title h1 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .header-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            background: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 15px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary-color);
+        }
+
+        /* Content */
+        .content {
+            padding: 20px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Summary Cards */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-savings);
+        }
+
+        .summary-card.loans::before {
+            background: var(--gradient-loans);
+        }
+
+        .summary-amount {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Product Cards */
+        .products-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .product-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .product-card {
+            background: var(--surface-color);
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .product-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .product-card.savings {
+            background: linear-gradient(135deg, rgba(13, 148, 136, 0.05) 0%, rgba(20, 184, 166, 0.05) 100%);
+        }
+
+        .product-card.loans {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+        }
+
+        .product-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+
+        .product-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: var(--gradient-savings);
+            color: white;
+        }
+
+        .product-card.loans .product-icon {
+            background: var(--gradient-loans);
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .product-subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .product-rate {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--success-color);
+        }
+
+        .product-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .feature-tag {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary-color);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* Savings Products */
+        .savings-balance {
+            background: var(--gradient-savings);
+            color: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .balance-amount {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .balance-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 12px;
+        }
+
+        .balance-growth {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        /* Loans Section */
+        .loan-eligibility {
+            background: var(--gradient-loans);
+            color: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .eligibility-amount {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .eligibility-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 12px;
+        }
+
+        .credit-score {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        /* Active Products */
+        .active-products {
+            margin-bottom: 25px;
+        }
+
+        .active-product {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .active-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .active-title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .active-status {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            background: var(--success-color);
+            color: white;
+        }
+
+        .progress-bar {
+            background: var(--border-color);
+            border-radius: 6px;
+            height: 8px;
+            margin: 8px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: var(--gradient-success);
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-savings {
+            background: var(--gradient-savings);
+            color: white;
+        }
+
+        .btn-savings:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 15px rgba(13, 148, 136, 0.3);
+        }
+
+        .btn-loans {
+            background: var(--gradient-loans);
+            color: white;
+        }
+
+        .btn-loans:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 15px rgba(124, 58, 237, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--surface-color);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                margin: 0;
+                max-width: 100%;
+            }
+
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tab-content.active {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <button class="back-btn" onclick="goBack()">← Back</button>
+                <div class="header-title">
+                    <h1>Savings & Loans</h1>
+                    <div class="header-subtitle">Grow your wealth, access credit</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+            <button class="tab-btn" onclick="showTab('savings')">Savings</button>
+            <button class="tab-btn" onclick="showTab('loans')">Loans</button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div id="overview-tab" class="content tab-content active">
+            <!-- Summary Cards -->
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <div class="summary-amount">₦125,450</div>
+                    <div class="summary-label">Total Savings</div>
+                </div>
+                <div class="summary-card loans">
+                    <div class="summary-amount">₦5,000</div>
+                    <div class="summary-label">Available Credit</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="action-buttons">
+                <button class="btn btn-savings" onclick="startSaving()">Start Saving</button>
+                <button class="btn btn-loans" onclick="applyLoan()">Apply for Loan</button>
+            </div>
+
+            <!-- Active Products -->
+            <div class="active-products">
+                <h3 class="section-title">Active Products</h3>
+
+                <div class="active-product">
+                    <div class="active-header">
+                        <div class="active-title">Target Savings - New Phone</div>
+                        <div class="active-status">Active</div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 68%"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span>₦68,000 of ₦100,000</span>
+                        <span>32 days left</span>
+                    </div>
+                </div>
+
+                <div class="active-product">
+                    <div class="active-header">
+                        <div class="active-title">Flexible Savings</div>
+                        <div class="active-status">Active</div>
+                    </div>
+                    <div class="progress-text">
+                        <span>Balance: ₦57,450</span>
+                        <span>4.5% p.a.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Savings Tab -->
+        <div id="savings-tab" class="content tab-content">
+            <!-- Total Savings -->
+            <div class="savings-balance">
+                <div class="balance-amount">₦125,450</div>
+                <div class="balance-label">Total Savings Balance</div>
+                <div class="balance-growth">
+                    <span>📈</span>
+                    <span>+₦2,340 this month</span>
+                </div>
+            </div>
+
+            <!-- Savings Products -->
+            <div class="products-section">
+                <h3 class="section-title">Savings Products</h3>
+
+                <div class="product-grid">
+                    <div class="product-card savings" onclick="selectProduct('flexible-savings')">
+                        <div class="product-header">
+                            <div class="product-icon">💰</div>
+                            <div class="product-info">
+                                <div class="product-title">Flexible Savings</div>
+                                <div class="product-subtitle">Save daily, weekly, or monthly</div>
+                                <div class="product-rate">Up to 4.5% p.a.</div>
+                            </div>
+                        </div>
+                        <div class="product-features">
+                            <div class="feature-tag">No Lock-in</div>
+                            <div class="feature-tag">Flexible Withdrawal</div>
+                            <div class="feature-tag">Auto-Save</div>
+                        </div>
+                    </div>
+
+                    <div class="product-card savings" onclick="selectProduct('locked-savings')">
+                        <div class="product-header">
+                            <div class="product-icon">🔒</div>
+                            <div class="product-info">
+                                <div class="product-title">Locked Savings</div>
+                                <div class="product-subtitle">12-24 months fixed term</div>
+                                <div class="product-rate">Up to 8.5% p.a.</div>
+                            </div>
+                        </div>
+                        <div class="product-features">
+                            <div class="feature-tag">Higher Returns</div>
+                            <div class="feature-tag">Monthly Interest</div>
+                            <div class="feature-tag">Fixed Rate</div>
+                        </div>
+                    </div>
+
+                    <div class="product-card savings" onclick="selectProduct('target-savings')">
+                        <div class="product-header">
+                            <div class="product-icon">🎯</div>
+                            <div class="product-info">
+                                <div class="product-title">Target Savings</div>
+                                <div class="product-subtitle">Goal-based automated savings</div>
+                                <div class="product-rate">Up to 5.0% p.a.</div>
+                            </div>
+                        </div>
+                        <div class="product-features">
+                            <div class="feature-tag">Goal Tracking</div>
+                            <div class="feature-tag">Auto Debit</div>
+                            <div class="feature-tag">Progress Alerts</div>
+                        </div>
+                    </div>
+
+                    <div class="product-card savings" onclick="selectProduct('sayt-savings')">
+                        <div class="product-header">
+                            <div class="product-icon">🔄</div>
+                            <div class="product-info">
+                                <div class="product-title">Save As You Transact</div>
+                                <div class="product-subtitle">Save on every transaction</div>
+                                <div class="product-rate">Variable Rate</div>
+                            </div>
+                        </div>
+                        <div class="product-features">
+                            <div class="feature-tag">Auto Round-up</div>
+                            <div class="feature-tag">Min ₦50</div>
+                            <div class="feature-tag">1% Penalty</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loans Tab -->
+        <div id="loans-tab" class="content tab-content">
+            <!-- Loan Eligibility -->
+            <div class="loan-eligibility">
+                <div class="eligibility-amount">₦5,000</div>
+                <div class="eligibility-label">Available Loan Limit</div>
+                <div class="credit-score">
+                    <span>⭐</span>
+                    <span>Credit Score: 750 (Good)</span>
+                </div>
+            </div>
+
+            <!-- Loan Products -->
+            <div class="products-section">
+                <h3 class="section-title">Loan Products</h3>
+
+                <div class="product-grid">
+                    <div class="product-card loans" onclick="selectProduct('quick-loan')">
+                        <div class="product-header">
+                            <div class="product-icon">⚡</div>
+                            <div class="product-info">
+                                <div class="product-title">Quick Loan</div>
+                                <div class="product-subtitle">₂,000 - ₦5,000 • 7-14 days</div>
+                                <div class="product-rate">15% monthly interest</div>
+                            </div>
+                        </div>
+                        <div class="product-features">
+                            <div class="feature-tag">Instant Approval</div>
+                            <div class="feature-tag">No Collateral</div>
+                            <div class="feature-tag">7 Days Term</div>
+                        </div>
+                    </div>
+
+                    <div class="product-card loans" onclick="selectProduct('business-loan')">
+                        <div class="product-header">
+                            <div class="product-icon">💼</div>
+                            <div class="product-info">
+                                <div class="product-title">Business Loan</div>
+                                <div class="product-subtitle">₦10,000+ • 1-2 months</div>
+                                <div class="product-rate">12% monthly interest</div>
+                            </div>
+                        </div>
+                        <div class="product-features">
+                            <div class="feature-tag">Higher Limits</div>
+                            <div class="feature-tag">Longer Terms</div>
+                            <div class="feature-tag">Business Use</div>
+                        </div>
+                    </div>
+
+                    <div class="product-card loans" onclick="selectProduct('salary-advance')">
+                        <div class="product-header">
+                            <div class="product-icon">💳</div>
+                            <div class="product-info">
+                                <div class="product-title">Salary Advance</div>
+                                <div class="product-subtitle">Based on salary • 30 days</div>
+                                <div class="product-rate">10% monthly interest</div>
+                            </div>
+                        </div>
+                        <div class="product-features">
+                            <div class="feature-tag">Salary Based</div>
+                            <div class="feature-tag">Lower Interest</div>
+                            <div class="feature-tag">30 Days</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loan Requirements -->
+                <div class="product-card" style="border-style: dashed; cursor: default;">
+                    <div class="product-header">
+                        <div class="product-icon" style="background: var(--border-color); color: var(--text-secondary);">ℹ️</div>
+                        <div class="product-info">
+                            <div class="product-title">Loan Requirements</div>
+                            <div class="product-subtitle">To increase your loan limit:</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 12px; font-size: 12px; color: var(--text-secondary);">
+                        • Complete 2-3 successful repayments<br>
+                        • Maintain good credit score<br>
+                        • Regular account activity<br>
+                        • Verify additional income sources
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Remove active class from all tabs and buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            // Add active class to selected tab and button
+            document.querySelector(`[onclick="showTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+        }
+
+        function selectProduct(productType) {
+            alert(`Opening ${productType.replace('-', ' ')} application...`);
+            // Navigate to specific product application page
+        }
+
+        function startSaving() {
+            showTab('savings');
+        }
+
+        function applyLoan() {
+            showTab('loans');
+        }
+
+        function goBack() {
+            window.history.back();
+        }
+
+        // Initialize progress bars
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate progress bars
+            setTimeout(() => {
+                document.querySelectorAll('.progress-fill').forEach(bar => {
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = width;
+                    }, 100);
+                });
+            }, 500);
+        });
+    </script>
+</body>
+</html>

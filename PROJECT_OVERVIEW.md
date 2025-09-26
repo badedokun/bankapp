@@ -47,6 +47,26 @@ This document is essential for any Claude Code agent working on this project. It
 - **Shared application code**: Single codebase serves all tenants
 - **Tenant routing**: Via subdomain, header, or JWT token context
 
+### **🚨 CRITICAL: Platform Administration Architecture**
+
+**UNIFIED APPLICATION APPROACH** (Industry Best Practice)
+Following proven patterns from **Slack, GitHub, GitLab, Atlassian**:
+
+- ✅ **Same Application**: Single React Native + Web codebase serves both platform admin and tenant users
+- ✅ **Same Database**: Single PostgreSQL with role-based query scoping
+- ✅ **Same Infrastructure**: Cost-efficient unified deployment
+- ✅ **Subdomain-Based Access**:
+  - `admin.orokiipay.com` → Platform admin interface (OrokiiPay team)
+  - `{tenant}.orokiipay.com` → Bank-specific interface (e.g., fmfb.orokiipay.com)
+- ✅ **JWT Context**: Role-based access control with dynamic UI rendering
+- ✅ **Security Separation**: Enhanced security for platform admin, standard for tenants
+
+**REFERENCE DOCUMENTS:**
+- 📄 **`TENANT_MANAGEMENT_SAAS_UNIFIED.md`** - Complete architecture specification
+- 📄 **`FRONTEND_UNIFIED_IMPLEMENTATION.md`** - Frontend implementation plan
+
+**DO NOT implement separate applications or databases for platform admin!**
+
 ---
 
 ## 🛠️ **Technology Stack**
@@ -956,6 +976,108 @@ npm run test:all          # Full comprehensive test suite
 
 ---
 
+## 🛠️ **CRITICAL IMPLEMENTATION GUIDANCE**
+
+### **🚨 Platform Administration Implementation**
+
+**UNIFIED APPLICATION APPROACH - MANDATORY FOR ALL AGENTS/DEVELOPERS**
+
+When implementing any platform administration or tenant management features:
+
+#### **✅ DO THIS (Industry Best Practice):**
+```typescript
+// Enhance existing AuthContext with role-based access
+interface AuthState {
+  isAuthenticated: boolean;
+  user: User;
+  isPlatformAdmin: boolean;    // NEW: Platform admin flag
+  tenantId: string | null;     // NULL for platform admins
+  permissions: string[];       // Fine-grained permissions
+  subdomain: string;           // admin vs tenant subdomain
+}
+
+// Dynamic UI rendering based on role
+const DashboardScreen = () => {
+  const { isPlatformAdmin, tenantId } = useAuth();
+
+  if (isPlatformAdmin) {
+    // Platform admin sees cross-tenant dashboard
+    return <PlatformAdminDashboard />;
+  }
+
+  // Tenant users see bank-specific dashboard
+  return <TenantBankingDashboard tenantId={tenantId} />;
+};
+
+// Subdomain-based access control
+app.use('/api/v1/*', (req, res, next) => {
+  const subdomain = req.hostname.split('.')[0];
+  const isPlatformRequest = subdomain === 'admin';
+
+  // Set context for platform vs tenant access
+  req.platformAccess = isPlatformRequest;
+  req.tenantId = isPlatformRequest ? null : getTenantIdFromSubdomain(subdomain);
+  next();
+});
+```
+
+#### **❌ NEVER DO THIS:**
+- ❌ Create separate applications for platform admin
+- ❌ Create separate databases for platform management
+- ❌ Duplicate components or services for admin vs tenant
+- ❌ Hardcode platform admin features in tenant interfaces
+
+#### **🔐 Security Implementation Pattern:**
+```typescript
+// JWT token structure with role context
+interface OrokiiPayJWT {
+  sub: string;              // user_id
+  role: string;             // 'platform_admin' | 'bank_admin' | 'bank_user'
+  platform_admin: boolean; // Platform access flag
+  tenant_id: string | null; // NULL for platform admins
+  permissions: string[];    // ['manage_all_tenants', 'view_platform_analytics']
+  subdomain: string;        // Requested access context
+}
+
+// Role-based middleware
+const platformAdminRequired = (req, res, next) => {
+  if (!req.user.platform_admin) {
+    return res.status(403).json({ error: 'Platform admin access required' });
+  }
+  next();
+};
+
+// Context-aware database queries
+const getTenants = async (userId, isPlatformAdmin, tenantId) => {
+  if (isPlatformAdmin) {
+    // Platform admin sees all tenants
+    return await db.query('SELECT * FROM tenants');
+  } else {
+    // Tenant users see only their tenant
+    return await db.query('SELECT * FROM tenants WHERE id = ?', [tenantId]);
+  }
+};
+```
+
+#### **📚 Required Reading for Implementation:**
+- **`TENANT_MANAGEMENT_SAAS_UNIFIED.md`** - Complete architecture specification
+- **`FRONTEND_UNIFIED_IMPLEMENTATION.md`** - Frontend implementation roadmap
+
+#### **🎯 Implementation Priorities:**
+1. **Week 1:** Enhance JWT authentication with role context and subdomain routing
+2. **Week 2:** Add platform admin UI components within existing screens
+3. **Week 3:** Implement cross-tenant dashboard and tenant management features
+4. **Week 4:** Complete tenant onboarding workflow and billing management
+
+#### **✅ Success Criteria:**
+- [ ] Same application serves both `admin.orokiipay.com` and `{tenant}.orokiipay.com`
+- [ ] JWT tokens contain role context and platform admin flags
+- [ ] UI dynamically renders based on user role and subdomain
+- [ ] Database queries automatically scope to tenant context
+- [ ] Platform admins can manage all tenants, tenants only see their data
+
+---
+
 ## 🎯 **Current Status**
 
 ### **Completed Features**
@@ -971,12 +1093,25 @@ npm run test:all          # Full comprehensive test suite
 - ✅ 🌐 **Cloud Deployment**: Production deployment on GCP (34.59.143.25) with SSL/TLS, PM2 process management
 - ✅ ⚡ **Fast Deployment**: Git-based deployment (3-5 min vs 1-2 hours) with automated backups
 
-### **Next Development Priorities (Phase 5)**
-1. **NIBSS Production Integration** - Name Enquiry, Fund Transfer, Transaction Status Query
-2. **Savings & Loans Platform** - 4 savings products, loan system with progressive limits
-3. **Credit Bureau Integration** - Real-time credit checks for loan eligibility
-4. **Advanced Security** - 2FA, biometric authentication, enhanced fraud detection
-5. **Third-Party Integrations** - Paystack, bill payments, investment platforms
+### **Next Development Priorities**
+
+#### **🚨 IMMEDIATE (Week 1-4): Platform Administration**
+1. **Platform Admin System** - JWT context + subdomain routing for OrokiiPay team management
+2. **Tenant Onboarding** - Automated bank onboarding and configuration workflow
+3. **Cross-Tenant Analytics** - Platform-wide business intelligence and revenue tracking
+4. **Billing Management** - Subscription and usage-based billing for multiple tenants
+
+#### **📈 HIGH PRIORITY (Week 5-12): Revenue Generation**
+1. **Transaction Reversal System** - CBN-compliant reversal management with AI pattern analysis
+2. **NIBSS Production Integration** - Name Enquiry, Fund Transfer, Transaction Status Query
+3. **Savings & Loans Platform** - 4 savings products, loan system with progressive limits
+4. **Frontend Conversion** - Convert 19 HTML mockups to React Native screens
+
+#### **🔧 MEDIUM PRIORITY (Week 13-20): Advanced Features**
+1. **Credit Bureau Integration** - Real-time credit checks for loan eligibility
+2. **Advanced Security** - 2FA, biometric authentication, enhanced fraud detection
+3. **Bill Payments** - Integration with Nigerian biller networks
+4. **Third-Party Integrations** - Paystack, investment platforms, insurance products
 
 ---
 

@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KYC Onboarding - OrokiiPay Banking Platform</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --surface-color: #ffffff;
+            --background-color: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            background: var(--surface-color);
+            min-height: 100vh;
+            box-shadow: var(--shadow);
+        }
+
+        /* Header */
+        .header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+        }
+
+        .header-title h1 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .header-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            padding: 20px;
+            background: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-primary);
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 20px;
+            min-height: calc(100vh - 200px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .step-content {
+            flex: 1;
+            display: none;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
+        .step-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .step-description {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 16px;
+            background: var(--surface-color);
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* Document Upload */
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            font-size: 12px;
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        /* Document List */
+        .document-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: var(--background-color);
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+
+        .doc-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--success-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .doc-info {
+            flex: 1;
+        }
+
+        .doc-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .doc-size {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Verification */
+        .verification-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: var(--background-color);
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .verify-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .verify-icon.pending {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .verify-icon.success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .verify-info h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .verify-status {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Buttons */
+        .button-container {
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            background: var(--surface-color);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: var(--background-color);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            margin-bottom: 10px;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-verified {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-failed {
+            background: #fecaca;
+            color: #991b1b;
+        }
+
+        /* Success Screen */
+        .success-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--success-color);
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            font-size: 40px;
+            color: white;
+        }
+
+        .success-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+        }
+
+        .success-description {
+            font-size: 16px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            .step-title {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <button class="back-btn" onclick="goBack()">← Back</button>
+                <div class="header-title">
+                    <h1>Account Verification</h1>
+                    <div class="header-subtitle">Complete your KYC process</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-header">
+                <span class="progress-text">Step <span id="currentStep">1</span> of 5</span>
+                <span class="progress-text"><span id="progressPercent">20</span>% Complete</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 20%"></div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content">
+            <!-- Step 1: Personal Information -->
+            <div class="step-content active" id="step1">
+                <h2 class="step-title">Personal Information</h2>
+                <p class="step-description">Please provide your basic personal details to get started.</p>
+
+                <form id="personalForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">First Name</label>
+                            <input type="text" class="form-input" placeholder="John" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Last Name</label>
+                            <input type="text" class="form-input" placeholder="Adebayo" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-input" placeholder="john.adebayo@email.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" class="form-input" placeholder="+234 801 234 5678" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Date of Birth</label>
+                            <input type="date" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Gender</label>
+                            <select class="form-select" required>
+                                <option value="">Select</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Residential Address</label>
+                        <input type="text" class="form-input" placeholder="123 Victoria Island, Lagos" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">State</label>
+                            <select class="form-select" required>
+                                <option value="">Select State</option>
+                                <option value="lagos">Lagos</option>
+                                <option value="abuja">FCT Abuja</option>
+                                <option value="kano">Kano</option>
+                                <option value="rivers">Rivers</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">LGA</label>
+                            <select class="form-select" required>
+                                <option value="">Select LGA</option>
+                                <option value="mainland">Lagos Mainland</option>
+                                <option value="island">Lagos Island</option>
+                                <option value="ikeja">Ikeja</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Step 2: Identity Verification -->
+            <div class="step-content" id="step2">
+                <h2 class="step-title">Identity Documents</h2>
+                <p class="step-description">Upload clear photos of your identity documents for verification.</p>
+
+                <div class="form-group">
+                    <label class="form-label">ID Type</label>
+                    <select class="form-select" id="idType">
+                        <option value="">Select ID Type</option>
+                        <option value="nin">National ID (NIN)</option>
+                        <option value="voters">Voter's Card</option>
+                        <option value="passport">International Passport</option>
+                        <option value="drivers">Driver's License</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">ID Number</label>
+                    <input type="text" class="form-input" placeholder="Enter ID number" maxlength="11">
+                </div>
+
+                <div class="upload-area" onclick="uploadDocument()">
+                    <div class="upload-icon">📄</div>
+                    <div class="upload-text">Upload Front Side</div>
+                    <div class="upload-subtext">JPG, PNG or PDF • Max 5MB</div>
+                </div>
+
+                <div class="upload-area" onclick="uploadDocument()">
+                    <div class="upload-icon">📄</div>
+                    <div class="upload-text">Upload Back Side</div>
+                    <div class="upload-subtext">JPG, PNG or PDF • Max 5MB</div>
+                </div>
+
+                <div id="uploadedDocs" style="display: none;">
+                    <div class="document-item">
+                        <div class="doc-icon">📄</div>
+                        <div class="doc-info">
+                            <div class="doc-name">ID_Front.jpg</div>
+                            <div class="doc-size">2.4 MB</div>
+                        </div>
+                        <span class="status-badge status-verified">Verified</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Biometric Verification -->
+            <div class="step-content" id="step3">
+                <h2 class="step-title">Biometric Verification</h2>
+                <p class="step-description">We need to verify your identity using biometric technology.</p>
+
+                <div class="verification-item">
+                    <div class="verify-icon pending">👤</div>
+                    <div class="verify-info">
+                        <h4>Face Verification</h4>
+                        <div class="verify-status">Take a selfie to verify your identity</div>
+                    </div>
+                </div>
+
+                <div class="verification-item">
+                    <div class="verify-icon success">✓</div>
+                    <div class="verify-info">
+                        <h4>NIN Verification</h4>
+                        <div class="verify-status">Successfully verified with NIMC</div>
+                    </div>
+                </div>
+
+                <div class="verification-item">
+                    <div class="verify-icon pending">📱</div>
+                    <div class="verify-info">
+                        <h4>Phone Verification</h4>
+                        <div class="verify-status">SMS code sent to +234***5678</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">SMS Verification Code</label>
+                    <input type="text" class="form-input" placeholder="Enter 6-digit code" maxlength="6">
+                </div>
+            </div>
+
+            <!-- Step 4: Risk Assessment -->
+            <div class="step-content" id="step4">
+                <h2 class="step-title">Risk Assessment</h2>
+                <p class="step-description">Please answer a few questions to help us understand your banking needs.</p>
+
+                <div class="form-group">
+                    <label class="form-label">Employment Status</label>
+                    <select class="form-select">
+                        <option value="">Select Status</option>
+                        <option value="employed">Employed</option>
+                        <option value="self-employed">Self Employed</option>
+                        <option value="student">Student</option>
+                        <option value="unemployed">Unemployed</option>
+                        <option value="retired">Retired</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Monthly Income Range</label>
+                    <select class="form-select">
+                        <option value="">Select Range</option>
+                        <option value="0-50k">₦0 - ₦50,000</option>
+                        <option value="50k-100k">₦50,000 - ₦100,000</option>
+                        <option value="100k-500k">₦100,000 - ₦500,000</option>
+                        <option value="500k-1m">₦500,000 - ₦1,000,000</option>
+                        <option value="1m+">₦1,000,000+</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Source of Funds</label>
+                    <select class="form-select">
+                        <option value="">Select Source</option>
+                        <option value="salary">Salary/Employment</option>
+                        <option value="business">Business Income</option>
+                        <option value="investment">Investment Returns</option>
+                        <option value="savings">Personal Savings</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Intended Account Usage</label>
+                    <select class="form-select">
+                        <option value="">Select Usage</option>
+                        <option value="personal">Personal Banking</option>
+                        <option value="business">Business Transactions</option>
+                        <option value="savings">Savings & Investments</option>
+                        <option value="remittance">Remittance</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Step 5: Completion -->
+            <div class="step-content" id="step5">
+                <div class="success-screen">
+                    <div class="success-icon">✓</div>
+                    <h2 class="success-title">Verification Complete!</h2>
+                    <p class="success-description">
+                        Your KYC application has been submitted successfully.
+                        You'll receive a confirmation email within 24 hours once your account is approved.
+                    </p>
+                    <div style="margin-bottom: 30px;">
+                        <div class="status-badge status-pending">Under Review</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Button Container -->
+        <div class="button-container">
+            <button class="btn btn-secondary" id="backBtn" onclick="previousStep()" style="display: none;">
+                Previous Step
+            </button>
+            <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">
+                Continue
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 5;
+
+        function updateProgress() {
+            const percent = (currentStep / totalSteps) * 100;
+            document.getElementById('currentStep').textContent = currentStep;
+            document.getElementById('progressPercent').textContent = Math.round(percent);
+            document.getElementById('progressFill').style.width = percent + '%';
+
+            // Show/hide back button
+            document.getElementById('backBtn').style.display = currentStep > 1 ? 'block' : 'none';
+
+            // Update next button text
+            const nextBtn = document.getElementById('nextBtn');
+            if (currentStep === totalSteps) {
+                nextBtn.textContent = 'Complete Setup';
+            } else {
+                nextBtn.textContent = 'Continue';
+            }
+        }
+
+        function showStep(stepNumber) {
+            // Hide all steps
+            document.querySelectorAll('.step-content').forEach(step => {
+                step.classList.remove('active');
+            });
+
+            // Show current step
+            document.getElementById(`step${stepNumber}`).classList.add('active');
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                showStep(currentStep);
+                updateProgress();
+            } else {
+                alert('KYC process completed! Redirecting to dashboard...');
+            }
+        }
+
+        function previousStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+                updateProgress();
+            }
+        }
+
+        function goBack() {
+            alert('Going back to previous screen...');
+        }
+
+        function uploadDocument() {
+            // Simulate file upload
+            setTimeout(() => {
+                document.getElementById('uploadedDocs').style.display = 'block';
+                alert('Document uploaded successfully!');
+            }, 1000);
+        }
+
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>

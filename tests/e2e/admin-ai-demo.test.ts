@@ -5,7 +5,7 @@ const API_URL = 'http://localhost:3001';
 
 const ADMIN_USER = {
   email: 'admin@fmfb.com',
-  password: 'Admin@123!',
+  password: 'Admin-7-super',
   tenantId: 'fmfb'
 };
 

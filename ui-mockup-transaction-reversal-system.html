@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Reversal System - OrokiiPay Banking Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --surface-color: #ffffff;
+            --background-color: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --gradient-success: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            background: var(--surface-color);
+            min-height: 100vh;
+            box-shadow: var(--shadow);
+        }
+
+        /* Header */
+        .header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+        }
+
+        .header-title h1 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .header-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        /* Content */
+        .content {
+            padding: 20px;
+        }
+
+        .system-status {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .status-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .status-text h3 {
+            font-size: 1.2rem;
+            margin-bottom: 4px;
+        }
+
+        .status-text p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 6px;
+            margin-bottom: 30px;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #64748b;
+            text-align: center;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .stat-card.warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+        }
+
+        .stat-card.error {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+        }
+
+        .stat-card.success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+        }
+
+        .stat-card h3 {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .stat-change {
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+
+        .search-section {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 30px;
+        }
+
+        .search-title {
+            color: #1e293b;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .search-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.875rem;
+        }
+
+        .form-input, .form-select {
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            background: white;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        .reversals-table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .table-header {
+            background: #f8fafc;
+            padding: 20px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            color: #1e293b;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            min-width: 800px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px 8px;
+            border-bottom: 1px solid #f1f5f9;
+            white-space: nowrap;
+        }
+
+        /* Mobile responsive table */
+        @media (max-width: 420px) {
+            th, td {
+                padding: 8px 4px;
+                font-size: 0.8rem;
+            }
+
+            th {
+                font-size: 0.75rem;
+            }
+
+            .transaction-id {
+                font-size: 0.7rem;
+            }
+        }
+
+        th {
+            background: #f8fafc;
+            color: #374151;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            color: #1e293b;
+            font-size: 0.95rem;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        .transaction-id {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .amount-value {
+            font-weight: 700;
+            color: #dc2626;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-approved {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-rejected {
+            background: #fecaca;
+            color: #991b1b;
+        }
+
+        .status-processing {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .status-completed {
+            background: #f0fdf4;
+            color: #15803d;
+        }
+
+        .priority-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .priority-high {
+            background: #fecaca;
+            color: #991b1b;
+        }
+
+        .priority-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .priority-low {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .actions-dropdown {
+            position: relative;
+        }
+
+        .actions-button {
+            background: none;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .actions-button:hover {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .actions-menu {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            min-width: 160px;
+            z-index: 100;
+            display: none;
+        }
+
+        .actions-menu.show {
+            display: block;
+        }
+
+        .actions-menu a {
+            display: block;
+            padding: 12px 16px;
+            color: #374151;
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .actions-menu a:hover {
+            background: #f8fafc;
+        }
+
+        .actions-menu a.danger {
+            color: #dc2626;
+        }
+
+        .actions-menu a.danger:hover {
+            background: #fef2f2;
+        }
+
+        .reversal-form {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .form-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .form-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .form-header h3 {
+            color: #1e293b;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group-large {
+            margin-bottom: 20px;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            color: #92400e;
+        }
+
+        .alert-danger {
+            background: #fef2f2;
+            border: 1px solid #f87171;
+            color: #991b1b;
+        }
+
+        .alert-icon {
+            font-size: 1.2rem;
+            margin-top: 2px;
+        }
+
+        .approval-workflow {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 30px;
+        }
+
+        .workflow-title {
+            color: #1e293b;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .workflow-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .workflow-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            position: relative;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-circle.completed {
+            background: #10b981;
+            color: white;
+        }
+
+        .step-circle.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .step-circle.pending {
+            background: #e5e7eb;
+            color: #6b7280;
+        }
+
+        .step-line {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            right: -50%;
+            height: 2px;
+            background: #e5e7eb;
+            z-index: 1;
+        }
+
+        .step-line.completed {
+            background: #10b981;
+        }
+
+        .step-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+            text-align: center;
+        }
+
+        .step-description {
+            font-size: 0.75rem;
+            color: #6b7280;
+            text-align: center;
+            margin-top: 4px;
+        }
+
+        .workflow-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .audit-trail {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .audit-title {
+            color: #1e293b;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .audit-item {
+            display: flex;
+            gap: 16px;
+            padding: 16px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .audit-item:last-child {
+            border-bottom: none;
+        }
+
+        .audit-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .audit-icon.created {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .audit-icon.approved {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .audit-icon.rejected {
+            background: #fecaca;
+            color: #991b1b;
+        }
+
+        .audit-content {
+            flex: 1;
+        }
+
+        .audit-action {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .audit-details {
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-bottom: 4px;
+        }
+
+        .audit-timestamp {
+            color: #9ca3af;
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 1024px) {
+            .search-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .workflow-steps {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .step-line {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-actions {
+                flex-direction: column;
+            }
+
+            .table-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .system-status {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .table-container {
+                overflow-x: scroll;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            table {
+                min-width: 800px;
+            }
+
+            .workflow-actions {
+                flex-direction: column;
+            }
+
+            .audit-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <button class="back-btn" onclick="goBack()">← Back</button>
+                <div class="header-title">
+                    <h1>Transaction Reversal</h1>
+                    <div class="header-subtitle">CBN-compliant reversal system</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <div class="system-status">
+            <div class="status-icon">🔄</div>
+            <div class="status-text">
+                <h3>Reversal System Online</h3>
+                <p>All reversal operations are functioning normally • CBN compliance enabled • Real-time processing active</p>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('dashboard')">Dashboard</button>
+            <button class="tab-button" onclick="switchTab('initiate')">Initiate Reversal</button>
+            <button class="tab-button" onclick="switchTab('pending')">Pending Approvals</button>
+            <button class="tab-button" onclick="switchTab('history')">Reversal History</button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div class="tab-content active" id="dashboard">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🔄</div>
+                    <h3>Total Reversals</h3>
+                    <div class="stat-value">1,847</div>
+                    <div class="stat-change">+12.5% from last month</div>
+                </div>
+
+                <div class="stat-card warning">
+                    <div class="stat-icon">⏳</div>
+                    <h3>Pending Approval</h3>
+                    <div class="stat-value">23</div>
+                    <div class="stat-change">Avg. approval time: 2.3 hours</div>
+                </div>
+
+                <div class="stat-card success">
+                    <div class="stat-icon">✓</div>
+                    <h3>Approved Today</h3>
+                    <div class="stat-value">15</div>
+                    <div class="stat-change">₦2,456,780 reversed</div>
+                </div>
+
+                <div class="stat-card error">
+                    <div class="stat-icon">✕</div>
+                    <h3>Rejected</h3>
+                    <div class="stat-value">8</div>
+                    <div class="stat-change">3.2% rejection rate</div>
+                </div>
+            </div>
+
+            <div class="search-section">
+                <div class="search-title">Search Reversals</div>
+                <div class="search-grid">
+                    <div class="form-group">
+                        <label class="form-label">Transaction ID</label>
+                        <input type="text" class="form-input" placeholder="TXN240924001" id="searchTransactionId">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date Range</label>
+                        <select class="form-select">
+                            <option value="">Select range</option>
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select class="form-select">
+                            <option value="">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Priority</label>
+                        <select class="form-select">
+                            <option value="">All Priority</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="search-actions">
+                    <button class="btn-secondary" onclick="clearSearch()">Clear</button>
+                    <button class="btn-primary" onclick="searchReversals()">Search</button>
+                </div>
+            </div>
+
+            <div class="reversals-table">
+                <div class="table-header">
+                    <div class="table-title">Recent Reversal Requests</div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Reversal ID</th>
+                                <th>Original Transaction</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Reason</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="transaction-id">REV240924001</div>
+                                </td>
+                                <td>
+                                    <div class="transaction-id">TXN240924005</div>
+                                    <div style="color: #64748b; font-size: 0.8rem;">External Transfer</div>
+                                </td>
+                                <td>John Adebayo<br><span style="color: #64748b; font-size: 0.85rem;">0123456789</span></td>
+                                <td><span class="amount-value">₦150,052.50</span></td>
+                                <td>Failed transaction - account not found</td>
+                                <td><span class="priority-badge priority-high">High</span></td>
+                                <td><span class="status-badge status-pending">Pending</span></td>
+                                <td>
+                                    <div>Today, 5:20 PM</div>
+                                    <div style="color: #64748b; font-size: 0.8rem;">2 hours ago</div>
+                                </td>
+                                <td>
+                                    <div class="actions-dropdown">
+                                        <button class="actions-button" onclick="toggleActionsMenu(this)">⋮</button>
+                                        <div class="actions-menu">
+                                            <a href="#" onclick="viewReversalDetails('REV240924001')">View Details</a>
+                                            <a href="#" onclick="approveReversal('REV240924001')">Approve</a>
+                                            <a href="#" onclick="rejectReversal('REV240924001')" class="danger">Reject</a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <div class="transaction-id">REV240924002</div>
+                                </td>
+                                <td>
+                                    <div class="transaction-id">TXN240924003</div>
+                                    <div style="color: #64748b; font-size: 0.8rem;">Bill Payment</div>
+                                </td>
+                                <td>Sarah Mohammed<br><span style="color: #64748b; font-size: 0.85rem;">0987654321</span></td>
+                                <td><span class="amount-value">₦21,100.00</span></td>
+                                <td>Duplicate payment - customer complaint</td>
+                                <td><span class="priority-badge priority-medium">Medium</span></td>
+                                <td><span class="status-badge status-approved">Approved</span></td>
+                                <td>
+                                    <div>Today, 3:45 PM</div>
+                                    <div style="color: #64748b; font-size: 0.8rem;">4 hours ago</div>
+                                </td>
+                                <td>
+                                    <div class="actions-dropdown">
+                                        <button class="actions-button" onclick="toggleActionsMenu(this)">⋮</button>
+                                        <div class="actions-menu">
+                                            <a href="#" onclick="viewReversalDetails('REV240924002')">View Details</a>
+                                            <a href="#" onclick="processReversal('REV240924002')">Process</a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <div class="transaction-id">REV240924003</div>
+                                </td>
+                                <td>
+                                    <div class="transaction-id">TXN240923087</div>
+                                    <div style="color: #64748b; font-size: 0.8rem;">ATM Withdrawal</div>
+                                </td>
+                                <td>David Okafor<br><span style="color: #64748b; font-size: 0.85rem;">5566778899</span></td>
+                                <td><span class="amount-value">₦50,000.00</span></td>
+                                <td>ATM dispensed cash but debited account</td>
+                                <td><span class="priority-badge priority-high">High</span></td>
+                                <td><span class="status-badge status-processing">Processing</span></td>
+                                <td>
+                                    <div>Today, 2:15 PM</div>
+                                    <div style="color: #64748b; font-size: 0.8rem;">5 hours ago</div>
+                                </td>
+                                <td>
+                                    <div class="actions-dropdown">
+                                        <button class="actions-button" onclick="toggleActionsMenu(this)">⋮</button>
+                                        <div class="actions-menu">
+                                            <a href="#" onclick="viewReversalDetails('REV240924003')">View Details</a>
+                                            <a href="#" onclick="checkReversalStatus('REV240924003')">Check Status</a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <div class="transaction-id">REV240924004</div>
+                                </td>
+                                <td>
+                                    <div class="transaction-id">TXN240923065</div>
+                                    <div style="color: #64748b; font-size: 0.8rem;">Internal Transfer</div>
+                                </td>
+                                <td>Tech Solutions Ltd<br><span style="color: #64748b; font-size: 0.85rem;">1122334455</span></td>
+                                <td><span class="amount-value">₦5,250.00</span></td>
+                                <td>Wrong beneficiary account</td>
+                                <td><span class="priority-badge priority-low">Low</span></td>
+                                <td><span class="status-badge status-rejected">Rejected</span></td>
+                                <td>
+                                    <div>Today, 12:30 PM</div>
+                                    <div style="color: #64748b; font-size: 0.8rem;">7 hours ago</div>
+                                </td>
+                                <td>
+                                    <div class="actions-dropdown">
+                                        <button class="actions-button" onclick="toggleActionsMenu(this)">⋮</button>
+                                        <div class="actions-menu">
+                                            <a href="#" onclick="viewReversalDetails('REV240924004')">View Details</a>
+                                            <a href="#" onclick="viewRejectionReason('REV240924004')">Rejection Reason</a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <div class="transaction-id">REV240924005</div>
+                                </td>
+                                <td>
+                                    <div class="transaction-id">TXN240923012</div>
+                                    <div style="color: #64748b; font-size: 0.8rem;">External Transfer</div>
+                                </td>
+                                <td>Mary Okoye<br><span style="color: #64748b; font-size: 0.85rem;">9988776655</span></td>
+                                <td><span class="amount-value">₦85,000.00</span></td>
+                                <td>System timeout - transaction pending</td>
+                                <td><span class="priority-badge priority-medium">Medium</span></td>
+                                <td><span class="status-badge status-completed">Completed</span></td>
+                                <td>
+                                    <div>Today, 10:15 AM</div>
+                                    <div style="color: #64748b; font-size: 0.8rem;">9 hours ago</div>
+                                </td>
+                                <td>
+                                    <div class="actions-dropdown">
+                                        <button class="actions-button" onclick="toggleActionsMenu(this)">⋮</button>
+                                        <div class="actions-menu">
+                                            <a href="#" onclick="viewReversalDetails('REV240924005')">View Details</a>
+                                            <a href="#" onclick="downloadReversalReceipt('REV240924005')">Download Receipt</a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Initiate Reversal Tab -->
+        <div class="tab-content" id="initiate">
+            <div class="reversal-form">
+                <div class="form-header">
+                    <div class="form-icon">⚠️</div>
+                    <h3>Initiate Transaction Reversal</h3>
+                </div>
+
+                <div class="alert alert-warning">
+                    <div class="alert-icon">⚠️</div>
+                    <div>
+                        <strong>Important:</strong> Transaction reversals are permanent and cannot be undone. Ensure all details are correct before submitting.
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Original Transaction ID</label>
+                        <input type="text" class="form-input" placeholder="TXN240924001" id="originalTransactionId">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Reversal Reason</label>
+                        <select class="form-select" id="reversalReason">
+                            <option value="">Select reason</option>
+                            <option value="failed-transaction">Failed Transaction</option>
+                            <option value="duplicate-payment">Duplicate Payment</option>
+                            <option value="wrong-beneficiary">Wrong Beneficiary</option>
+                            <option value="system-error">System Error</option>
+                            <option value="customer-complaint">Customer Complaint</option>
+                            <option value="fraud-prevention">Fraud Prevention</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Priority Level</label>
+                        <select class="form-select" id="priorityLevel">
+                            <option value="low">Low - Standard processing</option>
+                            <option value="medium">Medium - Expedited processing</option>
+                            <option value="high">High - Urgent processing</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Requested By</label>
+                        <input type="text" class="form-input" value="John Doe - Customer Service" readonly>
+                    </div>
+                </div>
+
+                <div class="form-group-large">
+                    <label class="form-label">Detailed Justification</label>
+                    <textarea class="form-textarea" placeholder="Provide detailed explanation for the reversal request..." id="reversalJustification"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Supporting Documents</label>
+                        <input type="file" class="form-input" multiple accept=".pdf,.jpg,.png,.doc,.docx">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Customer Notification</label>
+                        <select class="form-select">
+                            <option value="email">Email Notification</option>
+                            <option value="sms">SMS Notification</option>
+                            <option value="both">Email + SMS</option>
+                            <option value="none">No Notification</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="alert alert-danger">
+                    <div class="alert-icon">🛑</div>
+                    <div>
+                        <strong>Final Check:</strong> This reversal request will be sent to the approval workflow. High priority reversals require senior management approval.
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button class="btn-secondary" onclick="resetReversalForm()">Reset Form</button>
+                    <button class="btn-danger" onclick="submitReversalRequest()">Submit Reversal Request</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Approvals Tab -->
+        <div class="tab-content" id="pending">
+            <div class="approval-workflow">
+                <div class="workflow-title">Approval Workflow - REV240924001</div>
+
+                <div class="workflow-steps">
+                    <div class="workflow-step">
+                        <div class="step-circle completed">✓</div>
+                        <div class="step-title">Request Created</div>
+                        <div class="step-description">Customer Service</div>
+                        <div class="step-line completed"></div>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="step-circle active">2</div>
+                        <div class="step-title">Supervisor Review</div>
+                        <div class="step-description">Pending</div>
+                        <div class="step-line"></div>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="step-circle pending">3</div>
+                        <div class="step-title">Manager Approval</div>
+                        <div class="step-description">Waiting</div>
+                        <div class="step-line"></div>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="step-circle pending">4</div>
+                        <div class="step-title">Processing</div>
+                        <div class="step-description">Final</div>
+                    </div>
+                </div>
+
+                <div class="workflow-actions">
+                    <button class="btn-danger" onclick="rejectApproval('REV240924001')">Reject</button>
+                    <button class="btn-secondary" onclick="requestMoreInfo('REV240924001')">Request Info</button>
+                    <button class="btn-primary" onclick="approveNext('REV240924001')">Approve & Continue</button>
+                </div>
+            </div>
+
+            <div class="audit-trail">
+                <div class="audit-title">Audit Trail - REV240924001</div>
+
+                <div class="audit-item">
+                    <div class="audit-icon created">📝</div>
+                    <div class="audit-content">
+                        <div class="audit-action">Reversal Request Created</div>
+                        <div class="audit-details">John Doe (Customer Service) initiated reversal for failed external transfer</div>
+                        <div class="audit-timestamp">Today, 5:20 PM</div>
+                    </div>
+                </div>
+
+                <div class="audit-item">
+                    <div class="audit-icon approved">👀</div>
+                    <div class="audit-content">
+                        <div class="audit-action">Initial Review Completed</div>
+                        <div class="audit-details">System automatically validated transaction eligibility for reversal</div>
+                        <div class="audit-timestamp">Today, 5:21 PM</div>
+                    </div>
+                </div>
+
+                <div class="audit-item">
+                    <div class="audit-icon created">📧</div>
+                    <div class="audit-content">
+                        <div class="audit-action">Supervisor Notified</div>
+                        <div class="audit-details">Email notification sent to supervisor for approval</div>
+                        <div class="audit-timestamp">Today, 5:22 PM</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Tab -->
+        <div class="tab-content" id="history">
+            <div class="reversals-table">
+                <div class="table-header">
+                    <div class="table-title">Reversal History (Last 30 Days)</div>
+                    <button class="btn-secondary" onclick="exportHistory()">Export History</button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Reversal ID</th>
+                                <th>Original Transaction</th>
+                                <th>Amount</th>
+                                <th>Customer</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                                <th>Completed</th>
+                                <th>Processing Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><div class="transaction-id">REV240923089</div></td>
+                                <td><div class="transaction-id">TXN240923199</div></td>
+                                <td><span class="amount-value">₦125,000.00</span></td>
+                                <td>Ahmed Hassan</td>
+                                <td>System timeout</td>
+                                <td><span class="status-badge status-completed">Completed</span></td>
+                                <td>Yesterday, 6:45 PM</td>
+                                <td>2.5 hours</td>
+                            </tr>
+                            <tr>
+                                <td><div class="transaction-id">REV240923088</div></td>
+                                <td><div class="transaction-id">TXN240923187</div></td>
+                                <td><span class="amount-value">₦45,250.00</span></td>
+                                <td>Grace Adeola</td>
+                                <td>Wrong beneficiary</td>
+                                <td><span class="status-badge status-completed">Completed</span></td>
+                                <td>Yesterday, 4:20 PM</td>
+                                <td>1.8 hours</td>
+                            </tr>
+                            <tr>
+                                <td><div class="transaction-id">REV240923087</div></td>
+                                <td><div class="transaction-id">TXN240923156</div></td>
+                                <td><span class="amount-value">₦8,500.00</span></td>
+                                <td>Kemi Adebayo</td>
+                                <td>Duplicate payment</td>
+                                <td><span class="status-badge status-rejected">Rejected</span></td>
+                                <td>Yesterday, 2:15 PM</td>
+                                <td>0.5 hours</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Toggle actions menu
+        function toggleActionsMenu(button) {
+            const menu = button.nextElementSibling;
+            const isVisible = menu.classList.contains('show');
+
+            // Hide all other menus
+            document.querySelectorAll('.actions-menu').forEach(m => m.classList.remove('show'));
+
+            if (!isVisible) {
+                menu.classList.add('show');
+            }
+        }
+
+        // Reversal actions
+        function viewReversalDetails(reversalId) {
+            alert(`Viewing details for reversal: ${reversalId}`);
+        }
+
+        function approveReversal(reversalId) {
+            if (confirm(`Approve reversal request ${reversalId}?`)) {
+                alert(`Reversal approved: ${reversalId}`);
+            }
+        }
+
+        function rejectReversal(reversalId) {
+            const reason = prompt(`Rejection reason for ${reversalId}:`);
+            if (reason) {
+                alert(`Reversal rejected: ${reversalId}\nReason: ${reason}`);
+            }
+        }
+
+        function processReversal(reversalId) {
+            if (confirm(`Process approved reversal ${reversalId}?`)) {
+                alert(`Processing reversal: ${reversalId}`);
+            }
+        }
+
+        function checkReversalStatus(reversalId) {
+            alert(`Checking status for reversal: ${reversalId}\nStatus: Processing - 45% complete`);
+        }
+
+        function viewRejectionReason(reversalId) {
+            alert(`Rejection reason for ${reversalId}:\nInsufficient documentation provided`);
+        }
+
+        function downloadReversalReceipt(reversalId) {
+            alert(`Downloading receipt for reversal: ${reversalId}`);
+        }
+
+        // Search and filter functions
+        function searchReversals() {
+            const transactionId = document.getElementById('searchTransactionId').value;
+            alert(`Searching for reversals${transactionId ? ` with Transaction ID: ${transactionId}` : ''}`);
+        }
+
+        function clearSearch() {
+            document.querySelectorAll('.form-input, .form-select').forEach(input => {
+                if (!input.readOnly) input.value = '';
+            });
+        }
+
+        // Form functions
+        function submitReversalRequest() {
+            const transactionId = document.getElementById('originalTransactionId').value;
+            const reason = document.getElementById('reversalReason').value;
+            const justification = document.getElementById('reversalJustification').value;
+
+            if (!transactionId || !reason || !justification) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            if (confirm('Submit reversal request? This action cannot be undone.')) {
+                alert('Reversal request submitted successfully!\nReference: REV240924006');
+                resetReversalForm();
+            }
+        }
+
+        function resetReversalForm() {
+            document.getElementById('originalTransactionId').value = '';
+            document.getElementById('reversalReason').value = '';
+            document.getElementById('reversalJustification').value = '';
+            document.getElementById('priorityLevel').value = 'low';
+        }
+
+        // Workflow functions
+        function approveNext(reversalId) {
+            if (confirm(`Approve and move to next step for ${reversalId}?`)) {
+                alert(`Approved and forwarded to Manager for final approval`);
+            }
+        }
+
+        function rejectApproval(reversalId) {
+            const reason = prompt('Rejection reason:');
+            if (reason) {
+                alert(`Reversal request rejected and returned to initiator`);
+            }
+        }
+
+        function requestMoreInfo(reversalId) {
+            const request = prompt('What additional information is required?');
+            if (request) {
+                alert(`Information request sent to initiator`);
+            }
+        }
+
+        // Utility functions
+        function generateReversalReport() {
+            alert('Generating comprehensive reversal system report...');
+        }
+
+        function exportHistory() {
+            alert('Exporting reversal history as Excel file...');
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.actions-dropdown')) {
+                document.querySelectorAll('.actions-menu').forEach(menu => {
+                    menu.classList.remove('show');
+                });
+            }
+        });
+
+        // Form validation
+        document.getElementById('originalTransactionId')?.addEventListener('input', function() {
+            // Auto-format transaction ID
+            this.value = this.value.toUpperCase();
+        });
+    </script>
+</body>
+</html>

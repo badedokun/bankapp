@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Money Transfer - OrokiiPay Banking Platform</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --surface-color: #ffffff;
+            --background-color: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --gradient-success: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            background: var(--surface-color);
+            min-height: 100vh;
+            box-shadow: var(--shadow);
+        }
+
+        /* Header */
+        .header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+        }
+
+        .header-title h1 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .header-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .header-action {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        /* Progress Steps */
+        .progress-steps {
+            display: flex;
+            padding: 20px;
+            background: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 12px;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background: var(--border-color);
+            z-index: 1;
+        }
+
+        .step.active:not(:last-child)::after,
+        .step.completed:not(:last-child)::after {
+            background: var(--primary-color);
+        }
+
+        .step-circle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            margin: 0 auto 8px;
+            background: var(--border-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step.active .step-circle {
+            background: var(--primary-color);
+        }
+
+        .step.completed .step-circle {
+            background: var(--success-color);
+        }
+
+        .step-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .step.active .step-label,
+        .step.completed .step-label {
+            color: var(--text-primary);
+        }
+
+        /* Page Management */
+        .page {
+            display: none;
+            padding: 20px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Common UI Components */
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            background: var(--surface-color);
+            transition: all 0.2s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--surface-color);
+            color: var(--text-primary);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(37, 99, 235, 0.1);
+            border-color: var(--primary-dark);
+        }
+
+        .btn-success {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Security & Features Banner */
+        .features-banner {
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%);
+            border: 1px solid rgba(5, 150, 105, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .security-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: var(--success-color);
+        }
+
+        .security-row:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Transfer Options */
+        .transfer-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .transfer-option {
+            background: var(--surface-color);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .transfer-option:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .transfer-option.selected {
+            border-color: var(--primary-color);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .option-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .option-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .option-subtitle {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .quick-action {
+            flex: 1;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .quick-action:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .action-icon {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .action-label {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Recent Recipients */
+        .recent-recipients {
+            margin-bottom: 25px;
+        }
+
+        .recipient-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .recipient-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .recipient-item:hover {
+            border-color: var(--primary-color);
+        }
+
+        .recipient-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .recipient-info {
+            flex: 1;
+        }
+
+        .recipient-name {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .recipient-account {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Amount Widget */
+        .amount-widget {
+            background: var(--surface-color);
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .amount-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .amount-icon {
+            font-size: 20px;
+        }
+
+        .amount-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .amount-display {
+            margin-bottom: 20px;
+        }
+
+        .amount-input-large {
+            font-size: 48px;
+            font-weight: 700;
+            text-align: center;
+            border: none;
+            background: transparent;
+            color: var(--primary-color);
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .amount-input-large:focus {
+            outline: none;
+        }
+
+        .amount-currency-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .quick-amounts-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .quick-amount-btn {
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: var(--surface-color);
+        }
+
+        .quick-amount-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .limits-info {
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+
+        .limit-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .limit-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .limit-label {
+            color: var(--text-secondary);
+        }
+
+        .limit-value {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .remaining-highlight {
+            color: var(--primary-color);
+        }
+
+        /* Scheduling Options */
+        .scheduling-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .schedule-option {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: var(--surface-color);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .schedule-option:hover {
+            border-color: var(--primary-color);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .schedule-option.selected {
+            border-color: var(--primary-color);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .schedule-icon {
+            font-size: 24px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(37, 99, 235, 0.1);
+            border-radius: 10px;
+        }
+
+        .schedule-info {
+            flex: 1;
+        }
+
+        .schedule-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .schedule-subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .schedule-details {
+            display: none;
+            background: rgba(37, 99, 235, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .schedule-details.active {
+            display: block;
+        }
+
+        /* Fee Calculator */
+        .fee-calculator {
+            background: rgba(5, 150, 105, 0.05);
+            border: 1px solid rgba(5, 150, 105, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 25px;
+        }
+
+        .fee-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .fee-row:last-child {
+            margin-bottom: 0;
+            padding-top: 8px;
+            border-top: 1px solid rgba(5, 150, 105, 0.2);
+            font-weight: 600;
+            color: var(--success-color);
+        }
+
+        .fee-label {
+            color: var(--text-secondary);
+        }
+
+        .fee-amount {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Transaction Summary */
+        .transaction-summary {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .summary-value {
+            color: var(--text-primary);
+            font-weight: 500;
+            text-align: right;
+        }
+
+        /* Success Elements */
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-success);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+            margin: 0 auto 20px;
+        }
+
+        .success-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--success-color);
+            margin-bottom: 10px;
+        }
+
+        .success-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        /* Receipt */
+        .receipt {
+            background: var(--surface-color);
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .receipt-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .receipt-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .receipt-ref {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Validation States */
+        .validation-success {
+            border-color: var(--success-color);
+            background: rgba(5, 150, 105, 0.05);
+        }
+
+        .validation-error {
+            border-color: var(--danger-color);
+            background: rgba(220, 38, 38, 0.05);
+        }
+
+        .validation-message {
+            font-size: 12px;
+            margin-top: 5px;
+            padding: 5px 8px;
+            border-radius: 4px;
+        }
+
+        .validation-success .validation-message {
+            color: var(--success-color);
+            background: rgba(5, 150, 105, 0.1);
+        }
+
+        .validation-error .validation-message {
+            color: var(--danger-color);
+            background: rgba(220, 38, 38, 0.1);
+        }
+
+        /* Loading States */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 20px;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-top: 2px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-half {
+            width: 48%;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--surface-color);
+            border-top: 1px solid var(--border-color);
+            padding: 15px 20px;
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                margin: 0;
+                max-width: 100%;
+            }
+
+            .transfer-options {
+                grid-template-columns: 1fr;
+            }
+
+            .amount-input {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <button class="back-btn" onclick="goBack()">←</button>
+                <div class="header-title">
+                    <h1>Money Transfer</h1>
+                    <div class="header-subtitle">Send money instantly</div>
+                </div>
+                <div class="header-actions">
+                    <button class="header-action">📞</button>
+                    <button class="header-action">❓</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Steps -->
+        <div class="progress-steps">
+            <div class="step active" id="step-1">
+                <div class="step-circle">1</div>
+                <div class="step-label">Select</div>
+            </div>
+            <div class="step" id="step-2">
+                <div class="step-circle">2</div>
+                <div class="step-label">Details</div>
+            </div>
+            <div class="step" id="step-3">
+                <div class="step-circle">3</div>
+                <div class="step-label">Review</div>
+            </div>
+            <div class="step" id="step-4">
+                <div class="step-circle">4</div>
+                <div class="step-label">Complete</div>
+            </div>
+        </div>
+
+        <!-- Page 1: Select Transfer Type -->
+        <div class="page active" id="page-1">
+            <!-- Security Banner -->
+            <div class="features-banner">
+                <div class="security-row">
+                    <span class="feature-icon">🔒</span>
+                    <span>Bank-grade security & encryption</span>
+                </div>
+                <div class="security-row">
+                    <span class="feature-icon">⚡</span>
+                    <span>Real-time NIBSS processing</span>
+                </div>
+                <div class="security-row">
+                    <span class="feature-icon">💳</span>
+                    <span>CBN & PCI DSS compliant</span>
+                </div>
+            </div>
+
+            <!-- Transfer Type Selection -->
+            <h2 class="section-title">Choose Transfer Type</h2>
+            <div class="transfer-options">
+                <div class="transfer-option selected" data-type="interbank">
+                    <div class="option-icon">🏦</div>
+                    <div class="option-title">Interbank NIP</div>
+                    <div class="option-subtitle">To other banks</div>
+                </div>
+                <div class="transfer-option" data-type="same-bank">
+                    <div class="option-icon">🔄</div>
+                    <div class="option-title">Same Bank</div>
+                    <div class="option-subtitle">Internal transfer</div>
+                </div>
+                <div class="transfer-option" data-type="international">
+                    <div class="option-icon">🌍</div>
+                    <div class="option-title">International</div>
+                    <div class="option-subtitle">SWIFT transfer</div>
+                </div>
+                <div class="transfer-option" data-type="card">
+                    <div class="option-icon">💳</div>
+                    <div class="option-title">Card-to-Card</div>
+                    <div class="option-subtitle">Instant transfer</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <h3 class="section-title">Quick Actions</h3>
+            <div class="quick-actions">
+                <div class="quick-action">
+                    <div class="action-icon">📱</div>
+                    <div class="action-label">Scan QR</div>
+                </div>
+                <div class="quick-action">
+                    <div class="action-icon">👥</div>
+                    <div class="action-label">Contacts</div>
+                </div>
+                <div class="quick-action">
+                    <div class="action-icon">⌨️</div>
+                    <div class="action-label">Manual Entry</div>
+                </div>
+            </div>
+
+            <!-- Recent Recipients -->
+            <h3 class="section-title">Recent Recipients</h3>
+            <div class="recent-recipients">
+                <div class="recipient-list">
+                    <div class="recipient-item" onclick="selectRecipient('John Doe', '0123456789', 'GTB')">
+                        <div class="recipient-avatar">JD</div>
+                        <div class="recipient-info">
+                            <div class="recipient-name">John Doe</div>
+                            <div class="recipient-account">GTB • 0123456789</div>
+                        </div>
+                    </div>
+                    <div class="recipient-item" onclick="selectRecipient('Jane Smith', '0987654321', 'UBA')">
+                        <div class="recipient-avatar">JS</div>
+                        <div class="recipient-info">
+                            <div class="recipient-name">Jane Smith</div>
+                            <div class="recipient-account">UBA • 0987654321</div>
+                        </div>
+                    </div>
+                    <div class="recipient-item" onclick="selectRecipient('David Wilson', '1122334455', 'FBN')">
+                        <div class="recipient-avatar">DW</div>
+                        <div class="recipient-info">
+                            <div class="recipient-name">David Wilson</div>
+                            <div class="recipient-account">FBN • 1122334455</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="nextPage(2)">Continue</button>
+        </div>
+
+        <!-- Page 2: Enter Details -->
+        <div class="page" id="page-2">
+            <!-- Recipient Information -->
+            <h2 class="section-title">Recipient Details</h2>
+
+            <div class="input-group">
+                <label class="input-label">Bank</label>
+                <select class="input-field" id="bank-select">
+                    <option value="">Select Bank</option>
+                    <option value="GTB">Guaranty Trust Bank (GTB)</option>
+                    <option value="UBA">United Bank for Africa (UBA)</option>
+                    <option value="FBN">First Bank of Nigeria (FBN)</option>
+                    <option value="ZEN">Zenith Bank</option>
+                    <option value="ACC">Access Bank</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">Account Number</label>
+                <input type="text" class="input-field" id="account-number" placeholder="Enter 10-digit account number" maxlength="10">
+                <div id="name-enquiry-result"></div>
+            </div>
+
+            <!-- Amount Section -->
+            <div class="amount-widget">
+                <div class="amount-header">
+                    <span class="amount-icon">💰</span>
+                    <h3 class="amount-title">Transfer Amount</h3>
+                </div>
+
+                <div class="amount-display">
+                    <input type="text" class="amount-input-large" id="amount-input" placeholder="0" value="10,000">
+                    <div class="amount-currency-label">Nigerian Naira (₦)</div>
+                </div>
+
+                <div class="quick-amounts-grid">
+                    <div class="quick-amount-btn" onclick="setAmount('1000')">₦1K</div>
+                    <div class="quick-amount-btn" onclick="setAmount('5000')">₦5K</div>
+                    <div class="quick-amount-btn" onclick="setAmount('10000')">₦10K</div>
+                    <div class="quick-amount-btn" onclick="setAmount('50000')">₦50K</div>
+                </div>
+
+                <div class="limits-info">
+                    <div class="limit-row">
+                        <span class="limit-label">Daily Limit:</span>
+                        <span class="limit-value">₦5,000,000</span>
+                    </div>
+                    <div class="limit-row">
+                        <span class="limit-label">Available Balance:</span>
+                        <span class="limit-value">₦2,450,000</span>
+                    </div>
+                    <div class="limit-row">
+                        <span class="limit-label">Remaining Today:</span>
+                        <span class="limit-value remaining-highlight">₦4,750,000</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fee Calculator -->
+            <div class="fee-calculator">
+                <div class="fee-row">
+                    <span class="fee-label">Transfer Amount</span>
+                    <span class="fee-amount" id="display-amount">₦50,000.00</span>
+                </div>
+                <div class="fee-row">
+                    <span class="fee-label">NIBSS Processing Fee</span>
+                    <span class="fee-amount">₦26.88</span>
+                </div>
+                <div class="fee-row">
+                    <span class="fee-label">Service Fee</span>
+                    <span class="fee-amount">₦50.00</span>
+                </div>
+                <div class="fee-row">
+                    <span class="fee-label">VAT (7.5%)</span>
+                    <span class="fee-amount">₦5.77</span>
+                </div>
+                <div class="fee-row">
+                    <span class="fee-label">Total Charges</span>
+                    <span class="fee-amount">₦82.65</span>
+                </div>
+            </div>
+
+            <!-- Scheduling Options -->
+            <h3 class="section-title">When to Send</h3>
+            <div class="scheduling-options">
+                <div class="schedule-option selected" data-schedule="now">
+                    <div class="schedule-icon">⚡</div>
+                    <div class="schedule-info">
+                        <div class="schedule-title">Send Now</div>
+                        <div class="schedule-subtitle">Instant transfer</div>
+                    </div>
+                </div>
+                <div class="schedule-option" data-schedule="later">
+                    <div class="schedule-icon">⏰</div>
+                    <div class="schedule-info">
+                        <div class="schedule-title">Send Later</div>
+                        <div class="schedule-subtitle">Schedule for specific time</div>
+                    </div>
+                </div>
+                <div class="schedule-option" data-schedule="recurring">
+                    <div class="schedule-icon">🔄</div>
+                    <div class="schedule-info">
+                        <div class="schedule-title">Recurring</div>
+                        <div class="schedule-subtitle">Regular payments</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Details (hidden by default) -->
+            <div id="schedule-later" class="schedule-details">
+                <div class="input-group">
+                    <label class="input-label">Date & Time</label>
+                    <input type="datetime-local" class="input-field">
+                </div>
+            </div>
+
+            <div id="schedule-recurring" class="schedule-details">
+                <div class="input-group">
+                    <label class="input-label">Frequency</label>
+                    <select class="input-field">
+                        <option>Daily</option>
+                        <option>Weekly</option>
+                        <option>Monthly</option>
+                        <option>Quarterly</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Start Date</label>
+                    <input type="date" class="input-field">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">End After</label>
+                    <select class="input-field" id="end-after-select">
+                        <option>Never</option>
+                        <option>5 payments</option>
+                        <option>10 payments</option>
+                        <option>Specific date</option>
+                    </select>
+                </div>
+                <div class="input-group" id="end-date-group" style="display: none;">
+                    <label class="input-label">End Date</label>
+                    <input type="date" class="input-field" id="end-date-input">
+                </div>
+            </div>
+
+            <!-- Additional Options -->
+            <div class="input-group">
+                <label class="input-label">Payment Reference (Optional)</label>
+                <input type="text" class="input-field" placeholder="Enter payment reference">
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">Narration (Optional)</label>
+                <input type="text" class="input-field" placeholder="Purpose of transfer">
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-secondary btn-half" onclick="previousPage(1)">Back</button>
+                <button class="btn btn-primary btn-half" onclick="nextPage(3)">Continue</button>
+            </div>
+        </div>
+
+        <!-- Page 3: Review Transaction -->
+        <div class="page" id="page-3">
+            <h2 class="section-title">Review Transaction</h2>
+
+            <div class="transaction-summary">
+                <div class="summary-row">
+                    <span class="summary-label">Recipient</span>
+                    <div class="summary-value">
+                        <div>John Doe</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">GTB • 0123456789</div>
+                    </div>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Transfer Amount</span>
+                    <span class="summary-value">₦50,000.00</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Total Fees</span>
+                    <span class="summary-value">₦82.65</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Total Debit</span>
+                    <span class="summary-value" style="color: var(--primary-color); font-weight: 700;">₦50,082.65</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Transfer Type</span>
+                    <span class="summary-value">Interbank NIP</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Processing Time</span>
+                    <span class="summary-value">Instant</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Reference</span>
+                    <span class="summary-value">Payment to John</span>
+                </div>
+            </div>
+
+            <!-- Security Verification -->
+            <div class="features-banner">
+                <div class="security-row">
+                    <span class="feature-icon">✅</span>
+                    <span>Recipient name verified via NIBSS</span>
+                </div>
+                <div class="security-row">
+                    <span class="feature-icon">🔒</span>
+                    <span>Transaction will be encrypted & logged</span>
+                </div>
+                <div class="security-row">
+                    <span class="feature-icon">📱</span>
+                    <span>SMS & email confirmation will be sent</span>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">Transaction PIN</label>
+                <input type="password" class="input-field" placeholder="Enter your 4-digit PIN" maxlength="4">
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-secondary btn-half" onclick="previousPage(2)">Back</button>
+                <button class="btn btn-success btn-half" onclick="processTransaction()">Send Money</button>
+            </div>
+        </div>
+
+        <!-- Page 4: Transaction Complete -->
+        <div class="page" id="page-4">
+            <div style="text-align: center; padding-top: 40px;">
+                <div class="success-icon">✅</div>
+                <div class="success-title">Transfer Successful!</div>
+                <div class="success-subtitle">Your money has been sent successfully</div>
+            </div>
+
+            <!-- Transaction Receipt -->
+            <div class="receipt">
+                <div class="receipt-header">
+                    <div class="receipt-title">Transaction Receipt</div>
+                    <div class="receipt-ref">REF: FT2024092415304512345</div>
+                </div>
+
+                <div class="summary-row">
+                    <span class="summary-label">Date & Time</span>
+                    <span class="summary-value">Sep 24, 2024 • 3:30 PM</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">From</span>
+                    <span class="summary-value">
+                        <div>Your Account</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">FMFB • 0987654321</div>
+                    </span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">To</span>
+                    <span class="summary-value">
+                        <div>John Doe</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">GTB • 0123456789</div>
+                    </span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Amount Sent</span>
+                    <span class="summary-value">₦50,000.00</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Fees</span>
+                    <span class="summary-value">₦82.65</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Total Debited</span>
+                    <span class="summary-value" style="color: var(--primary-color); font-weight: 700;">₦50,082.65</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Status</span>
+                    <span class="summary-value" style="color: var(--success-color); font-weight: 600;">Completed</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <button class="btn btn-primary" onclick="shareReceipt()">Share Receipt</button>
+            <button class="btn btn-secondary" onclick="downloadReceipt()">Download PDF</button>
+            <button class="btn btn-secondary" onclick="newTransfer()">Send Another</button>
+            <button class="btn btn-secondary" onclick="goHome()">Back to Home</button>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        const totalPages = 4;
+
+        // Page Navigation
+        function nextPage(pageNum) {
+            if (pageNum <= totalPages) {
+                showPage(pageNum);
+            }
+        }
+
+        function previousPage(pageNum) {
+            if (pageNum >= 1) {
+                showPage(pageNum);
+            }
+        }
+
+        function showPage(pageNum) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+
+            // Show target page
+            document.getElementById(`page-${pageNum}`).classList.add('active');
+
+            // Update progress steps
+            updateProgressSteps(pageNum);
+            currentPage = pageNum;
+        }
+
+        function updateProgressSteps(activeStep) {
+            for (let i = 1; i <= totalPages; i++) {
+                const step = document.getElementById(`step-${i}`);
+                step.classList.remove('active', 'completed');
+
+                if (i < activeStep) {
+                    step.classList.add('completed');
+                    step.querySelector('.step-circle').textContent = '✓';
+                } else if (i === activeStep) {
+                    step.classList.add('active');
+                    step.querySelector('.step-circle').textContent = i;
+                } else {
+                    step.querySelector('.step-circle').textContent = i;
+                }
+            }
+        }
+
+        // Transfer Type Selection
+        document.querySelectorAll('.transfer-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.transfer-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                this.classList.add('selected');
+            });
+        });
+
+        // Recipient Selection
+        function selectRecipient(name, account, bank) {
+            // This would populate the next page with recipient details
+            console.log('Selected recipient:', name, account, bank);
+            nextPage(2);
+        }
+
+        // Amount Input Formatting
+        document.getElementById('amount-input')?.addEventListener('input', function() {
+            let value = this.value.replace(/[^\d]/g, '');
+            if (value) {
+                value = parseInt(value).toLocaleString();
+                this.value = value;
+                document.getElementById('display-amount').textContent = `₦${value}.00`;
+            }
+        });
+
+        function setAmount(amount) {
+            const formattedAmount = parseInt(amount).toLocaleString();
+            document.getElementById('amount-input').value = formattedAmount;
+            document.getElementById('display-amount').textContent = `₦${formattedAmount}.00`;
+        }
+
+        // Scheduling Options
+        document.querySelectorAll('.schedule-option').forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove selected from all options
+                document.querySelectorAll('.schedule-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+
+                // Add selected to clicked option
+                this.classList.add('selected');
+
+                // Hide all schedule details
+                document.querySelectorAll('.schedule-details').forEach(detail => {
+                    detail.classList.remove('active');
+                });
+
+                // Show relevant schedule details
+                const scheduleType = this.dataset.schedule;
+                if (scheduleType === 'later') {
+                    document.getElementById('schedule-later').classList.add('active');
+                } else if (scheduleType === 'recurring') {
+                    document.getElementById('schedule-recurring').classList.add('active');
+                }
+            });
+        });
+
+        // Account Number Validation (Mock NIBSS Name Enquiry)
+        document.getElementById('account-number')?.addEventListener('input', function() {
+            const accountNumber = this.value;
+            const resultDiv = document.getElementById('name-enquiry-result');
+
+            if (accountNumber.length === 10) {
+                // Simulate NIBSS name enquiry
+                setTimeout(() => {
+                    this.classList.add('validation-success');
+                    resultDiv.innerHTML = '<div class="validation-message">✅ Account Name: JOHN DOE</div>';
+                }, 1000);
+            } else if (accountNumber.length > 0) {
+                this.classList.remove('validation-success');
+                this.classList.add('validation-error');
+                resultDiv.innerHTML = '<div class="validation-message">❌ Invalid account number</div>';
+            } else {
+                this.classList.remove('validation-success', 'validation-error');
+                resultDiv.innerHTML = '';
+            }
+        });
+
+        // Transaction Processing
+        function processTransaction() {
+            // Show loading state
+            const button = event.target;
+            button.innerHTML = '<div class="spinner"></div> Processing...';
+            button.disabled = true;
+
+            // Simulate transaction processing
+            setTimeout(() => {
+                nextPage(4);
+            }, 3000);
+        }
+
+        // Utility Functions
+        function goBack() {
+            if (currentPage > 1) {
+                previousPage(currentPage - 1);
+            } else {
+                // Go back to main menu
+                window.history.back();
+            }
+        }
+
+        function shareReceipt() {
+            alert('Receipt shared successfully!');
+        }
+
+        function downloadReceipt() {
+            alert('Receipt downloaded successfully!');
+        }
+
+        function newTransfer() {
+            showPage(1);
+        }
+
+        function goHome() {
+            alert('Redirecting to home...');
+        }
+
+        // End After Dropdown Handler
+        document.getElementById('end-after-select')?.addEventListener('change', function() {
+            const endDateGroup = document.getElementById('end-date-group');
+            if (this.value === 'Specific date') {
+                endDateGroup.style.display = 'block';
+            } else {
+                endDateGroup.style.display = 'none';
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showPage(1);
+        });
+    </script>
+</body>
+</html>
