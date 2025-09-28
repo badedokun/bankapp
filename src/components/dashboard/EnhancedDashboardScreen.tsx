@@ -20,15 +20,19 @@ import {
   Modal,
   Image,
 } from 'react-native';
-import { useTenant, useTenantTheme } from '../../tenants/TenantContext';
+import LinearGradient from '../common/LinearGradient';
+import { useTenantTheme } from '../../context/TenantThemeContext';
 import { useBankingAlert } from '../../services/AlertService';
 import APIService from '../../services/api';
 import { ENV_CONFIG, buildApiUrl } from '../../config/environment';
 import { RoleBasedFeatureGrid } from './RoleBasedFeatureGrid';
+import { ModernFeatureGrid } from './ModernFeatureGrid';
+import { ModernQuickStats } from './ModernQuickStats';
 import { BankingStatsGrid } from './BankingStatsGrid';
-import { AIAssistantPanel } from './AIAssistantPanel';
+import AIAssistantPanel from './AIAssistantPanel';
 import { RecentActivityPanel } from './RecentActivityPanel';
 import { TransactionLimitsPanel } from './TransactionLimitsPanel';
+import { ModernAIAssistant } from '../ai/ModernAIAssistant';
 
 // Get responsive dimensions for cross-platform compatibility
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
@@ -458,6 +462,8 @@ export interface EnhancedDashboardScreenProps {
   onApprovalAction?: (workflowId: string, action: 'approve' | 'reject') => void;
   onManageUsers?: () => void;
   onViewReports?: (reportType: string) => void;
+  // Dashboard activity refresh handler
+  onDashboardRefresh?: (refreshFunction: () => Promise<void>) => void;
 }
 
 export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = ({
@@ -474,9 +480,9 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
   onApprovalAction,
   onManageUsers,
   onViewReports,
+  onDashboardRefresh,
 }) => {
-  const { currentTenant } = useTenant();
-  const theme = useTenantTheme();
+  const { theme, tenantInfo } = useTenantTheme();
   const { showConfirm, showAlert } = useBankingAlert();
 
   // Get responsive logo dimensions (preserved)
@@ -493,46 +499,29 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
   const [dropdownPosition, setDropdownPosition] = useState({ x: 0, y: 0 });
   const userProfileRef = useRef<any>(null);
 
-  // Load enhanced dashboard data with RBAC
+  // Activity refresh timestamp for detecting stale data
+  const [lastRefreshTime, setLastRefreshTime] = useState<Date>(new Date());
+
+  // Auto-refresh interval for recent activity
+  const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Load enhanced dashboard data with real RBAC API
   const loadEnhancedDashboardData = useCallback(async () => {
     try {
       setIsLoading(true);
 
-      // Load user context with RBAC permissions
-      const userProfile = await APIService.getProfile();
-
-      // Create mock permissions based on user role for now
-      // TODO: Implement APIService.getUserPermissions() when backend is ready
-      const userPermissions = getMockPermissionsForRole(userProfile.role);
-
-      const enhancedUserContext: EnhancedUserContext = {
-        id: userProfile.id,
-        email: userProfile.email,
-        fullName: `${userProfile.firstName} ${userProfile.lastName}`,
-        role: userProfile.role as UserRole,
-        permissions: userPermissions,
-        tenantId: userProfile.tenantId,
-        branchId: userProfile.branchId,
-        department: userProfile.department,
-        isActive: userProfile.isActive,
-        lastLogin: new Date(userProfile.lastLogin)
-      };
-
-      setUserContext(enhancedUserContext);
-
-      // Load role-based dashboard data
-      const [walletData, transactionsData, limitsData] = await Promise.all([
+      // Load enhanced dashboard data with complete RBAC context from new API endpoint
+      const [enhancedData, walletData, transactionsData, limitsData] = await Promise.all([
+        APIService.getEnhancedDashboardData(),
         APIService.getWalletBalance(),
         APIService.getTransferHistory({ page: 1, limit: 5 }),
         APIService.getTransactionLimits(),
       ]);
 
-      // Generate mock data for role-based features (TODO: Replace with actual API calls)
-      const roleMetrics = getMockRoleBasedMetrics(enhancedUserContext.role);
-      const availableFeatures = getMockAvailableFeatures(enhancedUserContext.role, enhancedUserContext.permissions);
+      // Set user context from real API data
+      setUserContext(enhancedData.userContext);
 
       // Process recent transactions (preserved logic)
-      let runningBalance = walletData.balance;
       const recentTransactions: Transaction[] = transactionsData.transactions.slice(0, 4).map((tx: any) => {
         const transactionAmount = tx.direction === 'sent' ? -Math.abs(tx.amount) : Math.abs(tx.amount);
 
@@ -554,15 +543,6 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
           approvedBy: tx.approvedBy
         };
       });
-
-      // Enhanced AI suggestions with role-specific recommendations (using mock data)
-      const roleSpecificSuggestions = getMockRoleSpecificAISuggestions(
-        enhancedUserContext.role,
-        enhancedUserContext.permissions
-      );
-
-      // Get pending approval workflows for current user (using mock data)
-      const approvalWorkflows = getMockPendingApprovals(enhancedUserContext.role);
 
       const enhancedDashboardData: EnhancedDashboardData = {
         // Existing data (preserved)
@@ -590,16 +570,17 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
           monthly: { limit: 0, used: 0, remaining: 0 }
         },
         recentTransactions,
-        aiSuggestions: roleSpecificSuggestions,
 
-        // New RBAC-enhanced data
-        roleBasedMetrics: roleMetrics,
-        availableFeatures: availableFeatures.available,
-        restrictedFeatures: availableFeatures.restricted,
-        approvalWorkflows
+        // Real RBAC-enhanced data from API
+        aiSuggestions: enhancedData.aiSuggestions,
+        roleBasedMetrics: enhancedData.roleBasedMetrics,
+        availableFeatures: enhancedData.availableFeatures,
+        restrictedFeatures: enhancedData.restrictedFeatures,
+        approvalWorkflows: enhancedData.pendingApprovals
       };
 
       setDashboardData(enhancedDashboardData);
+      setLastRefreshTime(new Date());
     } catch (error) {
       console.error('Failed to load enhanced dashboard data:', error);
       showAlert('Error', 'Failed to load dashboard data. Please try again.');
@@ -614,6 +595,41 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
     loadEnhancedDashboardData();
   }, [loadEnhancedDashboardData]);
 
+  // Expose refresh function to parent navigator
+  useEffect(() => {
+    if (onDashboardRefresh) {
+      onDashboardRefresh(loadEnhancedDashboardData);
+    }
+  }, [onDashboardRefresh, loadEnhancedDashboardData]);
+
+  // DISABLED: Auto-refresh was causing periodic reloads
+  // The dashboard can still be manually refreshed by the user
+  /*
+  // Set up auto-refresh interval for recent activity (every 30 seconds)
+  useEffect(() => {
+    // Clear any existing interval
+    if (refreshIntervalRef.current) {
+      clearInterval(refreshIntervalRef.current);
+    }
+
+    // Set up new interval for auto-refresh
+    refreshIntervalRef.current = setInterval(() => {
+      // Only refresh if the data is older than 30 seconds
+      const timeSinceRefresh = Date.now() - lastRefreshTime.getTime();
+      if (timeSinceRefresh > 30000) { // 30 seconds
+        loadEnhancedDashboardData();
+      }
+    }, 30000); // Check every 30 seconds
+
+    // Clean up interval on unmount
+    return () => {
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+      }
+    };
+  }, [lastRefreshTime, loadEnhancedDashboardData]);
+  */
+
   // Refresh handler (preserved)
   const handleRefresh = useCallback(() => {
     setIsRefreshing(true);
@@ -622,30 +638,57 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
 
   // Enhanced action handlers with RBAC
   const handleFeatureNavigation = useCallback((feature: string, params?: any) => {
+    console.log('[handleFeatureNavigation] Called with feature:', feature);
+    console.log('[handleFeatureNavigation] onNavigateToTransfer exists:', !!onNavigateToTransfer);
+    console.log('[handleFeatureNavigation] onNavigateToFeature exists:', !!onNavigateToFeature);
+    console.log('[handleFeatureNavigation] userContext role:', userContext?.role);
+    console.log('[handleFeatureNavigation] availableFeatures:', dashboardData?.availableFeatures);
+
     if (!userContext || !dashboardData) return;
 
-    // Check if user has permission for this feature
-    if (!dashboardData.availableFeatures.includes(feature)) {
+    // Check if user is admin (legacy role) - admins have full access
+    const isLegacyAdmin = userContext.role === 'admin';
+
+    // Check if user has permission for this feature (skip check for admins)
+    if (!isLegacyAdmin && !dashboardData.availableFeatures.includes(feature)) {
       showAlert('Access Denied', `You don't have permission to access ${feature}. Contact your administrator if you need access.`);
       return;
     }
 
     // Route to appropriate handler
-    if (onNavigateToFeature) {
+    // Only internal transfers and money_transfer should use the basic transfer screen
+    const internalTransferFeatures = ['money_transfer', 'internal_transfers'];
+
+    if (internalTransferFeatures.includes(feature)) {
+      console.log('[handleFeatureNavigation] Internal transfer feature detected, using onNavigateToTransfer for:', feature);
+      if (onNavigateToTransfer) {
+        onNavigateToTransfer();
+      } else {
+        console.warn('[handleFeatureNavigation] onNavigateToTransfer is undefined!');
+        // Fallback to onNavigateToFeature if available
+        if (onNavigateToFeature) {
+          console.log('[handleFeatureNavigation] Falling back to onNavigateToFeature');
+          onNavigateToFeature(feature, params);
+        }
+      }
+    } else if (onNavigateToFeature) {
+      // All other features (external_transfers, bill_payments, savings, loans, etc.) should go through onNavigateToFeature
+      console.log('[handleFeatureNavigation] Using onNavigateToFeature for feature:', feature);
       onNavigateToFeature(feature, params);
     } else {
       // Fallback to existing handlers
+      console.log('[handleFeatureNavigation] Using fallback handlers for:', feature);
       switch (feature) {
-        case 'money_transfer':
-        case 'internal_transfers':
-        case 'external_transfers':
-          onNavigateToTransfer?.();
-          break;
         case 'transaction_history':
           onNavigateToHistory?.();
           break;
         case 'ai_assistant':
           onNavigateToAIChat?.();
+          break;
+        case 'rbac_management':
+          // This should now be handled by onNavigateToFeature from AppNavigator
+          // If we reach here as a fallback, show a helpful message
+          showAlert('Navigation Error', 'RBAC Management navigation is not configured. Please check your setup.');
           break;
         default:
           showAlert('Feature Coming Soon', `${feature} will be available in the next update.`);
@@ -719,9 +762,9 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
     },
     header: {
       backgroundColor: '#ffffff',
-      paddingHorizontal: theme.spacing.lg,
-      paddingTop: theme.spacing.lg,
-      paddingBottom: theme.spacing.md,
+      paddingHorizontal: theme.layout.spacing,
+      paddingTop: theme.layout.spacing,
+      paddingBottom: theme.layout.spacing,
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.05,
@@ -778,8 +821,8 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
       flex: 1,
     },
     searchInput: {
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.sm,
+      paddingHorizontal: theme.layout.spacing,
+      paddingVertical: 8,
       borderWidth: 2,
       borderColor: '#e1e5e9',
       borderRadius: 25,
@@ -788,7 +831,7 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
     },
     notificationButton: {
       position: 'relative',
-      padding: theme.spacing.sm,
+      padding: 8,
     },
     notificationBadge: {
       position: 'absolute',
@@ -840,8 +883,8 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
     },
     welcomeSection: {
       backgroundColor: theme.colors.primary,
-      paddingHorizontal: theme.spacing.lg,
-      paddingVertical: theme.spacing.xl,
+      paddingHorizontal: theme.layout.spacing,
+      paddingVertical: 24,
       position: 'relative',
       overflow: 'hidden',
     },
@@ -850,35 +893,35 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
       zIndex: 2,
     },
     welcomeText: {
-      marginBottom: theme.spacing.lg,
+      marginBottom: theme.layout.spacing,
     },
     welcomeTitle: {
       fontSize: 32,
       fontWeight: 'bold',
       color: '#ffffff',
-      marginBottom: theme.spacing.sm,
+      marginBottom: 8,
     },
     welcomeSubtitle: {
       fontSize: 16,
       color: 'rgba(255, 255, 255, 0.9)',
-      marginBottom: theme.spacing.lg,
+      marginBottom: theme.layout.spacing,
     },
     balanceDisplay: {
       backgroundColor: 'rgba(255, 255, 255, 0.15)',
-      padding: theme.spacing.lg,
+      padding: theme.layout.spacing,
       borderRadius: 20,
-      marginTop: theme.spacing.lg,
+      marginTop: theme.layout.spacing,
     },
     balanceLabel: {
       fontSize: 14,
       color: 'rgba(255, 255, 255, 0.8)',
-      marginBottom: theme.spacing.xs,
+      marginBottom: 4,
     },
     balanceAmount: {
       fontSize: 36,
       fontWeight: '600',
       color: '#ffffff',
-      marginBottom: theme.spacing.md,
+      marginBottom: theme.layout.spacing,
     },
     balanceActions: {
       flexDirection: 'row',
@@ -887,8 +930,8 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
     },
     balanceAction: {
       backgroundColor: 'rgba(255, 255, 255, 0.2)',
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.sm,
+      paddingHorizontal: theme.layout.spacing,
+      paddingVertical: 8,
       borderRadius: 25,
       borderWidth: 1,
       borderColor: 'rgba(255, 255, 255, 0.3)',
@@ -910,9 +953,9 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
           <View style={dynamicStyles.logoSection}>
             <View style={[
               dynamicStyles.tenantLogo,
-              currentTenant?.id === 'fmfb' && { backgroundColor: '#FFFFFF' }
+              tenantInfo?.id === 'fmfb' && { backgroundColor: '#FFFFFF' }
             ]}>
-              {currentTenant?.id === 'fmfb' ? (
+              {tenantInfo?.id === 'fmfb' ? (
                 <Image
                   source={{ uri: buildApiUrl('tenants/by-name/fmfb/assets/logo/default') }}
                   style={{
@@ -925,13 +968,13 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
                 />
               ) : (
                 <Text style={dynamicStyles.logoText}>
-                  {currentTenant?.name?.substring(0, 2).toUpperCase() || 'OP'}
+                  {tenantInfo?.name?.substring(0, 2).toUpperCase() || 'OP'}
                 </Text>
               )}
             </View>
             <View style={dynamicStyles.logoInfo}>
               <Text style={dynamicStyles.logoTitle}>
-                {currentTenant?.displayName || 'OrokiiPay'}
+                {tenantInfo?.displayName || 'OrokiiPay'}
               </Text>
               <Text style={dynamicStyles.logoSubtitle}>Secure Banking Platform</Text>
             </View>
@@ -1034,6 +1077,14 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
           </View>
         </View>
 
+        {/* Modern Quick Stats Section */}
+        <ModernQuickStats
+          balance={dashboardData.balance}
+          availableBalance={dashboardData.availableBalance}
+          monthlyTransactions={dashboardData.monthlyStats.transactions}
+          currency={dashboardData.currency}
+        />
+
         {/* Enhanced Banking Stats Grid with Role-Based Metrics */}
         <BankingStatsGrid
           userRole={userContext.role}
@@ -1045,19 +1096,19 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
 
         {/* Transaction Limits Panel (Preserved) */}
         <TransactionLimitsPanel
-          transactionLimits={dashboardData.transactionLimits}
+          userRole={userContext.role}
           userPermissions={userContext.permissions}
-          theme={theme}
+          onLimitPress={(limitType) => console.log('Limit pressed:', limitType)}
+          onRequestIncrease={(limitType) => console.log('Request increase:', limitType)}
         />
 
-        <View style={{ paddingHorizontal: theme.spacing.lg, gap: theme.spacing.lg }}>
-          {/* Role-Based Feature Grid - New Comprehensive Banking Operations */}
-          <RoleBasedFeatureGrid
+        <View style={{ paddingHorizontal: theme.layout.spacing, gap: theme.layout.spacing }}>
+          {/* Modern Feature Grid with Glassmorphism */}
+          <ModernFeatureGrid
             userRole={userContext.role}
             userPermissions={userContext.permissions}
             availableFeatures={dashboardData.availableFeatures}
             onFeaturePress={handleFeatureNavigation}
-            theme={theme}
           />
 
           {/* AI Assistant Panel (Preserved but Enhanced) */}
@@ -1066,7 +1117,6 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
             userRole={userContext.role}
             onNavigateToAIChat={onNavigateToAIChat}
             onSuggestionPress={handleFeatureNavigation}
-            theme={theme}
           />
 
           {/* Recent Activity Panel (Enhanced) */}
@@ -1080,6 +1130,16 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
           />
         </View>
       </ScrollView>
+
+      {/* Modern AI Assistant */}
+      <ModernAIAssistant
+        isVisible={true}
+        onToggle={() => {}}
+        onSendMessage={async (message: string) => {
+          // This will be enhanced with actual AI service integration
+          return `Thank you for your message: "${message}". Our AI assistant is processing your request and will provide intelligent banking insights based on your role as ${userContext.role}.`;
+        }}
+      />
 
       {/* Enhanced User Dropdown Modal */}
       <Modal
@@ -1127,7 +1187,7 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
                 {userContext.role.replace('_', ' ').toUpperCase()}
               </Text>
               <Text style={{ fontSize: 11, color: '#999', marginTop: 1 }}>
-                {userContext.department || currentTenant?.displayName}
+                {userContext.department || tenantInfo?.displayName}
               </Text>
             </View>
 
