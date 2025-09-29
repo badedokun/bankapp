@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
+import { useTenantTheme } from '../../context/TenantThemeContext';
 
 interface TransactionLimit {
   type: string;
@@ -27,7 +28,6 @@ interface TransactionLimitsPanelProps {
   userPermissions: Record<string, string>;
   onLimitPress: (limitType: string) => void;
   onRequestIncrease: (limitType: string) => void;
-  theme: any;
 }
 
 export const TransactionLimitsPanel: React.FC<TransactionLimitsPanelProps> = ({
@@ -35,8 +35,8 @@ export const TransactionLimitsPanel: React.FC<TransactionLimitsPanelProps> = ({
   userPermissions,
   onLimitPress,
   onRequestIncrease,
-  theme
 }) => {
+  const { theme } = useTenantTheme();
   // CBN-compliant transaction limits based on role
   const getRoleLimits = (): TransactionLimit[] => {
     const baseLimits: Record<string, TransactionLimit[]> = {

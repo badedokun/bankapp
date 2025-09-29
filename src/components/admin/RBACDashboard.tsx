@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-// Icons replaced with React Native compatible emoji/text
+// Icons replaced with React Native compatible emoji/text - no lucide-react
 const Icons = {
   Shield: () => '🛡️',
   Users: () => '👥',

@@ -27,7 +27,7 @@ interface AIAssistantPanelProps {
   userRole: string;
   onNavigateToAIChat?: () => void;
   onSuggestionPress: (suggestionId: string, params?: any) => void;
-  theme: any;
+  theme?: any;
 }
 
 // Generate role-specific AI suggestions for Nigerian banking
@@ -427,16 +427,37 @@ const generateRoleSpecificSuggestions = (role: string): AISuggestion[] => {
   return roleSuggestions[role] || [];
 };
 
-export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
+// Fallback theme for when theme is not available
+const FALLBACK_THEME = {
+  colors: {
+    surface: '#FFFFFF',
+    text: '#1F2937',
+    textSecondary: '#6B7280',
+    primary: '#010080', // Navy blue (FMFB-compatible fallback)
+    background: '#F9FAFB',
+  }
+};
+
+const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
   aiSuggestions,
   userRole,
   onNavigateToAIChat,
   onSuggestionPress,
-  theme
+  theme = FALLBACK_THEME
 }) => {
+  // Ensure theme has all required properties
+  const safeTheme = {
+    colors: {
+      surface: theme?.colors?.surface || FALLBACK_THEME.colors.surface,
+      text: theme?.colors?.text || FALLBACK_THEME.colors.text,
+      textSecondary: theme?.colors?.textSecondary || FALLBACK_THEME.colors.textSecondary,
+      primary: theme?.colors?.primary || FALLBACK_THEME.colors.primary,
+      background: theme?.colors?.background || FALLBACK_THEME.colors.background,
+    }
+  };
   // Combine provided suggestions with role-specific ones
   const roleSpecificSuggestions = generateRoleSpecificSuggestions(userRole);
-  const allSuggestions = [...aiSuggestions, ...roleSpecificSuggestions].slice(0, 4); // Limit to 4 suggestions
+  const allSuggestions = [...(aiSuggestions || []), ...roleSpecificSuggestions].slice(0, 4); // Limit to 4 suggestions
 
   const getPriorityColor = (priority: string): string => {
     const colors = {
@@ -459,10 +480,10 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+    <View style={[styles.container, { backgroundColor: safeTheme.colors.surface }]}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Text style={[styles.title, { color: theme.colors.text }]}>
+          <Text style={[styles.title, { color: safeTheme.colors.text }]}>
             🤖 AI Banking Assistant
           </Text>
           <View style={styles.statusContainer}>
@@ -472,14 +493,14 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
             </Text>
           </View>
         </View>
-        <Text style={[styles.roleIndicator, { color: theme.colors.textSecondary }]}>
+        <Text style={[styles.roleIndicator, { color: safeTheme.colors.textSecondary }]}>
           {userRole.replace('_', ' ').toUpperCase()}
         </Text>
       </View>
 
       {/* AI Chat Button - Preserved from original */}
       <TouchableOpacity
-        style={[styles.aiChatButton, { backgroundColor: theme.colors.primary }]}
+        style={[styles.aiChatButton, { backgroundColor: safeTheme.colors.primary }]}
         onPress={onNavigateToAIChat}
       >
         <Text style={styles.aiChatButtonIcon}>💬</Text>
@@ -492,7 +513,7 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
       {/* Role-Specific AI Suggestions */}
       {allSuggestions.length > 0 && (
         <View style={styles.suggestionsContainer}>
-          <Text style={[styles.suggestionsTitle, { color: theme.colors.text }]}>
+          <Text style={[styles.suggestionsTitle, { color: safeTheme.colors.text }]}>
             Smart Suggestions for {userRole.replace('_', ' ')}
           </Text>
 
@@ -502,7 +523,7 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
               style={[
                 styles.suggestionCard,
                 {
-                  backgroundColor: theme.colors.background,
+                  backgroundColor: safeTheme.colors.background,
                   borderColor: getPriorityColor(suggestion.priority)
                 }
               ]}
@@ -517,10 +538,10 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
                   </Text>
                 </View>
                 <View style={styles.suggestionContent}>
-                  <Text style={[styles.suggestionTitle, { color: theme.colors.text }]}>
+                  <Text style={[styles.suggestionTitle, { color: safeTheme.colors.text }]}>
                     {suggestion.title}
                   </Text>
-                  <Text style={[styles.suggestionDescription, { color: theme.colors.textSecondary }]}>
+                  <Text style={[styles.suggestionDescription, { color: safeTheme.colors.textSecondary }]}>
                     {suggestion.description}
                   </Text>
                   <View style={styles.suggestionMeta}>
@@ -532,7 +553,7 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
                         {suggestion.priority.toUpperCase()}
                       </Text>
                     </View>
-                    <Text style={[styles.typeText, { color: theme.colors.textSecondary }]}>
+                    <Text style={[styles.typeText, { color: safeTheme.colors.textSecondary }]}>
                       {suggestion.type.replace('_', ' ')}
                     </Text>
                   </View>
@@ -544,11 +565,11 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
       )}
 
       {/* AI Capabilities Summary */}
-      <View style={[styles.capabilitiesContainer, { backgroundColor: theme.colors.background }]}>
-        <Text style={[styles.capabilitiesTitle, { color: theme.colors.text }]}>
+      <View style={[styles.capabilitiesContainer, { backgroundColor: safeTheme.colors.background }]}>
+        <Text style={[styles.capabilitiesTitle, { color: safeTheme.colors.text }]}>
           💡 AI Capabilities
         </Text>
-        <Text style={[styles.capabilitiesText, { color: theme.colors.textSecondary }]}>
+        <Text style={[styles.capabilitiesText, { color: safeTheme.colors.textSecondary }]}>
           Your AI assistant can help with balance inquiries, transaction analysis, loan processing,
           compliance monitoring, risk assessment, customer insights, and Nigerian banking regulations.
           Simply ask in natural language or click suggestions above.

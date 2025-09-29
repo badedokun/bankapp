@@ -17,7 +17,7 @@ import authRoutes from './routes/auth';
 import registrationRoutes from './routes/registration';
 import tenantRoutes from './routes/tenants';
 import userRoutes from './routes/users';
-import transferRoutes from './routes/transfers';
+import transferRoutes, { initializeTransferServices } from './routes/transfers';
 import transactionRoutes from './routes/transactions';
 import walletRoutes from './routes/wallets';
 import assetRoutes from './routes/assets';
@@ -27,11 +27,21 @@ import pciDssComplianceRoutes from './routes/pci-dss-compliance';
 import securityMonitoringRoutes from './routes/security-monitoring';
 import transactionLimitsRoutes from './routes/transaction-limits';
 import aiChatRoutes from './routes/ai-chat';
+import { createRBACRouter } from './routes/rbac';
+import accountRoutes from './routes/accounts';
+import billRoutes from './routes/bills';
+import analyticsRoutes from './routes/analytics';
+import notificationRoutes from './routes/notifications';
+import savingsRoutes from './routes/savings';
+import loansRoutes from './routes/loans';
+import banksRoutes from './routes/banks';
+import tenantThemesRoutes from './routes/tenantThemes';
 
 // Import middleware
 import { errorHandler, notFound } from './middleware/errorHandler';
 import { authenticateToken } from './middleware/auth';
 import { tenantMiddleware } from './middleware/tenant';
+import { pool } from './config/database';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -139,6 +149,7 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authLimiter, tenantMiddleware, authRoutes);
 app.use('/api/registration', authLimiter, tenantMiddleware, registrationRoutes); // Public registration - no auth required
 app.use('/api/tenants', assetRoutes); // Public asset serving - no auth required
+app.use('/api/tenants/theme', tenantThemesRoutes); // Public tenant theme API - no auth required (moved up to avoid auth)
 app.use('/api/tenants', authenticateToken, tenantRoutes);
 app.use('/api/users', authenticateToken, tenantMiddleware, userRoutes);
 app.use('/api/transfers', authenticateToken, tenantMiddleware, transferRoutes);
@@ -150,6 +161,14 @@ app.use('/api/pci-dss-compliance', authenticateToken, tenantMiddleware, pciDssCo
 app.use('/api/security-monitoring', authenticateToken, tenantMiddleware, securityMonitoringRoutes);
 app.use('/api/transaction-limits', authenticateToken, tenantMiddleware, transactionLimitsRoutes);
 app.use('/api/ai', authenticateToken, tenantMiddleware, aiChatRoutes);
+app.use('/api/rbac', tenantMiddleware, createRBACRouter(pool));
+app.use('/api/accounts', authenticateToken, tenantMiddleware, accountRoutes);
+app.use('/api/bills', authenticateToken, tenantMiddleware, billRoutes);
+app.use('/api/analytics', authenticateToken, tenantMiddleware, analyticsRoutes);
+app.use('/api/notifications', authenticateToken, tenantMiddleware, notificationRoutes);
+app.use('/api/savings', authenticateToken, tenantMiddleware, savingsRoutes);
+app.use('/api/loans', authenticateToken, tenantMiddleware, loansRoutes);
+app.use('/api/banks', authenticateToken, tenantMiddleware, banksRoutes);
 
 // Error handling
 app.use(notFound);
@@ -165,6 +184,9 @@ process.on('SIGTERM', () => {
   console.log('🛑 Received SIGTERM. Shutting down gracefully...');
   process.exit(0);
 });
+
+// Initialize transfer services with database pool
+initializeTransferServices(pool);
 
 // Start server
 app.listen(PORT, () => {

@@ -6,9 +6,14 @@ export interface RBACRequest extends Request {
   user?: {
     id: string;
     email: string;
+    firstName: string;
+    lastName: string;
+    role: string;
     tenantId: string;
-    role?: string;
-    permissions?: string[];
+    tenantName: string;
+    tenantDisplayName: string;
+    permissions: string[];
+    mfaEnabled: boolean;
   };
   tenant?: {
     id: string;

@@ -1,15 +1,95 @@
 # 🏦 OrokiiPay Multi-Tenant Banking Platform - Project Overview
 
+## 🚨 **VERY IMPORTANT - MUST READ FOR ALL DEVELOPERS** 🚨
+
+> **⚠️ CRITICAL: This section contains the established technology stack and architecture patterns that MUST be followed. Do NOT deviate from these patterns without explicit architectural review and approval.**
+
+### **✅ CONFIRMED: Modern React Native + React Web Architecture**
+
+This banking application follows **industry-leading best practices** for cross-platform development:
+
+- **Single Codebase**: React Native 0.81.1 + React Native Web for iOS, Android, and Web
+- **TypeScript Throughout**: Strict typing with comprehensive interfaces
+- **Modern State Management**: Redux Toolkit + TanStack Query (React Query)
+- **Enterprise Navigation**: React Navigation v7 with deep linking
+- **Material Design 3**: React Native Paper with custom banking components
+- **Cross-Platform Build**: Webpack 5 with react-native-web aliasing
+
+### **🛠️ MANDATORY Technology Stack (DO NOT CHANGE)**
+
+#### **Core Framework**
+```json
+{
+  "react": "^18.2.0",
+  "react-native": "0.81.1",
+  "react-native-web": "^0.21.1",
+  "typescript": "^5.0.4"
+}
+```
+
+#### **State & Data Management**
+- **Global State**: `@reduxjs/toolkit` ^2.9.0
+- **Server State**: `@tanstack/react-query` ^5.86.0
+- **Form State**: `react-hook-form` ^7.54.2
+- **Local Storage**: `@react-native-async-storage/async-storage`
+
+#### **UI Components & Styling**
+- **Component Library**: `react-native-paper` ^5.14.0 (Material Design)
+- **Icons**: `react-native-vector-icons` ^10.2.0
+- **Animations**: `react-native-reanimated` ^3.17.1
+- **Gestures**: `react-native-gesture-handler` ^2.21.2
+
+#### **Navigation**
+- **Primary**: `@react-navigation/native` ^7.0.14
+- **Stack**: `@react-navigation/native-stack` ^7.1.13
+- **Bottom Tabs**: `@react-navigation/bottom-tabs` ^7.1.9
+
+#### **Backend Architecture**
+- **API Server**: Express.js 5.1.0 with TypeScript
+- **Database**: PostgreSQL 15+ with multi-tenant schemas
+- **Authentication**: JWT with refresh tokens
+- **AI Integration**: OpenAI GPT-4 for intelligent features
+
+### **📁 MANDATORY Project Structure**
+
+```
+/bankapp
+├── src/
+│   ├── components/        # Reusable UI components
+│   ├── screens/           # Screen components (pages)
+│   ├── navigation/        # Navigation configuration
+│   ├── store/            # Redux store & slices
+│   ├── hooks/            # Custom React hooks
+│   ├── services/         # API service layer
+│   ├── design-system/    # Design tokens & themes
+│   └── types/            # TypeScript definitions
+├── server/               # Express.js backend
+├── database/            # PostgreSQL schemas
+└── tests/              # Comprehensive test suite
+```
+
+### **⚠️ CRITICAL PATTERNS TO FOLLOW**
+
+1. **ALWAYS use React Native components** (View, Text, ScrollView)
+2. **NEVER use HTML elements** (div, span, p)
+3. **Platform-specific code MUST use Platform API**
+4. **Styles MUST use StyleSheet.create()**
+5. **API calls MUST use RTK Query**
+6. **Forms MUST use React Hook Form**
+7. **TypeScript interfaces REQUIRED for all props**
+
+---
+
 ## 📋 **CRITICAL: Read This First**
 This document is essential for any Claude Code agent working on this project. It contains the complete project architecture, database structure, and key implementation details to prevent rework of existing functionality.
 
 ---
 
 ## 🎯 **Project Identity**
-- **Name**: OrokiiPay Multi-Tenant Banking Platform  
-- **Version**: 0.0.1  
-- **Type**: Cross-platform financial technology application  
-- **Architecture**: Multi-tenant SaaS with database-per-tenant isolation  
+- **Name**: OrokiiPay Multi-Tenant Banking Platform
+- **Version**: 0.0.1
+- **Type**: Cross-platform financial technology application
+- **Architecture**: Multi-tenant SaaS with database-per-tenant isolation
 
 ---
 

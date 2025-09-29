@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Shield,
-  Key,
-  Save,
-  X,
-  Check,
-  AlertTriangle,
-  Info,
-  Eye,
-  Edit2,
-  Lock,
-  Users,
-  Search,
-  ChevronDown,
-  ChevronRight
-} from 'lucide-react';
+// Icons replaced with React Native compatible emoji/text
+const Icons = {
+  Shield: () => '🛡️',
+  Key: () => '🔑',
+  Save: () => '💾',
+  X: () => '✕',
+  Check: () => '✓',
+  AlertTriangle: () => '⚠️',
+  Info: () => 'ℹ️',
+  Eye: () => '👁️',
+  Edit2: () => '✏️',
+  Lock: () => '🔒',
+  Users: () => '👥',
+  Search: () => '🔍',
+  ChevronDown: () => '▼',
+  ChevronRight: () => '▶'
+};
 import apiService from '../../services/api';
 
 interface Permission {
@@ -207,7 +208,7 @@ const RolePermissionsEditor: React.FC<RolePermissionsEditorProps> = ({
           <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <Shield className="h-6 w-6 text-blue-600" />
+                <span style={{fontSize: 20}}>{Icons.Shield()}</span>
                 <div>
                   <h3 className="text-lg leading-6 font-medium text-gray-900">
                     Edit Permissions: {role.name}
@@ -221,14 +222,14 @@ const RolePermissionsEditor: React.FC<RolePermissionsEditorProps> = ({
                 onClick={onClose}
                 className="bg-white rounded-md text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <X className="h-6 w-6" />
+                <span style={{fontSize: 20}}>{Icons.X()}</span>
               </button>
             </div>
 
             {/* Search and Quick Actions */}
             <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0 sm:space-x-3">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <span style={{position: 'absolute', left: 12, top: 12, fontSize: 16, color: '#9CA3AF'}}>{Icons.Search()}</span>
                 <input
                   type="text"
                   placeholder="Search permissions..."
@@ -255,7 +256,7 @@ const RolePermissionsEditor: React.FC<RolePermissionsEditorProps> = ({
           {error && (
             <div className="px-4 py-3 bg-red-50 border-l-4 border-red-400">
               <div className="flex">
-                <AlertTriangle className="h-5 w-5 text-red-400" />
+                <span style={{fontSize: 18}}>{Icons.AlertTriangle()}</span>
                 <div className="ml-3">
                   <p className="text-sm text-red-700">{error}</p>
                 </div>
@@ -286,9 +287,9 @@ const RolePermissionsEditor: React.FC<RolePermissionsEditorProps> = ({
                           className="flex items-center space-x-2 text-sm font-medium text-gray-900 hover:text-blue-600"
                         >
                           {isExpanded ? (
-                            <ChevronDown className="h-4 w-4" />
+                            <span style={{fontSize: 14}}>{Icons.ChevronDown()}</span>
                           ) : (
-                            <ChevronRight className="h-4 w-4" />
+                            <span style={{fontSize: 14}}>{Icons.ChevronRight()}</span>
                           )}
                           <span className="capitalize">{category}</span>
                           <span className="text-gray-500">({assigned}/{total})</span>
@@ -326,7 +327,7 @@ const RolePermissionsEditor: React.FC<RolePermissionsEditorProps> = ({
                                         {permission.name}
                                       </h4>
                                       {permission.is_system_permission && (
-                                        <Lock className="h-3 w-3 text-gray-400" title="System Permission" />
+                                        <span style={{fontSize: 12, color: '#9CA3AF'}} title="System Permission">{Icons.Lock()}</span>
                                       )}
                                       {permission.cbn_regulation_ref && (
                                         <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
@@ -366,7 +367,7 @@ const RolePermissionsEditor: React.FC<RolePermissionsEditorProps> = ({
 
                                     {/* Status Indicator */}
                                     {currentLevel !== 'none' && (
-                                      <Check className="h-4 w-4 text-green-500" />
+                                      <span style={{fontSize: 16, color: '#10B981'}}>{Icons.Check()}</span>
                                     )}
                                   </div>
                                 </div>
@@ -396,7 +397,7 @@ const RolePermissionsEditor: React.FC<RolePermissionsEditorProps> = ({
                 </>
               ) : (
                 <>
-                  <Save className="h-4 w-4 mr-2" />
+                  <span style={{fontSize: 16, marginRight: 8}}>{Icons.Save()}</span>
                   Save Changes
                 </>
               )}

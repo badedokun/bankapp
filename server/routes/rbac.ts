@@ -782,5 +782,230 @@ export function createRBACRouter(pool: Pool): express.Router {
     }
   });
 
+  /**
+   * GET /api/rbac/enhanced-dashboard-data - Get complete enhanced dashboard data for current user
+   * Combines user context, permissions, available features, and role-based metrics
+   */
+  router.get('/enhanced-dashboard-data', async (req: RBACRequest, res) => {
+    try {
+      if (!req.user || !req.tenant) {
+        return res.status(401).json({
+          success: false,
+          error: 'Authentication required'
+        });
+      }
+
+      // Get all necessary data in parallel for better performance
+      const [
+        userPermissions,
+        userRoles,
+        availableFeatures,
+        roleBasedMetrics
+      ] = await Promise.all([
+        rbacService.getUserPermissions(req.tenant.id, req.user.id),
+        rbacService.getUserRoles(req.tenant.id, req.user.id),
+        rbacService.getUserAvailableFeatures(req.tenant.id, req.user.id),
+        rbacService.getRoleBasedMetrics(req.tenant.id, req.user.id)
+      ]);
+
+      // Get enhanced user profile
+      const userQuery = `
+        SELECT
+          id, email, first_name, last_name,
+          CONCAT(first_name, ' ', last_name) as full_name,
+          role, status,
+          created_at, last_login_at,
+          tenant_id,
+          kyc_status, kyc_level, mfa_enabled
+        FROM tenant.users
+        WHERE id = $1 AND tenant_id = $2
+      `;
+      const userResult = await pool.query(userQuery, [req.user.id, req.tenant.id]);
+
+      if (userResult.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'User not found'
+        });
+      }
+
+      const user = userResult.rows[0];
+
+      // Generate role-specific AI suggestions
+      const aiSuggestions = generateRoleBasedAISuggestions(user.role, userPermissions);
+
+      // Get pending approvals for this user's role
+      const pendingApprovals = await getPendingApprovalsForUser(pool, req.tenant.id, req.user.id, user.role);
+
+      // Combine all data for enhanced dashboard
+      const enhancedDashboardData = {
+        userContext: {
+          id: user.id,
+          email: user.email,
+          fullName: user.full_name,
+          role: user.role,
+          permissions: userPermissions,
+          tenantId: user.tenant_id,
+          branchId: user.branch_id,
+          department: user.department,
+          isActive: user.status === 'active',
+          lastLogin: user.last_login_at,
+          rbacRoles: userRoles
+        },
+        permissions: userPermissions,
+        availableFeatures: availableFeatures.available,
+        restrictedFeatures: availableFeatures.restricted,
+        roleBasedMetrics,
+        aiSuggestions,
+        pendingApprovals,
+        isAdmin: req.rbac?.isAdmin || false
+      };
+
+      res.json({
+        success: true,
+        data: enhancedDashboardData
+      });
+
+    } catch (error) {
+      console.error('Error getting enhanced dashboard data:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to get enhanced dashboard data'
+      });
+    }
+  });
+
   return router;
+}
+
+// Helper function to generate role-based AI suggestions
+function generateRoleBasedAISuggestions(role: string, permissions: Record<string, string>) {
+  const suggestions = [];
+
+  // Platform admin suggestions
+  if (role === 'admin' || role === 'platform_admin') {
+    suggestions.push({
+      id: 'platform_health_check',
+      type: 'operations',
+      icon: '⚡',
+      title: 'System Performance Review',
+      description: 'Platform performance is optimal. Consider scaling resources for peak hours.',
+      priority: 'medium',
+      roleSpecific: ['platform_admin', 'admin']
+    });
+
+    if (permissions['compliance_monitoring'] === 'full') {
+      suggestions.push({
+        id: 'compliance_update',
+        type: 'compliance',
+        icon: '📋',
+        title: 'Monthly Compliance Review',
+        description: 'CBN regulatory reports are due. Review compliance status and generate reports.',
+        priority: 'high',
+        roleSpecific: ['platform_admin', 'admin', 'compliance_officer']
+      });
+    }
+  }
+
+  // CEO/Executive suggestions
+  if (role === 'ceo' || role === 'deputy_md') {
+    suggestions.push({
+      id: 'executive_dashboard',
+      type: 'analysis',
+      icon: '📊',
+      title: 'Executive Performance Analysis',
+      description: 'Review quarterly performance metrics and strategic initiatives progress.',
+      priority: 'high',
+      roleSpecific: ['ceo', 'deputy_md']
+    });
+  }
+
+  // Branch manager suggestions
+  if (role === 'branch_manager') {
+    suggestions.push({
+      id: 'branch_performance',
+      type: 'operations',
+      icon: '🏦',
+      title: 'Branch Performance Review',
+      description: 'Review branch metrics, staff performance, and customer satisfaction scores.',
+      priority: 'medium',
+      roleSpecific: ['branch_manager']
+    });
+  }
+
+  // Customer service suggestions
+  if (role === 'customer_service' || role === 'relationship_manager') {
+    suggestions.push({
+      id: 'customer_follow_up',
+      type: 'customer',
+      icon: '🤝',
+      title: 'High-Value Customer Follow-up',
+      description: 'Contact customers with balances above ₦1M for premium service enrollment.',
+      priority: 'medium',
+      roleSpecific: ['customer_service', 'relationship_manager']
+    });
+  }
+
+  // Credit manager suggestions
+  if (role === 'credit_manager' || role === 'loan_officer') {
+    suggestions.push({
+      id: 'loan_portfolio_review',
+      type: 'analysis',
+      icon: '💰',
+      title: 'Loan Portfolio Analysis',
+      description: 'Review loan performance, risk assessment, and recovery strategies.',
+      priority: 'medium',
+      roleSpecific: ['credit_manager', 'loan_officer']
+    });
+  }
+
+  return suggestions;
+}
+
+// Helper function to get pending approvals for user's role
+async function getPendingApprovalsForUser(pool: any, tenantId: string, userId: string, role: string) {
+  // Only certain roles should see approval workflows
+  const approvalRoles = ['admin', 'ceo', 'deputy_md', 'branch_manager', 'operations_manager', 'credit_manager'];
+
+  if (!approvalRoles.includes(role)) {
+    return [];
+  }
+
+  try {
+    // Get pending high-value transfers that need approval
+    const transferQuery = `
+      SELECT
+        'transfer' as type,
+        id,
+        amount,
+        description,
+        created_at,
+        sender_id,
+        (SELECT full_name FROM tenant.users WHERE id = sender_id) as requested_by
+      FROM tenant.transfers
+      WHERE tenant_id = $1
+      AND amount > 1000000
+      AND status = 'pending'
+      AND requires_approval = true
+      ORDER BY created_at DESC
+      LIMIT 5
+    `;
+
+    const transferResult = await pool.query(transferQuery, [tenantId]);
+
+    return transferResult.rows.map(row => ({
+      id: `approval-transfer-${row.id}`,
+      type: row.type,
+      amount: row.amount,
+      currency: 'NGN',
+      description: row.description || 'High-value transfer requiring approval',
+      requestedBy: row.requested_by,
+      requestedAt: row.created_at,
+      priority: row.amount > 5000000 ? 'high' : 'medium'
+    }));
+
+  } catch (error) {
+    console.error('Error getting pending approvals:', error);
+    return [];
+  }
 }

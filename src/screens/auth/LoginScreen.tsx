@@ -18,7 +18,8 @@ import {
   Image,
   KeyboardAvoidingView,
 } from 'react-native';
-import { useTenant, useTenantTheme, useTenantBranding } from '../../tenants/TenantContext';
+import { useTenant, useTenantBranding } from '../../tenants/TenantContext';
+import { useTenantTheme } from '../../context/TenantThemeContext';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import { SecurityMonitor, SecurityConfig } from '../../utils/security';
@@ -49,7 +50,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   navigation,
 }) => {
   const { currentTenant, isLoading } = useTenant();
-  const theme = useTenantTheme();
+  const { theme } = useTenantTheme();
   const branding = useTenantBranding();
   const deploymentBranding = DeploymentManager.getDeploymentBranding();
   const { showAlert } = useBankingAlert();
@@ -109,6 +110,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
   // Handle form submission with security checks
   const handleSubmit = useCallback(async () => {
+    console.log('🎯 handleSubmit called - formData:', formData);
+    console.log('🎯 formErrors:', formErrors);
+    console.log('🎯 isSubmitting:', isSubmitting);
+
     if (isSubmitting) return;
 
     // Check if user is blocked due to too many attempts
@@ -137,7 +142,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
     // Validate form data
     const hasErrors = Object.values(formErrors).some(error => error !== undefined);
+    console.log('🔍 Validation check - hasErrors:', hasErrors, 'email:', formData.email, 'password:', formData.password);
     if (hasErrors || !formData.email || !formData.password) {
+      console.log('❌ Validation failed - showing alert');
       showAlert(
         '⚠️ Form Validation',
         'Please ensure all fields are filled correctly before proceeding.\n\nCheck that your email address is valid and your password meets the security requirements.',
@@ -201,11 +208,19 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           balance: loginResponse.user.wallet?.availableBalance
         });
         
+        // Dispatch auth state changed event
+        window.dispatchEvent(new CustomEvent('authStateChanged', {
+          detail: { isAuthenticated: true, user: loginResponse.user }
+        }));
+
         // Navigate to main app immediately (Alert doesn't work well in web)
         if (navigation) {
+          console.log('🚀 Calling navigation.replace(\'MainApp\')');
           navigation.replace('MainApp');
         } else {
           console.error('❌ Navigation object not available');
+          // Try to reload the page as a fallback
+          window.location.reload();
         }
       }
       
@@ -372,12 +387,12 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     scrollContainer: {
       flexGrow: 1,
       justifyContent: 'center',
-      paddingHorizontal: theme.spacing.lg,
-      paddingVertical: theme.spacing.xl,
+      paddingHorizontal: theme.layout.spacing,
+      paddingVertical: theme.layout.spacing * 1.5,
     },
     loginCard: {
       backgroundColor: theme.colors.surface,
-      borderRadius: theme.borderRadius.xl,
+      borderRadius: theme.layout.borderRadiusLarge,
       marginHorizontal: screenWidth > 600 ? '20%' : 0,
       maxWidth: 400,
       alignSelf: 'center',
@@ -390,11 +405,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     },
     tenantHeader: {
       backgroundColor: theme.colors.primary,
-      paddingVertical: theme.spacing.xl,
-      paddingHorizontal: theme.spacing.lg,
+      paddingVertical: theme.layout.spacing * 1.5,
+      paddingHorizontal: theme.layout.spacing,
       alignItems: 'center',
-      borderTopLeftRadius: theme.borderRadius.xl,
-      borderTopRightRadius: theme.borderRadius.xl,
+      borderTopLeftRadius: theme.layout.borderRadiusLarge,
+      borderTopRightRadius: theme.layout.borderRadiusLarge,
     },
     tenantLogo: {
       width: 70,
@@ -403,12 +418,12 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
       borderRadius: 35,
       justifyContent: 'center',
       alignItems: 'center',
-      marginBottom: theme.spacing.md,
+      marginBottom: theme.layout.spacing * 0.75,
       overflow: 'hidden',
     },
     tenantLogoText: {
-      fontSize: theme.typography.sizes.xxxl,
-      fontWeight: theme.typography.weights.bold as any,
+      fontSize: 28,
+      fontWeight: '700' as any,
       color: '#ffffff',
     },
     tenantLogoImage: {
@@ -417,63 +432,63 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
       borderRadius: 30,
     },
     tenantName: {
-      fontSize: theme.typography.sizes.xl,
-      fontWeight: theme.typography.weights.semibold as any,
+      fontSize: 20,
+      fontWeight: '600' as any,
       color: '#ffffff',
-      marginBottom: theme.spacing.xs,
+      marginBottom: theme.layout.spacing * 0.25,
     },
     tenantSubtitle: {
-      fontSize: theme.typography.sizes.sm,
+      fontSize: 14,
       color: 'rgba(255, 255, 255, 0.9)',
     },
     formContainer: {
-      padding: theme.spacing.xl,
+      padding: theme.layout.spacing * 1.5,
     },
     welcomeSection: {
       alignItems: 'center',
-      marginBottom: theme.spacing.xl,
+      marginBottom: theme.layout.spacing * 1.5,
     },
     welcomeTitle: {
-      fontSize: theme.typography.sizes.xl,
-      fontWeight: theme.typography.weights.semibold as any,
+      fontSize: 20,
+      fontWeight: '600' as any,
       color: theme.colors.text,
-      marginBottom: theme.spacing.xs,
+      marginBottom: theme.layout.spacing * 0.25,
     },
     welcomeSubtitle: {
-      fontSize: theme.typography.sizes.sm,
+      fontSize: 14,
       color: theme.colors.textSecondary,
       textAlign: 'center',
     },
     formSection: {
-      marginBottom: theme.spacing.lg,
+      marginBottom: theme.layout.spacing,
     },
     rememberForgotContainer: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: theme.spacing.lg,
+      marginBottom: theme.layout.spacing,
     },
     rememberContainer: {
       flexDirection: 'row',
       alignItems: 'center',
     },
     rememberText: {
-      fontSize: theme.typography.sizes.sm,
+      fontSize: 14,
       color: theme.colors.text,
-      marginLeft: theme.spacing.sm,
+      marginLeft: theme.layout.spacing * 0.5,
     },
     forgotPasswordButton: {
-      padding: theme.spacing.xs,
+      padding: theme.layout.spacing * 0.25,
     },
     forgotPasswordText: {
-      fontSize: theme.typography.sizes.sm,
+      fontSize: 14,
       color: theme.colors.primary,
-      fontWeight: theme.typography.weights.medium as any,
+      fontWeight: '500' as any,
     },
     divider: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginVertical: theme.spacing.lg,
+      marginVertical: theme.layout.spacing,
     },
     dividerLine: {
       flex: 1,
@@ -481,20 +496,20 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
       backgroundColor: '#e1e5e9',
     },
     dividerText: {
-      paddingHorizontal: theme.spacing.md,
-      fontSize: theme.typography.sizes.sm,
+      paddingHorizontal: theme.layout.spacing * 0.75,
+      fontSize: 14,
       color: theme.colors.textSecondary,
     },
     biometricContainer: {
       flexDirection: 'row',
       justifyContent: 'center',
-      gap: theme.spacing.md,
+      gap: theme.layout.spacing * 0.75,
     },
     biometricButton: {
       width: 60,
       height: 60,
       backgroundColor: theme.colors.background,
-      borderRadius: theme.borderRadius.md,
+      borderRadius: theme.layout.borderRadius,
       borderWidth: 2,
       borderColor: '#e1e5e9',
       justifyContent: 'center',
@@ -508,15 +523,15 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
       fontSize: 24,
     },
     securityInfo: {
-      marginTop: theme.spacing.lg,
-      padding: theme.spacing.md,
+      marginTop: theme.layout.spacing,
+      padding: theme.layout.spacing * 0.75,
       backgroundColor: `${theme.colors.info}10`,
-      borderRadius: theme.borderRadius.sm,
+      borderRadius: theme.layout.borderRadius * 0.5,
       borderLeftWidth: 4,
       borderLeftColor: theme.colors.info,
     },
     securityText: {
-      fontSize: theme.typography.sizes.xs,
+      fontSize: 12,
       color: theme.colors.textSecondary,
       textAlign: 'center',
     },
@@ -667,13 +682,26 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
               </TouchableOpacity>
             </View>
 
-            <Button
-              title="Sign In"
-              onPress={handleSubmit}
-              loading={isSubmitting}
-              disabled={isSubmitting || Object.values(formErrors).some(error => error !== undefined)}
-              fullWidth
-            />
+            <TouchableOpacity
+              onPress={() => {
+                console.log('🚀 TouchableOpacity onPress triggered!');
+                handleSubmit();
+              }}
+              style={{
+                backgroundColor: '#010080',
+                borderRadius: 8,
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: 48,
+                width: '100%'
+              }}
+            >
+              <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>
+                Sign In
+              </Text>
+            </TouchableOpacity>
 
             {/* Divider */}
             <View style={styles.divider}>

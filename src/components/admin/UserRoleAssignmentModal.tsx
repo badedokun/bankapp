@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import {
-  User,
-  UserPlus,
-  X,
-  Save,
-  Trash2,
-  AlertCircle,
-  Calendar,
-  MessageSquare,
-  Shield,
-  Clock
-} from 'lucide-react';
+// Icons replaced with React Native compatible emoji/text
+const Icons = {
+  User: () => '👤',
+  UserPlus: () => '👤+',
+  X: () => '✕',
+  Save: () => '💾',
+  Trash2: () => '🗑️',
+  AlertCircle: () => '⚠️',
+  Calendar: () => '📅',
+  MessageSquare: () => '💬',
+  Shield: () => '🛡️',
+  Clock: () => '🕐'
+};
 import apiService from '../../services/api';
 
 interface User {
@@ -153,7 +154,7 @@ const UserRoleAssignmentModal: React.FC<UserRoleAssignmentModalProps> = ({
           <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <UserPlus className="h-6 w-6 text-blue-600" />
+                <span style={{fontSize: 20}}>{Icons.UserPlus()}</span>
                 <div>
                   <h3 className="text-lg leading-6 font-medium text-gray-900">
                     Manage User Roles
@@ -167,7 +168,7 @@ const UserRoleAssignmentModal: React.FC<UserRoleAssignmentModalProps> = ({
                 onClick={onClose}
                 className="bg-white rounded-md text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <X className="h-6 w-6" />
+                <span style={{fontSize: 20}}>{Icons.X()}</span>
               </button>
             </div>
           </div>
@@ -176,7 +177,7 @@ const UserRoleAssignmentModal: React.FC<UserRoleAssignmentModalProps> = ({
           {error && (
             <div className="px-4 py-3 bg-red-50 border-l-4 border-red-400">
               <div className="flex">
-                <AlertCircle className="h-5 w-5 text-red-400" />
+                <span style={{fontSize: 18}}>{Icons.AlertCircle()}</span>
                 <div className="ml-3">
                   <p className="text-sm text-red-700">{error}</p>
                 </div>
@@ -190,7 +191,7 @@ const UserRoleAssignmentModal: React.FC<UserRoleAssignmentModalProps> = ({
               {/* Current Roles */}
               <div>
                 <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center">
-                  <Shield className="h-4 w-4 mr-2" />
+                  <span style={{fontSize: 16, marginRight: 8}}>{Icons.Shield()}</span>
                   Current Roles ({user.rbac_roles.length})
                 </h4>
                 {user.rbac_roles.length > 0 ? (
@@ -215,7 +216,7 @@ const UserRoleAssignmentModal: React.FC<UserRoleAssignmentModalProps> = ({
                         <div className="flex items-center space-x-2">
                           <div className="text-right">
                             <p className="text-xs text-gray-500 flex items-center">
-                              <Clock className="h-3 w-3 mr-1" />
+                              <span style={{fontSize: 12, marginRight: 4}}>{Icons.Clock()}</span>
                               {new Date(userRole.assignedAt).toLocaleDateString()}
                             </p>
                             {userRole.isActive && (
@@ -228,7 +229,7 @@ const UserRoleAssignmentModal: React.FC<UserRoleAssignmentModalProps> = ({
                             className="text-red-600 hover:text-red-800 disabled:opacity-50"
                             title="Remove role"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <span style={{fontSize: 16}}>{Icons.Trash2()}</span>
                           </button>
                         </div>
                       </div>
@@ -369,7 +370,7 @@ const UserRoleAssignmentModal: React.FC<UserRoleAssignmentModalProps> = ({
                   </>
                 ) : (
                   <>
-                    <UserPlus className="h-4 w-4 mr-2" />
+                    <span style={{fontSize: 16, marginRight: 8}}>{Icons.UserPlus()}</span>
                     Assign Role
                   </>
                 )}

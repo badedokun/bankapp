@@ -3,6 +3,39 @@
  * OrokiiPay Multi-Tenant Banking Platform
  * Backend API Server with Authentication
  */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -20,7 +53,7 @@ const auth_1 = __importDefault(require("./routes/auth"));
 const registration_1 = __importDefault(require("./routes/registration"));
 const tenants_1 = __importDefault(require("./routes/tenants"));
 const users_1 = __importDefault(require("./routes/users"));
-const transfers_1 = __importDefault(require("./routes/transfers"));
+const transfers_1 = __importStar(require("./routes/transfers"));
 const transactions_1 = __importDefault(require("./routes/transactions"));
 const wallets_1 = __importDefault(require("./routes/wallets"));
 const assets_1 = __importDefault(require("./routes/assets"));
@@ -30,10 +63,20 @@ const pci_dss_compliance_1 = __importDefault(require("./routes/pci-dss-complianc
 const security_monitoring_1 = __importDefault(require("./routes/security-monitoring"));
 const transaction_limits_1 = __importDefault(require("./routes/transaction-limits"));
 const ai_chat_1 = __importDefault(require("./routes/ai-chat"));
+const rbac_1 = require("./routes/rbac");
+const accounts_1 = __importDefault(require("./routes/accounts"));
+const bills_1 = __importDefault(require("./routes/bills"));
+const analytics_1 = __importDefault(require("./routes/analytics"));
+const notifications_1 = __importDefault(require("./routes/notifications"));
+const savings_1 = __importDefault(require("./routes/savings"));
+const loans_1 = __importDefault(require("./routes/loans"));
+const banks_1 = __importDefault(require("./routes/banks"));
+const tenantThemes_1 = __importDefault(require("./routes/tenantThemes"));
 // Import middleware
 const errorHandler_1 = require("./middleware/errorHandler");
 const auth_2 = require("./middleware/auth");
 const tenant_1 = require("./middleware/tenant");
+const database_1 = require("./config/database");
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3001;
 // Security middleware
@@ -125,6 +168,7 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authLimiter, tenant_1.tenantMiddleware, auth_1.default);
 app.use('/api/registration', authLimiter, tenant_1.tenantMiddleware, registration_1.default); // Public registration - no auth required
 app.use('/api/tenants', assets_1.default); // Public asset serving - no auth required
+app.use('/api/tenants/theme', tenantThemes_1.default); // Public tenant theme API - no auth required (moved up to avoid auth)
 app.use('/api/tenants', auth_2.authenticateToken, tenants_1.default);
 app.use('/api/users', auth_2.authenticateToken, tenant_1.tenantMiddleware, users_1.default);
 app.use('/api/transfers', auth_2.authenticateToken, tenant_1.tenantMiddleware, transfers_1.default);
@@ -136,6 +180,14 @@ app.use('/api/pci-dss-compliance', auth_2.authenticateToken, tenant_1.tenantMidd
 app.use('/api/security-monitoring', auth_2.authenticateToken, tenant_1.tenantMiddleware, security_monitoring_1.default);
 app.use('/api/transaction-limits', auth_2.authenticateToken, tenant_1.tenantMiddleware, transaction_limits_1.default);
 app.use('/api/ai', auth_2.authenticateToken, tenant_1.tenantMiddleware, ai_chat_1.default);
+app.use('/api/rbac', tenant_1.tenantMiddleware, (0, rbac_1.createRBACRouter)(database_1.pool));
+app.use('/api/accounts', auth_2.authenticateToken, tenant_1.tenantMiddleware, accounts_1.default);
+app.use('/api/bills', auth_2.authenticateToken, tenant_1.tenantMiddleware, bills_1.default);
+app.use('/api/analytics', auth_2.authenticateToken, tenant_1.tenantMiddleware, analytics_1.default);
+app.use('/api/notifications', auth_2.authenticateToken, tenant_1.tenantMiddleware, notifications_1.default);
+app.use('/api/savings', auth_2.authenticateToken, tenant_1.tenantMiddleware, savings_1.default);
+app.use('/api/loans', auth_2.authenticateToken, tenant_1.tenantMiddleware, loans_1.default);
+app.use('/api/banks', auth_2.authenticateToken, tenant_1.tenantMiddleware, banks_1.default);
 // Error handling
 app.use(errorHandler_1.notFound);
 app.use(errorHandler_1.errorHandler);
@@ -148,6 +200,8 @@ process.on('SIGTERM', () => {
     console.log('🛑 Received SIGTERM. Shutting down gracefully...');
     process.exit(0);
 });
+// Initialize transfer services with database pool
+(0, transfers_1.initializeTransferServices)(database_1.pool);
 // Start server
 app.listen(PORT, () => {
     console.log('🚀 OrokiiPay API Server started successfully!');

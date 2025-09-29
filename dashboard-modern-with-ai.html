@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Banking Dashboard with AI Assistant Integration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Modern color palette */
+            --primary-gradient-start: #667eea;
+            --primary-gradient-end: #764ba2;
+            --secondary-gradient-start: #4facfe;
+            --secondary-gradient-end: #00f2fe;
+            --success-gradient-start: #43e97b;
+            --success-gradient-end: #38f9d7;
+            --warning-gradient-start: #f093fb;
+            --warning-gradient-end: #f5576c;
+            --info-gradient-start: #ffa726;
+            --info-gradient-end: #ff7043;
+            --ai-gradient-start: #667eea;
+            --ai-gradient-end: #764ba2;
+
+            /* Glassmorphism colors */
+            --glass-white: rgba(255, 255, 255, 0.95);
+            --glass-light: rgba(255, 255, 255, 0.85);
+            --glass-medium: rgba(255, 255, 255, 0.7);
+            --glass-dark: rgba(255, 255, 255, 0.1);
+
+            /* Text colors */
+            --text-primary: #1a1a2e;
+            --text-secondary: #6c757d;
+            --text-light: #94a3b8;
+            --text-white: #ffffff;
+
+            /* Shadows */
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 8px 20px rgba(0, 0, 0, 0.15);
+            --shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Background decoration */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: backgroundMove 60s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes backgroundMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Header with glassmorphism */
+        .header {
+            background: var(--glass-white);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-md);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .bank-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 0.5rem 1rem 0.5rem 2.5rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: var(--glass-light);
+            backdrop-filter: blur(10px);
+            width: 250px;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary-gradient-start);
+            width: 300px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .search-box::before {
+            content: '🔍';
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .notification-btn, .user-profile {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--glass-white);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .notification-btn:hover, .user-profile:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        /* Main container */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Hero section with user info and balance */
+        .hero-section {
+            background: var(--glass-white);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end));
+            opacity: 0.05;
+            border-radius: 24px;
+        }
+
+        .welcome-section {
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .welcome-text {
+            font-size: 1rem;
+            color: var(--text-light);
+            margin-bottom: 0.25rem;
+        }
+
+        .user-name {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end));
+            color: white;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* Quick stats grid */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            background: var(--glass-light);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.25rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-gradient-start), var(--primary-gradient-end));
+        }
+
+        .stat-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.75rem;
+            font-size: 1.2rem;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .stat-change {
+            display: inline-block;
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            padding: 0.125rem 0.5rem;
+            border-radius: 12px;
+        }
+
+        .stat-change.positive {
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .stat-change.negative {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        /* AI Assistant Panel - Modern Design */
+        .ai-assistant-panel {
+            background: var(--glass-white);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 1.75rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .ai-gradient-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: linear-gradient(135deg, var(--ai-gradient-start), var(--ai-gradient-end));
+            opacity: 0.1;
+            border-radius: 24px 24px 0 0;
+        }
+
+        .ai-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .ai-title-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .ai-icon-container {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--ai-gradient-start), var(--ai-gradient-end));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow-md);
+            animation: aiPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes aiPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .ai-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .ai-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .ai-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--glass-light);
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .ai-status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* AI Suggestions Cards */
+        .ai-suggestions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .ai-suggestion-card {
+            background: var(--glass-light);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.25rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ai-suggestion-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: var(--shadow-lg);
+            background: var(--glass-white);
+        }
+
+        .ai-suggestion-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--ai-gradient-start), var(--ai-gradient-end));
+            opacity: 0.8;
+        }
+
+        .ai-suggestion-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--ai-gradient-start), var(--ai-gradient-end));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+            color: white;
+        }
+
+        .ai-suggestion-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .ai-suggestion-description {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+            margin-bottom: 0.75rem;
+        }
+
+        .ai-suggestion-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--ai-gradient-start);
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .ai-suggestion-action:hover {
+            gap: 0.75rem;
+            color: var(--ai-gradient-end);
+        }
+
+        /* AI Chat Interface Preview */
+        .ai-chat-preview {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: var(--glass-light);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .ai-chat-messages {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+
+        .ai-message {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .ai-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--ai-gradient-start), var(--ai-gradient-end));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .ai-message-content {
+            background: white;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            max-width: 80%;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .ai-input-container {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .ai-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: white;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .ai-input:focus {
+            outline: none;
+            border-color: var(--ai-gradient-start);
+            box-shadow: var(--shadow-md);
+        }
+
+        .ai-send-button {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--ai-gradient-start), var(--ai-gradient-end));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .ai-send-button:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Feature cards section */
+        .features-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .view-all-btn {
+            color: var(--primary-gradient-start);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .view-all-btn:hover {
+            color: var(--primary-gradient-end);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .feature-card {
+            background: var(--glass-white);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 1.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 160px;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .feature-gradient {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.08;
+            transition: opacity 0.3s;
+        }
+
+        .feature-card:hover .feature-gradient {
+            opacity: 0.12;
+        }
+
+        .feature-card.transfers .feature-gradient {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .feature-card.savings .feature-gradient {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+        }
+
+        .feature-card.loans .feature-gradient {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+        }
+
+        .feature-card.operations .feature-gradient {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+        }
+
+        .feature-card.reports .feature-gradient {
+            background: linear-gradient(135deg, #ffa726, #ff7043);
+        }
+
+        .feature-card.admin .feature-gradient {
+            background: linear-gradient(135deg, #9c27b0, #673ab7);
+        }
+
+        .feature-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-icon-container {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            background: var(--glass-light);
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .feature-description {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .feature-arrow {
+            position: absolute;
+            top: 1.75rem;
+            right: 1.75rem;
+            font-size: 1.25rem;
+            opacity: 0.5;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover .feature-arrow {
+            opacity: 1;
+            transform: translateX(4px);
+        }
+
+        /* Recent activity section */
+        .activity-section {
+            background: var(--glass-white);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 1.75rem;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 2rem;
+        }
+
+        .activity-list {
+            margin-top: 1.25rem;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
+
+        .activity-item:hover {
+            background: var(--glass-light);
+            margin: 0 -1rem;
+            padding: 1rem;
+            border-radius: 12px;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .activity-icon.credit {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .activity-icon.debit {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .activity-details {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-time {
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+
+        .activity-amount {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .activity-amount.credit {
+            color: #10b981;
+        }
+
+        .activity-amount.debit {
+            color: #ef4444;
+        }
+
+        /* Floating AI Assistant button */
+        .ai-assistant-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--ai-gradient-start), var(--ai-gradient-end));
+            box-shadow: var(--shadow-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 99;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.4), var(--shadow-xl);
+            }
+            50% {
+                box-shadow: 0 0 0 15px rgba(102, 126, 234, 0), var(--shadow-xl);
+            }
+        }
+
+        .ai-assistant-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+        }
+
+        .ai-assistant-btn span {
+            font-size: 1.5rem;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .search-box input {
+                width: 200px;
+            }
+
+            .dashboard-container {
+                padding: 1rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .ai-suggestions {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .hero-section {
+                padding: 1.5rem;
+            }
+
+            .user-name {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo">FB</div>
+                <div class="bank-name">First Microfinance Bank</div>
+            </div>
+
+            <div class="header-actions">
+                <div class="search-box">
+                    <input type="text" placeholder="Search banking features...">
+                </div>
+
+                <div class="notification-btn">
+                    <span>🔔</span>
+                    <div class="notification-badge">3</div>
+                </div>
+
+                <div class="user-profile">
+                    <span>👤</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard -->
+    <div class="dashboard-container">
+        <!-- Hero Section with Welcome and Stats -->
+        <div class="hero-section">
+            <div class="welcome-section">
+                <p class="welcome-text">Good morning! Welcome back,</p>
+                <h1 class="user-name">Bisiade Dokun</h1>
+                <span class="role-badge">CEO / Platform Admin</span>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="quick-stats">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(102, 126, 234, 0.1); color: #667eea;">💰</div>
+                    <p class="stat-label">Total Balance</p>
+                    <p class="stat-value">₦2,450,000</p>
+                    <span class="stat-change positive">↑ 12.5%</span>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(79, 172, 254, 0.1); color: #4facfe;">💳</div>
+                    <p class="stat-label">Available Balance</p>
+                    <p class="stat-value">₦1,850,000</p>
+                    <span class="stat-change positive">↑ 8.2%</span>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(67, 233, 123, 0.1); color: #43e97b;">📊</div>
+                    <p class="stat-label">Monthly Activity</p>
+                    <p class="stat-value">247</p>
+                    <span class="stat-change negative">↓ 3.1%</span>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(240, 147, 251, 0.1); color: #f093fb;">🎯</div>
+                    <p class="stat-label">Savings Goal</p>
+                    <p class="stat-value">₦500,000</p>
+                    <span class="stat-change positive">65% achieved</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Assistant Panel - Integrated with Modern Design -->
+        <div class="ai-assistant-panel">
+            <div class="ai-gradient-overlay"></div>
+
+            <div class="ai-header">
+                <div class="ai-title-section">
+                    <div class="ai-icon-container">
+                        <span>🤖</span>
+                    </div>
+                    <div>
+                        <h2 class="ai-title">AI Banking Assistant</h2>
+                        <p class="ai-subtitle">Your intelligent banking companion</p>
+                    </div>
+                </div>
+                <div class="ai-status">
+                    <div class="ai-status-dot"></div>
+                    <span>Online</span>
+                </div>
+            </div>
+
+            <!-- AI Smart Suggestions -->
+            <div class="ai-suggestions">
+                <div class="ai-suggestion-card">
+                    <div class="ai-suggestion-icon">💡</div>
+                    <h3 class="ai-suggestion-title">Optimize Your Savings</h3>
+                    <p class="ai-suggestion-description">Based on your spending patterns, you could save an additional ₦50,000 monthly by transferring to high-yield savings.</p>
+                    <div class="ai-suggestion-action">
+                        <span>Set up automatic transfer</span>
+                        <span>→</span>
+                    </div>
+                </div>
+
+                <div class="ai-suggestion-card">
+                    <div class="ai-suggestion-icon">📈</div>
+                    <h3 class="ai-suggestion-title">Investment Opportunity</h3>
+                    <p class="ai-suggestion-description">Your balance qualifies for our premium investment portfolio with 15% annual returns.</p>
+                    <div class="ai-suggestion-action">
+                        <span>View investment options</span>
+                        <span>→</span>
+                    </div>
+                </div>
+
+                <div class="ai-suggestion-card">
+                    <div class="ai-suggestion-icon">🎯</div>
+                    <h3 class="ai-suggestion-title">Bill Payment Reminder</h3>
+                    <p class="ai-suggestion-description">Your electricity bill of ₦15,000 is due in 3 days. Schedule automatic payment?</p>
+                    <div class="ai-suggestion-action">
+                        <span>Schedule payment</span>
+                        <span>→</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Chat Preview -->
+            <div class="ai-chat-preview">
+                <div class="ai-chat-messages">
+                    <div class="ai-message">
+                        <div class="ai-avatar">AI</div>
+                        <div class="ai-message-content">
+                            Hello! I noticed you frequently transfer to savings on the 25th of each month. Would you like me to automate this for you?
+                        </div>
+                    </div>
+                    <div class="ai-message">
+                        <div class="ai-avatar">AI</div>
+                        <div class="ai-message-content">
+                            I can help you with transfers, account inquiries, bill payments, and financial planning. What would you like to do today?
+                        </div>
+                    </div>
+                </div>
+                <div class="ai-input-container">
+                    <input type="text" class="ai-input" placeholder="Ask me anything about your banking...">
+                    <button class="ai-send-button">
+                        <span>→</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions / Features -->
+        <div class="features-section">
+            <div class="section-header">
+                <h2 class="section-title">Quick Actions</h2>
+                <a href="#" class="view-all-btn">View all features →</a>
+            </div>
+
+            <div class="features-grid">
+                <!-- Money Transfer -->
+                <div class="feature-card transfers">
+                    <div class="feature-gradient"></div>
+                    <div class="feature-content">
+                        <div class="feature-icon-container">
+                            <span>💸</span>
+                        </div>
+                        <h3 class="feature-title">Money Transfer</h3>
+                        <p class="feature-description">Send & receive money instantly. All transfer services in one place.</p>
+                    </div>
+                    <span class="feature-arrow">→</span>
+                </div>
+
+                <!-- Savings -->
+                <div class="feature-card savings">
+                    <div class="feature-gradient"></div>
+                    <div class="feature-content">
+                        <div class="feature-icon-container">
+                            <span>💰</span>
+                        </div>
+                        <h3 class="feature-title">Savings Products</h3>
+                        <p class="feature-description">Grow your money with flexible savings options.</p>
+                    </div>
+                    <span class="feature-arrow">→</span>
+                </div>
+
+                <!-- Loans -->
+                <div class="feature-card loans">
+                    <div class="feature-gradient"></div>
+                    <div class="feature-content">
+                        <div class="feature-icon-container">
+                            <span>💳</span>
+                        </div>
+                        <h3 class="feature-title">Loan Products</h3>
+                        <p class="feature-description">Quick credit access with competitive rates.</p>
+                    </div>
+                    <span class="feature-arrow">→</span>
+                </div>
+
+                <!-- Operations -->
+                <div class="feature-card operations">
+                    <div class="feature-gradient"></div>
+                    <div class="feature-content">
+                        <div class="feature-icon-container">
+                            <span>⚙️</span>
+                        </div>
+                        <h3 class="feature-title">Operations</h3>
+                        <p class="feature-description">Banking operations & compliance management.</p>
+                    </div>
+                    <span class="feature-arrow">→</span>
+                </div>
+
+                <!-- Reports -->
+                <div class="feature-card reports">
+                    <div class="feature-gradient"></div>
+                    <div class="feature-content">
+                        <div class="feature-icon-container">
+                            <span>📊</span>
+                        </div>
+                        <h3 class="feature-title">Reports & Analytics</h3>
+                        <p class="feature-description">Insights, analytics and management reports.</p>
+                    </div>
+                    <span class="feature-arrow">→</span>
+                </div>
+
+                <!-- RBAC Admin -->
+                <div class="feature-card admin">
+                    <div class="feature-gradient"></div>
+                    <div class="feature-content">
+                        <div class="feature-icon-container">
+                            <span>🛡️</span>
+                        </div>
+                        <h3 class="feature-title">RBAC Management</h3>
+                        <p class="feature-description">Manage roles and permissions.</p>
+                    </div>
+                    <span class="feature-arrow">→</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="activity-section">
+            <div class="section-header">
+                <h2 class="section-title">Recent Activity</h2>
+                <a href="#" class="view-all-btn">View all →</a>
+            </div>
+
+            <div class="activity-list">
+                <div class="activity-item">
+                    <div class="activity-icon credit">↓</div>
+                    <div class="activity-details">
+                        <p class="activity-title">Salary Credit</p>
+                        <p class="activity-time">Today, 9:30 AM</p>
+                    </div>
+                    <p class="activity-amount credit">+₦450,000</p>
+                </div>
+
+                <div class="activity-item">
+                    <div class="activity-icon debit">↑</div>
+                    <div class="activity-details">
+                        <p class="activity-title">Transfer to John Doe</p>
+                        <p class="activity-time">Today, 11:15 AM</p>
+                    </div>
+                    <p class="activity-amount debit">-₦50,000</p>
+                </div>
+
+                <div class="activity-item">
+                    <div class="activity-icon debit">↑</div>
+                    <div class="activity-details">
+                        <p class="activity-title">Bill Payment - PHCN</p>
+                        <p class="activity-time">Yesterday, 3:45 PM</p>
+                    </div>
+                    <p class="activity-amount debit">-₦15,000</p>
+                </div>
+
+                <div class="activity-item">
+                    <div class="activity-icon credit">↓</div>
+                    <div class="activity-details">
+                        <p class="activity-title">Investment Returns</p>
+                        <p class="activity-time">Yesterday, 10:00 AM</p>
+                    </div>
+                    <p class="activity-amount credit">+₦125,000</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating AI Assistant Button -->
+    <div class="ai-assistant-btn">
+        <span>🤖</span>
+    </div>
+
+    <script>
+        // Add interactive animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate cards on scroll
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // Observe all cards
+            document.querySelectorAll('.feature-card, .stat-card, .activity-item, .ai-suggestion-card').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'all 0.6s ease-out';
+                observer.observe(el);
+            });
+
+            // AI Assistant button interaction
+            const aiBtn = document.querySelector('.ai-assistant-btn');
+            aiBtn.addEventListener('click', () => {
+                document.querySelector('.ai-input').focus();
+                document.querySelector('.ai-assistant-panel').scrollIntoView({ behavior: 'smooth' });
+            });
+
+            // Feature card clicks
+            document.querySelectorAll('.feature-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const title = this.querySelector('.feature-title').textContent;
+                    console.log(`Navigating to: ${title}`);
+                });
+            });
+
+            // AI suggestion card clicks
+            document.querySelectorAll('.ai-suggestion-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const title = this.querySelector('.ai-suggestion-title').textContent;
+                    console.log(`AI Action: ${title}`);
+                });
+            });
+
+            // Search functionality
+            const searchInput = document.querySelector('.search-box input');
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                document.querySelectorAll('.feature-card').forEach(card => {
+                    const title = card.querySelector('.feature-title').textContent.toLowerCase();
+                    const description = card.querySelector('.feature-description').textContent.toLowerCase();
+
+                    if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+
+            // AI Chat interaction
+            const aiInput = document.querySelector('.ai-input');
+            const sendButton = document.querySelector('.ai-send-button');
+
+            const sendMessage = () => {
+                const message = aiInput.value.trim();
+                if (message) {
+                    console.log('AI Message:', message);
+                    aiInput.value = '';
+                    // Add typing indicator
+                    const messagesContainer = document.querySelector('.ai-chat-messages');
+                    const typingIndicator = document.createElement('div');
+                    typingIndicator.className = 'ai-message';
+                    typingIndicator.innerHTML = `
+                        <div class="ai-avatar">AI</div>
+                        <div class="ai-message-content">Typing...</div>
+                    `;
+                    messagesContainer.appendChild(typingIndicator);
+
+                    // Simulate AI response
+                    setTimeout(() => {
+                        typingIndicator.querySelector('.ai-message-content').textContent =
+                            'I understand your request. How can I assist you with that?';
+                    }, 1500);
+                }
+            };
+
+            sendButton.addEventListener('click', sendMessage);
+            aiInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

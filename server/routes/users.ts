@@ -30,6 +30,29 @@ router.get('/', requireRole(['admin']), asyncHandler(async (req, res) => {
 }));
 
 /**
+ * GET /api/users/profile
+ * Get current user's profile
+ */
+router.get('/profile', asyncHandler(async (req, res) => {
+  const result = await query(`
+    SELECT id, email, phone_number, first_name, last_name, role, status,
+           permissions, kyc_status, kyc_level, profile_data, created_at,
+           last_login_at, updated_at
+    FROM tenant.users
+    WHERE id = $1 AND tenant_id = $2
+  `, [req.user.id, req.user.tenantId]);
+
+  if (result.rows.length === 0) {
+    throw errors.notFound('User not found', 'USER_NOT_FOUND');
+  }
+
+  res.json({
+    success: true,
+    data: result.rows[0]
+  });
+}));
+
+/**
  * GET /api/users/:id
  * Get specific user information
  */

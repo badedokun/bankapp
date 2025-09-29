@@ -84,6 +84,7 @@ class APIService {
   private baseURL: string;
   private accessToken: string | null = null;
   private refreshToken: string | null = null;
+  private currentUser: LoginResponse['user'] | null = null;
 
   private constructor() {
     this.baseURL = API_BASE_URL;
@@ -297,10 +298,14 @@ class APIService {
         response.data.tokens.access,
         response.data.tokens.refresh
       );
-      
+
+      // Save user data
+      this.currentUser = response.data.user;
+      await Storage.setItem('user_data', JSON.stringify(response.data.user));
+
       // Clear demo mode
       await Storage.removeItem('demo_mode');
-      
+
       return response.data;
     }
 
@@ -322,6 +327,8 @@ class APIService {
       // Continue with local cleanup even if API call fails
     } finally {
       await this.clearTokensFromStorage();
+      this.currentUser = null;
+      await Storage.removeItem('user_data');
     }
   }
 
@@ -1292,6 +1299,43 @@ class APIService {
     if (!response.success) {
       throw new Error(response.error || 'Failed to assign role');
     }
+  }
+
+  /**
+   * Get current user data
+   */
+  async getCurrentUser(): Promise<LoginResponse['user'] | null> {
+    // First try to get from memory
+    if (this.currentUser) {
+      return this.currentUser;
+    }
+
+    // Then try to get from storage
+    try {
+      const storedUser = await Storage.getItem('user_data');
+      if (storedUser) {
+        this.currentUser = JSON.parse(storedUser);
+        return this.currentUser;
+      }
+    } catch (error) {
+      // Error loading user data from storage
+    }
+
+    // If we have a token, try to fetch from API
+    if (this.accessToken) {
+      try {
+        const response = await this.makeRequest<LoginResponse['user']>('auth/me');
+        if (response.success && response.data) {
+          this.currentUser = response.data;
+          await Storage.setItem('user_data', JSON.stringify(response.data));
+          return this.currentUser;
+        }
+      } catch (error) {
+        // Error fetching user data from API
+      }
+    }
+
+    return null;
   }
 
   /**

@@ -27,11 +27,11 @@ interface BankingFeature {
 
 // All banking features from RBAC matrix and HTML mockups
 const ALL_BANKING_FEATURES: BankingFeature[] = [
-  // TRANSFER OPERATIONS (4 features from HTML mockups)
+  // TRANSFER OPERATIONS (Consolidated into single entry point)
   {
-    id: 'money_transfer',
-    title: 'Money Transfer',
-    subtitle: 'Send money instantly',
+    id: 'money_transfer_operations',
+    title: 'Money Transfer Operations',
+    subtitle: 'All transfer services in one place',
     icon: '💸',
     category: 'transfers',
     requiredPermission: 'internal_transfers',
@@ -39,222 +39,57 @@ const ALL_BANKING_FEATURES: BankingFeature[] = [
     priority: 1,
     rolesWithAccess: ['ceo', 'deputy_md', 'branch_manager', 'operations_manager', 'relationship_manager', 'loan_officer', 'customer_service', 'head_teller', 'bank_teller']
   },
-  {
-    id: 'external_transfers',
-    title: 'External Transfers',
-    subtitle: 'NIBSS interbank transfers',
-    icon: '🏦',
-    category: 'transfers',
-    requiredPermission: 'external_transfers',
-    minPermissionLevel: 'write',
-    priority: 2,
-    rolesWithAccess: ['ceo', 'deputy_md', 'branch_manager', 'operations_manager', 'relationship_manager', 'loan_officer', 'customer_service', 'head_teller', 'bank_teller']
-  },
-  {
-    id: 'bulk_transfers',
-    title: 'Bulk Transfers',
-    subtitle: 'Process multiple transfers',
-    icon: '📋',
-    category: 'transfers',
-    requiredPermission: 'bulk_transfer_processing',
-    minPermissionLevel: 'write',
-    priority: 8,
-    rolesWithAccess: ['ceo', 'deputy_md', 'branch_manager', 'operations_manager', 'head_teller']
-  },
-  {
-    id: 'transfer_templates',
-    title: 'Transfer Templates',
-    subtitle: 'Saved recipients',
-    icon: '📝',
-    category: 'transfers',
-    requiredPermission: 'internal_transfers',
-    minPermissionLevel: 'write',
-    priority: 9,
-    rolesWithAccess: ['relationship_manager', 'loan_officer', 'customer_service', 'head_teller', 'bank_teller']
-  },
 
-  // SAVINGS PRODUCTS (5 features from HTML mockups)
+  // SAVINGS PRODUCTS (Consolidated into single entry point)
   {
-    id: 'flexible_savings',
-    title: 'Flexible Savings',
-    subtitle: 'Regular savings account',
+    id: 'savings_products',
+    title: 'Savings Products',
+    subtitle: 'All savings services in one place',
     icon: '💰',
     category: 'savings',
     requiredPermission: 'view_savings_accounts',
     minPermissionLevel: 'write',
-    priority: 3,
+    priority: 2,
     rolesWithAccess: ['ceo', 'deputy_md', 'branch_manager', 'operations_manager', 'credit_manager', 'relationship_manager', 'loan_officer', 'customer_service', 'head_teller', 'bank_teller']
   },
-  {
-    id: 'target_savings',
-    title: 'Target Savings',
-    subtitle: 'Goal-based savings',
-    icon: '🎯',
-    category: 'savings',
-    requiredPermission: 'view_savings_accounts',
-    minPermissionLevel: 'write',
-    priority: 4,
-    rolesWithAccess: ['ceo', 'deputy_md', 'branch_manager', 'operations_manager', 'credit_manager', 'relationship_manager', 'loan_officer', 'customer_service']
-  },
-  {
-    id: 'locked_savings',
-    title: 'Locked Savings',
-    subtitle: 'Fixed-term deposits',
-    icon: '🔒',
-    category: 'savings',
-    requiredPermission: 'view_savings_accounts',
-    minPermissionLevel: 'write',
-    priority: 5,
-    rolesWithAccess: ['ceo', 'deputy_md', 'branch_manager', 'operations_manager', 'credit_manager', 'relationship_manager', 'loan_officer']
-  },
-  {
-    id: 'group_savings',
-    title: 'Group Savings',
-    subtitle: 'Cooperative savings',
-    icon: '👥',
-    category: 'savings',
-    requiredPermission: 'view_savings_accounts',
-    minPermissionLevel: 'write',
-    priority: 6,
-    rolesWithAccess: ['ceo', 'deputy_md', 'branch_manager', 'relationship_manager', 'loan_officer']
-  },
-  {
-    id: 'save_as_transact',
-    title: 'Save as You Transact',
-    subtitle: 'Automated savings',
-    icon: '🔄',
-    category: 'savings',
-    requiredPermission: 'view_savings_accounts',
-    minPermissionLevel: 'write',
-    priority: 10,
-    rolesWithAccess: ['relationship_manager', 'customer_service']
-  },
 
-  // LOAN PRODUCTS (3 features from HTML mockups)
+  // LOAN PRODUCTS (Consolidated into single entry point)
   {
-    id: 'personal_loans',
-    title: 'Personal Loans',
-    subtitle: 'Individual lending',
+    id: 'loan_products',
+    title: 'Loan Products',
+    subtitle: 'All lending services in one place',
     icon: '💳',
     category: 'loans',
     requiredPermission: 'view_loan_applications',
     minPermissionLevel: 'write',
-    priority: 2,
-    rolesWithAccess: ['ceo', 'deputy_md', 'branch_manager', 'credit_manager', 'relationship_manager', 'loan_officer', 'customer_service', 'credit_analyst']
-  },
-  {
-    id: 'business_loans',
-    title: 'Business Loans',
-    subtitle: 'SME financing',
-    icon: '🏢',
-    category: 'loans',
-    requiredPermission: 'view_loan_applications',
-    minPermissionLevel: 'write',
     priority: 3,
-    rolesWithAccess: ['ceo', 'deputy_md', 'branch_manager', 'credit_manager', 'relationship_manager', 'loan_officer', 'credit_analyst']
-  },
-  {
-    id: 'quick_loans',
-    title: 'Quick Loans',
-    subtitle: 'Instant micro-loans',
-    icon: '⚡',
-    category: 'loans',
-    requiredPermission: 'view_loan_applications',
-    minPermissionLevel: 'write',
-    priority: 4,
     rolesWithAccess: ['ceo', 'deputy_md', 'branch_manager', 'credit_manager', 'relationship_manager', 'loan_officer', 'customer_service', 'credit_analyst']
   },
 
-  // OPERATIONS MANAGEMENT (5 features from HTML mockups)
+  // OPERATIONS MANAGEMENT (Consolidated - Bill Payments moved to Money Transfer Operations)
   {
-    id: 'transaction_reversal',
-    title: 'Transaction Reversal',
-    subtitle: 'CBN-compliant reversals',
-    icon: '↩️',
-    category: 'operations',
-    requiredPermission: 'view_reversal_requests',
-    minPermissionLevel: 'write',
-    priority: 7,
-    rolesWithAccess: ['ceo', 'deputy_md', 'branch_manager', 'operations_manager', 'credit_manager', 'compliance_officer', 'head_teller', 'bank_teller']
-  },
-  {
-    id: 'multi_account_management',
-    title: 'Account Management',
-    subtitle: 'Customer accounts',
-    icon: '👤',
+    id: 'operations_management',
+    title: 'Operations Management',
+    subtitle: 'Banking operations & compliance',
+    icon: '⚙️',
     category: 'operations',
     requiredPermission: 'view_customer_accounts',
-    minPermissionLevel: 'write',
-    priority: 3,
-    rolesWithAccess: ['ceo', 'deputy_md', 'branch_manager', 'operations_manager', 'relationship_manager', 'customer_service', 'head_teller', 'bank_teller']
-  },
-  {
-    id: 'bill_payments',
-    title: 'Bill Payments',
-    subtitle: 'Utility & services',
-    icon: '🧾',
-    category: 'operations',
-    requiredPermission: 'process_bill_payments',
-    minPermissionLevel: 'write',
-    priority: 5,
-    rolesWithAccess: ['ceo', 'deputy_md', 'branch_manager', 'operations_manager', 'relationship_manager', 'customer_service', 'head_teller', 'bank_teller']
-  },
-  {
-    id: 'kyc_onboarding',
-    title: 'KYC Onboarding',
-    subtitle: 'Customer verification',
-    icon: '✅',
-    category: 'operations',
-    requiredPermission: 'view_kyc_documents',
-    minPermissionLevel: 'write',
-    priority: 6,
-    rolesWithAccess: ['ceo', 'deputy_md', 'branch_manager', 'operations_manager', 'compliance_officer', 'relationship_manager', 'customer_service']
-  },
-  {
-    id: 'transaction_management',
-    title: 'Transaction Management',
-    subtitle: 'Transaction oversight',
-    icon: '📊',
-    category: 'operations',
-    requiredPermission: 'view_audit_trails',
     minPermissionLevel: 'read',
-    priority: 8,
-    rolesWithAccess: ['ceo', 'deputy_md', 'branch_manager', 'operations_manager', 'compliance_officer', 'audit_officer']
+    priority: 3,
+    rolesWithAccess: ['ceo', 'deputy_md', 'branch_manager', 'operations_manager', 'compliance_officer', 'audit_officer', 'relationship_manager', 'customer_service', 'head_teller', 'bank_teller']
   },
 
-  // MANAGEMENT & ADMINISTRATION
+  // MANAGEMENT & REPORTS (Consolidated into single entry point)
   {
-    id: 'user_management',
-    title: 'User Management',
-    subtitle: 'Staff & permissions',
-    icon: '👥',
-    category: 'management',
-    requiredPermission: 'create_bank_users',
-    minPermissionLevel: 'write',
-    priority: 7,
-    rolesWithAccess: ['ceo', 'deputy_md', 'branch_manager', 'operations_manager', 'it_administrator']
-  },
-  {
-    id: 'compliance_reports',
-    title: 'Compliance Reports',
-    subtitle: 'Regulatory reporting',
-    icon: '📋',
-    category: 'management',
-    requiredPermission: 'generate_compliance_reports',
-    minPermissionLevel: 'write',
-    priority: 9,
-    rolesWithAccess: ['ceo', 'deputy_md', 'compliance_officer', 'audit_officer']
-  },
-  {
-    id: 'analytics_dashboard',
-    title: 'Analytics Dashboard',
-    subtitle: 'Business intelligence',
-    icon: '📈',
+    id: 'management_reports',
+    title: 'Management & Reports',
+    subtitle: 'Analytics, compliance & administration',
+    icon: '📊',
     category: 'management',
     requiredPermission: 'bank_performance_dashboard',
     minPermissionLevel: 'read',
-    priority: 8,
-    rolesWithAccess: ['ceo', 'deputy_md', 'branch_manager', 'operations_manager', 'credit_manager']
+    priority: 7,
+    rolesWithAccess: ['ceo', 'deputy_md', 'branch_manager', 'operations_manager', 'compliance_officer', 'audit_officer', 'credit_manager', 'it_administrator']
   },
 
   // PLATFORM ADMINISTRATION (Platform Admin only)

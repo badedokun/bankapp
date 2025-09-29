@@ -142,7 +142,8 @@ module.exports = {
     },
     compress: true,
     port: 3000,
-    hot: true,
+    hot: 'only', // Changed from true to 'only' - prevents full page reloads
+    liveReload: false, // Disable live reload to prevent automatic refreshes
     historyApiFallback: true,
     open: false,
     allowedHosts: [
@@ -156,6 +157,15 @@ module.exports = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
       'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization'
-    }
+    },
+    proxy: [
+      {
+        context: ['/api'],
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        secure: false,
+        logLevel: 'debug'
+      }
+    ]
   },
 };

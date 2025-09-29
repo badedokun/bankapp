@@ -150,8 +150,13 @@ export class RBACService {
     // Get user roles first
     const userRoles = await this.getUserRoles(tenantId, userId);
 
-    // Check if user is CEO or admin (full access)
-    const isFullAccess = userRoles.some(role =>
+    // Also check the legacy role field from the users table for backward compatibility
+    const userQuery = `SELECT role FROM tenant.users WHERE id = $1 AND tenant_id = $2`;
+    const userResult = await this.pool.query(userQuery, [userId, tenantId]);
+    const legacyRole = userResult.rows[0]?.role;
+
+    // Check if user is CEO or admin (full access) - including legacy 'admin' role
+    const isFullAccess = legacyRole === 'admin' || userRoles.some(role =>
       ['ceo', 'platform_admin', 'tenant_admin'].includes(role.roleCode)
     );
 
@@ -161,6 +166,9 @@ export class RBACService {
       'locked_savings', 'save_as_you_transact', 'personal_loans', 'business_loans',
       'quick_loans', 'bill_payments', 'kyc_onboarding', 'multi_account_management',
       'transaction_management', 'transaction_reversal_system', 'external_transfers_nibss',
+      'external_transfers', // Added to match frontend
+      'bulk_transfers', // Added for bulk transfer feature
+      'transfer_templates', // Added for transfer templates feature
       'complete_money_transfer', 'enhanced_money_transfer', 'rbac_management',
       'tenant_management', 'platform_analytics', 'system_health'
     ];
@@ -178,6 +186,7 @@ export class RBACService {
     // Map features to required permissions
     const featurePermissionMap: Record<string, string> = {
       'money_transfer': 'internal_transfers',
+      'external_transfers': 'external_transfers', // Direct mapping
       'external_transfers_nibss': 'external_transfers',
       'complete_money_transfer': 'internal_transfers',
       'enhanced_money_transfer': 'bulk_transfers',

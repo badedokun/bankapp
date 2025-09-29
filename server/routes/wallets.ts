@@ -51,15 +51,26 @@ router.get('/balance', authenticateToken, validateTenantAccess, asyncHandler(asy
 
   const spending = spendingResult.rows[0];
 
-  const balanceValue = parseFloat(wallet.balance);
-  console.log(`💰 WALLET API RESPONSE: User ${req.user.id} | Balance: ${balanceValue} | Account: ${wallet.account_number}`);
+  // Calculate real-time balance by subtracting completed transfers from wallet balance
+  const transfersResult = await query(`
+    SELECT
+      COALESCE(SUM(amount + COALESCE(fee, 0)), 0) as total_debited
+    FROM tenant.transfers
+    WHERE sender_id = $1 AND status IN ('completed', 'successful')
+  `, [req.user.id]);
+
+  const totalDebited = parseFloat(transfersResult.rows[0]?.total_debited || '0');
+  const walletBalance = parseFloat(wallet.balance);
+  const realTimeBalance = walletBalance - totalDebited;
+
+  console.log(`💰 WALLET BALANCE CALCULATION: User ${req.user.id} | Wallet: ${walletBalance} | Debited: ${totalDebited} | Real-time: ${realTimeBalance} | Account: ${wallet.account_number}`);
 
   res.json({
     success: true,
     data: {
       accountNumber: wallet.account_number,
-      balance: balanceValue,
-      availableBalance: balanceValue, // Available balance equals current balance for now
+      balance: realTimeBalance,
+      availableBalance: realTimeBalance, // Real-time balance after transfers
       currency: wallet.currency || 'NGN',
       walletType: wallet.wallet_type,
       status: wallet.status || 'active',

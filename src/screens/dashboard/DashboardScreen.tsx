@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { EnhancedDashboardScreen } from '../../components/dashboard/EnhancedDashboardScreen';
+import ModernDashboardScreen from './ModernDashboardScreen';
 
 export interface DashboardScreenProps {
   onNavigateToTransfer?: () => void;
@@ -13,6 +13,7 @@ export interface DashboardScreenProps {
   onNavigateToTransactionDetails?: (transactionId: string, transaction?: any) => void;
   onNavigateToAIChat?: () => void;
   onLogout?: () => void;
+  onNavigateToFeature?: (feature: string, params?: any) => void;
 }
 
 export const DashboardScreen: React.FC<DashboardScreenProps> = ({
@@ -22,16 +23,18 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   onNavigateToTransactionDetails,
   onNavigateToAIChat,
   onLogout,
+  onNavigateToFeature,
 }) => {
-  // Use the enhanced RBAC dashboard instead of the legacy dashboard
+  // Use the modern glassmorphism dashboard with RBAC integration
   return (
-    <EnhancedDashboardScreen
+    <ModernDashboardScreen
       onNavigateToTransfer={onNavigateToTransfer}
       onNavigateToHistory={onNavigateToHistory}
       onNavigateToSettings={onNavigateToSettings}
       onNavigateToTransactionDetails={onNavigateToTransactionDetails}
       onNavigateToAIChat={onNavigateToAIChat}
       onLogout={onLogout}
+      onNavigateToFeature={onNavigateToFeature}
     />
   );
 };

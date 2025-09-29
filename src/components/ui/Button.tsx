@@ -12,7 +12,7 @@ import {
   View,
   TouchableOpacityProps,
 } from 'react-native';
-import { useTenantTheme } from '../../tenants/TenantContext';
+import { useTenantTheme } from '../../context/TenantThemeContext';
 
 export interface ButtonProps extends TouchableOpacityProps {
   title: string;
@@ -36,7 +36,7 @@ export const Button: React.FC<ButtonProps> = ({
   style,
   ...props
 }) => {
-  const theme = useTenantTheme();
+  const { theme } = useTenantTheme();
 
   const getBackgroundColor = () => {
     if (disabled) return '#e0e0e0';
@@ -82,23 +82,23 @@ export const Button: React.FC<ButtonProps> = ({
     switch (size) {
       case 'small':
         return {
-          paddingHorizontal: theme.spacing.md,
-          paddingVertical: theme.spacing.sm,
+          paddingHorizontal: 12,
+          paddingVertical: 8,
         };
       case 'medium':
         return {
-          paddingHorizontal: theme.spacing.lg,
-          paddingVertical: theme.spacing.md,
+          paddingHorizontal: 16,
+          paddingVertical: 12,
         };
       case 'large':
         return {
-          paddingHorizontal: theme.spacing.xl,
-          paddingVertical: theme.spacing.lg,
+          paddingHorizontal: 20,
+          paddingVertical: 16,
         };
       default:
         return {
-          paddingHorizontal: theme.spacing.lg,
-          paddingVertical: theme.spacing.md,
+          paddingHorizontal: 16,
+          paddingVertical: 12,
         };
     }
   };
@@ -106,20 +106,20 @@ export const Button: React.FC<ButtonProps> = ({
   const getFontSize = () => {
     switch (size) {
       case 'small':
-        return theme.typography.sizes.sm;
+        return 14;
       case 'medium':
-        return theme.typography.sizes.md;
+        return 16;
       case 'large':
-        return theme.typography.sizes.lg;
+        return 18;
       default:
-        return theme.typography.sizes.md;
+        return 16;
     }
   };
 
   const styles = StyleSheet.create({
     button: {
       backgroundColor: getBackgroundColor(),
-      borderRadius: theme.borderRadius.md,
+      borderRadius: 8,
       borderWidth: variant === 'outline' ? 2 : 0,
       borderColor: getBorderColor(),
       alignItems: 'center',
@@ -143,18 +143,18 @@ export const Button: React.FC<ButtonProps> = ({
     },
     text: {
       fontSize: getFontSize(),
-      fontWeight: theme.typography.weights.semibold as any,
+      fontWeight: '600' as any,
       color: getTextColor(),
       textAlign: 'center',
     },
     leftIcon: {
-      marginRight: theme.spacing.sm,
+      marginRight: 8,
     },
     rightIcon: {
-      marginLeft: theme.spacing.sm,
+      marginLeft: 8,
     },
     loader: {
-      marginRight: theme.spacing.sm,
+      marginRight: 8,
     },
   });
 

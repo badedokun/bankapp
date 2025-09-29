@@ -5,7 +5,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { SafeAreaView, StyleSheet, Text } from 'react-native';
-import { TenantProvider, useTenant, useTenantTheme } from './src/tenants/TenantContext';
+import { TenantProvider, useTenant } from './src/tenants/TenantContext';
+import { TenantThemeProvider, useTenantTheme } from './src/context/TenantThemeContext';
 import { BankingAlertProvider } from './src/services/AlertService';
 import LoadingScreen from './src/components/common/LoadingScreen';
 import WebNavigator from './src/navigation/WebNavigator';
@@ -16,20 +17,63 @@ import './src/utils/authTestHelper'; // Import test helper for development
 
 const AppContent: React.FC = () => {
   const { currentTenant, isLoading, error } = useTenant();
-  const theme = useTenantTheme();
+  const { theme } = useTenantTheme();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Check authentication status on app start
   useEffect(() => {
-    checkAuthStatus();
+    // SECURITY: Clear all authentication on app launch to prevent bypass
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('tenant');
+    sessionStorage.clear();
+    setIsAuthenticated(false);
+
+    // Listen for storage changes (in case login happens in another tab or component)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'access_token') {
+        if (e.newValue) {
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    // Also listen for custom auth events
+    const handleAuthChange = (e: CustomEvent) => {
+      checkAuthStatus();
+    };
+
+    window.addEventListener('authStateChanged' as any, handleAuthChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('authStateChanged' as any, handleAuthChange);
+    };
   }, []);
 
   const checkAuthStatus = async () => {
     try {
-      const isAuth = await APIService.isAuthenticated();
-      setIsAuthenticated(isAuth);
+      // First check if we have a token in localStorage
+      const token = localStorage.getItem('access_token');
+      if (token) {
+        setIsAuthenticated(true);
+        // Verify token validity in background (don't block UI)
+        APIService.isAuthenticated().then((valid) => {
+          if (!valid) {
+            setIsAuthenticated(false);
+          }
+        }).catch(() => {
+          // Token validation failed, but keep user logged in for now
+        });
+      } else {
+        setIsAuthenticated(false);
+      }
     } catch (error) {
-      console.log('Authentication check failed:', error);
       setIsAuthenticated(false);
     }
   };
@@ -44,7 +88,6 @@ const AppContent: React.FC = () => {
       await DemoAuthManager.clearDemoAuth();
       setIsAuthenticated(false);
     } catch (error) {
-      console.error('Logout failed:', error);
       setIsAuthenticated(false);
     }
   }, []);
@@ -55,7 +98,7 @@ const AppContent: React.FC = () => {
 
   if (error) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.error }]}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.danger }]}>
         <Text style={[styles.errorTitle, { color: '#ffffff' }]}>
           Error Loading App
         </Text>
@@ -79,7 +122,9 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <TenantProvider>
-      <AppContent />
+      <TenantThemeProvider>
+        <AppContent />
+      </TenantThemeProvider>
     </TenantProvider>
   );
 };
