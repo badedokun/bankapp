@@ -4,6 +4,20 @@
 
 > **⚠️ CRITICAL: This section contains the established technology stack and architecture patterns that MUST be followed. Do NOT deviate from these patterns without explicit architectural review and approval.**
 
+### **🎨 MANDATORY UI DESIGN SYSTEM**
+> **ALL UI DEVELOPMENT MUST FOLLOW THE MODERN DESIGN SYSTEM**
+>
+> 📖 **Required Reading**: [MODERN_UI_DESIGN_SYSTEM.md](./MODERN_UI_DESIGN_SYSTEM.md)
+>
+> **Key Requirements**:
+> - ✅ Glassmorphism effects on all cards and panels
+> - ✅ Dynamic tenant-based color theming (NO hardcoded colors)
+> - ✅ Gradient backgrounds using tenant primary/secondary colors
+> - ✅ Responsive layouts with defined breakpoints
+> - ✅ Consistent component patterns across all screens
+>
+> **⚠️ Code without proper theming will be REJECTED**
+
 ### **✅ CONFIRMED: Modern React Native + React Web Architecture**
 
 This banking application follows **industry-leading best practices** for cross-platform development:
@@ -61,11 +75,14 @@ This banking application follows **industry-leading best practices** for cross-p
 │   ├── store/            # Redux store & slices
 │   ├── hooks/            # Custom React hooks
 │   ├── services/         # API service layer
+│   ├── context/          # React contexts (Theme, User, etc.)
+│   ├── styles/           # Modern UI styles & design system
 │   ├── design-system/    # Design tokens & themes
 │   └── types/            # TypeScript definitions
 ├── server/               # Express.js backend
 ├── database/            # PostgreSQL schemas
-└── tests/              # Comprehensive test suite
+├── tests/              # Comprehensive test suite
+└── MODERN_UI_DESIGN_SYSTEM.md  # UI Design Guidelines (REQUIRED READING)
 ```
 
 ### **⚠️ CRITICAL PATTERNS TO FOLLOW**
@@ -77,6 +94,9 @@ This banking application follows **industry-leading best practices** for cross-p
 5. **API calls MUST use RTK Query**
 6. **Forms MUST use React Hook Form**
 7. **TypeScript interfaces REQUIRED for all props**
+8. **ALWAYS use useTenantTheme() for colors** (NO hardcoded colors)
+9. **MUST implement glassmorphism on cards** (see MODERN_UI_DESIGN_SYSTEM.md)
+10. **MUST use gradient backgrounds with tenant colors**
 
 ---
 
@@ -144,6 +164,7 @@ Following proven patterns from **Slack, GitHub, GitLab, Atlassian**:
 **REFERENCE DOCUMENTS:**
 - 📄 **`TENANT_MANAGEMENT_SAAS_UNIFIED.md`** - Complete architecture specification
 - 📄 **`FRONTEND_UNIFIED_IMPLEMENTATION.md`** - Frontend implementation plan
+- 🎨 **`MODERN_UI_DESIGN_SYSTEM.md`** - Mandatory UI/UX design guidelines
 
 **DO NOT implement separate applications or databases for platform admin!**
 
@@ -153,11 +174,16 @@ Following proven patterns from **Slack, GitHub, GitLab, Atlassian**:
 
 ### **Frontend**
 - **React Native**: 0.81.1 (Mobile iOS/Android)
-- **React Native Web**: 0.21.1 (Web browser support)  
+- **React Native Web**: 0.21.1 (Web browser support)
 - **Navigation**: React Navigation v7 (Stack & Bottom Tabs)
 - **State Management**: Redux Toolkit + React Query
 - **Build Tools**: Webpack 5, Babel, TypeScript
 - **Testing**: Jest + React Native Testing Library
+- **UI Design System**: Modern glassmorphic with dynamic tenant theming
+  - 📖 See [MODERN_UI_DESIGN_SYSTEM.md](./MODERN_UI_DESIGN_SYSTEM.md) for mandatory UI guidelines
+  - Dynamic gradients based on tenant colors from database
+  - Glassmorphism effects with backdrop blur
+  - Responsive layouts with defined breakpoints
 
 ### **Backend**
 - **Runtime**: Node.js 20+ with TypeScript  
