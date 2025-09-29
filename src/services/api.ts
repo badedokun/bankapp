@@ -104,13 +104,8 @@ class APIService {
     try {
       this.accessToken = await Storage.getItem('access_token');
       this.refreshToken = await Storage.getItem('refresh_token');
-      console.log('🔑 Loaded tokens from storage:', {
-        hasAccessToken: !!this.accessToken,
-        hasRefreshToken: !!this.refreshToken,
-        accessTokenLength: this.accessToken?.length || 0
-      });
     } catch (error) {
-      console.error('Error loading tokens from storage:', error);
+      // Error loading tokens from storage
     }
   }
 
@@ -123,12 +118,8 @@ class APIService {
       await Storage.setItem('refresh_token', refreshToken);
       this.accessToken = accessToken;
       this.refreshToken = refreshToken;
-      console.log('💾 Saved tokens to storage:', {
-        accessTokenLength: accessToken.length,
-        refreshTokenLength: refreshToken.length
-      });
     } catch (error) {
-      console.error('Error saving tokens to storage:', error);
+      // Error saving tokens to storage
     }
   }
 
@@ -143,7 +134,7 @@ class APIService {
       this.accessToken = null;
       this.refreshToken = null;
     } catch (error) {
-      console.error('Error clearing tokens from storage:', error);
+      // Error clearing tokens from storage
     }
   }
 
@@ -159,7 +150,7 @@ class APIService {
           return payload.tenantId;
         }
       } catch (error) {
-        console.log('Could not extract tenant from token:', error);
+        // Could not extract tenant from token
       }
     }
 
@@ -207,9 +198,6 @@ class APIService {
     // Add authorization header if token exists
     if (this.accessToken) {
       headers.Authorization = `Bearer ${this.accessToken}`;
-      console.log('📡 Making authenticated API request to:', endpoint);
-    } else {
-      console.log('⚠️ Making unauthenticated API request to:', endpoint);
     }
 
     try {
@@ -222,7 +210,6 @@ class APIService {
 
       // Handle token expiration
       if (response.status === 401 && data.code === 'TOKEN_EXPIRED') {
-        console.log('Token expired, attempting refresh...');
         const refreshSuccess = await this.refreshAccessToken();
         
         if (refreshSuccess && this.accessToken) {
@@ -243,7 +230,6 @@ class APIService {
 
       return data;
     } catch (error) {
-      console.error('API request failed:', error);
       throw error;
     }
   }
@@ -279,7 +265,7 @@ class APIService {
         }
       }
     } catch (error) {
-      console.error('Token refresh failed:', error);
+      // Token refresh failed
     }
 
     return false;
@@ -332,7 +318,7 @@ class APIService {
         });
       }
     } catch (error) {
-      console.error('Logout API call failed:', error);
+      // Logout API call failed
       // Continue with local cleanup even if API call fails
     } finally {
       await this.clearTokensFromStorage();
@@ -350,7 +336,7 @@ class APIService {
         });
       }
     } catch (error) {
-      console.error('Logout all API call failed:', error);
+      // Logout all API call failed
     } finally {
       await this.clearTokensFromStorage();
     }
@@ -436,7 +422,7 @@ class APIService {
       await this.getProfile();
       return true;
     } catch (error) {
-      console.log('Authentication check failed:', error);
+      // Authentication check failed
       return false;
     }
   }
@@ -566,7 +552,7 @@ class APIService {
         return response.data;
       }
     } catch (error) {
-      console.log('Dedicated transaction details endpoint not available, falling back to transfer details');
+      // Dedicated transaction details endpoint not available, falling back to transfer details
     }
 
     // Fallback to transfer details endpoint
@@ -1108,6 +1094,305 @@ class APIService {
     }
 
     throw new Error(response.error || 'Failed to fetch audit trail');
+  }
+
+  // =====================================================
+  // RBAC Methods
+  // =====================================================
+
+  /**
+   * Get user's RBAC permissions
+   */
+  async getUserPermissions(): Promise<{
+    permissions: Record<string, string>;
+    roles: Array<{ roleCode: string; roleName: string; }>;
+    isAdmin: boolean;
+  }> {
+    const response = await this.makeRequest<{
+      permissions: Record<string, string>;
+      roles: Array<{ roleCode: string; roleName: string; }>;
+      isAdmin: boolean;
+    }>('rbac/permissions');
+
+    if (response.success && response.data) {
+      return response.data;
+    }
+    throw new Error(response.error || 'Failed to get user permissions');
+  }
+
+  /**
+   * Get available banking features for current user
+   */
+  async getAvailableFeatures(): Promise<{
+    available: string[];
+    restricted: string[];
+  }> {
+    const response = await this.makeRequest<{
+      available: string[];
+      restricted: string[];
+    }>('rbac/available-features');
+
+    if (response.success && response.data) {
+      return response.data;
+    }
+    throw new Error(response.error || 'Failed to get available features');
+  }
+
+  /**
+   * Get role-based dashboard metrics
+   */
+  async getRoleBasedMetrics(): Promise<any> {
+    const response = await this.makeRequest<any>('rbac/role-based-metrics');
+
+    if (response.success && response.data) {
+      return response.data;
+    }
+    throw new Error(response.error || 'Failed to get role-based metrics');
+  }
+
+  /**
+   * Check if user has specific permission
+   */
+  async checkPermission(permissionCode: string, resourceId?: string): Promise<{
+    hasPermission: boolean;
+    permissionLevel: string;
+    permissionCode: string;
+  }> {
+    const response = await this.makeRequest<{
+      hasPermission: boolean;
+      permissionLevel: string;
+      permissionCode: string;
+    }>('rbac/check-permission', 'POST', {
+      permissionCode,
+      resourceId
+    });
+
+    if (response.success && response.data) {
+      return response.data;
+    }
+    throw new Error(response.error || 'Failed to check permission');
+  }
+
+  // =====================================================
+  // RBAC ADMIN MANAGEMENT METHODS
+  // =====================================================
+
+  /**
+   * Get RBAC admin dashboard data
+   */
+  async getRBACDashboard(): Promise<{
+    totalUsers: number;
+    activeRoles: number;
+    totalPermissions: number;
+    recentAssignments: any[];
+    roleDistribution: any[];
+  }> {
+    const response = await this.makeRequest<any>('rbac/admin/dashboard');
+
+    if (response.success && response.data) {
+      return response.data;
+    }
+    throw new Error(response.error || 'Failed to get RBAC dashboard');
+  }
+
+  /**
+   * Get all platform roles (platform admin only)
+   */
+  async getPlatformRoles(): Promise<any[]> {
+    const response = await this.makeRequest<any[]>('rbac/admin/platform-roles');
+
+    if (response.success && response.data) {
+      return response.data;
+    }
+    throw new Error(response.error || 'Failed to get platform roles');
+  }
+
+  /**
+   * Get all platform permissions (platform admin only)
+   */
+  async getPlatformPermissions(): Promise<{
+    permissions: any[];
+    groupedByCategory: Record<string, any[]>;
+  }> {
+    const response = await this.makeRequest<any>('rbac/admin/platform-permissions');
+
+    if (response.success && response.data) {
+      return response.data;
+    }
+    throw new Error(response.error || 'Failed to get platform permissions');
+  }
+
+  /**
+   * Get permissions for a specific role
+   */
+  async getRolePermissions(roleCode: string, level: 'platform' | 'tenant' = 'platform'): Promise<{
+    roleCode: string;
+    roleName: string;
+    permissions: any[];
+    groupedByCategory: Record<string, any[]>;
+    totalPermissions: number;
+  }> {
+    const response = await this.makeRequest<any>(`rbac/admin/role-permissions/${roleCode}?level=${level}`);
+
+    if (response.success && response.data) {
+      return response.data;
+    }
+    throw new Error(response.error || 'Failed to get role permissions');
+  }
+
+  /**
+   * Update role permissions
+   */
+  async updateRolePermissions(roleCode: string, permissions: Array<{code: string, level: string}>, level: 'platform' | 'tenant' = 'platform'): Promise<{
+    roleCode: string;
+    permissionsUpdated: number;
+  }> {
+    const response = await this.makeRequest<any>(`rbac/admin/role-permissions/${roleCode}`, 'PUT', {
+      permissions,
+      level
+    });
+
+    if (response.success && response.data) {
+      return response.data;
+    }
+    throw new Error(response.error || 'Failed to update role permissions');
+  }
+
+  /**
+   * Get all users with their roles
+   */
+  async getAllUsers(page: number = 1, limit: number = 50): Promise<{
+    users: any[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+    };
+  }> {
+    const response = await this.makeRequest<any>(`rbac/admin/users?page=${page}&limit=${limit}`);
+
+    if (response.success && response.data) {
+      return response.data;
+    }
+    throw new Error(response.error || 'Failed to get users');
+  }
+
+  /**
+   * Assign role to user
+   */
+  async assignUserRole(userId: string, roleCode: string, reason?: string, effectiveFrom?: string, effectiveTo?: string): Promise<void> {
+    const response = await this.makeRequest<any>('rbac/assign-role', 'POST', {
+      userId,
+      roleCode,
+      reason,
+      effectiveFrom,
+      effectiveTo
+    });
+
+    if (!response.success) {
+      throw new Error(response.error || 'Failed to assign role');
+    }
+  }
+
+  /**
+   * Remove role from user
+   */
+  async removeUserRole(userId: string, roleCode: string): Promise<void> {
+    const response = await this.makeRequest<any>('rbac/remove-role', 'DELETE', {
+      userId,
+      roleCode
+    });
+
+    if (!response.success) {
+      throw new Error(response.error || 'Failed to remove role');
+    }
+  }
+
+  /**
+   * Create custom role
+   */
+  async createCustomRole(role: {
+    code: string;
+    name: string;
+    description?: string;
+    level?: number;
+    permissions?: Array<{code: string, level: string}>;
+  }): Promise<{
+    role: any;
+    permissionsAssigned: number;
+  }> {
+    const response = await this.makeRequest<any>('rbac/admin/create-role', 'POST', role);
+
+    if (response.success && response.data) {
+      return response.data;
+    }
+    throw new Error(response.error || 'Failed to create role');
+  }
+
+  /**
+   * Get RBAC audit trail
+   */
+  async getRBACaudit(page: number = 1, limit: number = 50, filters?: {
+    userId?: string;
+    resource?: string;
+    action?: string;
+  }): Promise<{
+    auditTrail: any[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+    };
+  }> {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString()
+    });
+
+    if (filters?.userId) params.append('userId', filters.userId);
+    if (filters?.resource) params.append('resource', filters.resource);
+    if (filters?.action) params.append('action', filters.action);
+
+    const response = await this.makeRequest<any>(`rbac/audit-trail?${params.toString()}`);
+
+    if (response.success && response.data) {
+      return response.data;
+    }
+    throw new Error(response.error || 'Failed to get audit trail');
+  }
+
+  /**
+   * Get enhanced dashboard data with complete RBAC context
+   * This replaces mock data in EnhancedDashboardScreen
+   */
+  async getEnhancedDashboardData(): Promise<{
+    userContext: {
+      id: string;
+      email: string;
+      fullName: string;
+      role: string;
+      permissions: Record<string, string>;
+      tenantId: string;
+      branchId?: string;
+      department?: string;
+      isActive: boolean;
+      lastLogin: Date;
+      rbacRoles: any[];
+    };
+    permissions: Record<string, string>;
+    availableFeatures: string[];
+    restrictedFeatures: string[];
+    roleBasedMetrics: any;
+    aiSuggestions: any[];
+    pendingApprovals: any[];
+    isAdmin: boolean;
+  }> {
+    const response = await this.makeRequest<any>('rbac/enhanced-dashboard-data');
+
+    if (response.success && response.data) {
+      return response.data;
+    }
+    throw new Error(response.error || 'Failed to get enhanced dashboard data');
   }
 }
 

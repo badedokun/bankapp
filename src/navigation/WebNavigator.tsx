@@ -3,12 +3,19 @@
  * Simplified navigation for React Native Web testing
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import {
   LoginScreen,
-  DashboardScreen,
+  ModernDashboardScreen,
   AITransferScreen,
+  CompleteTransferFlowScreen,
+  ExternalTransferScreen,
+  BillPaymentScreen,
+  SavingsScreen,
+  FlexibleSavingsScreen,
+  LoansScreen,
+  PersonalLoanScreen,
   TransactionHistoryScreen,
   TransactionDetailsScreen,
   SettingsScreen,
@@ -27,7 +34,7 @@ const isReactNative = (): boolean => {
 import PCIDSSComplianceScreen from '../screens/security/PCIDSSComplianceScreen';
 import SecurityMonitoringScreen from '../screens/security/SecurityMonitoringScreen';
 
-type Screen = 'Login' | 'Dashboard' | 'Transfer' | 'History' | 'TransactionDetails' | 'Settings' | 'CBNCompliance' | 'PCICompliance' | 'SecurityMonitoring' | 'AIChat' | 'RBACManagement';
+type Screen = 'Login' | 'Dashboard' | 'Transfer' | 'History' | 'TransactionDetails' | 'Settings' | 'CBNCompliance' | 'PCICompliance' | 'SecurityMonitoring' | 'AIChat' | 'RBACManagement' | 'FlexibleSavings' | 'PersonalLoan';
 
 interface WebNavigatorProps {
   isAuthenticated: boolean;
@@ -35,12 +42,32 @@ interface WebNavigatorProps {
 }
 
 const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin }) => {
-  const [currentScreen, setCurrentScreen] = useState<Screen>(isAuthenticated ? 'Dashboard' : 'Login');
+  // SECURITY: Always default to login page for security
+  const [currentScreen, setCurrentScreen] = useState<Screen>('Login');
   const [selectedTransactionId, setSelectedTransactionId] = useState<string>('');
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
   const [transactionCache, setTransactionCache] = useState<Record<string, any>>({});
 
+  // Dashboard refresh function ref
+  const dashboardRefreshRef = React.useRef<(() => Promise<void>) | null>(null);
+
+  // Update currentScreen when isAuthenticated prop changes
+  useEffect(() => {
+    if (isAuthenticated && currentScreen === 'Login') {
+      setCurrentScreen('Dashboard');
+    } else if (!isAuthenticated && currentScreen !== 'Login') {
+      setCurrentScreen('Login');
+    }
+  }, [isAuthenticated]);
+
   const navigate = (screen: Screen) => {
+    // If navigating back to dashboard from transfers, refresh recent activity
+    if (screen === 'Dashboard' && currentScreen === 'Transfer' && dashboardRefreshRef.current) {
+      // Trigger dashboard refresh after navigation
+      setTimeout(() => {
+        dashboardRefreshRef.current?.();
+      }, 100);
+    }
     setCurrentScreen(screen);
   };
 
@@ -82,7 +109,7 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
         );
       case 'Dashboard':
         return (
-          <DashboardScreen
+          <ModernDashboardScreen
             onNavigateToTransfer={() => navigate('Transfer')}
             onNavigateToHistory={() => navigate('History')}
             onNavigateToSettings={() => navigate('Settings')}
@@ -94,9 +121,42 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
                 case 'rbac_management':
                   navigate('RBACManagement');
                   break;
+                case 'money_transfer_operations':
+                  navigate('Transfer');
+                  break;
+                case 'savings_products':
+                  navigate('Savings');
+                  break;
+                case 'loan_products':
+                  navigate('Loans');
+                  break;
+                case 'bill_payments':
+                  navigate('BillPayment');
+                  break;
+                case 'operations_management':
+                  // TODO: Create OperationsManagementScreen for consolidated operations
+                  navigate('Dashboard');
+                  break;
+                case 'management_reports':
+                  // TODO: Create ManagementReportsScreen for consolidated reporting
+                  navigate('Dashboard');
+                  break;
+                // Legacy support for individual features (if still accessed directly)
+                case 'external_transfers':
+                  navigate('ExternalTransfer');
+                  break;
+                case 'flexible_savings':
+                  navigate('FlexibleSavings');
+                  break;
+                case 'personal_loans':
+                  navigate('PersonalLoan');
+                  break;
                 default:
                   break;
               }
+            }}
+            onDashboardRefresh={(refreshFunction) => {
+              dashboardRefreshRef.current = refreshFunction;
             }}
             onLogout={async () => {
               // Properly logout through API to clear tokens
@@ -112,7 +172,7 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
         );
       case 'Transfer':
         return (
-          <AITransferScreen
+          <CompleteTransferFlowScreen
             onTransferComplete={() => navigate('Dashboard')}
             onBack={() => navigate('Dashboard')}
           />
@@ -161,9 +221,21 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
         return <AIChatScreen onBack={() => navigate('Dashboard')} />;
       case 'RBACManagement':
         return <RBACManagementScreen onGoBack={() => navigate('Dashboard')} />;
+      case 'ExternalTransfer':
+        return <ExternalTransferScreen onBack={() => navigate('Dashboard')} onTransferComplete={() => navigate('Dashboard')} />;
+      case 'BillPayment':
+        return <BillPaymentScreen onBack={() => navigate('Dashboard')} onPaymentComplete={() => navigate('Dashboard')} />;
+      case 'Savings':
+        return <SavingsScreen onBack={() => navigate('Dashboard')} />;
+      case 'Loans':
+        return <LoansScreen onBack={() => navigate('Dashboard')} />;
+      case 'FlexibleSavings':
+        return <FlexibleSavingsScreen onBack={() => navigate('Dashboard')} onSavingComplete={() => navigate('Dashboard')} />;
+      case 'PersonalLoan':
+        return <PersonalLoanScreen onBack={() => navigate('Dashboard')} onLoanComplete={() => navigate('Dashboard')} />;
       default:
         return (
-          <DashboardScreen
+          <ModernDashboardScreen
             onNavigateToTransfer={() => navigate('Transfer')}
             onNavigateToHistory={() => navigate('History')}
             onNavigateToSettings={() => navigate('Settings')}
@@ -175,9 +247,42 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
                 case 'rbac_management':
                   navigate('RBACManagement');
                   break;
+                case 'money_transfer_operations':
+                  navigate('Transfer');
+                  break;
+                case 'savings_products':
+                  navigate('Savings');
+                  break;
+                case 'loan_products':
+                  navigate('Loans');
+                  break;
+                case 'bill_payments':
+                  navigate('BillPayment');
+                  break;
+                case 'operations_management':
+                  // TODO: Create OperationsManagementScreen for consolidated operations
+                  navigate('Dashboard');
+                  break;
+                case 'management_reports':
+                  // TODO: Create ManagementReportsScreen for consolidated reporting
+                  navigate('Dashboard');
+                  break;
+                // Legacy support for individual features (if still accessed directly)
+                case 'external_transfers':
+                  navigate('ExternalTransfer');
+                  break;
+                case 'flexible_savings':
+                  navigate('FlexibleSavings');
+                  break;
+                case 'personal_loans':
+                  navigate('PersonalLoan');
+                  break;
                 default:
                   break;
               }
+            }}
+            onDashboardRefresh={(refreshFunction) => {
+              dashboardRefreshRef.current = refreshFunction;
             }}
             onLogout={async () => {
               // Properly logout through API to clear tokens

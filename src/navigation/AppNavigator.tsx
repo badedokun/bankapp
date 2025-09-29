@@ -16,6 +16,11 @@ import {
   AITransferScreen,
   TransactionHistoryScreen,
   SettingsScreen,
+  RBACManagementScreen,
+  ExternalTransferScreen,
+  BillPaymentScreen,
+  SavingsScreen,
+  LoansScreen,
 } from '../screens';
 
 // Navigation parameter types
@@ -23,7 +28,12 @@ export type RootStackParamList = {
   Auth: undefined;
   Main: undefined;
   Transfer: undefined;
+  ExternalTransfer: undefined;
+  BillPayment: undefined;
+  Savings: undefined;
+  Loans: undefined;
   TransactionDetails: { transactionId: string };
+  RBACManagement: undefined;
 };
 
 export type MainTabParamList = {
@@ -114,6 +124,35 @@ const MainTabNavigator: React.FC = () => {
             onNavigateToTransfer={() => props.navigation.navigate('Transfer')}
             onNavigateToHistory={() => props.navigation.navigate('History')}
             onNavigateToSettings={() => props.navigation.navigate('Settings')}
+            onNavigateToFeature={(feature: string, params?: any) => {
+              // Handle specific feature navigation
+              switch (feature) {
+                case 'rbac_management':
+                  // Navigate to RBAC Management screen
+                  props.navigation.getParent()?.navigate('RBACManagement');
+                  break;
+                case 'external_transfers':
+                  props.navigation.getParent()?.navigate('ExternalTransfer');
+                  break;
+                case 'bill_payments':
+                  props.navigation.getParent()?.navigate('BillPayment');
+                  break;
+                case 'flexible_savings':
+                case 'target_savings':
+                case 'locked_savings':
+                case 'group_savings':
+                case 'save_as_transact':
+                  props.navigation.getParent()?.navigate('Savings');
+                  break;
+                case 'personal_loans':
+                case 'business_loans':
+                case 'quick_loans':
+                  props.navigation.getParent()?.navigate('Loans');
+                  break;
+                default:
+                  break;
+              }
+            }}
             onLogout={() => {
               // Navigate back to auth
               props.navigation.getParent()?.reset({
@@ -155,7 +194,6 @@ const MainTabNavigator: React.FC = () => {
             onBack={() => props.navigation.navigate('Dashboard')}
             onTransactionDetails={(transactionId) => {
               // In the future, navigate to transaction details
-              console.log('Show transaction details for:', transactionId);
             }}
           />
         )}
@@ -211,10 +249,84 @@ const AppNavigator: React.FC<{
             )}
           </Stack.Screen>
         ) : (
-          <Stack.Screen
-            name="Main"
-            component={MainTabNavigator}
-          />
+          <>
+            <Stack.Screen
+              name="Main"
+              component={MainTabNavigator}
+            />
+            <Stack.Screen
+              name="RBACManagement"
+              options={{
+                title: 'RBAC Management',
+                headerShown: true,
+              }}
+            >
+              {(props) => (
+                <RBACManagementScreen
+                  {...props}
+                  onGoBack={() => props.navigation.goBack()}
+                />
+              )}
+            </Stack.Screen>
+            <Stack.Screen
+              name="ExternalTransfer"
+              options={{
+                title: 'External Transfer',
+                headerShown: false,
+              }}
+            >
+              {(props) => (
+                <ExternalTransferScreen
+                  {...props}
+                  onBack={() => props.navigation.goBack()}
+                  onTransferComplete={() => props.navigation.navigate('Main')}
+                />
+              )}
+            </Stack.Screen>
+            <Stack.Screen
+              name="BillPayment"
+              options={{
+                title: 'Bill Payment',
+                headerShown: false,
+              }}
+            >
+              {(props) => (
+                <BillPaymentScreen
+                  {...props}
+                  onBack={() => props.navigation.goBack()}
+                  onPaymentComplete={() => props.navigation.navigate('Main')}
+                />
+              )}
+            </Stack.Screen>
+            <Stack.Screen
+              name="Savings"
+              options={{
+                title: 'Savings',
+                headerShown: false,
+              }}
+            >
+              {(props) => (
+                <SavingsScreen
+                  {...props}
+                  onBack={() => props.navigation.goBack()}
+                />
+              )}
+            </Stack.Screen>
+            <Stack.Screen
+              name="Loans"
+              options={{
+                title: 'Loans',
+                headerShown: false,
+              }}
+            >
+              {(props) => (
+                <LoansScreen
+                  {...props}
+                  onBack={() => props.navigation.goBack()}
+                />
+              )}
+            </Stack.Screen>
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>
