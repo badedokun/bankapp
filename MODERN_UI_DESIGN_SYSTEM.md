@@ -6,11 +6,12 @@
 3. [Multi-Tenant Theme System](#multi-tenant-theme-system)
 4. [Visual Design Elements](#visual-design-elements)
 5. [Component Library](#component-library)
-6. [Layout Patterns](#layout-patterns)
-7. [Implementation Guidelines](#implementation-guidelines)
-8. [Code Examples](#code-examples)
-9. [Accessibility Standards](#accessibility-standards)
-10. [Performance Considerations](#performance-considerations)
+6. [Notification System](#notification-system)
+7. [Layout Patterns](#layout-patterns)
+8. [Implementation Guidelines](#implementation-guidelines)
+9. [Code Examples](#code-examples)
+10. [Accessibility Standards](#accessibility-standards)
+11. [Performance Considerations](#performance-considerations)
 
 ---
 
@@ -313,6 +314,110 @@ const StatsCard = ({ label, value, change, icon, theme }) => {
     </GlassCard>
   );
 };
+```
+
+---
+
+## Notification System
+
+### **Modern Glassmorphic Notifications**
+**MANDATORY for all user feedback and alerts**
+
+The platform uses a modern notification system that replaces traditional Material Design alerts with glassmorphic toasts and modals that match our design system.
+
+#### **Key Features**
+- 🎨 **Glassmorphic Design**: Semi-transparent with backdrop blur
+- 🎭 **Dynamic Tenant Theming**: Uses tenant colors automatically
+- 📍 **Toast Notifications**: Non-blocking feedback messages
+- 🔐 **Modal Dialogs**: Blocking confirmations and prompts
+- ✨ **Smooth Animations**: Slide-in/fade effects
+- 📚 **Stack Management**: Multiple notifications handled gracefully
+
+#### **Implementation**
+
+```typescript
+import { useNotification } from '../../services/ModernNotificationService';
+
+const Component = () => {
+  const notify = useNotification();
+
+  // Toast Notifications (Non-blocking)
+  notify.success('Transfer completed successfully!');
+  notify.error('Payment failed', 'Payment Error');
+  notify.warning('Low balance', 'Warning', 5000); // Custom duration
+  notify.info('New features available');
+
+  // Modal Notifications (Blocking)
+  notify.confirm(
+    'Delete Account',
+    'Are you sure? This cannot be undone.',
+    () => handleDelete(),
+    () => handleCancel()
+  );
+
+  // Prompt for Input
+  notify.prompt(
+    'Enter PIN',
+    'Please enter your 4-digit PIN',
+    (pin) => processTransaction(pin),
+    'Enter PIN'
+  );
+};
+```
+
+#### **Notification Types & Usage**
+
+| Type | Use Case | Blocking | Duration |
+|------|----------|----------|----------|
+| `success` | Completed actions | No | 3 seconds |
+| `error` | Failed operations | No | 5 seconds |
+| `warning` | Important notices | No | 4 seconds |
+| `info` | General information | No | 4 seconds |
+| `confirm` | Critical actions | Yes | Until dismissed |
+| `prompt` | User input needed | Yes | Until submitted |
+
+#### **Best Practices**
+
+1. **Use Toasts for Feedback**
+   ```typescript
+   // ✅ Good - Non-blocking success feedback
+   notify.success('Settings saved');
+
+   // ❌ Bad - Using modal for simple feedback
+   notify.confirm('Success', 'Settings saved');
+   ```
+
+2. **Use Modals for Critical Actions**
+   ```typescript
+   // ✅ Good - Requires user confirmation
+   notify.confirm('Delete', 'This cannot be undone', onDelete);
+
+   // ❌ Bad - Using toast for destructive action
+   notify.warning('Click to delete account');
+   ```
+
+3. **Provide Clear Messages**
+   ```typescript
+   // ✅ Good - Clear and actionable
+   notify.error('Invalid PIN. Please try again.', 'Authentication Failed');
+
+   // ❌ Bad - Vague message
+   notify.error('Error occurred');
+   ```
+
+#### **Migration from AlertService**
+
+Replace old Material Design alerts:
+```typescript
+// ❌ Old Way (AlertService)
+import { useBankingAlert } from './AlertService';
+const { showAlert } = useBankingAlert();
+showAlert('Error', 'Something went wrong');
+
+// ✅ New Way (ModernNotificationService)
+import { useNotification } from './ModernNotificationService';
+const notify = useNotification();
+notify.error('Something went wrong', 'Error');
 ```
 
 ---

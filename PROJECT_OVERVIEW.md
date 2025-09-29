@@ -15,6 +15,7 @@
 > - ✅ Gradient backgrounds using tenant primary/secondary colors
 > - ✅ Responsive layouts with defined breakpoints
 > - ✅ Consistent component patterns across all screens
+> - ✅ Modern notification system with toasts and modals (NO Material Design)
 >
 > **⚠️ Code without proper theming will be REJECTED**
 
@@ -97,6 +98,7 @@ This banking application follows **industry-leading best practices** for cross-p
 8. **ALWAYS use useTenantTheme() for colors** (NO hardcoded colors)
 9. **MUST implement glassmorphism on cards** (see MODERN_UI_DESIGN_SYSTEM.md)
 10. **MUST use gradient backgrounds with tenant colors**
+11. **MUST use ModernNotificationService for all user feedback** (NO AlertService)
 
 ---
 
@@ -184,6 +186,11 @@ Following proven patterns from **Slack, GitHub, GitLab, Atlassian**:
   - Dynamic gradients based on tenant colors from database
   - Glassmorphism effects with backdrop blur
   - Responsive layouts with defined breakpoints
+- **Notification System**: ModernNotificationService with glassmorphic toasts/modals
+  - Toast notifications for non-blocking feedback
+  - Modal dialogs for critical confirmations
+  - Dynamic tenant color theming
+  - Smooth animations and stack management
 
 ### **Backend**
 - **Runtime**: Node.js 20+ with TypeScript  

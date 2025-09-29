@@ -25,7 +25,7 @@ import Button from '../../components/ui/Button';
 import { SecurityMonitor, SecurityConfig } from '../../utils/security';
 import APIService from '../../services/api';
 import DeploymentManager from '../../config/deployment';
-import { useBankingAlert } from '../../services/AlertService';
+import { useNotification } from '../../services/ModernNotificationService';
 import { ENV_CONFIG, buildApiUrl } from '../../config/environment';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -53,7 +53,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   const { theme } = useTenantTheme();
   const branding = useTenantBranding();
   const deploymentBranding = DeploymentManager.getDeploymentBranding();
-  const { showAlert } = useBankingAlert();
+  const notify = useNotification();
 
   // Form state with security validation
   const [formData, setFormData] = useState<LoginFormData>({
@@ -119,9 +119,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     // Check if user is blocked due to too many attempts
     const attemptCheck = SecurityMonitor.trackLoginAttempt(formData.email || 'anonymous');
     if (attemptCheck.blocked) {
-      showAlert(
+      notify.error(
+        `Your account has been temporarily locked due to multiple failed login attempts. For your security, please wait 1 hour before trying again, or contact our support team for immediate assistance.`,
         '🔒 Account Security Lock',
-        `Your account has been temporarily locked due to multiple failed login attempts.\n\nFor your security, please wait 1 hour before trying again, or contact our support team for immediate assistance.\n\nRemaining attempts will be reset automatically.`,
         [
           {
             text: 'Contact Support',
@@ -145,9 +145,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     console.log('🔍 Validation check - hasErrors:', hasErrors, 'email:', formData.email, 'password:', formData.password);
     if (hasErrors || !formData.email || !formData.password) {
       console.log('❌ Validation failed - showing alert');
-      showAlert(
+      notify.warning(
+        'Please ensure all fields are filled correctly before proceeding. Check that your email address is valid and your password meets the security requirements.',
         '⚠️ Form Validation',
-        'Please ensure all fields are filled correctly before proceeding.\n\nCheck that your email address is valid and your password meets the security requirements.',
         [
           {
             text: 'OK',
@@ -318,11 +318,20 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         ];
       }
       
-      showAlert(errorTitle, errorMessage, buttons);
+      if (buttons && buttons.length > 0 && buttons[0].onPress) {
+        notify.confirm(
+          errorTitle,
+          errorMessage,
+          buttons[0].onPress,
+          () => {}
+        );
+      } else {
+        notify.error(errorMessage, errorTitle);
+      }
     } finally {
       setIsSubmitting(false);
     }
-  }, [formData, formErrors, isSubmitting, onLogin, currentTenant, showAlert, handleForgotPassword]);
+  }, [formData, formErrors, isSubmitting, onLogin, currentTenant, notify, handleForgotPassword]);
 
   // Handle biometric authentication
   const handleBiometricAuth = useCallback((type: 'fingerprint' | 'faceId' | 'voice') => {
@@ -335,9 +344,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         voice: { emoji: '🎤', name: 'Voice' }
       };
       
-      showAlert(
+      notify.info(
+        `${typeMap[type].name} authentication is not yet configured for this device. This feature would securely authenticate using your device's biometric sensors in a production environment.`,
         `${typeMap[type].emoji} ${typeMap[type].name} Authentication`,
-        `${typeMap[type].name} authentication is not yet configured for this device.\n\nThis feature would securely authenticate using your device's biometric sensors in a production environment.`,
         [
           {
             text: 'Set Up Later',
@@ -347,7 +356,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         ]
       );
     }
-  }, [onBiometricAuth, showAlert]);
+  }, [onBiometricAuth, notify]);
 
   // Toggle password visibility
   const togglePasswordVisibility = useCallback(() => {
@@ -359,9 +368,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     if (onForgotPassword) {
       onForgotPassword();
     } else {
-      showAlert(
+      notify.info(
+        'Password reset functionality is not yet available in this demo environment. In a production application, you would receive a secure reset link via email to create a new password.',
         '🔑 Password Reset',
-        'Password reset functionality is not yet available in this demo environment.\n\nIn a production application, you would receive a secure reset link via email to create a new password.',
         [
           {
             text: 'Contact Support',
@@ -377,7 +386,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         ]
       );
     }
-  }, [onForgotPassword, showAlert]);
+  }, [onForgotPassword, notify]);
 
   const styles = StyleSheet.create({
     container: {

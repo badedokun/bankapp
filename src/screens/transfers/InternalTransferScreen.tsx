@@ -15,7 +15,7 @@ import {
   Alert,
 } from 'react-native';
 import { useTenantTheme } from '../../tenants/TenantContext';
-import { useBankingAlert } from '../../services/AlertService';
+import { useNotification } from '../../services/ModernNotificationService';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import TransferHeader from '../../components/transfers/TransferHeader';
@@ -43,7 +43,7 @@ export const InternalTransferScreen: React.FC<InternalTransferScreenProps> = ({
   onTransferComplete,
 }) => {
   const theme = useTenantTheme();
-  const { showAlert, showConfirm } = useBankingAlert();
+  const notify = useNotification();
 
   // State management
   const [transferMode, setTransferMode] = useState<TransferMode>('instant');
@@ -337,7 +337,7 @@ export const InternalTransferScreen: React.FC<InternalTransferScreenProps> = ({
   const handleTransfer = async () => {
     const errors = validateForm();
     if (errors.length > 0) {
-      showAlert('Validation Error', errors.join('\n'));
+      notify.error(errors.join('\n'), 'Validation Error');
       return;
     }
 
@@ -361,22 +361,20 @@ export const InternalTransferScreen: React.FC<InternalTransferScreenProps> = ({
       };
 
       // Show success
-      showAlert(
-        'Transfer Successful! 🎉',
+      notify.success(
         `${formatCurrency(parseFloat(formData.amount))} has been ${
           transferMode === 'instant' ? 'transferred' : 'scheduled'
         } to ${formData.recipientName}`,
-        [{
-          text: 'OK',
-          onPress: () => {
-            onTransferComplete?.(transferRequest);
-            onBack?.();
-          }
-        }]
+        'Transfer Successful! 🎉'
       );
+      // Handle completion callback
+      setTimeout(() => {
+        onTransferComplete?.(transferRequest);
+        onBack?.();
+      }, 500);
 
     } catch (error) {
-      showAlert('Transfer Failed', 'Please try again.');
+      notify.error('Please try again.', 'Transfer Failed');
     } finally {
       setIsProcessing(false);
     }
