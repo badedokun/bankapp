@@ -59,15 +59,19 @@ export const TransferHeader: React.FC<TransferHeaderProps> = ({
     },
     backButton: {
       backgroundColor: 'rgba(255, 255, 255, 0.2)',
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.sm,
-      borderRadius: 12,
+      width: 40,
+      height: 40,
+      borderRadius: 20, // Circular button
+      justifyContent: 'center',
+      alignItems: 'center',
       marginRight: theme.spacing.md,
+      borderWidth: 1,
+      borderColor: 'rgba(255, 255, 255, 0.3)',
     },
     backButtonText: {
       color: '#ffffff',
-      fontSize: 16,
-      fontWeight: '500',
+      fontSize: 20,
+      fontWeight: '600',
     },
     titleContainer: {
       flex: 1,
@@ -193,7 +197,7 @@ export const TransferHeader: React.FC<TransferHeaderProps> = ({
       <View style={styles.headerRow}>
         {onBack && (
           <TouchableOpacity style={styles.backButton} onPress={onBack}>
-            <Text style={styles.backButtonText}>← Back</Text>
+            <Text style={styles.backButtonText}>←</Text>
           </TouchableOpacity>
         )}
         <View style={styles.titleContainer}>

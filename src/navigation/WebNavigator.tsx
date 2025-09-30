@@ -10,17 +10,23 @@ import {
   ModernDashboardScreen,
   AITransferScreen,
   CompleteTransferFlowScreen,
+  CompleteTransferFlow,
+  ModernTransferMenuScreen,
   ExternalTransferScreen,
   BillPaymentScreen,
   SavingsScreen,
+  ModernSavingsMenuScreen,
   FlexibleSavingsScreen,
   LoansScreen,
+  ModernLoansMenuScreen,
   PersonalLoanScreen,
   TransactionHistoryScreen,
   TransactionDetailsScreen,
   SettingsScreen,
   AIChatScreen,
+  ModernAIChatScreen,
   RBACManagementScreen,
+  ModernRBACManagementScreen,
 } from '../screens';
 import CBNComplianceScreen from '../screens/security/CBNComplianceScreen';
 
@@ -34,7 +40,7 @@ const isReactNative = (): boolean => {
 import PCIDSSComplianceScreen from '../screens/security/PCIDSSComplianceScreen';
 import SecurityMonitoringScreen from '../screens/security/SecurityMonitoringScreen';
 
-type Screen = 'Login' | 'Dashboard' | 'Transfer' | 'History' | 'TransactionDetails' | 'Settings' | 'CBNCompliance' | 'PCICompliance' | 'SecurityMonitoring' | 'AIChat' | 'RBACManagement' | 'FlexibleSavings' | 'PersonalLoan';
+type Screen = 'Login' | 'Dashboard' | 'Transfer' | 'History' | 'TransactionDetails' | 'Settings' | 'CBNCompliance' | 'PCICompliance' | 'SecurityMonitoring' | 'AIChat' | 'RBACManagement' | 'Savings' | 'FlexibleSavings' | 'Loans' | 'PersonalLoan';
 
 interface WebNavigatorProps {
   isAuthenticated: boolean;
@@ -47,6 +53,8 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
   const [selectedTransactionId, setSelectedTransactionId] = useState<string>('');
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
   const [transactionCache, setTransactionCache] = useState<Record<string, any>>({});
+  const [showTransferFlow, setShowTransferFlow] = useState(false);
+  const [transferFlowType, setTransferFlowType] = useState<'interbank' | 'same-bank' | 'international' | 'card'>('same-bank');
 
   // Dashboard refresh function ref
   const dashboardRefreshRef = React.useRef<(() => Promise<void>) | null>(null);
@@ -171,10 +179,39 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
           />
         );
       case 'Transfer':
+        // Show CompleteTransferFlow if showTransferFlow is true
+        if (showTransferFlow) {
+          return (
+            <CompleteTransferFlow
+              transferType={transferFlowType}
+              onBack={() => {
+                setShowTransferFlow(false);
+              }}
+              onComplete={() => {
+                setShowTransferFlow(false);
+                navigate('Dashboard');
+              }}
+            />
+          );
+        }
+
+        // Show the Modern Transfer Menu (Send Money page)
         return (
-          <CompleteTransferFlowScreen
-            onTransferComplete={() => navigate('Dashboard')}
+          <ModernTransferMenuScreen
             onBack={() => navigate('Dashboard')}
+            onSelectTransfer={(type) => {
+              // Handle transfer type selection from menu - go directly to form
+              if (type === 'internal') {
+                setTransferFlowType('same-bank');
+                setShowTransferFlow(true);
+              } else if (type === 'external') {
+                setTransferFlowType('interbank');
+                setShowTransferFlow(true);
+              } else if (type === 'international') {
+                setTransferFlowType('international');
+                setShowTransferFlow(true);
+              }
+            }}
           />
         );
       case 'History':
@@ -218,17 +255,55 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
           />
         );
       case 'AIChat':
-        return <AIChatScreen onBack={() => navigate('Dashboard')} />;
+        return <ModernAIChatScreen
+          navigation={{ goBack: () => navigate('Dashboard') }}
+          onBack={() => navigate('Dashboard')}
+        />;
       case 'RBACManagement':
-        return <RBACManagementScreen onGoBack={() => navigate('Dashboard')} />;
+        return <ModernRBACManagementScreen
+          navigation={{
+            goBack: () => navigate('Dashboard'),
+          }}
+          onGoBack={() => navigate('Dashboard')}
+        />;
       case 'ExternalTransfer':
         return <ExternalTransferScreen onBack={() => navigate('Dashboard')} onTransferComplete={() => navigate('Dashboard')} />;
       case 'BillPayment':
         return <BillPaymentScreen onBack={() => navigate('Dashboard')} onPaymentComplete={() => navigate('Dashboard')} />;
       case 'Savings':
-        return <SavingsScreen onBack={() => navigate('Dashboard')} />;
+        return <ModernSavingsMenuScreen
+          navigation={{
+            navigate: (screen: string) => {
+              if (screen === 'FlexibleSavings') {
+                navigate('FlexibleSavings');
+              }
+            },
+            goBack: () => navigate('Dashboard'),
+          }}
+          onBack={() => navigate('Dashboard')}
+          onSelectProduct={(productId) => {
+            if (productId === 'flexible') {
+              navigate('FlexibleSavings');
+            }
+          }}
+        />;
       case 'Loans':
-        return <LoansScreen onBack={() => navigate('Dashboard')} />;
+        return <ModernLoansMenuScreen
+          navigation={{
+            navigate: (screen: string) => {
+              if (screen === 'PersonalLoan') {
+                navigate('PersonalLoan');
+              }
+            },
+            goBack: () => navigate('Dashboard'),
+          }}
+          onBack={() => navigate('Dashboard')}
+          onSelectProduct={(productId) => {
+            if (productId === 'personal') {
+              navigate('PersonalLoan');
+            }
+          }}
+        />;
       case 'FlexibleSavings':
         return <FlexibleSavingsScreen onBack={() => navigate('Dashboard')} onSavingComplete={() => navigate('Dashboard')} />;
       case 'PersonalLoan':

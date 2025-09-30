@@ -160,18 +160,27 @@ class APIService {
       const hostname = window.location.hostname;
       const subdomain = hostname.split('.')[0];
       
-      // Map subdomains to tenant names
+      // Map subdomains to tenant names - no hardcoded defaults
       const subdomainMap: Record<string, string> = {
         'fmfb': 'fmfb',
-        'localhost': 'fmfb', // Default to FMFB for local development
         'dev': 'development'
       };
 
-      return subdomainMap[subdomain] || 'fmfb';
+      // Check for environment variable for localhost development
+      if (subdomain === 'localhost') {
+        return process.env.REACT_APP_TENANT_CODE || 'platform';
+      }
+
+      return subdomainMap[subdomain] || 'platform';
     }
 
-    // Default to FMFB (for React Native and fallback)
-    return 'fmfb';
+    // Check for environment variable (React Native and fallback)
+    if (typeof process !== 'undefined' && process.env) {
+      return process.env.REACT_APP_TENANT_CODE || 'platform';
+    }
+
+    // Final fallback to platform
+    return 'platform';
   }
 
   /**

@@ -55,6 +55,7 @@ export interface TenantAIConfig {
     language: string;
     accent: string;
   };
+  fallbackToOpenAI?: boolean; // Only for general banking questions when provider is 'custom'
 }
 
 export interface TenantTheme {

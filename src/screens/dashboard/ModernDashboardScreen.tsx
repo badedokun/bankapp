@@ -105,80 +105,38 @@ const ModernDashboardScreen: React.FC<ModernDashboardScreenProps> = ({
 
   const loadDashboardData = async () => {
     try {
-      // Try to fetch real dashboard data from API
+      // Fetch real dashboard data from API - NO FALLBACKS for financial data
       const [walletData, transactionsData] = await Promise.all([
-        APIService.getWallets().catch(() => null),
-        APIService.getTransactionHistory().catch(() => ({ transactions: [] }))
+        APIService.getWalletBalance(),
+        APIService.getTransferHistory({ page: 1, limit: 5 })
       ]);
 
-      // Use real data if available, otherwise use mock data
-      const balance = walletData?.[0]?.balance || 2450000.00;
-      const accountNumber = walletData?.[0]?.wallet_number || 'ACC-0012345678';
-      const transactions = transactionsData?.transactions || [];
+      // Use only real data - never fallback to mock financial data
+      const balance = walletData.balance;
+      const accountNumber = walletData.walletNumber;
+      const transactions = transactionsData.transactions || [];
 
       setDashboardData({
         totalBalance: parseFloat(balance),
         accountNumber: accountNumber,
-        currency: 'NGN',
-        recentTransactions: transactions.length > 0 ? transactions.slice(0, 5).map((t: any) => ({
+        currency: walletData.currency || 'NGN',
+        recentTransactions: transactions.slice(0, 5).map((t: any) => ({
           id: t.id,
           amount: parseFloat(t.amount),
-          description: t.description || t.narration,
+          description: t.description || t.narration || 'Transaction',
           date: t.transaction_date || t.created_at,
           type: t.transaction_type === 'credit' ? 'deposit' : 'withdrawal',
           created_at: t.created_at
-        })) : [
-          {
-            id: '1',
-            amount: 15000,
-            description: 'Transfer from John Doe',
-            date: '2025-09-28',
-            type: 'deposit',
-            created_at: '2025-09-28T08:00:00Z'
-          },
-          {
-            id: '2',
-            amount: 50000,
-            description: 'Salary Credit',
-            date: '2025-09-27',
-            type: 'deposit',
-            created_at: '2025-09-27T15:30:00Z'
-          }
-        ],
+        })),
         availableFeatures: ['transfers', 'bill_payments', 'savings', 'loans'],
-        monthlySpending: 125000,
-        savingsGoal: 1000000,
-        currentSavings: 750000
+        monthlySpending: 0, // Calculate from real data
+        savingsGoal: 0, // Get from user settings
+        currentSavings: 0 // Calculate from real data
       });
     } catch (error) {
-      // Use fallback data
-      setDashboardData({
-        totalBalance: 2450000.00,
-        accountNumber: 'ACC-0012345678',
-        currency: 'NGN',
-        recentTransactions: [
-          {
-            id: '1',
-            amount: 15000,
-            description: 'Transfer from John Doe',
-            date: '2025-09-28',
-            type: 'deposit',
-            created_at: '2025-09-28T08:00:00Z'
-          },
-          {
-            id: '2',
-            amount: 50000,
-            description: 'Salary Credit',
-            date: '2025-09-27',
-            type: 'deposit',
-            created_at: '2025-09-27T15:30:00Z'
-          }
-        ],
-        availableFeatures: ['transfers', 'bill_payments', 'savings', 'loans'],
-        monthlySpending: 125000,
-        savingsGoal: 1000000,
-        currentSavings: 750000
-      });
+      console.error('❌ Failed to load dashboard data:', error);
+      // DO NOT use fallback financial data - set null to show error state
+      setDashboardData(null);
     }
   };
 
@@ -204,11 +162,25 @@ const ModernDashboardScreen: React.FC<ModernDashboardScreenProps> = ({
     }
   };
 
-  if (isLoading || !userContext || !dashboardData) {
+  if (isLoading || !userContext) {
     return (
       <View style={[styles.container, styles.loadingContainer, { backgroundColor: theme.colors.background }]}>
         <ActivityIndicator size="large" color={theme.colors.primary} />
         <Text style={[styles.loadingText, { color: theme.colors.text }]}>Loading dashboard...</Text>
+      </View>
+    );
+  }
+
+  if (!dashboardData) {
+    return (
+      <View style={[styles.container, styles.errorContainer, { backgroundColor: theme.colors.background }]}>
+        <Text style={[styles.errorTitle, { color: theme.colors.danger }]}>Unable to Load Account Data</Text>
+        <Text style={[styles.errorMessage, { color: theme.colors.text }]}>
+          We couldn't retrieve your account information at the moment. Please check your connection and try again.
+        </Text>
+        <Text style={[styles.errorNote, { color: theme.colors.textSecondary }]}>
+          For security reasons, we don't display fallback financial data.
+        </Text>
       </View>
     );
   }
@@ -240,6 +212,29 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
+  },
+  errorContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  errorTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  errorMessage: {
+    fontSize: 16,
+    marginBottom: 12,
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  errorNote: {
+    fontSize: 14,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    lineHeight: 20,
   },
 });
 

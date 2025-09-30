@@ -171,8 +171,16 @@ export class InternalTransferService implements ITransferService {
             }
 
             // Check daily limits
-            const dailyUsed = wallet.daily_transfer_amount || 0;
-            const dailyLimit = wallet.daily_transfer_limit || 100000;
+            const dailyQuery = `
+                SELECT COALESCE(SUM(amount), 0) as daily_used
+                FROM tenant.internal_transfers
+                WHERE from_wallet_id = $1
+                AND status = 'completed'
+                AND created_at >= CURRENT_DATE
+            `;
+            const dailyResult = await client.query(dailyQuery, [wallet.id]);
+            const dailyUsed = parseFloat(dailyResult.rows[0].daily_used);
+            const dailyLimit = parseFloat(wallet.daily_limit) || 500000;
             const dailyRemaining = dailyLimit - dailyUsed;
 
             if (request.amount > dailyRemaining) {
@@ -183,13 +191,13 @@ export class InternalTransferService implements ITransferService {
             const monthlyQuery = `
                 SELECT COALESCE(SUM(amount), 0) as monthly_used
                 FROM tenant.internal_transfers
-                WHERE user_id = $1
+                WHERE from_wallet_id = $1
                 AND status = 'completed'
                 AND created_at >= DATE_TRUNC('month', CURRENT_DATE)
             `;
-            const monthlyResult = await client.query(monthlyQuery, [wallet.user_id]);
+            const monthlyResult = await client.query(monthlyQuery, [wallet.id]);
             const monthlyUsed = parseFloat(monthlyResult.rows[0].monthly_used);
-            const monthlyLimit = wallet.monthly_transfer_limit || 500000;
+            const monthlyLimit = parseFloat(wallet.monthly_limit) || 5000000;
             const monthlyRemaining = monthlyLimit - monthlyUsed;
 
             if (request.amount > monthlyRemaining) {

@@ -8,17 +8,17 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 
-// Default OrokiiPay Platform Theme (Platform Owner)
+// Default Platform Theme - No hardcoded tenant data
 const DEFAULT_THEME = {
   tenantId: 'platform',
   tenantCode: 'orokiipay',
   brandName: 'OrokiiPay',
-  brandTagline: 'Digital Banking Platform',
-  brandLogo: 'https://api.orokiipay.com/assets/logos/orokiipay-logo.png',
+  brandTagline: 'AI-Enhanced Banking Platform',
+  brandLogo: '',
   colors: {
-    primary: '#6B46C1',
-    primaryGradientStart: '#6B46C1',
-    primaryGradientEnd: '#9333EA',
+    primary: '#6366F1',
+    primaryGradientStart: '#6366F1',
+    primaryGradientEnd: '#4F46E5',
     secondary: '#10B981',
     accent: '#F59E0B',
     success: '#10B981',
@@ -147,10 +147,10 @@ const getTenantFromSubdomain = (): string | null => {
 const getTenantFromEnvironment = (): string | null => {
   // For development/testing purposes
   if (Platform.OS === 'web') {
-    return process.env.REACT_APP_TENANT_CODE || 'fmfb'; // Default to FMFB for development
+    return process.env.REACT_APP_TENANT_CODE || null;
   }
   // React Native environment variables would be handled differently
-  return 'fmfb'; // Default to FMFB for mobile development
+  return null;
 };
 
 export const TenantThemeProvider: React.FC<TenantThemeProviderProps> = ({ children }) => {

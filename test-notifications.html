@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Modern Notification System</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .test-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #1a202c;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            color: white;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .success { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .error { background: linear-gradient(135deg, #f56565, #ed64a6); }
+        .warning { background: linear-gradient(135deg, #f6ad55, #ed8936); }
+        .info { background: linear-gradient(135deg, #4299e1, #667eea); }
+        .confirm { background: linear-gradient(135deg, #48bb78, #38b2ac); }
+        .prompt { background: linear-gradient(135deg, #805ad5, #667eea); }
+
+        .status {
+            margin-top: 24px;
+            padding: 16px;
+            background: #f7fafc;
+            border-radius: 8px;
+            min-height: 60px;
+        }
+
+        .status h3 {
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .status-message {
+            color: #4a5568;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔔 Modern Notification System Test</h1>
+
+        <p style="color: #4a5568; margin-bottom: 24px; text-align: center;">
+            Click buttons below to test different notification types
+        </p>
+
+        <div class="button-grid">
+            <button class="success" onclick="testSuccess()">
+                ✅ Success Toast
+            </button>
+
+            <button class="error" onclick="testError()">
+                ❌ Error Toast
+            </button>
+
+            <button class="warning" onclick="testWarning()">
+                ⚠️ Warning Toast
+            </button>
+
+            <button class="info" onclick="testInfo()">
+                ℹ️ Info Toast
+            </button>
+
+            <button class="confirm" onclick="testConfirm()">
+                ❓ Confirm Modal
+            </button>
+
+            <button class="prompt" onclick="testPrompt()">
+                ✏️ Prompt Modal
+            </button>
+        </div>
+
+        <div class="status">
+            <h3>Test Status:</h3>
+            <div class="status-message" id="status">
+                Ready to test notifications...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const statusEl = document.getElementById('status');
+
+        function updateStatus(message) {
+            statusEl.textContent = message;
+        }
+
+        function testSuccess() {
+            updateStatus('✅ Success notification triggered! Look for a green toast at the top.');
+            console.log('Success toast would appear: "Transfer completed successfully!"');
+            // In real app: notify.success('Transfer completed successfully!');
+        }
+
+        function testError() {
+            updateStatus('❌ Error notification triggered! Look for a red toast at the top.');
+            console.log('Error toast would appear: "Failed to process payment"');
+            // In real app: notify.error('Failed to process payment', 'Payment Error');
+        }
+
+        function testWarning() {
+            updateStatus('⚠️ Warning notification triggered! Look for an orange toast at the top.');
+            console.log('Warning toast would appear: "Low balance warning"');
+            // In real app: notify.warning('Low balance warning', 'Balance Alert');
+        }
+
+        function testInfo() {
+            updateStatus('ℹ️ Info notification triggered! Look for a blue toast at the top.');
+            console.log('Info toast would appear: "New features available"');
+            // In real app: notify.info('New features available');
+        }
+
+        function testConfirm() {
+            const result = confirm('Are you sure you want to delete this account? This action cannot be undone.');
+            if (result) {
+                updateStatus('✅ Confirm modal: User clicked OK');
+            } else {
+                updateStatus('❌ Confirm modal: User clicked Cancel');
+            }
+            // In real app: notify.confirm('Delete Account', 'Are you sure...', onConfirm, onCancel);
+        }
+
+        function testPrompt() {
+            const pin = prompt('Please enter your 4-digit transaction PIN');
+            if (pin) {
+                updateStatus(`✏️ Prompt modal: User entered "${pin}"`);
+            } else {
+                updateStatus('❌ Prompt modal: User cancelled');
+            }
+            // In real app: notify.prompt('Enter PIN', 'Please enter...', onSubmit);
+        }
+
+        // Log to console for verification
+        console.log('Modern Notification System Test Page Loaded');
+        console.log('In a real app, these would trigger glassmorphic notifications with tenant theming');
+    </script>
+</body>
+</html>

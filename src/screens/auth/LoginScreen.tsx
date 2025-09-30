@@ -581,22 +581,21 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           <View style={styles.tenantHeader}>
             <View style={[
               styles.tenantLogo,
-              currentTenant?.id === 'fmfb' && { backgroundColor: '#FFFFFF' }
+              theme.brandLogo && { backgroundColor: '#FFFFFF' }
             ]}>
-              {currentTenant?.id === 'fmfb' ? (
+              {theme.brandLogo ? (
                 !fmfbLogoError ? (
                   <Image
-                    source={{ uri: buildApiUrl('tenants/by-name/fmfb/assets/logo/default') }}
+                    source={{ uri: theme.brandLogo }}
                     style={styles.tenantLogoImage}
                     resizeMode="contain"
                     onLoad={() => {
-                      console.log('✅ FMFB logo loaded successfully');
+                      console.log('✅ Tenant logo loaded successfully');
                       setFmfbLogoLoading(false);
                     }}
                     onError={(error) => {
-                      console.log('❌ FMFB logo failed to load:', {
-                        apiBaseUrl: ENV_CONFIG.API_BASE_URL,
-                        fullUrl: buildApiUrl('tenants/by-name/fmfb/assets/logo/default'),
+                      console.log('❌ Tenant logo failed to load:', {
+                        logoUrl: theme.brandLogo,
                         error: error.nativeEvent.error,
                         isReactNative: typeof navigator !== 'undefined' && navigator.product === 'ReactNative'
                       });
@@ -606,7 +605,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                   />
                 ) : (
                   <Text style={styles.tenantLogoText}>
-                    FMFB
+                    {getTenantLogoInitials()}
                   </Text>
                 )
               ) : (
@@ -616,10 +615,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
               )}
             </View>
             <Text style={styles.tenantName}>
-              {currentTenant?.displayName || deploymentBranding.loginPageTitle}
+              {currentTenant?.displayName || theme.brandName || deploymentBranding.loginPageTitle}
             </Text>
             <Text style={styles.tenantSubtitle}>
-              {currentTenant ? 'Secure Banking App' : 'AI-Enhanced Banking Platform'}
+              {currentTenant ? 'Secure Banking App' : theme.brandTagline || 'AI-Enhanced Banking Platform'}
             </Text>
           </View>
 

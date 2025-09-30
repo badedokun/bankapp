@@ -16,6 +16,7 @@
 > - ✅ Responsive layouts with defined breakpoints
 > - ✅ Consistent component patterns across all screens
 > - ✅ Modern notification system with toasts and modals (NO Material Design)
+> - 🔴 **CRITICAL: 2-column grid on desktop/tablet, 1-column on mobile for ALL menu screens**
 >
 > **⚠️ Code without proper theming will be REJECTED**
 
@@ -99,6 +100,9 @@ This banking application follows **industry-leading best practices** for cross-p
 9. **MUST implement glassmorphism on cards** (see MODERN_UI_DESIGN_SYSTEM.md)
 10. **MUST use gradient backgrounds with tenant colors**
 11. **MUST use ModernNotificationService for all user feedback** (NO AlertService)
+12. **🔴 MUST use responsive grid: 2 columns on ≥768px, 1 column on <768px for menu screens**
+13. **🔴 MUST maintain consistent card dimensions: minHeight: 180px for ALL menu cards**
+14. **🔴 MUST follow standardized card content structure: Header → Title → Footer (no complex layouts)**
 
 ---
 
@@ -186,6 +190,14 @@ Following proven patterns from **Slack, GitHub, GitLab, Atlassian**:
   - Dynamic gradients based on tenant colors from database
   - Glassmorphism effects with backdrop blur
   - Responsive layouts with defined breakpoints
+
+  **🔴 CRITICAL UI Consistency Requirements:**
+  - **Menu Card Dimensions**: All menu selection cards MUST have `minHeight: 180px`
+  - **Content Structure**: Standardized 3-section layout (Header/Title/Footer)
+  - **Grid Layout**: 2-column on desktop/tablet (≥768px), 1-column on mobile
+  - **No Complex Layouts**: Avoid feature chips, action buttons, or multi-row content in cards
+  - **Visual Weight**: All cards must appear similar in size and content density
+
 - **Notification System**: ModernNotificationService with glassmorphic toasts/modals
   - Toast notifications for non-blocking feedback
   - Modal dialogs for critical confirmations

@@ -108,6 +108,9 @@ module.exports = {
     new webpack.DefinePlugin({
       __DEV__: JSON.stringify(true),
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+      'process.env.REACT_APP_TENANT_CODE': JSON.stringify(
+        process.env.REACT_APP_TENANT_CODE || ''
+      ),
       'process.env.TENANT_DETECTION_METHOD': JSON.stringify(
         process.env.TENANT_DETECTION_METHOD || 'subdomain'
       ),
@@ -117,7 +120,8 @@ module.exports = {
       'window.__WEBPACK_ENV__': JSON.stringify({
         DEPLOYMENT_TYPE: process.env.DEPLOYMENT_TYPE || 'development',
         NODE_ENV: process.env.NODE_ENV || 'development',
-        TENANT_DETECTION_METHOD: process.env.TENANT_DETECTION_METHOD || 'subdomain'
+        TENANT_DETECTION_METHOD: process.env.TENANT_DETECTION_METHOD || 'subdomain',
+        REACT_APP_TENANT_CODE: process.env.REACT_APP_TENANT_CODE || ''
       }),
     }),
     new webpack.ProvidePlugin({

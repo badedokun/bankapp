@@ -55,7 +55,6 @@ export const SavingsScreen: React.FC<SavingsScreenProps> = ({ onBack, onNavigate
       <View style={[styles.header, { backgroundColor: theme.colors.primary }]}>
         <TouchableOpacity onPress={onBack} style={styles.backButton}>
           <Text style={styles.backArrow}>←</Text>
-          <Text style={styles.backText}>Back</Text>
         </TouchableOpacity>
         <Text style={[styles.title, { color: '#fff' }]}>Savings Products</Text>
       </View>

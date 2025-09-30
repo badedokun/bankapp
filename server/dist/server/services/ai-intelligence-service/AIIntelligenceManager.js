@@ -20,20 +20,23 @@ class AIIntelligenceManager {
         try {
             // Get wallet balance from tenant-specific database
             const walletResult = await (0, database_1.query)('SELECT balance, currency FROM tenant.wallets WHERE user_id = $1', [userId]);
-            // Get recent transfers from tenant-specific database (real user data)
-            const transactionsResult = await (0, database_1.query)(`SELECT amount, recipient_name as description, 'debit' as type, created_at, status
-         FROM tenant.transfers
-         WHERE sender_id = $1
+            // Get recent transactions from tenant-specific database (real user data)
+            const transactionsResult = await (0, database_1.query)(`SELECT amount, description, type, created_at, status
+         FROM tenant.transactions
+         WHERE user_id = $1
          ORDER BY created_at DESC
          LIMIT 20`, [userId]);
             const balance = walletResult.rows[0]?.balance || 0;
             const recentTransactions = transactionsResult.rows || [];
             // Calculate financial metrics
+            // For income: look for credit, deposit types
             const totalIncome = recentTransactions
-                .filter((t) => t.type === 'credit')
+                .filter((t) => t.type === 'credit' || t.type === 'deposit')
                 .reduce((sum, t) => sum + parseFloat(t.amount.toString()), 0);
+            // For expenses: all outgoing transaction types
             const totalExpenses = recentTransactions
-                .filter((t) => t.type === 'debit')
+                .filter((t) => t.type === 'debit' || t.type === 'money_transfer' || t.type === 'bill_payment' ||
+                t.type === 'cash_withdrawal' || t.type === 'withdrawal' || t.type === 'transfer')
                 .reduce((sum, t) => sum + Math.abs(parseFloat(t.amount.toString())), 0);
             const averageTransaction = recentTransactions.length > 0
                 ? recentTransactions.reduce((sum, t) => sum + Math.abs(parseFloat(t.amount.toString())), 0) / recentTransactions.length
@@ -185,6 +188,12 @@ class AIIntelligenceManager {
             lowerMessage.includes('recent') && (lowerMessage.includes('payment') || lowerMessage.includes('transfer'))) {
             return { intent: 'transaction_history', confidence: 0.9 };
         }
+        // Spending inquiry - CHECK BEFORE TRANSFER
+        if (lowerMessage.includes('spending') ||
+            (lowerMessage.includes('spend') && (lowerMessage.includes('too much') || lowerMessage.includes('am i'))) ||
+            lowerMessage.includes('expenses')) {
+            return { intent: 'spending_inquiry', confidence: 0.93 };
+        }
         // Transfer intent with entity extraction
         if (lowerMessage.includes('transfer') || lowerMessage.includes('send')) {
             const entities = {};
@@ -215,15 +224,40 @@ class AIIntelligenceManager {
         return { intent: 'general', confidence: 0.75 };
     }
     async processEnhancedMessage(message, context, options) {
-        const userId = context.userId || context.user?.id;
+        // Handle enriched context from AI chat route
+        const userId = context.userId || context.user?.id || context.bankingContext?.user?.id;
+        console.log('🔍 AIManager - Processing message:', { message, userId, contextKeys: Object.keys(context) });
         const financialData = userId ? await this.getUserFinancialData(userId) : null;
+        console.log('💰 AIManager - Financial data fetched:', {
+            hasData: !!financialData,
+            balance: financialData?.balance,
+            totalExpenses: financialData?.totalExpenses,
+            transactionCount: financialData?.recentTransactions?.length
+        });
         const lowerMessage = message.toLowerCase();
         // Classify intent
         const classification = this.classifyIntent(message);
+        console.log('🎯 AIManager - Intent classified:', classification);
         // Generate contextual response based on intent
-        let response = `Processed: ${message}`;
+        let response = `I can help you with your banking needs. You can ask me about account balances, transfers, transactions, spending analysis, or any other banking services.`;
         if (classification.intent === 'balance_inquiry' && financialData) {
             response = `Your current balance is ₦${financialData.balance.toLocaleString()}.`;
+        }
+        else if (classification.intent === 'spending_inquiry' && financialData) {
+            // Calculate spending from transactions correctly
+            const spendingTotal = financialData.totalExpenses;
+            const spendingRate = spendingTotal / (financialData.balance + spendingTotal);
+            console.log('💸 AIManager - Spending analysis:', { spendingTotal, spendingRate, balance: financialData.balance });
+            if (spendingTotal > 0) {
+                const advice = spendingRate > 0.6 ? "Yes, you've spent over 60% of your initial funds. Consider reducing expenses." :
+                    spendingRate > 0.4 ? "Your spending is moderate but watch your expenses." :
+                        "Your spending is under control.";
+                response = `You've spent ₦${spendingTotal.toLocaleString()} recently. ${advice} Current balance: ₦${financialData.balance.toLocaleString()}.`;
+            }
+            else {
+                response = `You haven't had any recent spending. Your balance is ₦${financialData.balance.toLocaleString()}.`;
+            }
+            console.log('✅ AIManager - Spending response generated:', response);
         }
         else if (classification.intent === 'transaction_history' && financialData) {
             const recentCount = financialData.recentTransactions.length;

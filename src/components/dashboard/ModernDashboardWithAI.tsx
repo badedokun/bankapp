@@ -97,8 +97,8 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
         contentContainerStyle={[styles.scrollContent, { overflow: 'visible' }]}
       >
         {/* Header */}
-        <View style={[styles.header, { zIndex: 9999, position: 'relative' }]}>
-          <View style={styles.headerContent}>
+        <View style={[styles.header, { zIndex: 9999, position: 'relative', overflow: 'visible' }]}>
+          <View style={[styles.headerContent, { overflow: 'visible' }]}>
             <View style={styles.logoSection}>
               {theme?.brandLogo ? (
                 <Image
@@ -157,49 +157,55 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                 </View>
               </TouchableOpacity>
 
-              <TouchableOpacity
-                ref={profileButtonRef}
-                style={styles.userProfile}
-                onPress={() => setShowProfileMenu(!showProfileMenu)}
-              >
-                <Text style={styles.profileIcon}>👤</Text>
-              </TouchableOpacity>
+              <View style={{ position: 'relative' }}>
+                <TouchableOpacity
+                  ref={profileButtonRef}
+                  style={styles.userProfile}
+                  onPress={() => {
+                    console.log('🔴 PROFILE CLICKED - Current state:', showProfileMenu);
+                    setShowProfileMenu(!showProfileMenu);
+                    console.log('🔴 PROFILE CLICKED - New state:', !showProfileMenu);
+                  }}
+                >
+                  <Text style={styles.profileIcon}>👤</Text>
+                </TouchableOpacity>
 
-              {showProfileMenu && (
-                <View ref={profileMenuRef} style={styles.profileMenu}>
-                  <TouchableOpacity
-                    style={styles.menuItem}
-                    onPress={() => {
-                      setShowProfileMenu(false);
-                    }}
-                  >
-                    <Text style={styles.menuIcon}>👤</Text>
-                    <Text style={styles.menuText}>Profile</Text>
-                  </TouchableOpacity>
-                  <View style={styles.menuDivider} />
-                  <TouchableOpacity
-                    style={styles.menuItem}
-                    onPress={() => {
-                      setShowProfileMenu(false);
-                      onSettings?.();
-                    }}
-                  >
-                    <Text style={styles.menuIcon}>⚙️</Text>
-                    <Text style={styles.menuText}>Settings</Text>
-                  </TouchableOpacity>
-                  <View style={styles.menuDivider} />
-                  <TouchableOpacity
-                    style={styles.menuItem}
-                    onPress={() => {
-                      setShowProfileMenu(false);
-                      onLogout?.();
-                    }}
-                  >
-                    <Text style={styles.menuIcon}>🚪</Text>
-                    <Text style={[styles.menuText, styles.logoutText]}>Logout</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
+                {showProfileMenu && (
+                  <View ref={profileMenuRef} style={styles.profileMenu}>
+                    <TouchableOpacity
+                      style={styles.menuItem}
+                      onPress={() => {
+                        setShowProfileMenu(false);
+                      }}
+                    >
+                      <Text style={styles.menuIcon}>👤</Text>
+                      <Text style={styles.menuText}>Profile</Text>
+                    </TouchableOpacity>
+                    <View style={styles.menuDivider} />
+                    <TouchableOpacity
+                      style={styles.menuItem}
+                      onPress={() => {
+                        setShowProfileMenu(false);
+                        onSettings?.();
+                      }}
+                    >
+                      <Text style={styles.menuIcon}>⚙️</Text>
+                      <Text style={styles.menuText}>Settings</Text>
+                    </TouchableOpacity>
+                    <View style={styles.menuDivider} />
+                    <TouchableOpacity
+                      style={styles.menuItem}
+                      onPress={() => {
+                        setShowProfileMenu(false);
+                        onLogout?.();
+                      }}
+                    >
+                      <Text style={styles.menuIcon}>↗</Text>
+                      <Text style={[styles.menuText, styles.logoutText]}>Logout</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
             </View>
           </View>
         </View>
@@ -717,7 +723,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 50,
     right: 0,
-    backgroundColor: 'white',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 8,
     shadowColor: '#000',
@@ -727,13 +733,9 @@ const styles = StyleSheet.create({
     elevation: 100,
     zIndex: 9999999,
     minWidth: 200,
-    ...Platform.select({
-      web: {
-        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25)',
-        position: 'fixed' as any,
-        marginTop: -10,
-      },
-    }),
+    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25)',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
   },
   menuItem: {
     flexDirection: 'row',

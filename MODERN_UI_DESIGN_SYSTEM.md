@@ -19,8 +19,10 @@
 
 This document defines the **mandatory design system** for all UI components and screens in the OrokiiPay Multi-Tenant Banking Platform. Every developer and AI assistant MUST follow these guidelines to ensure consistency, maintainability, and professional appearance across all tenant deployments.
 
-### 🚨 **CRITICAL REQUIREMENT**
-**ALL future pages, screens, and components MUST implement this modern design system. No exceptions.**
+### 🚨 **CRITICAL REQUIREMENTS**
+1. **ALL future pages MUST implement this modern design system. No exceptions.**
+2. **🔴 ALL menu screens MUST use 2-column grid on desktop/tablet, 1-column on mobile.**
+3. **NEVER deviate from these patterns without explicit architectural approval.**
 
 ---
 
@@ -36,12 +38,19 @@ This document defines the **mandatory design system** for all UI components and 
 - Background gradients based on tenant's primary/secondary colors
 - Consistent structure with adaptable colors
 
-### 3. **Responsive by Default**
+### 3. **🔴 CRITICAL: Consistent Responsive Grid Layout & Card Dimensions**
+- **MANDATORY**: All menu/selection screens MUST use 2-column grid on desktop/tablet (≥768px)
+- **MANDATORY**: All menu/selection screens MUST use 1-column grid on mobile (<768px)
+- **MANDATORY**: All menu cards MUST have minHeight: 180px for visual consistency
+- **NO EXCEPTIONS**: This ensures UI consistency across the entire application
+- Examples: Transfer Menu, Savings Menu, Loans Menu, Bill Payment Menu
+
+### 4. **Responsive by Default**
 - Mobile-first approach
 - Adaptive layouts for all screen sizes
 - Touch-friendly interfaces
 
-### 4. **Performance Optimized**
+### 5. **Performance Optimized**
 - Lightweight components
 - Efficient animations
 - Lazy loading where appropriate
@@ -179,7 +188,43 @@ const RADIUS = {
 
 ## Component Library
 
-### 1. **Glass Card Component**
+### 1. **Modern Back Button Component**
+**MANDATORY for all navigation**
+
+```typescript
+// Icon-only circular back button with glassmorphic effect
+const ModernBackButton = ({ onPress }) => {
+  return (
+    <TouchableOpacity
+      style={{
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.3)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        ...Platform.select({
+          web: { backdropFilter: 'blur(10px)' }
+        })
+      }}
+      onPress={onPress}
+    >
+      <Text style={{ fontSize: 20, color: '#FFFFFF' }}>←</Text>
+    </TouchableOpacity>
+  );
+};
+```
+
+**Key Points:**
+- ✅ Icon-only (no "Back" text)
+- ✅ Circular shape (40x40px)
+- ✅ Glassmorphic background
+- ✅ Clean arrow icon (←)
+- ❌ Never use "← Back" or "<- Back"
+
+### 2. **Glass Card Component**
 **MANDATORY for all card-like elements**
 
 ```typescript
@@ -204,7 +249,71 @@ const GlassCard = ({ children, blur = 'medium', shadow = 'medium' }) => {
 };
 ```
 
-### 2. **Section Header Component**
+### 3. **🔴 CRITICAL: Standardized Menu Card Dimensions & Content Structure**
+**MANDATORY for all menu/option cards to ensure visual consistency**
+
+```typescript
+// All menu cards across the application MUST use these dimensions
+const MENU_CARD_STANDARDS = {
+  minHeight: 180,              // ✅ REQUIRED minimum height for all cards
+  padding: 20,                 // Consistent internal spacing
+  borderRadius: 20,            // Uniform rounded corners
+  marginHorizontal: 8,         // Consistent gap between cards
+
+  // Example implementation for menu cards:
+  menuCard: {
+    flex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 20,
+    padding: 20,
+    marginHorizontal: 8,
+    minHeight: 180,           // 🔴 CRITICAL: Must be exactly 180px
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  }
+};
+```
+
+**🔴 CRITICAL: Standardized Card Content Structure**
+To maintain visual consistency, ALL menu cards must follow this content structure:
+
+```typescript
+// REQUIRED Card Content Layout (top to bottom):
+1. Header Section (icon + optional badge)
+   - Icon: 24-32px emoji or icon
+   - Badge: Optional status/label in top-right
+
+2. Title Section
+   - Name: 18px, font-weight: 600
+   - Description: 13-14px, secondary color, 1-2 lines max
+
+3. Footer Section (key info only)
+   - Left side: Primary metric (rate, fee, etc.)
+   - Right side: Secondary info (min amount, duration, etc.)
+   - Font sizes: 11-18px range
+   - NO additional rows or complex layouts
+
+// ❌ FORBIDDEN in menu cards:
+- Multiple rows of chips/tags
+- Separate action buttons at bottom
+- Lists of features (keep for detail screens)
+- Complex multi-line footers
+- Content that causes cards to exceed 220px height
+
+// ✅ REQUIRED:
+- Keep content minimal and scannable
+- Use consistent spacing between sections
+- Ensure all cards have similar visual weight
+```
+
+**Applied to:**
+- Transfer Menu cards
+- Savings Menu cards
+- Loans Menu cards
+- Bills Menu cards
+- Any future menu selection screens
+
+### 4. **Section Header Component**
 **MANDATORY for all section titles**
 
 ```typescript
@@ -424,7 +533,53 @@ notify.error('Something went wrong', 'Error');
 
 ## Layout Patterns
 
-### 1. **Page Structure Template**
+### 1. **🔴 CRITICAL: Responsive Grid Layout for Menu Screens**
+**MANDATORY for ALL menu/selection screens - NO EXCEPTIONS**
+
+This is a **CORE ARCHITECTURE DECISION** that ensures consistency across the entire application.
+
+```typescript
+// REQUIRED IMPLEMENTATION for all menu screens
+const { width: screenWidth } = Dimensions.get('window');
+const isTablet = screenWidth >= 768;
+const isMobile = screenWidth < 768;
+
+const styles = StyleSheet.create({
+  productsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginHorizontal: -8,
+  },
+  productCardWrapper: {
+    width: isTablet ? '50%' : '100%', // 2 columns on desktop/tablet, 1 on mobile
+    paddingHorizontal: 8,
+    marginBottom: 16,
+  },
+  productCard: {
+    // Your card styles
+    height: '100%', // Ensure equal heights
+  }
+});
+```
+
+**Strict Requirements:**
+- ✅ **Desktop/Tablet (≥768px)**: MUST display 2 columns
+- ✅ **Mobile (<768px)**: MUST display 1 column
+- ✅ **Spacing**: MUST use 16px between cards
+- ✅ **Height**: Cards MUST have equal heights within rows
+- ❌ **NEVER** use different layouts for the same screen type
+- ❌ **NEVER** use 3+ columns (breaks consistency)
+- ❌ **NEVER** use single column on desktop (wastes space)
+
+**Screens That MUST Follow This Pattern:**
+- Transfer Menu Screen ✅
+- Savings Menu Screen ✅
+- Loans Menu Screen (future)
+- Bill Payment Menu Screen (future)
+- Investment Products Screen (future)
+- Any other selection/menu screens
+
+### 2. **Page Structure Template**
 **EVERY screen MUST follow this structure**
 
 ```typescript

@@ -23,7 +23,7 @@ export interface BackButtonProps extends TouchableOpacityProps {
 
 export const BackButton: React.FC<BackButtonProps> = ({
   onPress,
-  title = 'Back',
+  title = '', // Modern design: no text by default
   variant = 'transparent',
   showArrow = true,
   size = 'medium',
@@ -99,11 +99,18 @@ export const BackButton: React.FC<BackButtonProps> = ({
   const styles = StyleSheet.create({
     button: {
       backgroundColor: getBackgroundColor(),
-      borderRadius: 12,
+      borderRadius: title ? 12 : 20, // Circular when no text
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
       ...getPadding(),
+      // Make it square when no title
+      ...((!title && size === 'medium') ? {
+        width: 40,
+        height: 40,
+        paddingHorizontal: 0,
+        paddingVertical: 0,
+      } : {}),
     },
     content: {
       flexDirection: 'row',
@@ -131,7 +138,7 @@ export const BackButton: React.FC<BackButtonProps> = ({
     >
       <View style={styles.content}>
         {showArrow && <Text style={styles.arrow}>←</Text>}
-        <Text style={styles.text}>{title}</Text>
+        {title ? <Text style={styles.text}>{title}</Text> : null}
       </View>
     </TouchableOpacity>
   );

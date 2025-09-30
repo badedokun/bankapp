@@ -670,7 +670,7 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       <View style={dynamicStyles.header}>
         <View style={dynamicStyles.headerContent}>
           <TouchableOpacity style={dynamicStyles.backButton} onPress={onBack}>
-            <Text style={dynamicStyles.backButtonText}>← Back</Text>
+            <Text style={dynamicStyles.backButtonText}>←</Text>
           </TouchableOpacity>
           
           <View style={dynamicStyles.headerTitle}>
