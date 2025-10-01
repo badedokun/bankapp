@@ -15,6 +15,15 @@ const DEFAULT_THEME = {
   brandName: 'OrokiiPay',
   brandTagline: 'AI-Enhanced Banking Platform',
   brandLogo: '',
+  currency: 'NGN',
+  locale: 'en-NG',
+  timezone: 'Africa/Lagos',
+  dateFormat: 'DD/MM/YYYY',
+  numberFormat: {
+    decimal: '.',
+    thousands: ',',
+    precision: 2,
+  },
   colors: {
     primary: '#6366F1',
     primaryGradientStart: '#6366F1',
@@ -58,6 +67,15 @@ export interface TenantTheme {
   brandName: string;
   brandTagline: string;
   brandLogo: string;
+  currency: string;
+  locale: string;
+  timezone: string;
+  dateFormat: string;
+  numberFormat: {
+    decimal: string;
+    thousands: string;
+    precision: number;
+  };
   colors: {
     primary: string;
     primaryGradientStart: string;

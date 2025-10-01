@@ -23,6 +23,15 @@ const DEFAULT_THEME = {
   brandName: 'OrokiiPay',
   brandTagline: 'Digital Banking Platform',
   brandLogo: 'https://api.orokiipay.com/assets/logos/orokiipay-logo.png',
+  currency: 'NGN',
+  locale: 'en-NG',
+  timezone: 'Africa/Lagos',
+  dateFormat: 'DD/MM/YYYY',
+  numberFormat: {
+    decimal: '.',
+    thousands: ',',
+    precision: 2,
+  },
   colors: {
     primary: '#6B46C1',
     primaryGradientStart: '#6B46C1',
@@ -73,13 +82,18 @@ router.get('/:tenantCode', async (req: Request, res: Response) => {
       return res.json(DEFAULT_THEME);
     }
 
-    // Query tenant theme configuration from database
+    // Query tenant theme configuration from database (including currency, locale, timezone)
     const tenantQuery = `
       SELECT
         t.id as tenant_id,
         t.name as tenant_code,
         t.display_name as brand_name,
         t.subdomain,
+        t.currency,
+        t.locale,
+        t.timezone,
+        t.date_format,
+        t.number_format,
         t.branding,
         t.brand_colors,
         t.brand_typography,
@@ -104,11 +118,13 @@ router.get('/:tenantCode', async (req: Request, res: Response) => {
     let branding: any = {};
     let brandColors: any = {};
     let brandTypography: any = {};
+    let numberFormat: any = {};
 
     try {
       branding = typeof tenant.branding === 'string' ? JSON.parse(tenant.branding) : tenant.branding || {};
       brandColors = typeof tenant.brand_colors === 'string' ? JSON.parse(tenant.brand_colors) : tenant.brand_colors || {};
       brandTypography = typeof tenant.brand_typography === 'string' ? JSON.parse(tenant.brand_typography) : tenant.brand_typography || {};
+      numberFormat = typeof tenant.number_format === 'string' ? JSON.parse(tenant.number_format) : tenant.number_format || {};
     } catch (error) {
       console.warn(`Failed to parse theme data for ${tenantCode}:`, error);
     }
@@ -120,6 +136,15 @@ router.get('/:tenantCode', async (req: Request, res: Response) => {
       brandName: tenant.brand_name,
       brandTagline: branding.tagline || branding.appTitle || 'Digital Banking Solutions',
       brandLogo: `/api/tenants/by-name/${tenant.tenant_code}/assets/logo/default`,
+      currency: tenant.currency || DEFAULT_THEME.currency,
+      locale: tenant.locale || DEFAULT_THEME.locale,
+      timezone: tenant.timezone || DEFAULT_THEME.timezone,
+      dateFormat: tenant.date_format || DEFAULT_THEME.dateFormat,
+      numberFormat: {
+        decimal: numberFormat.decimal || DEFAULT_THEME.numberFormat.decimal,
+        thousands: numberFormat.thousands || DEFAULT_THEME.numberFormat.thousands,
+        precision: numberFormat.precision || DEFAULT_THEME.numberFormat.precision,
+      },
       colors: {
         primary: brandColors.primary || branding.primaryColor || DEFAULT_THEME.colors.primary,
         primaryGradientStart: brandColors.primary || branding.primaryColor || DEFAULT_THEME.colors.primary,
