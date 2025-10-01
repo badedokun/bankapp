@@ -63,6 +63,7 @@
     "i18next-browser-languagedetector": "^8.2.0",
     "i18next-http-backend": "^3.0.2",
     "jsonwebtoken": "^9.0.2",
+    "libphonenumber-js": "^1.12.23",
     "lucide-react": "^0.544.0",
     "morgan": "^1.10.1",
     "multer": "^2.0.2",

@@ -1,0 +1,59 @@
+{
+  "general": {
+    "unknown": "Ein unbekannter Fehler ist aufgetreten",
+    "networkError": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung.",
+    "serverError": "Serverfehler. Bitte versuchen Sie es später erneut.",
+    "timeout": "Zeitüberschreitung der Anfrage. Bitte versuchen Sie es erneut.",
+    "maintenance": "Das System befindet sich in Wartung. Bitte versuchen Sie es später erneut.",
+    "forbidden": "Sie haben keine Berechtigung, diese Aktion auszuführen.",
+    "notFound": "Die angeforderte Ressource wurde nicht gefunden.",
+    "badRequest": "Ungültige Anfrage. Bitte überprüfen Sie Ihre Eingabe.",
+    "unauthorized": "Bitte melden Sie sich an, um fortzufahren."
+  },
+  "validation": {
+    "required": "Dieses Feld ist erforderlich",
+    "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+    "invalidPhone": "Bitte geben Sie eine gültige Telefonnummer ein",
+    "invalidAmount": "Bitte geben Sie einen gültigen Betrag ein",
+    "minAmount": "Der Betrag muss mindestens {{min}} betragen",
+    "maxAmount": "Der Betrag darf {{max}} nicht überschreiten",
+    "invalidDate": "Bitte geben Sie ein gültiges Datum ein",
+    "futureDate": "Das Datum darf nicht in der Zukunft liegen",
+    "pastDate": "Das Datum darf nicht in der Vergangenheit liegen",
+    "minLength": "Muss mindestens {{min}} Zeichen lang sein",
+    "maxLength": "Darf {{max}} Zeichen nicht überschreiten",
+    "invalidFormat": "Ungültiges Format",
+    "numberOnly": "Nur Zahlen sind erlaubt",
+    "alphaOnly": "Nur Buchstaben sind erlaubt"
+  },
+  "authentication": {
+    "invalidCredentials": "Ungültige E-Mail-Adresse oder Passwort",
+    "accountLocked": "Ihr Konto wurde gesperrt",
+    "accountSuspended": "Ihr Konto wurde ausgesetzt",
+    "sessionExpired": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.",
+    "invalidToken": "Ungültiges oder abgelaufenes Token",
+    "mfaRequired": "Zwei-Faktor-Authentifizierung erforderlich",
+    "mfaFailed": "Ungültiger Verifizierungscode",
+    "passwordExpired": "Ihr Passwort ist abgelaufen. Bitte aktualisieren Sie es.",
+    "weakPassword": "Das Passwort ist zu schwach"
+  },
+  "transaction": {
+    "insufficientFunds": "Unzureichendes Guthaben",
+    "limitExceeded": "Transaktionslimit überschritten",
+    "invalidAccount": "Ungültige Kontonummer",
+    "accountClosed": "Konto ist geschlossen",
+    "accountFrozen": "Konto ist gesperrt",
+    "duplicateTransaction": "Doppelte Transaktion erkannt",
+    "transactionFailed": "Transaktion fehlgeschlagen",
+    "invalidPin": "Ungültige PIN",
+    "pinLocked": "PIN wurde nach zu vielen Versuchen gesperrt",
+    "invalidBeneficiary": "Ungültiger Begünstigter"
+  },
+  "system": {
+    "databaseError": "Datenbankfehler aufgetreten",
+    "serviceUnavailable": "Dienst vorübergehend nicht verfügbar",
+    "configError": "Konfigurationsfehler",
+    "integrationError": "Drittanbieter-Integrationsfehler",
+    "rateLimitExceeded": "Zu viele Anfragen. Bitte versuchen Sie es später erneut."
+  }
+}

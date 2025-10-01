@@ -1,0 +1,71 @@
+{
+  "title": "Préstamos",
+  "apply": "Solicitar Préstamo",
+  "myLoans": "Mis Préstamos",
+  "types": {
+    "personal": "Préstamo Personal",
+    "business": "Préstamo Empresarial",
+    "mortgage": "Hipoteca",
+    "auto": "Préstamo de Vehículo",
+    "education": "Préstamo Educativo"
+  },
+  "application": {
+    "title": "Solicitud de Préstamo",
+    "loanType": "Tipo de Préstamo",
+    "amount": "Importe del Préstamo",
+    "amountPlaceholder": "Introduzca el importe necesario",
+    "purpose": "Propósito del Préstamo",
+    "purposePlaceholder": "¿Para qué utilizará este préstamo?",
+    "duration": "Duración del Préstamo",
+    "months": "{{count}} meses",
+    "employmentStatus": "Situación Laboral",
+    "monthlyIncome": "Ingresos Mensuales",
+    "existingLoans": "Préstamos Existentes",
+    "collateral": "Garantía",
+    "guarantor": "Información del Avalista",
+    "submit": "Enviar Solicitud"
+  },
+  "details": {
+    "loanAmount": "Importe del Préstamo",
+    "amountDisbursed": "Importe Desembolsado",
+    "outstanding": "Saldo Pendiente",
+    "totalPaid": "Total Pagado",
+    "interestRate": "Tipo de Interés",
+    "duration": "Duración",
+    "monthlyPayment": "Pago Mensual",
+    "nextPayment": "Próximo Pago Vencimiento",
+    "startDate": "Fecha de Inicio",
+    "endDate": "Fecha de Finalización",
+    "status": "Estado"
+  },
+  "status": {
+    "draft": "Borrador",
+    "pending": "Pendiente de Revisión",
+    "approved": "Aprobado",
+    "rejected": "Rechazado",
+    "active": "Activo",
+    "completed": "Completado",
+    "defaulted": "Impagado"
+  },
+  "repayment": {
+    "title": "Calendario de Amortización",
+    "makePayment": "Realizar Pago",
+    "paymentHistory": "Historial de Pagos",
+    "dueDate": "Fecha de Vencimiento",
+    "amount": "Importe",
+    "principal": "Principal",
+    "interest": "Interés",
+    "totalPayable": "Total a Pagar",
+    "earlyPayment": "Descuento por Pago Anticipado"
+  },
+  "calculator": {
+    "title": "Calculadora de Préstamos",
+    "amount": "Importe del Préstamo",
+    "rate": "Tipo de Interés (%)",
+    "duration": "Duración (meses)",
+    "calculate": "Calcular",
+    "monthlyPayment": "Pago Mensual",
+    "totalInterest": "Interés Total",
+    "totalPayable": "Total a Pagar"
+  }
+}

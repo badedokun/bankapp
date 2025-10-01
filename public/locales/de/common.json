@@ -1,0 +1,74 @@
+{
+  "app": {
+    "name": "OrokiiPay",
+    "tagline": "KI-gestützte Banking-Plattform"
+  },
+  "navigation": {
+    "dashboard": "Übersicht",
+    "transfers": "Überweisungen",
+    "transactions": "Transaktionen",
+    "savings": "Sparen",
+    "loans": "Darlehen",
+    "settings": "Einstellungen",
+    "accounts": "Konten",
+    "bills": "Rechnungen & Zahlungen",
+    "analytics": "Analysen",
+    "help": "Hilfe & Support"
+  },
+  "actions": {
+    "submit": "Absenden",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "back": "Zurück",
+    "next": "Weiter",
+    "confirm": "Bestätigen",
+    "continue": "Fortfahren",
+    "close": "Schließen",
+    "retry": "Wiederholen",
+    "refresh": "Aktualisieren",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "export": "Exportieren",
+    "import": "Importieren",
+    "download": "Herunterladen",
+    "upload": "Hochladen"
+  },
+  "status": {
+    "success": "Erfolgreich",
+    "error": "Fehler",
+    "pending": "Ausstehend",
+    "completed": "Abgeschlossen",
+    "failed": "Fehlgeschlagen",
+    "processing": "In Bearbeitung",
+    "cancelled": "Storniert",
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "suspended": "Gesperrt"
+  },
+  "time": {
+    "today": "Heute",
+    "yesterday": "Gestern",
+    "tomorrow": "Morgen",
+    "thisWeek": "Diese Woche",
+    "lastWeek": "Letzte Woche",
+    "thisMonth": "Dieser Monat",
+    "lastMonth": "Letzter Monat",
+    "thisYear": "Dieses Jahr",
+    "custom": "Benutzerdefinierter Zeitraum"
+  },
+  "common": {
+    "loading": "Lädt...",
+    "noData": "Keine Daten verfügbar",
+    "selectOption": "Wählen Sie eine Option",
+    "required": "Erforderlich",
+    "optional": "Optional",
+    "all": "Alle",
+    "none": "Keine",
+    "yes": "Ja",
+    "no": "Nein",
+    "or": "oder",
+    "and": "und"
+  }
+}

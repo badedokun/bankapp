@@ -1,0 +1,58 @@
+{
+  "welcome": "Bienvenue, {{name}}",
+  "quickActions": "Actions rapides",
+  "recentActivity": "Activité récente",
+  "accountOverview": "Aperçu du compte",
+  "totalBalance": "Solde total",
+  "availableBalance": "Solde disponible",
+  "pendingTransactions": "Transactions en attente",
+  "cards": {
+    "myWallet": "Mon portefeuille",
+    "sendMoney": "Envoyer de l'argent",
+    "requestMoney": "Demander de l'argent",
+    "payBills": "Payer des factures",
+    "saveMoney": "Économiser",
+    "loans": "Prêts",
+    "analytics": "Analyses",
+    "aiAssistant": "Assistant IA"
+  },
+  "insights": {
+    "title": "Informations financières",
+    "spending": "Vos dépenses ce mois-ci",
+    "income": "Vos revenus ce mois-ci",
+    "savings": "Épargne totale",
+    "trend": "{{percentage}}% par rapport au mois dernier"
+  },
+  "aiChat": {
+    "title": "Assistant bancaire IA",
+    "placeholder": "Posez-moi des questions sur vos finances...",
+    "suggestions": {
+      "balance": "Quel est mon solde ?",
+      "transactions": "Afficher les transactions récentes",
+      "spending": "Est-ce que je dépense trop ?",
+      "transfer": "Comment faire un virement ?"
+    },
+    "greeting": "Bonjour ! Comment puis-je vous aider avec vos opérations bancaires aujourd'hui ?",
+    "thinking": "Réflexion en cours...",
+    "error": "Désolé, je n'ai pas pu traiter cette demande."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Tout marquer comme lu",
+    "noNotifications": "Aucune nouvelle notification",
+    "types": {
+      "transaction": "Transaction",
+      "alert": "Alerte",
+      "promotion": "Promotion",
+      "system": "Système"
+    }
+  },
+  "accountSummary": {
+    "title": "Résumé du compte",
+    "accountNumber": "Numéro de compte",
+    "accountType": "Type de compte",
+    "branch": "Agence",
+    "openedOn": "Ouvert le",
+    "status": "Statut"
+  }
+}

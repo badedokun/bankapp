@@ -1,0 +1,71 @@
+{
+  "title": "Prêts",
+  "apply": "Demander un prêt",
+  "myLoans": "Mes prêts",
+  "types": {
+    "personal": "Prêt personnel",
+    "business": "Prêt professionnel",
+    "mortgage": "Prêt hypothécaire",
+    "auto": "Prêt automobile",
+    "education": "Prêt étudiant"
+  },
+  "application": {
+    "title": "Demande de prêt",
+    "loanType": "Type de prêt",
+    "amount": "Montant du prêt",
+    "amountPlaceholder": "Entrez le montant nécessaire",
+    "purpose": "Objet du prêt",
+    "purposePlaceholder": "À quoi servira ce prêt ?",
+    "duration": "Durée du prêt",
+    "months": "{{count}} mois",
+    "employmentStatus": "Statut professionnel",
+    "monthlyIncome": "Revenu mensuel",
+    "existingLoans": "Prêts existants",
+    "collateral": "Garantie",
+    "guarantor": "Informations du garant",
+    "submit": "Soumettre la demande"
+  },
+  "details": {
+    "loanAmount": "Montant du prêt",
+    "amountDisbursed": "Montant déboursé",
+    "outstanding": "Solde restant dû",
+    "totalPaid": "Total payé",
+    "interestRate": "Taux d'intérêt",
+    "duration": "Durée",
+    "monthlyPayment": "Paiement mensuel",
+    "nextPayment": "Prochain paiement dû",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "status": "Statut"
+  },
+  "status": {
+    "draft": "Brouillon",
+    "pending": "En cours d'examen",
+    "approved": "Approuvé",
+    "rejected": "Rejeté",
+    "active": "Actif",
+    "completed": "Terminé",
+    "defaulted": "En défaut"
+  },
+  "repayment": {
+    "title": "Échéancier de remboursement",
+    "makePayment": "Effectuer un paiement",
+    "paymentHistory": "Historique des paiements",
+    "dueDate": "Date d'échéance",
+    "amount": "Montant",
+    "principal": "Capital",
+    "interest": "Intérêts",
+    "totalPayable": "Total à payer",
+    "earlyPayment": "Remise pour remboursement anticipé"
+  },
+  "calculator": {
+    "title": "Calculateur de prêt",
+    "amount": "Montant du prêt",
+    "rate": "Taux d'intérêt (%)",
+    "duration": "Durée (mois)",
+    "calculate": "Calculer",
+    "monthlyPayment": "Paiement mensuel",
+    "totalInterest": "Total des intérêts",
+    "totalPayable": "Total à payer"
+  }
+}

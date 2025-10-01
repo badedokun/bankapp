@@ -1,0 +1,110 @@
+{
+  "title": "Überweisungen",
+  "types": {
+    "internal": "Interne Überweisung",
+    "external": "Externe Überweisung",
+    "international": "Internationale Überweisung",
+    "scheduled": "Geplante Überweisung",
+    "recurring": "Wiederkehrende Überweisung"
+  },
+  "form": {
+    "selectType": "Überweisungsart auswählen",
+    "recipient": "Empfänger",
+    "recipientPlaceholder": "Geben Sie den Empfängernamen oder das Konto ein",
+    "amount": "Betrag",
+    "amountPlaceholder": "Geben Sie den Betrag ein",
+    "currency": "Währung",
+    "description": "Beschreibung",
+    "descriptionPlaceholder": "Wofür ist diese Überweisung?",
+    "purpose": "Verwendungszweck",
+    "sourceAccount": "Quellkonto",
+    "destinationAccount": "Zielkonto",
+    "bank": "Bank",
+    "bankPlaceholder": "Bank auswählen",
+    "accountNumber": "Kontonummer",
+    "accountNumberPlaceholder": "Geben Sie die Kontonummer ein",
+    "accountName": "Kontoinhaber",
+    "swiftCode": "SWIFT-Code",
+    "swiftCodePlaceholder": "Geben Sie den SWIFT-Code ein",
+    "routingNumber": "Bankleitzahl",
+    "iban": "IBAN",
+    "country": "Land"
+  },
+  "schedule": {
+    "title": "Überweisung planen",
+    "frequency": "Häufigkeit",
+    "startDate": "Startdatum",
+    "endDate": "Enddatum",
+    "nextExecution": "Nächste Ausführung",
+    "frequencies": {
+      "once": "Einmalig",
+      "daily": "Täglich",
+      "weekly": "Wöchentlich",
+      "biweekly": "Zweiwöchentlich",
+      "monthly": "Monatlich",
+      "quarterly": "Vierteljährlich",
+      "yearly": "Jährlich"
+    }
+  },
+  "beneficiary": {
+    "title": "Gespeicherte Begünstigte",
+    "addNew": "Neuen Begünstigten hinzufügen",
+    "recent": "Aktuelle Empfänger",
+    "frequent": "Häufige Empfänger",
+    "saveAsBeneficiary": "Als Begünstigten speichern",
+    "nickname": "Spitzname",
+    "nicknamePlaceholder": "Geben Sie diesem Begünstigten einen Namen"
+  },
+  "limits": {
+    "title": "Überweisungslimits",
+    "daily": "Tageslimit",
+    "monthly": "Monatslimit",
+    "perTransaction": "Pro Transaktion",
+    "remaining": "Heute verbleibend",
+    "exceeded": "Limit überschritten",
+    "increaseLimits": "Limiterhöhung beantragen"
+  },
+  "confirmation": {
+    "title": "Überweisung bestätigen",
+    "review": "Überweisungsdetails überprüfen",
+    "from": "Von",
+    "to": "An",
+    "amount": "Betrag",
+    "fee": "Transaktionsgebühr",
+    "total": "Gesamtbetrag",
+    "exchangeRate": "Wechselkurs",
+    "estimatedArrival": "Voraussichtliche Ankunft",
+    "pin": "Transaktions-PIN",
+    "pinPlaceholder": "Geben Sie Ihre 4-stellige PIN ein",
+    "confirmButton": "Überweisung bestätigen",
+    "editButton": "Details bearbeiten"
+  },
+  "success": {
+    "title": "Überweisung erfolgreich",
+    "message": "Ihre Überweisung wurde erfolgreich bearbeitet",
+    "reference": "Referenznummer",
+    "viewReceipt": "Beleg ansehen",
+    "downloadReceipt": "Beleg herunterladen",
+    "shareReceipt": "Beleg teilen",
+    "anotherTransfer": "Weitere Überweisung tätigen",
+    "backToDashboard": "Zurück zur Übersicht"
+  },
+  "errors": {
+    "insufficientFunds": "Unzureichendes Guthaben auf Ihrem Konto",
+    "invalidAccount": "Ungültige Kontonummer",
+    "accountNotFound": "Konto nicht gefunden",
+    "bankNotAvailable": "Bankdienst vorübergehend nicht verfügbar",
+    "limitExceeded": "Überweisungsbetrag überschreitet Ihr Limit",
+    "invalidPin": "Ungültige Transaktions-PIN",
+    "networkError": "Netzwerkfehler. Bitte versuchen Sie es erneut.",
+    "duplicateTransfer": "Eine ähnliche Überweisung wurde kürzlich bereits durchgeführt"
+  },
+  "status": {
+    "pending": "Ausstehend",
+    "processing": "In Bearbeitung",
+    "completed": "Abgeschlossen",
+    "failed": "Fehlgeschlagen",
+    "cancelled": "Storniert",
+    "reversed": "Rückgängig gemacht"
+  }
+}

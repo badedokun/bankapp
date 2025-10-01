@@ -1,0 +1,59 @@
+{
+  "general": {
+    "unknown": "Une erreur inconnue s'est produite",
+    "networkError": "Erreur réseau. Veuillez vérifier votre connexion.",
+    "serverError": "Erreur serveur. Veuillez réessayer plus tard.",
+    "timeout": "Délai d'attente dépassé. Veuillez réessayer.",
+    "maintenance": "Le système est en maintenance. Veuillez réessayer plus tard.",
+    "forbidden": "Vous n'avez pas la permission d'effectuer cette action.",
+    "notFound": "La ressource demandée n'a pas été trouvée.",
+    "badRequest": "Demande invalide. Veuillez vérifier vos données.",
+    "unauthorized": "Veuillez vous connecter pour continuer."
+  },
+  "validation": {
+    "required": "Ce champ est obligatoire",
+    "invalidEmail": "Veuillez entrer une adresse e-mail valide",
+    "invalidPhone": "Veuillez entrer un numéro de téléphone valide",
+    "invalidAmount": "Veuillez entrer un montant valide",
+    "minAmount": "Le montant doit être au moins {{min}}",
+    "maxAmount": "Le montant ne peut pas dépasser {{max}}",
+    "invalidDate": "Veuillez entrer une date valide",
+    "futureDate": "La date ne peut pas être dans le futur",
+    "pastDate": "La date ne peut pas être dans le passé",
+    "minLength": "Doit contenir au moins {{min}} caractères",
+    "maxLength": "Ne peut pas dépasser {{max}} caractères",
+    "invalidFormat": "Format invalide",
+    "numberOnly": "Seuls les chiffres sont autorisés",
+    "alphaOnly": "Seules les lettres sont autorisées"
+  },
+  "authentication": {
+    "invalidCredentials": "E-mail ou mot de passe invalide",
+    "accountLocked": "Votre compte a été verrouillé",
+    "accountSuspended": "Votre compte a été suspendu",
+    "sessionExpired": "Votre session a expiré. Veuillez vous reconnecter.",
+    "invalidToken": "Jeton invalide ou expiré",
+    "mfaRequired": "Authentification à deux facteurs requise",
+    "mfaFailed": "Code de vérification invalide",
+    "passwordExpired": "Votre mot de passe a expiré. Veuillez le mettre à jour.",
+    "weakPassword": "Le mot de passe est trop faible"
+  },
+  "transaction": {
+    "insufficientFunds": "Fonds insuffisants",
+    "limitExceeded": "Limite de transaction dépassée",
+    "invalidAccount": "Numéro de compte invalide",
+    "accountClosed": "Le compte est fermé",
+    "accountFrozen": "Le compte est gelé",
+    "duplicateTransaction": "Transaction en double détectée",
+    "transactionFailed": "La transaction a échoué",
+    "invalidPin": "Code PIN invalide",
+    "pinLocked": "Le code PIN a été verrouillé après trop de tentatives",
+    "invalidBeneficiary": "Bénéficiaire invalide"
+  },
+  "system": {
+    "databaseError": "Erreur de base de données",
+    "serviceUnavailable": "Service temporairement indisponible",
+    "configError": "Erreur de configuration",
+    "integrationError": "Erreur d'intégration tierce",
+    "rateLimitExceeded": "Trop de requêtes. Veuillez réessayer plus tard."
+  }
+}

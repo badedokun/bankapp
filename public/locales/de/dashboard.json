@@ -1,0 +1,58 @@
+{
+  "welcome": "Willkommen zurück, {{name}}",
+  "quickActions": "Schnellaktionen",
+  "recentActivity": "Aktuelle Aktivitäten",
+  "accountOverview": "Kontoübersicht",
+  "totalBalance": "Gesamtguthaben",
+  "availableBalance": "Verfügbares Guthaben",
+  "pendingTransactions": "Ausstehende Transaktionen",
+  "cards": {
+    "myWallet": "Meine Geldbörse",
+    "sendMoney": "Geld senden",
+    "requestMoney": "Geld anfordern",
+    "payBills": "Rechnungen bezahlen",
+    "saveMoney": "Geld sparen",
+    "loans": "Darlehen",
+    "analytics": "Analysen",
+    "aiAssistant": "KI-Assistent"
+  },
+  "insights": {
+    "title": "Finanzeinblicke",
+    "spending": "Ihre Ausgaben in diesem Monat",
+    "income": "Ihr Einkommen in diesem Monat",
+    "savings": "Gesamtersparnisse",
+    "trend": "{{percentage}}% im Vergleich zum letzten Monat"
+  },
+  "aiChat": {
+    "title": "KI-Banking-Assistent",
+    "placeholder": "Fragen Sie mich alles über Ihre Finanzen...",
+    "suggestions": {
+      "balance": "Was ist mein Kontostand?",
+      "transactions": "Zeige aktuelle Transaktionen",
+      "spending": "Gebe ich zu viel aus?",
+      "transfer": "Wie überweise ich Geld?"
+    },
+    "greeting": "Hallo! Wie kann ich Ihnen heute bei Ihren Bankgeschäften helfen?",
+    "thinking": "Denke nach...",
+    "error": "Entschuldigung, ich konnte diese Anfrage nicht bearbeiten."
+  },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "markAllRead": "Alle als gelesen markieren",
+    "noNotifications": "Keine neuen Benachrichtigungen",
+    "types": {
+      "transaction": "Transaktion",
+      "alert": "Warnung",
+      "promotion": "Angebot",
+      "system": "System"
+    }
+  },
+  "accountSummary": {
+    "title": "Kontozusammenfassung",
+    "accountNumber": "Kontonummer",
+    "accountType": "Kontotyp",
+    "branch": "Filiale",
+    "openedOn": "Eröffnet am",
+    "status": "Status"
+  }
+}

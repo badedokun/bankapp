@@ -1,0 +1,60 @@
+{
+  "title": "Épargne",
+  "plans": "Plans d'épargne",
+  "goals": "Objectifs d'épargne",
+  "create": "Créer un nouveau plan",
+  "types": {
+    "fixed": "Dépôt à terme",
+    "flexible": "Épargne flexible",
+    "target": "Épargne ciblée",
+    "automatic": "Épargne automatique"
+  },
+  "form": {
+    "planName": "Nom du plan",
+    "planNamePlaceholder": "Donnez un nom à votre plan",
+    "amount": "Montant",
+    "targetAmount": "Montant cible",
+    "initialDeposit": "Dépôt initial",
+    "frequency": "Fréquence",
+    "duration": "Durée",
+    "interestRate": "Taux d'intérêt",
+    "maturityDate": "Date d'échéance",
+    "autoSave": "Activer l'épargne automatique",
+    "createPlan": "Créer le plan"
+  },
+  "details": {
+    "totalSaved": "Total épargné",
+    "targetAmount": "Montant cible",
+    "progress": "Progression",
+    "interestEarned": "Intérêts gagnés",
+    "contributions": "Contributions",
+    "lastDeposit": "Dernier dépôt",
+    "nextDeposit": "Prochain dépôt",
+    "maturityDate": "Date d'échéance"
+  },
+  "actions": {
+    "deposit": "Effectuer un dépôt",
+    "withdraw": "Retirer",
+    "viewDetails": "Voir les détails",
+    "editPlan": "Modifier le plan",
+    "pausePlan": "Suspendre le plan",
+    "deletePlan": "Supprimer le plan",
+    "breakPlan": "Clôturer le plan"
+  },
+  "goals": {
+    "vacation": "Vacances",
+    "emergency": "Fonds d'urgence",
+    "education": "Éducation",
+    "home": "Achat immobilier",
+    "car": "Achat de voiture",
+    "wedding": "Mariage",
+    "retirement": "Retraite",
+    "custom": "Objectif personnalisé"
+  },
+  "insights": {
+    "projectedSavings": "Épargne projetée",
+    "timeToGoal": "Temps jusqu'à l'objectif",
+    "recommendedDeposit": "Dépôt mensuel recommandé",
+    "performanceVsGoal": "Performance par rapport à l'objectif"
+  }
+}

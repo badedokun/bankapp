@@ -14,6 +14,7 @@ import {
   TextStyle,
   Platform,
 } from 'react-native';
+import { parsePhoneNumber, isValidPhoneNumber, CountryCode } from 'libphonenumber-js';
 import { createInputStyles } from '../../design-system';
 import { useTheme } from '../../hooks/useTheme';
 import { getCurrencySymbol } from '../../utils/currency';
@@ -169,6 +170,7 @@ export const PhoneInput: React.FC<BaseInputProps & {
   countryCode?: string;
   onCountryCodeChange?: (code: string) => void;
   format?: 'international' | 'national' | 'compact';
+  onValidationChange?: (isValid: boolean, details?: any) => void;
 }> = ({
   label = 'Phone Number',
   placeholder = '080 1234 5678',
@@ -177,25 +179,101 @@ export const PhoneInput: React.FC<BaseInputProps & {
   countryCode = '+234',
   onCountryCodeChange,
   format = 'national',
+  onValidationChange,
+  error,
   ...props
 }) => {
-  const formatPhoneNumber = (text: string) => {
-    // Remove non-digits
-    const digits = text.replace(/\D/g, '');
-    
-    // Format based on Nigerian phone number patterns
-    if (format === 'national') {
-      if (digits.length <= 3) return digits;
-      if (digits.length <= 7) return `${digits.slice(0, 3)} ${digits.slice(3)}`;
-      return `${digits.slice(0, 3)} ${digits.slice(3, 7)} ${digits.slice(7, 11)}`;
+  const [validationError, setValidationError] = useState<string | undefined>(error);
+
+  // Map country code to ISO country code
+  const getCountryCodeISO = (code: string): CountryCode => {
+    const countryMap: Record<string, CountryCode> = {
+      '+234': 'NG', // Nigeria
+      '+1': 'US',    // USA/Canada
+      '+44': 'GB',   // UK
+      '+27': 'ZA',   // South Africa
+      '+254': 'KE',  // Kenya
+      '+233': 'GH',  // Ghana
+      '+49': 'DE',   // Germany
+      '+33': 'FR',   // France
+      '+34': 'ES',   // Spain
+    };
+    return countryMap[code] || 'NG';
+  };
+
+  const formatPhoneNumber = (text: string, country: CountryCode) => {
+    try {
+      // Remove non-digits for parsing
+      const digits = text.replace(/\D/g, '');
+
+      if (!digits) return '';
+
+      // Try to parse and format
+      const fullNumber = `${countryCode}${digits}`;
+
+      if (isValidPhoneNumber(fullNumber, country)) {
+        const phoneNumber = parsePhoneNumber(fullNumber, country);
+
+        // Format based on requested format
+        if (format === 'international') {
+          return phoneNumber.formatInternational().replace(countryCode + ' ', '');
+        } else if (format === 'national') {
+          return phoneNumber.formatNational();
+        }
+
+        // Validation details
+        const details = {
+          isValid: true,
+          formatted: phoneNumber.formatInternational(),
+          type: phoneNumber.getType(),
+          country: phoneNumber.country,
+          uri: phoneNumber.getURI(),
+        };
+
+        if (onValidationChange) {
+          onValidationChange(true, details);
+        }
+
+        setValidationError(undefined);
+        return phoneNumber.formatNational();
+      } else {
+        // Not yet valid, but format what we have
+        if (format === 'national' && country === 'NG') {
+          // Nigerian format: 080 1234 5678
+          if (digits.length <= 3) return digits;
+          if (digits.length <= 7) return `${digits.slice(0, 3)} ${digits.slice(3)}`;
+          return `${digits.slice(0, 3)} ${digits.slice(3, 7)} ${digits.slice(7, 11)}`;
+        }
+
+        return digits;
+      }
+    } catch (err) {
+      // Invalid number format
+      if (onValidationChange) {
+        onValidationChange(false);
+      }
+      return text.replace(/\D/g, '');
     }
-    
-    return digits;
   };
 
   const handleChange = (text: string) => {
-    const formatted = formatPhoneNumber(text);
+    const country = getCountryCodeISO(countryCode);
+    const formatted = formatPhoneNumber(text, country);
     onChangeText(formatted);
+
+    // Validate if we have enough digits
+    const digits = text.replace(/\D/g, '');
+    if (digits.length >= 10) {
+      const fullNumber = `${countryCode}${digits}`;
+      if (!isValidPhoneNumber(fullNumber, country)) {
+        setValidationError('Invalid phone number format');
+        if (onValidationChange) {
+          onValidationChange(false);
+        }
+      } else {
+        setValidationError(undefined);
+      }
+    }
   };
 
   return (
@@ -206,7 +284,8 @@ export const PhoneInput: React.FC<BaseInputProps & {
       value={value}
       onChangeText={handleChange}
       keyboardType="phone-pad"
-      maxLength={format === 'national' ? 13 : 11}
+      maxLength={format === 'national' ? 13 : 15}
+      error={validationError || error}
       leftIcon={
         <Text style={styles.countryCode}>{countryCode}</Text>
       }

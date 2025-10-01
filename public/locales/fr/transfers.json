@@ -1,0 +1,110 @@
+{
+  "title": "Virements",
+  "types": {
+    "internal": "Virement interne",
+    "external": "Virement externe",
+    "international": "Virement international",
+    "scheduled": "Virement programmé",
+    "recurring": "Virement récurrent"
+  },
+  "form": {
+    "selectType": "Sélectionner le type de virement",
+    "recipient": "Bénéficiaire",
+    "recipientPlaceholder": "Entrez le nom ou le compte du bénéficiaire",
+    "amount": "Montant",
+    "amountPlaceholder": "Entrez le montant",
+    "currency": "Devise",
+    "description": "Description",
+    "descriptionPlaceholder": "À quoi sert ce virement ?",
+    "purpose": "Objet",
+    "sourceAccount": "Compte source",
+    "destinationAccount": "Compte de destination",
+    "bank": "Banque",
+    "bankPlaceholder": "Sélectionnez la banque",
+    "accountNumber": "Numéro de compte",
+    "accountNumberPlaceholder": "Entrez le numéro de compte",
+    "accountName": "Nom du compte",
+    "swiftCode": "Code SWIFT",
+    "swiftCodePlaceholder": "Entrez le code SWIFT",
+    "routingNumber": "Numéro de routage",
+    "iban": "IBAN",
+    "country": "Pays"
+  },
+  "schedule": {
+    "title": "Programmer le virement",
+    "frequency": "Fréquence",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "nextExecution": "Prochaine exécution",
+    "frequencies": {
+      "once": "Une fois",
+      "daily": "Quotidien",
+      "weekly": "Hebdomadaire",
+      "biweekly": "Bimensuel",
+      "monthly": "Mensuel",
+      "quarterly": "Trimestriel",
+      "yearly": "Annuel"
+    }
+  },
+  "beneficiary": {
+    "title": "Bénéficiaires enregistrés",
+    "addNew": "Ajouter un nouveau bénéficiaire",
+    "recent": "Destinataires récents",
+    "frequent": "Destinataires fréquents",
+    "saveAsBeneficiary": "Enregistrer comme bénéficiaire",
+    "nickname": "Surnom",
+    "nicknamePlaceholder": "Donnez un nom à ce bénéficiaire"
+  },
+  "limits": {
+    "title": "Limites de virement",
+    "daily": "Limite quotidienne",
+    "monthly": "Limite mensuelle",
+    "perTransaction": "Par transaction",
+    "remaining": "Restant aujourd'hui",
+    "exceeded": "Limite dépassée",
+    "increaseLimits": "Demander une augmentation de limite"
+  },
+  "confirmation": {
+    "title": "Confirmer le virement",
+    "review": "Vérifier les détails du virement",
+    "from": "De",
+    "to": "À",
+    "amount": "Montant",
+    "fee": "Frais de transaction",
+    "total": "Montant total",
+    "exchangeRate": "Taux de change",
+    "estimatedArrival": "Arrivée estimée",
+    "pin": "Code PIN de transaction",
+    "pinPlaceholder": "Entrez votre code PIN à 4 chiffres",
+    "confirmButton": "Confirmer le virement",
+    "editButton": "Modifier les détails"
+  },
+  "success": {
+    "title": "Virement réussi",
+    "message": "Votre virement a été traité avec succès",
+    "reference": "Numéro de référence",
+    "viewReceipt": "Voir le reçu",
+    "downloadReceipt": "Télécharger le reçu",
+    "shareReceipt": "Partager le reçu",
+    "anotherTransfer": "Effectuer un autre virement",
+    "backToDashboard": "Retour au tableau de bord"
+  },
+  "errors": {
+    "insufficientFunds": "Fonds insuffisants sur votre compte",
+    "invalidAccount": "Numéro de compte invalide",
+    "accountNotFound": "Compte introuvable",
+    "bankNotAvailable": "Service bancaire temporairement indisponible",
+    "limitExceeded": "Le montant du virement dépasse votre limite",
+    "invalidPin": "Code PIN de transaction invalide",
+    "networkError": "Erreur réseau. Veuillez réessayer.",
+    "duplicateTransfer": "Un virement similaire a déjà été effectué récemment"
+  },
+  "status": {
+    "pending": "En attente",
+    "processing": "En traitement",
+    "completed": "Terminé",
+    "failed": "Échoué",
+    "cancelled": "Annulé",
+    "reversed": "Annulé"
+  }
+}
