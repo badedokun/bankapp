@@ -737,9 +737,9 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
   // Loading state (preserved)
   if (isLoading) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <SafeAreaView style={[styles.container, { backgroundColor: tenantTheme.colors.background }]}>
         <View style={styles.loadingContainer}>
-          <Text style={[styles.loadingText, { color: theme.colors.text }]}>Loading your banking dashboard...</Text>
+          <Text style={[styles.loadingText, { color: tenantTheme.colors.text }]}>Loading your banking dashboard...</Text>
         </View>
       </SafeAreaView>
     );
