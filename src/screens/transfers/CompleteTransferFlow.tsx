@@ -26,6 +26,7 @@ import { useNotification } from '../../services/ModernNotificationService';
 import APIService from '../../services/api';
 import BankSelectorPicker, { Bank } from '../../components/transfers/BankSelectorPicker';
 import { generateTransferRef } from '../../utils/referenceGenerator';
+import { formatCurrency as formatCurrencyUtil, getCurrencySymbol, getCurrencyName } from '../../utils/currency';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -186,11 +187,8 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
   // Amount Formatting
   const formatCurrency = (amount: number | string) => {
     const numAmount = typeof amount === 'string' ? parseFloat(amount.replace(/,/g, '')) : amount;
-    if (isNaN(numAmount)) return '₦0';
-    return `₦${numAmount.toLocaleString('en-NG', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
-    })}`;
+    if (isNaN(numAmount)) return formatCurrencyUtil(0, theme.currency);
+    return formatCurrencyUtil(numAmount, theme.currency, { locale: theme.locale });
   };
 
   const formatAmountInput = (value: string) => {
@@ -268,7 +266,7 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
     }
 
     if (!transferData.amount) errors.push('Enter transfer amount');
-    if (fees.amount < 100) errors.push('Minimum transfer amount is ₦100');
+    if (fees.amount < 100) errors.push(`Minimum transfer amount is ${formatCurrencyUtil(100, theme.currency)}`);
     if (fees.totalDebit > limits.availableBalance) errors.push('Insufficient balance');
     if (fees.amount > limits.remainingToday) errors.push('Exceeds daily transfer limit');
 
@@ -344,7 +342,7 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
 
         // Show success notification
         notify.success(
-          `₦${transferResult.amount.toLocaleString()} sent to ${transferResult.recipient?.accountName || transferResult.recipient?.name || transferData.accountName}`,
+          `${formatCurrencyUtil(transferResult.amount, theme.currency)} sent to ${transferResult.recipient?.accountName || transferResult.recipient?.name || transferData.accountName}`,
           'Transfer Successful! 🎉'
         );
       } else if (transferResult.status === 'pending' || transferResult.status === 'processing') {
@@ -1082,20 +1080,20 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
               onChangeText={handleAmountChange}
               keyboardType="number-pad"
             />
-            <Text style={styles.amountCurrencyLabel}>Nigerian Naira (₦)</Text>
+            <Text style={styles.amountCurrencyLabel}>{getCurrencyName(theme.currency)} ({getCurrencySymbol(theme.currency)})</Text>
 
             <View style={styles.quickAmountsGrid}>
               <TouchableOpacity style={styles.quickAmountBtn} onPress={() => setQuickAmount(1000)}>
-                <Text style={styles.quickAmountBtnText}>₦1K</Text>
+                <Text style={styles.quickAmountBtnText}>{getCurrencySymbol(theme.currency)}1K</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.quickAmountBtn} onPress={() => setQuickAmount(5000)}>
-                <Text style={styles.quickAmountBtnText}>₦5K</Text>
+                <Text style={styles.quickAmountBtnText}>{getCurrencySymbol(theme.currency)}5K</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.quickAmountBtn} onPress={() => setQuickAmount(10000)}>
-                <Text style={styles.quickAmountBtnText}>₦10K</Text>
+                <Text style={styles.quickAmountBtnText}>{getCurrencySymbol(theme.currency)}10K</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.quickAmountBtn} onPress={() => setQuickAmount(50000)}>
-                <Text style={styles.quickAmountBtnText}>₦50K</Text>
+                <Text style={styles.quickAmountBtnText}>{getCurrencySymbol(theme.currency)}50K</Text>
               </TouchableOpacity>
             </View>
 
