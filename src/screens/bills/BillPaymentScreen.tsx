@@ -18,6 +18,7 @@ import {
 import { useTenantTheme } from '../../tenants/TenantContext';
 import { useBankingAlert } from '../../services/AlertService';
 import Button from '../../components/ui/Button';
+import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
 
 interface BillPaymentScreenProps {
   onBack?: () => void;
@@ -29,6 +30,7 @@ export const BillPaymentScreen: React.FC<BillPaymentScreenProps> = ({
   onPaymentComplete,
 }) => {
   const theme = useTenantTheme();
+  const { theme: tenantTheme } = useTenantTheme();
   const { showAlert } = useBankingAlert();
   const [selectedCategory, setSelectedCategory] = useState('utilities');
   const [loading, setLoading] = useState(false);
@@ -136,7 +138,7 @@ export const BillPaymentScreen: React.FC<BillPaymentScreenProps> = ({
                 color: theme.colors.text,
                 borderColor: theme.colors.border,
               }]}
-              placeholder="₦0.00"
+              placeholder={`${getCurrencySymbol(tenantTheme.currency)}0.00`}
               placeholderTextColor={theme.colors.textSecondary}
               keyboardType="numeric"
             />
@@ -164,7 +166,7 @@ export const BillPaymentScreen: React.FC<BillPaymentScreenProps> = ({
               </Text>
             </View>
             <Text style={[styles.billAmount, { color: theme.colors.primary }]}>
-              ₦15,000
+              {formatCurrency(15000, tenantTheme.currency, { locale: tenantTheme.locale })}
             </Text>
           </View>
         </View>

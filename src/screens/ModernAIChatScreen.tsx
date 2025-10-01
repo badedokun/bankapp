@@ -23,6 +23,7 @@ import LinearGradient from '../components/common/LinearGradient';
 import { useTenantTheme } from '../context/TenantThemeContext';
 import { useNotification } from '../services/ModernNotificationService';
 import APIService from '../services/api';
+import { formatCurrency, getCurrencySymbol } from '../utils/currency';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const isTablet = screenWidth >= 768;
@@ -308,7 +309,7 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
         return {
           message: 'I can help you with transfers. Would you like to make an internal or external transfer?',
           actions: ['Internal Transfer', 'External Transfer'],
-          suggestions: ['Send ₦5000', 'Transfer to savings'],
+          suggestions: [`Send ${formatCurrency(5000, tenantTheme.currency, { locale: tenantTheme.locale })}`, 'Transfer to savings'],
         };
       } else {
         return {

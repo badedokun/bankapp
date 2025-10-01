@@ -15,6 +15,7 @@ import {
 import { useTenant, useTenantTheme } from '../../tenants/TenantContext';
 import { useBankingAlert } from '../../services/AlertService';
 import APIService from '../../services/api';
+import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
 
 export interface TransactionDetailsScreenProps {
   route?: {
@@ -65,6 +66,7 @@ export default function TransactionDetailsScreen({
 }: TransactionDetailsScreenProps) {
   const tenant = useTenant();
   const theme = useTenantTheme();
+  const { theme: tenantTheme } = useTenantTheme();
   const { showAlert, showConfirm } = useBankingAlert();
 
   const [transaction, setTransaction] = useState<TransactionDetails | null>(null);
@@ -321,7 +323,7 @@ export default function TransactionDetailsScreen({
         <View style={styles.card}>
           <View style={styles.header}>
             <Text style={[styles.amount, { color: transaction.type === 'credit' ? theme.colors.success : theme.colors.error }]}>
-              {transaction.type === 'credit' ? '+' : '-'}{transaction.currency} {transaction.amount.toLocaleString()}
+              {transaction.type === 'credit' ? '+' : '-'}{formatCurrency(transaction.amount, tenantTheme.currency)}
             </Text>
             <Text style={styles.description}>{transaction.description}</Text>
           </View>
@@ -360,7 +362,7 @@ export default function TransactionDetailsScreen({
             {transaction.fee !== undefined && transaction.fee > 0 && (
               <View style={styles.row}>
                 <Text style={styles.label}>Transaction Fee</Text>
-                <Text style={styles.value}>₦{transaction.fee.toLocaleString()}</Text>
+                <Text style={styles.value}>{formatCurrency(transaction.fee, tenantTheme.currency)}</Text>
               </View>
             )}
           </View>

@@ -30,6 +30,7 @@ import {
   InternalTransferRequest,
   TransferLimits,
 } from '../../types/transfers';
+import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
 
 interface InternalTransferScreenProps {
   onBack?: () => void;
@@ -43,6 +44,7 @@ export const InternalTransferScreen: React.FC<InternalTransferScreenProps> = ({
   onTransferComplete,
 }) => {
   const theme = useTenantTheme();
+  const { theme: tenantTheme } = useTenantTheme();
   const notify = useNotification();
 
   // State management
@@ -261,12 +263,6 @@ export const InternalTransferScreen: React.FC<InternalTransferScreenProps> = ({
     },
   });
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
-    }).format(amount);
-  };
 
   const handleBeneficiarySelect = useCallback((beneficiary: Beneficiary) => {
     setFormData(prev => ({
@@ -302,10 +298,10 @@ export const InternalTransferScreen: React.FC<InternalTransferScreenProps> = ({
     } else {
       const amount = parseFloat(formData.amount);
       if (amount < limits.perTransaction.min) {
-        errors.push(`Minimum transfer amount is ${formatCurrency(limits.perTransaction.min)}`);
+        errors.push(`Minimum transfer amount is ${formatCurrency(limits.perTransaction.min, tenantTheme.currency, { locale: tenantTheme.locale })}`);
       }
       if (amount > limits.perTransaction.max) {
-        errors.push(`Maximum transfer amount is ${formatCurrency(limits.perTransaction.max)}`);
+        errors.push(`Maximum transfer amount is ${formatCurrency(limits.perTransaction.max, tenantTheme.currency, { locale: tenantTheme.locale })}`);
       }
       if (formData.senderAccount && amount > formData.senderAccount.balance) {
         errors.push('Insufficient balance');
@@ -362,7 +358,7 @@ export const InternalTransferScreen: React.FC<InternalTransferScreenProps> = ({
 
       // Show success
       notify.success(
-        `${formatCurrency(parseFloat(formData.amount))} has been ${
+        `${formatCurrency(parseFloat(formData.amount), tenantTheme.currency, { locale: tenantTheme.locale })} has been ${
           transferMode === 'instant' ? 'transferred' : 'scheduled'
         } to ${formData.recipientName}`,
         'Transfer Successful! 🎉'
@@ -410,19 +406,19 @@ export const InternalTransferScreen: React.FC<InternalTransferScreenProps> = ({
       <View style={styles.limitsRow}>
         <Text style={styles.limitsLabel}>Daily Used/Limit</Text>
         <Text style={styles.limitsValue}>
-          {formatCurrency(limits.daily.used)} / {formatCurrency(limits.daily.limit)}
+          {formatCurrency(limits.daily.used, tenantTheme.currency, { locale: tenantTheme.locale })} / {formatCurrency(limits.daily.limit, tenantTheme.currency, { locale: tenantTheme.locale })}
         </Text>
       </View>
       <View style={styles.limitsRow}>
         <Text style={styles.limitsLabel}>Monthly Used/Limit</Text>
         <Text style={styles.limitsValue}>
-          {formatCurrency(limits.monthly.used)} / {formatCurrency(limits.monthly.limit)}
+          {formatCurrency(limits.monthly.used, tenantTheme.currency, { locale: tenantTheme.locale })} / {formatCurrency(limits.monthly.limit, tenantTheme.currency, { locale: tenantTheme.locale })}
         </Text>
       </View>
       <View style={styles.limitsRow}>
         <Text style={styles.limitsLabel}>Per Transaction</Text>
         <Text style={styles.limitsValue}>
-          {formatCurrency(limits.perTransaction.min)} - {formatCurrency(limits.perTransaction.max)}
+          {formatCurrency(limits.perTransaction.min, tenantTheme.currency, { locale: tenantTheme.locale })} - {formatCurrency(limits.perTransaction.max, tenantTheme.currency, { locale: tenantTheme.locale })}
         </Text>
       </View>
     </View>
@@ -504,18 +500,18 @@ export const InternalTransferScreen: React.FC<InternalTransferScreenProps> = ({
 
         <View style={styles.reviewRow}>
           <Text style={styles.reviewLabel}>Amount:</Text>
-          <Text style={styles.reviewValue}>{formatCurrency(amount)}</Text>
+          <Text style={styles.reviewValue}>{formatCurrency(amount, tenantTheme.currency, { locale: tenantTheme.locale })}</Text>
         </View>
 
         <View style={styles.reviewRow}>
           <Text style={styles.reviewLabel}>Fee:</Text>
-          <Text style={styles.reviewValue}>{formatCurrency(fee)}</Text>
+          <Text style={styles.reviewValue}>{formatCurrency(fee, tenantTheme.currency, { locale: tenantTheme.locale })}</Text>
         </View>
 
         <View style={[styles.reviewRow, { borderBottomWidth: 0, marginTop: theme.spacing.sm }]}>
           <Text style={[styles.reviewLabel, { fontWeight: 'bold' }]}>Total:</Text>
           <Text style={[styles.reviewValue, { fontWeight: 'bold', color: theme.colors.primary }]}>
-            {formatCurrency(total)}
+            {formatCurrency(total, tenantTheme.currency, { locale: tenantTheme.locale })}
           </Text>
         </View>
 
@@ -587,7 +583,7 @@ export const InternalTransferScreen: React.FC<InternalTransferScreenProps> = ({
           />
 
           <Input
-            label="Amount (₦)"
+            label={`Amount (${getCurrencySymbol(tenantTheme.currency)})`}
             placeholder="Enter amount"
             value={formData.amount}
             onChangeText={(text) => handleFieldChange('amount', text)}

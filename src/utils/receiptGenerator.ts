@@ -4,6 +4,7 @@
  */
 
 import { Platform } from 'react-native';
+import { formatCurrency } from './currency';
 
 interface TransactionData {
   id: string;
@@ -36,7 +37,11 @@ export class ReceiptGenerator {
   /**
    * Generate HTML receipt content
    */
-  static generateReceiptHTML(transaction: TransactionData, tenantName: string = 'Bank'): string {
+  static generateReceiptHTML(
+    transaction: TransactionData,
+    tenantName: string = 'Bank',
+    currencyCode: string = 'NGN'
+  ): string {
     const { date, time } = this.formatDateTime(transaction.initiatedAt);
     const completedDate = transaction.completedAt ? this.formatDateTime(transaction.completedAt) : null;
 
@@ -266,7 +271,7 @@ export class ReceiptGenerator {
         <!-- Transaction Summary -->
         <div class="transaction-summary">
             <div class="amount">
-                ${transaction.type === 'debit' ? '−' : '+'} ₦${transaction.amount.toLocaleString()}
+                ${transaction.type === 'debit' ? '−' : '+'} ${formatCurrency(transaction.amount, currencyCode)}
             </div>
             <div class="transaction-type">
                 ${transaction.type === 'debit' ? 'Money Transfer (Sent)' : 'Money Transfer (Received)'}
@@ -354,15 +359,15 @@ export class ReceiptGenerator {
             <div class="amount-breakdown">
                 <div class="amount-row">
                     <span>Transaction Amount:</span>
-                    <span>₦${transaction.amount.toLocaleString()}</span>
+                    <span>${formatCurrency(transaction.amount, currencyCode)}</span>
                 </div>
                 <div class="amount-row">
                     <span>Transaction Fee:</span>
-                    <span>₦${transaction.fees.toLocaleString()}</span>
+                    <span>${formatCurrency(transaction.fees, currencyCode)}</span>
                 </div>
                 <div class="amount-row amount-total">
                     <span>Total Amount:</span>
-                    <span>₦${transaction.totalAmount.toLocaleString()}</span>
+                    <span>${formatCurrency(transaction.totalAmount, currencyCode)}</span>
                 </div>
             </div>
         </div>
@@ -412,10 +417,14 @@ export class ReceiptGenerator {
   /**
    * Generate and download receipt (Web only)
    */
-  static async downloadReceipt(transaction: TransactionData, tenantName: string = 'Bank'): Promise<boolean> {
+  static async downloadReceipt(
+    transaction: TransactionData,
+    tenantName: string = 'Bank',
+    currencyCode: string = 'NGN'
+  ): Promise<boolean> {
     try {
       if (Platform.OS === 'web') {
-        const htmlContent = this.generateReceiptHTML(transaction, tenantName);
+        const htmlContent = this.generateReceiptHTML(transaction, tenantName, currencyCode);
 
         // Create a new window with the receipt
         const printWindow = window.open('', '_blank', 'width=800,height=600');
@@ -436,7 +445,7 @@ export class ReceiptGenerator {
         return true;
       } else {
         // For mobile platforms, we'll use sharing instead
-        return this.shareReceipt(transaction, tenantName);
+        return this.shareReceipt(transaction, tenantName, currencyCode);
       }
     } catch (error) {
       console.error('Failed to download receipt:', error);
@@ -447,7 +456,11 @@ export class ReceiptGenerator {
   /**
    * Share receipt content (Mobile)
    */
-  static async shareReceipt(transaction: TransactionData, tenantName: string = 'Bank'): Promise<boolean> {
+  static async shareReceipt(
+    transaction: TransactionData,
+    tenantName: string = 'Bank',
+    currencyCode: string = 'NGN'
+  ): Promise<boolean> {
     try {
       const { date, time } = this.formatDateTime(transaction.initiatedAt);
 
@@ -457,9 +470,9 @@ ${tenantName} - Transaction Receipt
 Reference: ${transaction.reference}
 Status: ${transaction.status.toUpperCase()}
 Type: ${transaction.type === 'debit' ? 'Money Transfer (Sent)' : 'Money Transfer (Received)'}
-Amount: ₦${transaction.amount.toLocaleString()}
-Fee: ₦${transaction.fees.toLocaleString()}
-Total: ₦${transaction.totalAmount.toLocaleString()}
+Amount: ${formatCurrency(transaction.amount, currencyCode)}
+Fee: ${formatCurrency(transaction.fees, currencyCode)}
+Total: ${formatCurrency(transaction.totalAmount, currencyCode)}
 
 ${transaction.type === 'debit' ? 'To' : 'From'}: ${transaction.type === 'debit' ? transaction.recipient.name : transaction.sender.name}
 Bank: ${transaction.type === 'debit' ? transaction.recipient.bankName : transaction.sender.bankName}
@@ -489,13 +502,17 @@ Thank you for using ${tenantName}!
   /**
    * Generate PDF blob (Web only)
    */
-  static async generatePDFBlob(transaction: TransactionData, tenantName: string = 'Bank'): Promise<Blob | null> {
+  static async generatePDFBlob(
+    transaction: TransactionData,
+    tenantName: string = 'Bank',
+    currencyCode: string = 'NGN'
+  ): Promise<Blob | null> {
     if (Platform.OS !== 'web') {
       return null;
     }
 
     try {
-      const htmlContent = this.generateReceiptHTML(transaction, tenantName);
+      const htmlContent = this.generateReceiptHTML(transaction, tenantName, currencyCode);
 
       // Create a temporary iframe to render the HTML
       const iframe = document.createElement('iframe');

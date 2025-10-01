@@ -19,6 +19,8 @@ import {
 } from 'react-native';
 import { createModalStyles } from '../../design-system';
 import { useTheme } from '../../hooks/useTheme';
+import { getCurrencySymbol } from '../../utils/currency';
+import { useTenantTheme } from '../../tenants/TenantContext';
 
 interface ModalProps {
   visible: boolean;
@@ -219,6 +221,8 @@ export const TransactionConfirmDialog: React.FC<{
   };
 }> = ({ visible, onClose, onConfirm, transaction }) => {
   const theme = useTheme();
+  const { theme: tenantTheme } = useTenantTheme();
+  const currencySymbol = transaction.currency ? getCurrencySymbol(transaction.currency) : getCurrencySymbol(tenantTheme.currency);
   
   return (
     <Modal
@@ -235,10 +239,10 @@ export const TransactionConfirmDialog: React.FC<{
             Amount
           </Text>
           <Text style={[styles.transactionValue, styles.amountValue, { color: theme.computed.text.primary }]}>
-            {transaction.currency || '₦'}{transaction.amount}
+            {currencySymbol}{transaction.amount}
           </Text>
         </View>
-        
+
         {/* Fee */}
         {transaction.fee && (
           <View style={styles.transactionRow}>
@@ -246,7 +250,7 @@ export const TransactionConfirmDialog: React.FC<{
               Transaction Fee
             </Text>
             <Text style={[styles.transactionValue, { color: theme.computed.text.primary }]}>
-              {transaction.currency || '₦'}{transaction.fee}
+              {currencySymbol}{transaction.fee}
             </Text>
           </View>
         )}
@@ -302,7 +306,7 @@ export const TransactionConfirmDialog: React.FC<{
               Total
             </Text>
             <Text style={[styles.transactionValue, styles.totalValue, { color: theme.computed.text.primary }]}>
-              {transaction.currency || '₦'}{(parseFloat(transaction.amount) + parseFloat(transaction.fee || '0')).toFixed(2)}
+              {currencySymbol}{(parseFloat(transaction.amount) + parseFloat(transaction.fee || '0')).toFixed(2)}
             </Text>
           </View>
         )}

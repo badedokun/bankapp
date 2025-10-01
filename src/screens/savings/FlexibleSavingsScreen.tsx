@@ -16,6 +16,7 @@ import {
 import { useTenantTheme } from '../../tenants/TenantContext';
 import { useBankingAlert } from '../../services/AlertService';
 import Button from '../../components/ui/Button';
+import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
 
 interface FlexibleSavingsScreenProps {
   onBack?: () => void;
@@ -27,6 +28,7 @@ export const FlexibleSavingsScreen: React.FC<FlexibleSavingsScreenProps> = ({
   onSavingComplete,
 }) => {
   const theme = useTenantTheme();
+  const { theme: tenantTheme } = useTenantTheme();
   const { showAlert } = useBankingAlert();
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
@@ -114,7 +116,7 @@ export const FlexibleSavingsScreen: React.FC<FlexibleSavingsScreenProps> = ({
                 NDIC Insured
               </Text>
               <Text style={[styles.benefitDesc, { color: theme.colors.textSecondary }]}>
-                Your savings are protected up to ₦500,000
+                Your savings are protected up to {formatCurrency(500000, tenantTheme.currency, { locale: tenantTheme.locale })}
               </Text>
             </View>
           </View>
@@ -135,7 +137,7 @@ export const FlexibleSavingsScreen: React.FC<FlexibleSavingsScreenProps> = ({
                 color: theme.colors.text,
                 borderColor: theme.colors.border,
               }]}
-              placeholder="₦1,000 minimum"
+              placeholder={`${formatCurrency(1000, tenantTheme.currency, { locale: tenantTheme.locale })} minimum`}
               placeholderTextColor={theme.colors.textSecondary}
               value={amount}
               onChangeText={setAmount}
@@ -148,7 +150,7 @@ export const FlexibleSavingsScreen: React.FC<FlexibleSavingsScreenProps> = ({
               💡 Did you know?
             </Text>
             <Text style={[styles.infoText, { color: '#134e4a' }]}>
-              You can start saving with as little as ₦1,000 and add more funds whenever you want!
+              You can start saving with as little as {formatCurrency(1000, tenantTheme.currency, { locale: tenantTheme.locale })} and add more funds whenever you want!
             </Text>
           </View>
 

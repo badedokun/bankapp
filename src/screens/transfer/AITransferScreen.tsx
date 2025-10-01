@@ -24,6 +24,7 @@ import { InputValidator } from '../../utils/security';
 import APIService from '../../services/api';
 import { BankSelector } from '../../components/BankSelector';
 import { Bank } from '../../types/banking';
+import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -48,6 +49,7 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
 }) => {
   const { currentTenant } = useTenant();
   const theme = useTenantTheme();
+  const { theme: tenantTheme } = useTenantTheme();
   
   // Form state
   const [formData, setFormData] = useState<TransferFormData>({
@@ -167,7 +169,7 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
       
       // Generate AI suggestions
       const suggestions = [
-        `Confirm transfer of ₦${formData.amount || '25,000'} to ${nameMatch?.[1] || 'recipient'}?`,
+        `Confirm transfer of ${formatCurrency(parseFloat(formData.amount || '25000'), tenantTheme.currency, { locale: tenantTheme.locale })} to ${nameMatch?.[1] || 'recipient'}?`,
         "Would you like to add a transaction description?",
         "This recipient received your last 3 transfers. Proceed?",
         "Smart tip: This amount is within your daily limit."
@@ -175,7 +177,7 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
       setAiSuggestions(suggestions);
       setIsProcessing(false);
     }, 1500);
-  }, [formData.amount]);
+  }, [formData.amount, tenantTheme.currency, tenantTheme.locale]);
 
   // Validate recipient account
   const validateRecipient = useCallback(async (accountNumber: string, bank: Bank | null) => {
@@ -315,9 +317,9 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
         // Success notification
         showAlert(
           'Transfer Successful! 🎉',
-          `₦${transferResult.amount.toLocaleString()} transfer to ${transferResult.recipient.accountName} completed successfully.\n\nReference: ${transferResult.reference}\nStatus: ${transferResult.status}`,
-          [{ 
-            text: 'OK', 
+          `${formatCurrency(transferResult.amount, tenantTheme.currency, { locale: tenantTheme.locale })} transfer to ${transferResult.recipient.accountName} completed successfully.\n\nReference: ${transferResult.reference}\nStatus: ${transferResult.status}`,
+          [{
+            text: 'OK',
             onPress: () => {
               // Close form after user acknowledges success
               console.log('🚪 SUCCESS: User acknowledged success, calling callbacks');
@@ -629,8 +631,8 @@ const AITransferScreen: React.FC<AITransferScreenProps> = ({
           )}
 
           <Input
-            label="Amount (₦)"
-            placeholder="Enter amount in Naira"
+            label={`Amount (${getCurrencySymbol(tenantTheme.currency)})`}
+            placeholder={`Enter amount in ${tenantTheme.currency}`}
             value={formData.amount}
             onChangeText={(text) => handleFieldChange('amount', text)}
             validationType="amount"

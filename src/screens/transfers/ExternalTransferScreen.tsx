@@ -31,6 +31,7 @@ import {
   TransferLimits,
   Bank,
 } from '../../types/transfers';
+import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
 
 interface ExternalTransferScreenProps {
   onBack?: () => void;
@@ -42,6 +43,7 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
   onTransferComplete,
 }) => {
   const theme = useTenantTheme();
+  const { theme: tenantTheme } = useTenantTheme();
   const { showAlert, showConfirm } = useBankingAlert();
 
   // State management
@@ -388,12 +390,6 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
     },
   });
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
-    }).format(amount);
-  };
 
   const handleBeneficiarySelect = useCallback((beneficiary: Beneficiary) => {
     const selectedBank = banks.find(bank => bank.code === beneficiary.bankCode);
@@ -487,10 +483,10 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
     } else {
       const amount = parseFloat(formData.amount);
       if (amount < limits.perTransaction.min) {
-        errors.push(`Minimum transfer amount is ${formatCurrency(limits.perTransaction.min)}`);
+        errors.push(`Minimum transfer amount is ${formatCurrency(limits.perTransaction.min, tenantTheme.currency, { locale: tenantTheme.locale })}`);
       }
       if (amount > limits.perTransaction.max) {
-        errors.push(`Maximum transfer amount is ${formatCurrency(limits.perTransaction.max)}`);
+        errors.push(`Maximum transfer amount is ${formatCurrency(limits.perTransaction.max, tenantTheme.currency, { locale: tenantTheme.locale })}`);
       }
       if (formData.senderAccount && amount > formData.senderAccount.balance) {
         errors.push('Insufficient balance');
@@ -541,7 +537,7 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
 
       showAlert(
         'Transfer Successful! 🎉',
-        `${formatCurrency(parseFloat(formData.amount))} has been sent to ${formData.recipientName} at ${formData.recipientBank?.name}\n\nTotal Charge: ${formatCurrency(total)} (including ₦${fee} NIBSS fee)`,
+        `${formatCurrency(parseFloat(formData.amount), tenantTheme.currency, { locale: tenantTheme.locale })} has been sent to ${formData.recipientName} at ${formData.recipientBank?.name}\n\nTotal Charge: ${formatCurrency(total, tenantTheme.currency, { locale: tenantTheme.locale })} (including ${formatCurrency(fee, tenantTheme.currency, { locale: tenantTheme.locale })} NIBSS fee)`,
         [{
           text: 'OK',
           onPress: () => {
@@ -580,7 +576,7 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
         <View style={styles.feeInfo}>
           <Text style={styles.feeLabel}>Transfer Fee:</Text>
           <Text style={styles.feeAmount}>
-            {formatCurrency(formData.recipientBank.transferFee)}
+            {formatCurrency(formData.recipientBank.transferFee, tenantTheme.currency, { locale: tenantTheme.locale })}
           </Text>
         </View>
       )}
@@ -649,18 +645,18 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
 
         <View style={styles.reviewRow}>
           <Text style={styles.reviewLabel}>Amount:</Text>
-          <Text style={styles.reviewValue}>{formatCurrency(amount)}</Text>
+          <Text style={styles.reviewValue}>{formatCurrency(amount, tenantTheme.currency, { locale: tenantTheme.locale })}</Text>
         </View>
 
         <View style={styles.reviewRow}>
           <Text style={styles.reviewLabel}>NIBSS Fee:</Text>
-          <Text style={styles.reviewValue}>{formatCurrency(fee)}</Text>
+          <Text style={styles.reviewValue}>{formatCurrency(fee, tenantTheme.currency, { locale: tenantTheme.locale })}</Text>
         </View>
 
         <View style={[styles.reviewRow, { borderBottomWidth: 0, marginTop: theme.spacing.sm }]}>
           <Text style={[styles.reviewLabel, { fontWeight: 'bold' }]}>Total:</Text>
           <Text style={[styles.reviewValue, { fontWeight: 'bold', color: theme.colors.primary }]}>
-            {formatCurrency(total)}
+            {formatCurrency(total, tenantTheme.currency, { locale: tenantTheme.locale })}
           </Text>
         </View>
       </View>
@@ -732,7 +728,7 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
           />
 
           <Input
-            label="Amount (₦)"
+            label={`Amount (${getCurrencySymbol(tenantTheme.currency)})`}
             placeholder="Enter amount"
             value={formData.amount}
             onChangeText={(text) => handleFieldChange('amount', text)}
@@ -795,7 +791,7 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
 
         <Text style={styles.disclaimerText}>
           External transfers via NIBSS are processed instantly during banking hours.
-          A fee of ₦52.50 applies per transaction.
+          A fee of {formatCurrency(52.50, tenantTheme.currency, { locale: tenantTheme.locale })} applies per transaction.
         </Text>
       </ScrollView>
 
@@ -835,7 +831,7 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
                   <Text style={styles.bankItemName}>{item.name}</Text>
                   <Text style={styles.bankItemCode}>{item.code}</Text>
                   <Text style={styles.bankItemFee}>
-                    Fee: {formatCurrency(item.transferFee)}
+                    Fee: {formatCurrency(item.transferFee, tenantTheme.currency, { locale: tenantTheme.locale })}
                   </Text>
                 </TouchableOpacity>
               )}

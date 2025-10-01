@@ -19,6 +19,7 @@ import {
 import { useTenant, useTenantTheme } from '../../tenants/TenantContext';
 import { useBankingAlert } from '../../services/AlertService';
 import APIService from '../../services/api';
+import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -63,6 +64,7 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
 }) => {
   const { currentTenant } = useTenant();
   const theme = useTenantTheme();
+  const { theme: tenantTheme } = useTenantTheme();
   const { showAlert } = useBankingAlert();
   
   // State
@@ -140,12 +142,12 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
         transactions: detailedTransactions,
         summary: {
           totalTransactions: detailedTransactions.length,
-          totalVolume: `₦${(totalVolume / 1000000).toFixed(1)}M`,
-          avgFees: `₦${avgFees.toFixed(2)}`,
+          totalVolume: `${formatCurrency(totalVolume / 1000000, tenantTheme.currency)}M`,
+          avgFees: formatCurrency(avgFees, tenantTheme.currency),
           monthlyChange: '+0%', // Would need historical data to calculate
         },
         aiInsights: {
-          message: `You have ${detailedTransactions.length} transactions with a total volume of ₦${totalVolume.toLocaleString()}. Your average transaction fee is ₦${avgFees.toFixed(2)}.`,
+          message: `You have ${detailedTransactions.length} transactions with a total volume of ${formatCurrency(totalVolume, tenantTheme.currency)}. Your average transaction fee is ${formatCurrency(avgFees, tenantTheme.currency)}.`,
           suggestions: ['View spending patterns', 'Download transaction history', 'Set up transfer limits'],
         },
       });
@@ -867,17 +869,17 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
                       <Text style={dynamicStyles.metaItem}>📅 {transaction.timestamp}</Text>
                       <Text style={dynamicStyles.metaItem}>🔍 {transaction.referenceNumber}</Text>
                       <Text style={dynamicStyles.metaItem}>
-                        ⚡ {transaction.fees > 0 ? `₦${transaction.fees}` : 'No fee'}
+                        ⚡ {transaction.fees > 0 ? formatCurrency(transaction.fees, tenantTheme.currency) : 'No fee'}
                       </Text>
                     </View>
                   </View>
 
                   <View style={dynamicStyles.transactionAmountContainer}>
                     <Text style={[dynamicStyles.transactionAmount, getAmountStyle(transaction.type)]}>
-                      {transaction.amount > 0 ? '+' : ''}₦{Math.abs(transaction.amount).toLocaleString()}
+                      {transaction.amount > 0 ? '+' : ''}{formatCurrency(Math.abs(transaction.amount), tenantTheme.currency)}
                     </Text>
                     <Text style={dynamicStyles.balanceText}>
-                      Balance: ₦{transaction.balance.toLocaleString()}
+                      Balance: {formatCurrency(transaction.balance, tenantTheme.currency)}
                     </Text>
                   </View>
                 </View>

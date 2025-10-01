@@ -11,6 +11,8 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
+import { formatCurrency } from '../../utils/currency';
+import { useTenantTheme } from '../../context/TenantThemeContext';
 
 interface MonthlyStats {
   transactions: number;
@@ -45,7 +47,9 @@ interface BankingStatsGridProps {
 const getRoleBasedStats = (
   role: string,
   monthlyStats: MonthlyStats,
-  roleBasedMetrics: RoleBasedMetrics
+  roleBasedMetrics: RoleBasedMetrics,
+  currency: string,
+  locale: string
 ) => {
   const baseStats = [
     {
@@ -92,7 +96,7 @@ const getRoleBasedStats = (
       {
         id: 'platform_revenue',
         icon: '💎',
-        value: `₦${((roleBasedMetrics.platformRevenue || 0) / 1000000).toFixed(1)}M`,
+        value: `${formatCurrency((roleBasedMetrics.platformRevenue || 0) / 1000000, currency, { locale, showSymbol: true })}M`,
         label: 'Platform Revenue',
         sublabel: 'This Month',
         color: '#ff9800',
@@ -260,7 +264,7 @@ const getRoleBasedStats = (
       {
         id: 'savings_managed',
         icon: '💰',
-        value: `₦${((roleBasedMetrics.savingsBalance || 0) / 1000000).toFixed(1)}M`,
+        value: `${formatCurrency((roleBasedMetrics.savingsBalance || 0) / 1000000, currency, { locale, showSymbol: true })}M`,
         label: 'Savings Managed',
         sublabel: 'Total Balance',
         color: '#4facfe',
@@ -314,7 +318,7 @@ const getRoleBasedStats = (
       {
         id: 'cash_position',
         icon: '💵',
-        value: `₦${((roleBasedMetrics.savingsBalance || 5000000) / 1000).toFixed(0)}K`,
+        value: `${formatCurrency((roleBasedMetrics.savingsBalance || 5000000) / 1000, currency, { locale, showSymbol: true })}K`,
         label: 'Cash Position',
         sublabel: 'Available Cash',
         color: '#43e97b',
@@ -344,7 +348,7 @@ const getRoleBasedStats = (
       {
         id: 'cash_drawer',
         icon: '💰',
-        value: `₦${((roleBasedMetrics.savingsBalance || 500000) / 1000).toFixed(0)}K`,
+        value: `${formatCurrency((roleBasedMetrics.savingsBalance || 500000) / 1000, currency, { locale, showSymbol: true })}K`,
         label: 'Cash Drawer',
         sublabel: 'Balance',
         color: '#43e97b',
@@ -396,7 +400,8 @@ export const BankingStatsGrid: React.FC<BankingStatsGridProps> = ({
   roleBasedMetrics,
   onNavigateToFeature
 }) => {
-  const stats = getRoleBasedStats(userRole, monthlyStats, roleBasedMetrics);
+  const { theme: tenantTheme } = useTenantTheme();
+  const stats = getRoleBasedStats(userRole, monthlyStats, roleBasedMetrics, tenantTheme.currency, tenantTheme.locale);
 
   return (
     <View style={styles.container}>
@@ -437,7 +442,7 @@ export const BankingStatsGrid: React.FC<BankingStatsGridProps> = ({
           💡 {userRole.replace('_', ' ').toUpperCase()} Insights
         </Text>
         <Text style={styles.insightsText}>
-          {getRoleSpecificInsight(userRole, monthlyStats, roleBasedMetrics)}
+          {getRoleSpecificInsight(userRole, monthlyStats, roleBasedMetrics, tenantTheme.currency, tenantTheme.locale)}
         </Text>
       </View>
     </View>
@@ -448,10 +453,12 @@ export const BankingStatsGrid: React.FC<BankingStatsGridProps> = ({
 const getRoleSpecificInsight = (
   role: string,
   monthlyStats: MonthlyStats,
-  roleBasedMetrics: RoleBasedMetrics
+  roleBasedMetrics: RoleBasedMetrics,
+  currency: string,
+  locale: string
 ): string => {
   const insights = {
-    platform_admin: `Managing ${roleBasedMetrics.platformTenants || 0} active banks with ₦${((roleBasedMetrics.platformRevenue || 0) / 1000000).toFixed(1)}M monthly revenue. System performance optimal.`,
+    platform_admin: `Managing ${roleBasedMetrics.platformTenants || 0} active banks with ${formatCurrency((roleBasedMetrics.platformRevenue || 0) / 1000000, currency, { locale })}M monthly revenue. System performance optimal.`,
     ceo: `Bank performance at ${roleBasedMetrics.branchPerformance || 85}% with ${formatNumber(roleBasedMetrics.customerCount || 0)} customers. ${monthlyStats.volume} processed this month.`,
     deputy_md: `Operations running at ${roleBasedMetrics.branchPerformance || 92}% efficiency. ${roleBasedMetrics.approvalQueue || 0} items need your approval.`,
     branch_manager: `Your branch serves ${formatNumber(roleBasedMetrics.customerCount || 0)} customers with ${roleBasedMetrics.loanApplications || 0} active loan applications.`,
@@ -459,11 +466,11 @@ const getRoleSpecificInsight = (
     credit_manager: `Managing ${roleBasedMetrics.loanApplications || 0} loans with risk score of ${roleBasedMetrics.creditRiskScore || 7.5}/10. Portfolio health is strong.`,
     compliance_officer: `${roleBasedMetrics.complianceAlerts || 0} compliance alerts require review. ${roleBasedMetrics.auditFindings || 0} audit findings in progress.`,
     audit_officer: `87% audit coverage achieved YTD. ${roleBasedMetrics.auditFindings || 0} active findings being tracked.`,
-    relationship_manager: `Managing ${formatNumber(roleBasedMetrics.customerCount || 0)} customers with ₦${((roleBasedMetrics.savingsBalance || 0) / 1000000).toFixed(1)}M in savings.`,
+    relationship_manager: `Managing ${formatNumber(roleBasedMetrics.customerCount || 0)} customers with ${formatCurrency((roleBasedMetrics.savingsBalance || 0) / 1000000, currency, { locale })}M in savings.`,
     loan_officer: `${roleBasedMetrics.loanApplications || 0} applications in your queue with 78% approval rate this month.`,
     customer_service: `24 active support tickets with 94% customer satisfaction rating. Strong service performance.`,
-    head_teller: `₦${((roleBasedMetrics.savingsBalance || 5000000) / 1000).toFixed(0)}K cash position with ${roleBasedMetrics.tellerTransactions || 156} transactions today.`,
-    bank_teller: `47 transactions processed today with ₦${((roleBasedMetrics.savingsBalance || 500000) / 1000).toFixed(0)}K cash drawer balance.`,
+    head_teller: `${formatCurrency((roleBasedMetrics.savingsBalance || 5000000) / 1000, currency, { locale })}K cash position with ${roleBasedMetrics.tellerTransactions || 156} transactions today.`,
+    bank_teller: `47 transactions processed today with ${formatCurrency((roleBasedMetrics.savingsBalance || 500000) / 1000, currency, { locale })}K cash drawer balance.`,
     credit_analyst: `${roleBasedMetrics.loanApplications || 0} applications pending analysis with ${roleBasedMetrics.creditRiskScore || 8.2}/10 model accuracy.`
   };
 

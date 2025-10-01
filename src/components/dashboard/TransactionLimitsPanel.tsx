@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
+import { formatCurrency } from '../../utils/currency';
 import { useTenantTheme } from '../../context/TenantThemeContext';
 
 interface TransactionLimit {
@@ -178,13 +179,13 @@ export const TransactionLimitsPanel: React.FC<TransactionLimitsPanelProps> = ({
 
   const formatAmount = (amount: number): string => {
     if (amount >= 1000000000) {
-      return `₦${(amount / 1000000000).toFixed(1)}B`;
+      return `${formatCurrency(amount / 1000000000, theme.currency, { locale: theme.locale })}B`;
     } else if (amount >= 1000000) {
-      return `₦${(amount / 1000000).toFixed(1)}M`;
+      return `${formatCurrency(amount / 1000000, theme.currency, { locale: theme.locale })}M`;
     } else if (amount >= 1000) {
-      return `₦${(amount / 1000).toFixed(0)}K`;
+      return `${formatCurrency(amount / 1000, theme.currency, { locale: theme.locale })}K`;
     } else {
-      return `₦${amount.toLocaleString()}`;
+      return formatCurrency(amount, theme.currency, { locale: theme.locale });
     }
   };
 

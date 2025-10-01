@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { useTenantTheme } from '../../tenants/TenantContext';
 import { useBankingAlert } from '../../services/AlertService';
+import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
 
 interface SavingsScreenProps {
   onBack?: () => void;
@@ -22,6 +23,7 @@ interface SavingsScreenProps {
 
 export const SavingsScreen: React.FC<SavingsScreenProps> = ({ onBack, onNavigateToSavingsFlow }) => {
   const theme = useTenantTheme();
+  const { theme: tenantTheme } = useTenantTheme();
   const { showAlert } = useBankingAlert();
   const [selectedProduct, setSelectedProduct] = useState('flexible');
 
@@ -97,7 +99,7 @@ export const SavingsScreen: React.FC<SavingsScreenProps> = ({ onBack, onNavigate
               Total Saved
             </Text>
             <Text style={[styles.summaryValue, { color: theme.colors.text }]}>
-              ₦250,000
+              {formatCurrency(250000, tenantTheme.currency, { locale: tenantTheme.locale })}
             </Text>
           </View>
           <View style={styles.summaryRow}>
@@ -105,7 +107,7 @@ export const SavingsScreen: React.FC<SavingsScreenProps> = ({ onBack, onNavigate
               Interest Earned
             </Text>
             <Text style={[styles.summaryValue, { color: theme.colors.success }]}>
-              ₦12,500
+              {formatCurrency(12500, tenantTheme.currency, { locale: tenantTheme.locale })}
             </Text>
           </View>
         </View>

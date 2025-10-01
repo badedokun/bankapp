@@ -20,6 +20,7 @@ import { useBankingAlert } from '../../services/AlertService';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import APIService from '../../services/api';
+import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -91,6 +92,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 }) => {
   const { currentTenant } = useTenant();
   const theme = useTenantTheme();
+  const { theme: tenantTheme } = useTenantTheme();
   const { showAlert } = useBankingAlert();
   
   // State
@@ -735,15 +737,15 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
                     <Text style={dynamicStyles.settingTitle}>Daily Spending Limit</Text>
                     <Text style={[dynamicStyles.settingTitle, { color: theme.colors.primary }]}>
-                      ₦{transactionLimits.dailyLimit.toLocaleString()}
+                      {formatCurrency(transactionLimits.dailyLimit, tenantTheme.currency)}
                     </Text>
                   </View>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
                     <Text style={dynamicStyles.settingDescription}>Used today</Text>
-                    <Text style={[dynamicStyles.settingDescription, { 
+                    <Text style={[dynamicStyles.settingDescription, {
                       color: transactionLimits.dailySpent > transactionLimits.dailyLimit * 0.8 ? theme.colors.error : '#666'
                     }]}>
-                      ₦{transactionLimits.dailySpent.toLocaleString()}
+                      {formatCurrency(transactionLimits.dailySpent, tenantTheme.currency)}
                     </Text>
                   </View>
                   <View style={{
@@ -765,7 +767,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
                     <Text style={[dynamicStyles.settingDescription, { fontSize: 12 }]}>Available</Text>
                     <Text style={[dynamicStyles.settingDescription, { fontSize: 12, fontWeight: '500' }]}>
-                      ₦{Math.max(0, transactionLimits.dailyRemaining).toLocaleString()}
+                      {formatCurrency(Math.max(0, transactionLimits.dailyRemaining), tenantTheme.currency)}
                     </Text>
                   </View>
                 </View>
@@ -779,15 +781,15 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
                     <Text style={dynamicStyles.settingTitle}>Monthly Spending Limit</Text>
                     <Text style={[dynamicStyles.settingTitle, { color: theme.colors.primary }]}>
-                      ₦{transactionLimits.monthlyLimit.toLocaleString()}
+                      {formatCurrency(transactionLimits.monthlyLimit, tenantTheme.currency)}
                     </Text>
                   </View>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
                     <Text style={dynamicStyles.settingDescription}>Used this month</Text>
-                    <Text style={[dynamicStyles.settingDescription, { 
+                    <Text style={[dynamicStyles.settingDescription, {
                       color: transactionLimits.monthlySpent > transactionLimits.monthlyLimit * 0.8 ? theme.colors.error : '#666'
                     }]}>
-                      ₦{transactionLimits.monthlySpent.toLocaleString()}
+                      {formatCurrency(transactionLimits.monthlySpent, tenantTheme.currency)}
                     </Text>
                   </View>
                   <View style={{
@@ -809,7 +811,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
                     <Text style={[dynamicStyles.settingDescription, { fontSize: 12 }]}>Available</Text>
                     <Text style={[dynamicStyles.settingDescription, { fontSize: 12, fontWeight: '500' }]}>
-                      ₦{Math.max(0, transactionLimits.monthlyRemaining).toLocaleString()}
+                      {formatCurrency(Math.max(0, transactionLimits.monthlyRemaining), tenantTheme.currency)}
                     </Text>
                   </View>
                 </View>
@@ -913,7 +915,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               <View style={dynamicStyles.formGroup}>
                 <Input
                   key="admin-daily-limit"
-                  label="Daily Limit (₦)"
+                  label={`Daily Limit (${getCurrencySymbol(tenantTheme.currency)})`}
                   value={adminLimitsForm.dailyLimit}
                   onChangeText={(text) => setAdminLimitsForm({...adminLimitsForm, dailyLimit: text})}
                   placeholder="100000"
@@ -923,7 +925,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               <View style={dynamicStyles.formGroup}>
                 <Input
                   key="admin-monthly-limit"
-                  label="Monthly Limit (₦)"
+                  label={`Monthly Limit (${getCurrencySymbol(tenantTheme.currency)})`}
                   value={adminLimitsForm.monthlyLimit}
                   onChangeText={(text) => setAdminLimitsForm({...adminLimitsForm, monthlyLimit: text})}
                   placeholder="500000"

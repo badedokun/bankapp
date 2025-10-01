@@ -10,6 +10,8 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
+import { formatCurrency } from '../../utils/currency';
+import { useTenantTheme } from '../../context/TenantThemeContext';
 
 interface Transaction {
   id: string;
@@ -41,6 +43,7 @@ export const RecentActivityPanel: React.FC<RecentActivityPanelProps> = ({
   onViewAllPress,
   theme
 }) => {
+  const { theme: tenantTheme } = useTenantTheme();
   // Filter transactions based on user role and permissions
   const getFilteredTransactions = () => {
     // Admin roles see all transactions
@@ -102,7 +105,7 @@ export const RecentActivityPanel: React.FC<RecentActivityPanelProps> = ({
     const amount = Math.abs(transaction.amount || 0);
     const sign = transaction.type === 'received' ? '+' : transaction.type === 'sent' ? '-' : '';
 
-    return `${sign}₦${amount.toLocaleString()}`;
+    return `${sign}${formatCurrency(amount, tenantTheme.currency, { locale: tenantTheme.locale })}`;
   };
 
   const getRoleSpecificLabel = (transaction: Transaction) => {
@@ -232,7 +235,7 @@ export const RecentActivityPanel: React.FC<RecentActivityPanelProps> = ({
           📊 Activity Summary
         </Text>
         <Text style={[styles.summaryText, { color: theme.colors.textSecondary }]}>
-          {getRoleSpecificSummary(userRole, filteredTransactions)}
+          {getRoleSpecificSummary(userRole, filteredTransactions, tenantTheme.currency, tenantTheme.locale)}
         </Text>
       </View>
     </View>
@@ -240,14 +243,14 @@ export const RecentActivityPanel: React.FC<RecentActivityPanelProps> = ({
 };
 
 // Generate role-specific activity summary
-const getRoleSpecificSummary = (role: string, transactions: Transaction[]): string => {
+const getRoleSpecificSummary = (role: string, transactions: Transaction[], currency: string, locale: string): string => {
   const totalAmount = transactions.reduce((sum, tx) => sum + Math.abs(tx.amount || 0), 0);
   const pendingApprovals = transactions.filter(tx => tx.requiresApproval).length;
   const highValueCount = transactions.filter(tx => Math.abs(tx.amount) > 1000000).length;
 
   const summaries = {
-    platform_admin: `Platform activity: ₦${(totalAmount / 1000000).toFixed(1)}M total volume across tenant banks.`,
-    ceo: `Bank oversight: ${transactions.length} transactions, ${highValueCount} high-value items, ₦${(totalAmount / 1000000).toFixed(1)}M total.`,
+    platform_admin: `Platform activity: ${formatCurrency(totalAmount / 1000000, currency, { locale })}M total volume across tenant banks.`,
+    ceo: `Bank oversight: ${transactions.length} transactions, ${highValueCount} high-value items, ${formatCurrency(totalAmount / 1000000, currency, { locale })}M total.`,
     deputy_md: `Operations review: ${pendingApprovals} items need approval, ${transactions.length} recent activities.`,
     branch_manager: `Branch activity: ${transactions.length} transactions processed, performance tracking active.`,
     operations_manager: `Operations: ${transactions.length} transactions monitored, ${pendingApprovals} pending approvals.`,
@@ -262,7 +265,7 @@ const getRoleSpecificSummary = (role: string, transactions: Transaction[]): stri
     credit_analyst: `Credit analysis: Transaction patterns relevant to credit risk assessment.`
   };
 
-  return summaries[role] || `Recent banking activity: ${transactions.length} transactions totaling ₦${(totalAmount / 1000000).toFixed(1)}M.`;
+  return summaries[role] || `Recent banking activity: ${transactions.length} transactions totaling ${formatCurrency(totalAmount / 1000000, currency, { locale })}M.`;
 };
 
 const styles = StyleSheet.create({

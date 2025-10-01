@@ -15,6 +15,7 @@ import {
 import { useTenantTheme } from '../../tenants/TenantContext';
 import { useBankingAlert } from '../../services/AlertService';
 import Button from '../../components/ui/Button';
+import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
 
 interface LoansScreenProps {
   onBack?: () => void;
@@ -23,13 +24,14 @@ interface LoansScreenProps {
 
 export const LoansScreen: React.FC<LoansScreenProps> = ({ onBack, onNavigateToLoanFlow }) => {
   const theme = useTenantTheme();
+  const { theme: tenantTheme } = useTenantTheme();
   const { showAlert } = useBankingAlert();
   const [selectedProduct, setSelectedProduct] = useState('personal');
 
   const loanProducts = [
-    { id: 'personal', name: 'Personal Loan', maxAmount: '₦5M', rate: '15%', icon: '💵' },
-    { id: 'business', name: 'Business Loan', maxAmount: '₦50M', rate: '12%', icon: '💼' },
-    { id: 'quick', name: 'Quick Loan', maxAmount: '₦100K', rate: '20%', icon: '⚡' },
+    { id: 'personal', name: 'Personal Loan', maxAmount: formatCurrency(5000000, tenantTheme.currency, { locale: tenantTheme.locale, compact: true }), rate: '15%', icon: '💵' },
+    { id: 'business', name: 'Business Loan', maxAmount: formatCurrency(50000000, tenantTheme.currency, { locale: tenantTheme.locale, compact: true }), rate: '12%', icon: '💼' },
+    { id: 'quick', name: 'Quick Loan', maxAmount: formatCurrency(100000, tenantTheme.currency, { locale: tenantTheme.locale, compact: true }), rate: '20%', icon: '⚡' },
   ];
 
   const handleApplyNow = () => {
@@ -110,7 +112,7 @@ export const LoansScreen: React.FC<LoansScreenProps> = ({ onBack, onNavigateToLo
               Maximum Amount
             </Text>
             <Text style={[styles.eligibilityValue, { color: theme.colors.primary }]}>
-              ₦2,000,000
+              {formatCurrency(2000000, tenantTheme.currency, { locale: tenantTheme.locale })}
             </Text>
           </View>
           <View style={styles.eligibilityRow}>

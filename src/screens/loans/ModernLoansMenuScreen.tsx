@@ -21,6 +21,7 @@ import LinearGradient from '../../components/common/LinearGradient';
 import { useTenantTheme } from '../../context/TenantThemeContext';
 import { useNotification } from '../../services/ModernNotificationService';
 import APIService from '../../services/api';
+import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
 
 const { width: screenWidth } = Dimensions.get('window');
 const isTablet = screenWidth >= 768;
@@ -49,7 +50,8 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
   onBack,
   onSelectProduct,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme: tenantTheme } = useTenantTheme();
+  const theme = tenantTheme;
   const notify = useNotification();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
@@ -66,7 +68,7 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
       id: 'personal',
       name: 'Personal Loan',
       description: 'Quick funds for personal needs',
-      maxAmount: '₦5M',
+      maxAmount: formatCurrency(5000000, tenantTheme.currency, { locale: tenantTheme.locale, compact: true }),
       rate: '15%',
       duration: '1-36 months',
       icon: '💵',
@@ -77,7 +79,7 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
       id: 'business',
       name: 'Business Loan',
       description: 'Grow your business capital',
-      maxAmount: '₦50M',
+      maxAmount: formatCurrency(50000000, tenantTheme.currency, { locale: tenantTheme.locale, compact: true }),
       rate: '12%',
       duration: '3-60 months',
       icon: '💼',
@@ -88,7 +90,7 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
       id: 'quick',
       name: 'Quick Cash',
       description: 'Instant approval, same day',
-      maxAmount: '₦100K',
+      maxAmount: formatCurrency(100000, tenantTheme.currency, { locale: tenantTheme.locale, compact: true }),
       rate: '20%',
       duration: '7-30 days',
       icon: '⚡',
@@ -99,7 +101,7 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
       id: 'asset',
       name: 'Asset Finance',
       description: 'Purchase equipment & vehicles',
-      maxAmount: '₦100M',
+      maxAmount: formatCurrency(100000000, tenantTheme.currency, { locale: tenantTheme.locale, compact: true }),
       rate: '10%',
       duration: '12-84 months',
       icon: '🚗',
@@ -109,7 +111,7 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
       id: 'mortgage',
       name: 'Home Mortgage',
       description: 'Own your dream home',
-      maxAmount: '₦200M',
+      maxAmount: formatCurrency(200000000, tenantTheme.currency, { locale: tenantTheme.locale, compact: true }),
       rate: '9%',
       duration: '5-30 years',
       icon: '🏠',
@@ -120,7 +122,7 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
       id: 'salary',
       name: 'Salary Advance',
       description: 'Get paid before payday',
-      maxAmount: '₦500K',
+      maxAmount: formatCurrency(500000, tenantTheme.currency, { locale: tenantTheme.locale, compact: true }),
       rate: '5%',
       duration: '1 month',
       icon: '💰',
@@ -183,9 +185,6 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return `₦${amount.toLocaleString('en-NG')}`;
-  };
 
   const styles = StyleSheet.create({
     container: {
@@ -526,7 +525,7 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
                 <View style={styles.eligibilityItem}>
                   <Text style={styles.eligibilityLabel}>Max Amount</Text>
                   <Text style={styles.eligibilityValue}>
-                    {formatCurrency(loanEligibility.maxAmount)}
+                    {formatCurrency(loanEligibility.maxAmount, tenantTheme.currency, { locale: tenantTheme.locale })}
                   </Text>
                 </View>
                 <View style={styles.eligibilityItem}>

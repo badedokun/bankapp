@@ -4,6 +4,7 @@
  */
 
 import { Platform } from 'react-native';
+import { formatCurrency } from './currency';
 
 // Input validation patterns based on Nigerian banking requirements
 export const ValidationPatterns = {
@@ -203,27 +204,32 @@ export class InputValidator {
   /**
    * Validate amount input
    */
-  static validateAmount(amount: string, minAmount: number = 1, maxAmount: number = 5000000): { isValid: boolean; error?: string } {
+  static validateAmount(
+    amount: string,
+    minAmount: number = 1,
+    maxAmount: number = 5000000,
+    currency: string = 'NGN'
+  ): { isValid: boolean; error?: string } {
     const sanitized = InputSanitizer.sanitizeNumeric(amount, true);
-    
+
     if (!sanitized) {
       return { isValid: false, error: 'Amount is required' };
     }
-    
+
     const numericAmount = parseFloat(sanitized);
-    
+
     if (isNaN(numericAmount) || numericAmount <= 0) {
       return { isValid: false, error: 'Please enter a valid amount' };
     }
-    
+
     if (numericAmount < minAmount) {
-      return { isValid: false, error: `Minimum amount is ₦${minAmount.toLocaleString()}` };
+      return { isValid: false, error: `Minimum amount is ${formatCurrency(minAmount, currency)}` };
     }
-    
+
     if (numericAmount > maxAmount) {
-      return { isValid: false, error: `Maximum amount is ₦${maxAmount.toLocaleString()}` };
+      return { isValid: false, error: `Maximum amount is ${formatCurrency(maxAmount, currency)}` };
     }
-    
+
     return { isValid: true };
   }
 

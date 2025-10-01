@@ -16,6 +16,8 @@ import {
 } from 'react-native';
 import { createInputStyles } from '../../design-system';
 import { useTheme } from '../../hooks/useTheme';
+import { getCurrencySymbol } from '../../utils/currency';
+import { useTenantTheme } from '../../tenants/TenantContext';
 
 interface BaseInputProps {
   label?: string;
@@ -221,10 +223,12 @@ export const CurrencyInput: React.FC<BaseInputProps & {
   placeholder = '0.00',
   value,
   onChangeText,
-  currency = '₦',
+  currency,
   onAmountChange,
   ...props
 }) => {
+  const { theme: tenantTheme } = useTenantTheme();
+  const currencySymbol = currency ? getCurrencySymbol(currency) : getCurrencySymbol(tenantTheme.currency);
   const formatCurrency = (text: string) => {
     // Remove non-digits and decimal points
     const cleaned = text.replace(/[^0-9.]/g, '');
@@ -262,7 +266,7 @@ export const CurrencyInput: React.FC<BaseInputProps & {
       onChangeText={handleChange}
       keyboardType="numeric"
       leftIcon={
-        <Text style={styles.currencySymbol}>{currency}</Text>
+        <Text style={styles.currencySymbol}>{currencySymbol}</Text>
       }
     />
   );

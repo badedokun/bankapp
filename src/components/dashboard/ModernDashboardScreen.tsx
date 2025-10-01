@@ -17,6 +17,7 @@ import {
 import { useTenantTheme } from '../../context/TenantThemeContext';
 import { RoleBasedFeatureGrid } from './RoleBasedFeatureGrid';
 import AIAssistantPanel from './AIAssistantPanel';
+import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -138,9 +139,9 @@ const ModernTransactionItem: React.FC<TransactionItemProps> = ({
         </Text>
       </View>
       <Text style={[styles.transactionAmount, {
-        color: transaction.type === 'deposit' ? '#10B981' : theme.colors.text
+        color: transaction.type === 'deposit' ? '#10B981' : tenantTheme.colors.text
       }]}>
-        {transaction.type === 'withdrawal' ? '-' : ''}₦{Number(transaction.amount).toLocaleString()}
+        {transaction.type === 'withdrawal' ? '-' : ''}{formatCurrency(Number(transaction.amount), tenantTheme.currency, { locale: tenantTheme.locale })}
       </Text>
     </TouchableOpacity>
   );
@@ -176,7 +177,7 @@ export const ModernDashboardScreen: React.FC<ModernDashboardScreenProps> = ({
   onFeatureNavigation,
   onAIAssistantPress
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme: tenantTheme } = useTenantTheme();
   const [refreshing, setRefreshing] = useState(false);
 
   // Permission checks for feature visibility
@@ -193,7 +194,7 @@ export const ModernDashboardScreen: React.FC<ModernDashboardScreenProps> = ({
   const statsData = [
     {
       title: 'Total Balance',
-      value: `₦${dashboardData.totalBalance.toLocaleString()}`,
+      value: formatCurrency(dashboardData.totalBalance, tenantTheme.currency, { locale: tenantTheme.locale }),
       change: '+2.5% from last month',
       changeType: 'positive' as const,
       icon: '💰',
@@ -217,7 +218,7 @@ export const ModernDashboardScreen: React.FC<ModernDashboardScreenProps> = ({
     },
     {
       title: 'Available Credit',
-      value: '₦500,000',
+      value: formatCurrency(500000, tenantTheme.currency, { locale: tenantTheme.locale }),
       change: '60% utilized',
       changeType: 'neutral' as const,
       icon: '💳',
@@ -265,37 +266,37 @@ export const ModernDashboardScreen: React.FC<ModernDashboardScreenProps> = ({
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
+      style={[styles.container, { backgroundColor: tenantTheme.colors.background }]}
       showsVerticalScrollIndicator={false}
       refreshControl={
         Platform.OS !== 'web' ? (
           <ScrollView
             refreshing={refreshing}
             onRefresh={handleRefresh}
-            tintColor={theme.colors.primary}
+            tintColor={tenantTheme.colors.primary}
           />
         ) : undefined
       }
     >
       {/* Modern Header with Glass Effect */}
       <View style={[styles.header, {
-        backgroundColor: theme.colors.glassBackground,
-        borderColor: theme.colors.glassBorder
+        backgroundColor: tenantTheme.colors.glassBackground,
+        borderColor: tenantTheme.colors.glassBorder
       }]}>
         <View style={styles.headerContent}>
           <View>
-            <Text style={[styles.welcomeText, { color: theme.colors.textSecondary }]}>
+            <Text style={[styles.welcomeText, { color: tenantTheme.colors.textSecondary }]}>
               Welcome back,
             </Text>
-            <Text style={[styles.userName, { color: theme.colors.text }]}>
+            <Text style={[styles.userName, { color: tenantTheme.colors.text }]}>
               {userContext.firstName} {userContext.lastName}
             </Text>
-            <Text style={[styles.userRole, { color: theme.colors.textSecondary }]}>
+            <Text style={[styles.userRole, { color: tenantTheme.colors.textSecondary }]}>
               {userContext.role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
             </Text>
           </View>
           <TouchableOpacity
-            style={[styles.aiButton, { backgroundColor: theme.colors.primary }]}
+            style={[styles.aiButton, { backgroundColor: tenantTheme.colors.primary }]}
             onPress={onAIAssistantPress}
             activeOpacity={0.8}
           >
@@ -310,14 +311,14 @@ export const ModernDashboardScreen: React.FC<ModernDashboardScreenProps> = ({
           <ModernStatsCard
             key={index}
             {...stat}
-            theme={theme}
+            theme={tenantTheme}
           />
         ))}
       </View>
 
       {/* Quick Actions */}
       <View style={styles.quickActionsContainer}>
-        <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+        <Text style={[styles.sectionTitle, { color: tenantTheme.colors.text }]}>
           Quick Actions
         </Text>
         <View style={styles.quickActionsGrid}>
@@ -325,7 +326,7 @@ export const ModernDashboardScreen: React.FC<ModernDashboardScreenProps> = ({
             <QuickActionButton
               key={index}
               {...action}
-              theme={theme}
+              theme={tenantTheme}
             />
           ))}
         </View>
@@ -335,33 +336,33 @@ export const ModernDashboardScreen: React.FC<ModernDashboardScreenProps> = ({
       {(hasPermission('view_transaction_history') || isDevAdmin) && (
         <View style={styles.transactionsContainer}>
           <View style={styles.transactionsHeader}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+            <Text style={[styles.sectionTitle, { color: tenantTheme.colors.text }]}>
               Recent Transactions
             </Text>
             <TouchableOpacity
               onPress={() => onFeatureNavigation('transaction_history')}
               activeOpacity={0.7}
             >
-              <Text style={[styles.viewAllText, { color: theme.colors.primary }]}>
+              <Text style={[styles.viewAllText, { color: tenantTheme.colors.primary }]}>
                 View All
               </Text>
             </TouchableOpacity>
           </View>
           <View style={[styles.transactionsList, {
-            backgroundColor: theme.colors.glassBackground,
-            borderColor: theme.colors.glassBorder
+            backgroundColor: tenantTheme.colors.glassBackground,
+            borderColor: tenantTheme.colors.glassBorder
           }]}>
             {dashboardData.recentTransactions?.slice(0, 5).map((transaction, index) => (
               <ModernTransactionItem
                 key={transaction.id || index}
                 transaction={transaction}
-                theme={theme}
+                theme={tenantTheme}
                 onPress={() => onNavigateToTransactionDetails(transaction.id)}
               />
             ))}
             {(!dashboardData.recentTransactions || dashboardData.recentTransactions.length === 0) && (
               <View style={styles.emptyTransactions}>
-                <Text style={[styles.emptyText, { color: theme.colors.textSecondary }]}>
+                <Text style={[styles.emptyText, { color: tenantTheme.colors.textSecondary }]}>
                   No recent transactions
                 </Text>
               </View>
@@ -376,13 +377,13 @@ export const ModernDashboardScreen: React.FC<ModernDashboardScreenProps> = ({
         userPermissions={userContext.permissions}
         availableFeatures={dashboardData.availableFeatures}
         onFeaturePress={onFeatureNavigation}
-        theme={theme}
+        theme={tenantTheme}
       />
 
       {/* AI Assistant Panel */}
       {(hasPermission('access_ai_chat') || isDevAdmin) && (
         <AIAssistantPanel
-          theme={theme}
+          theme={tenantTheme}
           userRole={userContext.role}
           aiSuggestions={[]}
           onNavigateToAIChat={onAIAssistantPress}

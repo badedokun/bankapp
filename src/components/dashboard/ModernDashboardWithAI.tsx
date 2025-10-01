@@ -15,6 +15,8 @@ import {
   Platform,
   Image,
 } from 'react-native';
+import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
+import { useTenantTheme } from '../../context/TenantThemeContext';
 
 const { width: screenWidth } = Dimensions.get('window');
 const isWeb = Platform.OS === 'web';
@@ -40,6 +42,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
   onSettings,
   theme,
 }) => {
+  const { theme: tenantTheme } = useTenantTheme();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [aiInput, setAIInput] = useState('');
@@ -252,7 +255,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
               </View>
               <Text style={styles.statLabel}>Total Balance</Text>
               <Text style={styles.statValue}>
-                ₦{dashboardData.totalBalance?.toLocaleString() || '2,450,000'}
+                {formatCurrency(dashboardData.totalBalance || 2450000, tenantTheme.currency, { locale: tenantTheme.locale })}
               </Text>
               <Text style={[styles.statChange, styles.positive]}>↑ 12.5%</Text>
             </View>
@@ -262,7 +265,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                 <Text style={styles.statIconText}>💳</Text>
               </View>
               <Text style={styles.statLabel}>Available Balance</Text>
-              <Text style={styles.statValue}>₦1,850,000</Text>
+              <Text style={styles.statValue}>{formatCurrency(1850000, tenantTheme.currency, { locale: tenantTheme.locale })}</Text>
               <Text style={[styles.statChange, styles.positive]}>↑ 8.2%</Text>
             </View>
 
@@ -280,7 +283,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                 <Text style={styles.statIconText}>🎯</Text>
               </View>
               <Text style={styles.statLabel}>Savings Goal</Text>
-              <Text style={styles.statValue}>₦500,000</Text>
+              <Text style={styles.statValue}>{formatCurrency(500000, tenantTheme.currency, { locale: tenantTheme.locale })}</Text>
               <Text style={[styles.statChange, styles.positive]}>65% achieved</Text>
             </View>
           </View>
@@ -313,7 +316,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
               <Text style={styles.aiSuggestionIcon}>💡</Text>
               <Text style={styles.aiSuggestionTitle}>Optimize Your Savings</Text>
               <Text style={styles.aiSuggestionDescription}>
-                Based on your spending patterns, you could save an additional ₦50,000 monthly by transferring to high-yield savings.
+                Based on your spending patterns, you could save an additional {formatCurrency(50000, tenantTheme.currency, { locale: tenantTheme.locale })} monthly by transferring to high-yield savings.
               </Text>
               <View style={styles.aiSuggestionAction}>
                 <Text style={[styles.aiActionText, { color: primaryColor }]}>Set up automatic transfer</Text>
@@ -343,7 +346,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
               <Text style={styles.aiSuggestionIcon}>🎯</Text>
               <Text style={styles.aiSuggestionTitle}>Bill Payment Reminder</Text>
               <Text style={styles.aiSuggestionDescription}>
-                You have 3 upcoming bills totaling ₦45,000 due this week. Set up auto-pay to avoid late fees.
+                You have 3 upcoming bills totaling {formatCurrency(45000, tenantTheme.currency, { locale: tenantTheme.locale })} due this week. Set up auto-pay to avoid late fees.
               </Text>
               <View style={styles.aiSuggestionAction}>
                 <Text style={[styles.aiActionText, { color: primaryColor }]}>Review bills</Text>
@@ -540,7 +543,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                   styles.activityAmount,
                   transaction.type === 'deposit' ? styles.creditAmount : styles.debitAmount
                 ]}>
-                  {transaction.type === 'deposit' ? '+' : '-'}₦{Number(transaction.amount).toLocaleString()}
+                  {transaction.type === 'deposit' ? '+' : '-'}{formatCurrency(Number(transaction.amount), tenantTheme.currency, { locale: tenantTheme.locale })}
                 </Text>
               </TouchableOpacity>
             ))}

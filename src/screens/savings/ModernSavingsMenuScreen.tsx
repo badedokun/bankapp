@@ -20,6 +20,7 @@ import LinearGradient from '../../components/common/LinearGradient';
 import { useTenantTheme } from '../../context/TenantThemeContext';
 import { useNotification } from '../../services/ModernNotificationService';
 import APIService from '../../services/api';
+import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
 
 const { width: screenWidth } = Dimensions.get('window');
 const isTablet = screenWidth >= 768;
@@ -50,7 +51,8 @@ const ModernSavingsMenuScreen: React.FC<ModernSavingsMenuScreenProps> = ({
   onBack,
   onSelectProduct,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme: tenantTheme } = useTenantTheme();
+  const theme = tenantTheme;
   const notify = useNotification();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
@@ -187,9 +189,6 @@ const ModernSavingsMenuScreen: React.FC<ModernSavingsMenuScreenProps> = ({
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return `₦${amount.toLocaleString('en-NG')}`;
-  };
 
   const styles = StyleSheet.create({
     container: {
@@ -539,13 +538,13 @@ const ModernSavingsMenuScreen: React.FC<ModernSavingsMenuScreenProps> = ({
                 <View style={styles.summaryItem}>
                   <Text style={styles.summaryLabel}>Total Saved</Text>
                   <Text style={styles.summaryValue}>
-                    {formatCurrency(savingsSummary.totalSaved)}
+                    {formatCurrency(savingsSummary.totalSaved, tenantTheme.currency, { locale: tenantTheme.locale })}
                   </Text>
                 </View>
                 <View style={styles.summaryItem}>
                   <Text style={styles.summaryLabel}>Interest Earned</Text>
                   <Text style={[styles.summaryValue, { color: theme.colors.success }]}>
-                    {formatCurrency(savingsSummary.interestEarned)}
+                    {formatCurrency(savingsSummary.interestEarned, tenantTheme.currency, { locale: tenantTheme.locale })}
                   </Text>
                 </View>
                 <View style={styles.summaryItem}>
@@ -609,7 +608,7 @@ const ModernSavingsMenuScreen: React.FC<ModernSavingsMenuScreenProps> = ({
                     <View style={styles.minAmountContainer}>
                       <Text style={styles.minAmountLabel}>Min:</Text>
                       <Text style={styles.minAmountValue}>
-                        {formatCurrency(product.minAmount)}
+                        {formatCurrency(product.minAmount, tenantTheme.currency, { locale: tenantTheme.locale })}
                       </Text>
                     </View>
                   </View>

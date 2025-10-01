@@ -20,6 +20,7 @@ import LinearGradient from '../../components/common/LinearGradient';
 import { useTenantTheme } from '../../context/TenantThemeContext';
 import { useNotification } from '../../services/ModernNotificationService';
 import APIService from '../../services/api';
+import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -45,7 +46,7 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
   onBack,
   onSelectTransfer,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme, theme: tenantTheme } = useTenantTheme();
   const notify = useNotification();
   const [isLoading, setIsLoading] = useState(false);
   const [userPermissions, setUserPermissions] = useState<any>({});
@@ -172,12 +173,6 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return `₦${amount.toLocaleString('en-NG', {
-      minimumFractionDigits: amount % 1 !== 0 ? 2 : 0,
-      maximumFractionDigits: 2,
-    })}`;
-  };
 
   const styles = StyleSheet.create({
     container: {
@@ -467,7 +462,7 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
                         <View style={styles.feeContainer}>
                           <Text style={styles.feeLabel}>Fee:</Text>
                           <Text style={styles.feeAmount}>
-                            {option.fee === 0 ? 'FREE' : formatCurrency(option.fee)}
+                            {option.fee === 0 ? 'FREE' : formatCurrency(option.fee, tenantTheme.currency, { locale: tenantTheme.locale })}
                           </Text>
                         </View>
                         <Text style={styles.arrow}>→</Text>

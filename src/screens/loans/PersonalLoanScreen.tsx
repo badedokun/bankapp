@@ -16,6 +16,7 @@ import {
 import { useTenantTheme } from '../../tenants/TenantContext';
 import { useBankingAlert } from '../../services/AlertService';
 import Button from '../../components/ui/Button';
+import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
 
 interface PersonalLoanScreenProps {
   onBack?: () => void;
@@ -27,6 +28,7 @@ export const PersonalLoanScreen: React.FC<PersonalLoanScreenProps> = ({
   onLoanComplete,
 }) => {
   const theme = useTenantTheme();
+  const { theme: tenantTheme } = useTenantTheme();
   const { showAlert } = useBankingAlert();
   const [amount, setAmount] = useState('');
   const [duration, setDuration] = useState('12');
@@ -89,7 +91,7 @@ export const PersonalLoanScreen: React.FC<PersonalLoanScreenProps> = ({
             <Text style={styles.benefitIcon}>💰</Text>
             <View style={styles.benefitText}>
               <Text style={[styles.benefitTitle, { color: theme.colors.text }]}>
-                Up to ₦5,000,000
+                Up to {formatCurrency(5000000, tenantTheme.currency, { locale: tenantTheme.locale })}
               </Text>
               <Text style={[styles.benefitDesc, { color: theme.colors.textSecondary }]}>
                 Borrow what you need for your personal goals
@@ -149,7 +151,7 @@ export const PersonalLoanScreen: React.FC<PersonalLoanScreenProps> = ({
                 color: theme.colors.text,
                 borderColor: theme.colors.border,
               }]}
-              placeholder="₦50,000 - ₦5,000,000"
+              placeholder={`${formatCurrency(50000, tenantTheme.currency, { locale: tenantTheme.locale })} - ${formatCurrency(5000000, tenantTheme.currency, { locale: tenantTheme.locale })}`}
               placeholderTextColor={theme.colors.textSecondary}
               value={amount}
               onChangeText={setAmount}
@@ -185,7 +187,7 @@ export const PersonalLoanScreen: React.FC<PersonalLoanScreenProps> = ({
                   Monthly Payment:
                 </Text>
                 <Text style={[styles.calculationValue, { color: '#0369a1' }]}>
-                  ₦{calculateMonthlyPayment().toLocaleString()}
+                  {formatCurrency(calculateMonthlyPayment(), tenantTheme.currency, { locale: tenantTheme.locale })}
                 </Text>
               </View>
               <View style={styles.calculationRow}>
@@ -193,7 +195,7 @@ export const PersonalLoanScreen: React.FC<PersonalLoanScreenProps> = ({
                   Total Repayment:
                 </Text>
                 <Text style={[styles.calculationValue, { color: '#0369a1' }]}>
-                  ₦{(calculateMonthlyPayment() * parseInt(duration || '12')).toLocaleString()}
+                  {formatCurrency(calculateMonthlyPayment() * parseInt(duration || '12'), tenantTheme.currency, { locale: tenantTheme.locale })}
                 </Text>
               </View>
             </View>
@@ -228,7 +230,7 @@ export const PersonalLoanScreen: React.FC<PersonalLoanScreenProps> = ({
               Maximum Amount
             </Text>
             <Text style={[styles.eligibilityValue, { color: theme.colors.primary }]}>
-              ₦2,000,000
+              {formatCurrency(2000000, tenantTheme.currency, { locale: tenantTheme.locale })}
             </Text>
           </View>
           <View style={styles.eligibilityRow}>

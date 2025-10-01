@@ -33,6 +33,7 @@ import AIAssistantPanel from './AIAssistantPanel';
 import { RecentActivityPanel } from './RecentActivityPanel';
 import { TransactionLimitsPanel } from './TransactionLimitsPanel';
 import { ModernAIAssistant } from '../ai/ModernAIAssistant';
+import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
 
 // Get responsive dimensions for cross-platform compatibility
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
@@ -482,7 +483,7 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
   onViewReports,
   onDashboardRefresh,
 }) => {
-  const { theme, tenantInfo } = useTenantTheme();
+  const { theme: tenantTheme, tenantInfo } = useTenantTheme();
   const { showConfirm, showAlert } = useBankingAlert();
 
   // Get responsive logo dimensions (preserved)
@@ -552,7 +553,7 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
         monthlyStats: {
           transactions: transactionsData.pagination?.totalCount || transactionsData.transactions.length,
           recipients: new Set(transactionsData.transactions.map((tx: any) => tx.recipient_name).filter(Boolean)).size,
-          volume: `₦${(transactionsData.transactions.reduce((sum: number, tx: any) => sum + Math.abs(tx.amount || 0), 0) / 1000000).toFixed(1)}M`,
+          volume: `${getCurrencySymbol(walletData.currency)}${(transactionsData.transactions.reduce((sum: number, tx: any) => sum + Math.abs(tx.amount || 0), 0) / 1000000).toFixed(1)}M`,
         },
         transactionLimits: limitsData?.limits ? {
           daily: {
@@ -758,13 +759,13 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
   const dynamicStyles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: theme.colors.background,
+      backgroundColor: tenantTheme.colors.background,
     },
     header: {
       backgroundColor: '#ffffff',
-      paddingHorizontal: theme.layout.spacing,
-      paddingTop: theme.layout.spacing,
-      paddingBottom: theme.layout.spacing,
+      paddingHorizontal: tenantTheme.layout.spacing,
+      paddingTop: tenantTheme.layout.spacing,
+      paddingBottom: tenantTheme.layout.spacing,
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.05,
@@ -786,7 +787,7 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
     tenantLogo: {
       width: containerSize,
       height: containerSize,
-      backgroundColor: theme.colors.primary,
+      backgroundColor: tenantTheme.colors.primary,
       borderRadius: containerSize / 2,
       alignItems: 'center',
       justifyContent: 'center',
@@ -821,7 +822,7 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
       flex: 1,
     },
     searchInput: {
-      paddingHorizontal: theme.layout.spacing,
+      paddingHorizontal: tenantTheme.layout.spacing,
       paddingVertical: 8,
       borderWidth: 2,
       borderColor: '#e1e5e9',
@@ -837,7 +838,7 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
       position: 'absolute',
       top: 5,
       right: 5,
-      backgroundColor: theme.colors.error,
+      backgroundColor: tenantTheme.colors.error,
       borderRadius: 10,
       minWidth: 20,
       height: 20,
@@ -858,7 +859,7 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
     userAvatar: {
       width: 40,
       height: 40,
-      backgroundColor: theme.colors.secondary,
+      backgroundColor: tenantTheme.colors.secondary,
       borderRadius: 20,
       alignItems: 'center',
       justifyContent: 'center',
@@ -869,7 +870,7 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
       fontWeight: 'bold',
     },
     roleBadge: {
-      backgroundColor: theme.colors.primary,
+      backgroundColor: tenantTheme.colors.primary,
       paddingHorizontal: 8,
       paddingVertical: 2,
       borderRadius: 12,
@@ -882,8 +883,8 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
       textTransform: 'uppercase',
     },
     welcomeSection: {
-      backgroundColor: theme.colors.primary,
-      paddingHorizontal: theme.layout.spacing,
+      backgroundColor: tenantTheme.colors.primary,
+      paddingHorizontal: tenantTheme.layout.spacing,
       paddingVertical: 24,
       position: 'relative',
       overflow: 'hidden',
@@ -893,7 +894,7 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
       zIndex: 2,
     },
     welcomeText: {
-      marginBottom: theme.layout.spacing,
+      marginBottom: tenantTheme.layout.spacing,
     },
     welcomeTitle: {
       fontSize: 32,
@@ -904,13 +905,13 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
     welcomeSubtitle: {
       fontSize: 16,
       color: 'rgba(255, 255, 255, 0.9)',
-      marginBottom: theme.layout.spacing,
+      marginBottom: tenantTheme.layout.spacing,
     },
     balanceDisplay: {
       backgroundColor: 'rgba(255, 255, 255, 0.15)',
-      padding: theme.layout.spacing,
+      padding: tenantTheme.layout.spacing,
       borderRadius: 20,
-      marginTop: theme.layout.spacing,
+      marginTop: tenantTheme.layout.spacing,
     },
     balanceLabel: {
       fontSize: 14,
@@ -921,7 +922,7 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
       fontSize: 36,
       fontWeight: '600',
       color: '#ffffff',
-      marginBottom: theme.layout.spacing,
+      marginBottom: tenantTheme.layout.spacing,
     },
     balanceActions: {
       flexDirection: 'row',
@@ -930,7 +931,7 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
     },
     balanceAction: {
       backgroundColor: 'rgba(255, 255, 255, 0.2)',
-      paddingHorizontal: theme.layout.spacing,
+      paddingHorizontal: tenantTheme.layout.spacing,
       paddingVertical: 8,
       borderRadius: 25,
       borderWidth: 1,
@@ -1051,7 +1052,7 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
             <View style={dynamicStyles.balanceDisplay}>
               <Text style={dynamicStyles.balanceLabel}>Available Balance</Text>
               <Text style={dynamicStyles.balanceAmount}>
-                ₦{(dashboardData.availableBalance || 0).toLocaleString()}
+                {formatCurrency(dashboardData.availableBalance || 0, tenantTheme.currency, { locale: tenantTheme.locale })}
               </Text>
               <View style={dynamicStyles.balanceActions}>
                 <TouchableOpacity
@@ -1102,7 +1103,7 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
           onRequestIncrease={(limitType) => console.log('Request increase:', limitType)}
         />
 
-        <View style={{ paddingHorizontal: theme.layout.spacing, gap: theme.layout.spacing }}>
+        <View style={{ paddingHorizontal: tenantTheme.layout.spacing, gap: tenantTheme.layout.spacing }}>
           {/* Modern Feature Grid with Glassmorphism */}
           <ModernFeatureGrid
             userRole={userContext.role}
@@ -1126,7 +1127,7 @@ export const EnhancedDashboardScreen: React.FC<EnhancedDashboardScreenProps> = (
             userPermissions={userContext.permissions}
             onTransactionPress={onNavigateToTransactionDetails}
             onViewAllPress={() => handleFeatureNavigation('transaction_history')}
-            theme={theme}
+            theme={tenantTheme}
           />
         </View>
       </ScrollView>
