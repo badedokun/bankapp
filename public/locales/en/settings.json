@@ -1,0 +1,99 @@
+{
+  "title": "Settings",
+  "profile": {
+    "title": "Profile",
+    "personalInfo": "Personal Information",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "dateOfBirth": "Date of Birth",
+    "address": "Address",
+    "city": "City",
+    "state": "State",
+    "country": "Country",
+    "zipCode": "ZIP Code",
+    "updateProfile": "Update Profile",
+    "profileUpdated": "Profile updated successfully"
+  },
+  "security": {
+    "title": "Security",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "updatePassword": "Update Password",
+    "passwordUpdated": "Password updated successfully",
+    "twoFactor": "Two-Factor Authentication",
+    "enableTwoFactor": "Enable 2FA",
+    "disableTwoFactor": "Disable 2FA",
+    "transactionPin": "Transaction PIN",
+    "changePin": "Change PIN",
+    "biometrics": "Biometric Authentication",
+    "enableBiometrics": "Enable Biometrics",
+    "sessions": "Active Sessions",
+    "viewSessions": "View Active Sessions",
+    "logoutAll": "Logout All Devices"
+  },
+  "preferences": {
+    "title": "Preferences",
+    "language": "Language",
+    "currency": "Default Currency",
+    "timezone": "Timezone",
+    "dateFormat": "Date Format",
+    "notifications": "Notifications",
+    "emailNotifications": "Email Notifications",
+    "pushNotifications": "Push Notifications",
+    "smsNotifications": "SMS Notifications",
+    "transactionAlerts": "Transaction Alerts",
+    "marketingEmails": "Marketing Emails",
+    "theme": "App Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "auto": "Auto"
+  },
+  "limits": {
+    "title": "Transaction Limits",
+    "daily": "Daily Limit",
+    "monthly": "Monthly Limit",
+    "perTransaction": "Per Transaction",
+    "requestIncrease": "Request Limit Increase",
+    "currentLimits": "Current Limits",
+    "pendingRequest": "Limit increase request pending"
+  },
+  "linked": {
+    "title": "Linked Accounts",
+    "linkAccount": "Link New Account",
+    "bankAccounts": "Bank Accounts",
+    "cards": "Cards",
+    "unlinkAccount": "Unlink Account"
+  },
+  "privacy": {
+    "title": "Privacy",
+    "dataSharing": "Data Sharing",
+    "analytics": "Analytics & Performance",
+    "personalization": "Personalization",
+    "downloadData": "Download My Data",
+    "deleteAccount": "Delete Account"
+  },
+  "support": {
+    "title": "Help & Support",
+    "contactUs": "Contact Us",
+    "faq": "Frequently Asked Questions",
+    "tutorials": "Tutorials",
+    "reportIssue": "Report an Issue",
+    "feedback": "Send Feedback"
+  },
+  "about": {
+    "title": "About",
+    "version": "App Version",
+    "terms": "Terms & Conditions",
+    "privacy": "Privacy Policy",
+    "licenses": "Open Source Licenses"
+  },
+  "logout": {
+    "title": "Logout",
+    "confirm": "Are you sure you want to logout?",
+    "button": "Logout"
+  }
+}

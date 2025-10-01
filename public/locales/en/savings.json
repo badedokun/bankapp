@@ -1,0 +1,60 @@
+{
+  "title": "Savings",
+  "plans": "Savings Plans",
+  "goals": "Savings Goals",
+  "create": "Create New Plan",
+  "types": {
+    "fixed": "Fixed Deposit",
+    "flexible": "Flexible Savings",
+    "target": "Target Savings",
+    "automatic": "Automatic Savings"
+  },
+  "form": {
+    "planName": "Plan Name",
+    "planNamePlaceholder": "Give your plan a name",
+    "amount": "Amount",
+    "targetAmount": "Target Amount",
+    "initialDeposit": "Initial Deposit",
+    "frequency": "Frequency",
+    "duration": "Duration",
+    "interestRate": "Interest Rate",
+    "maturityDate": "Maturity Date",
+    "autoSave": "Enable Auto-Save",
+    "createPlan": "Create Plan"
+  },
+  "details": {
+    "totalSaved": "Total Saved",
+    "targetAmount": "Target Amount",
+    "progress": "Progress",
+    "interestEarned": "Interest Earned",
+    "contributions": "Contributions",
+    "lastDeposit": "Last Deposit",
+    "nextDeposit": "Next Deposit",
+    "maturityDate": "Maturity Date"
+  },
+  "actions": {
+    "deposit": "Make Deposit",
+    "withdraw": "Withdraw",
+    "viewDetails": "View Details",
+    "editPlan": "Edit Plan",
+    "pausePlan": "Pause Plan",
+    "deletePlan": "Delete Plan",
+    "breakPlan": "Break Plan"
+  },
+  "goals": {
+    "vacation": "Vacation",
+    "emergency": "Emergency Fund",
+    "education": "Education",
+    "home": "Home Purchase",
+    "car": "Car Purchase",
+    "wedding": "Wedding",
+    "retirement": "Retirement",
+    "custom": "Custom Goal"
+  },
+  "insights": {
+    "projectedSavings": "Projected Savings",
+    "timeToGoal": "Time to Goal",
+    "recommendedDeposit": "Recommended Monthly Deposit",
+    "performanceVsGoal": "Performance vs Goal"
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "app": {
+    "name": "OrokiiPay",
+    "tagline": "AI-Enhanced Banking Platform"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "transfers": "Transfers",
+    "transactions": "Transactions",
+    "savings": "Savings",
+    "loans": "Loans",
+    "settings": "Settings",
+    "accounts": "Accounts",
+    "bills": "Bills & Payments",
+    "analytics": "Analytics",
+    "help": "Help & Support"
+  },
+  "actions": {
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "confirm": "Confirm",
+    "continue": "Continue",
+    "close": "Close",
+    "retry": "Retry",
+    "refresh": "Refresh",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "download": "Download",
+    "upload": "Upload"
+  },
+  "status": {
+    "success": "Success",
+    "error": "Error",
+    "pending": "Pending",
+    "completed": "Completed",
+    "failed": "Failed",
+    "processing": "Processing",
+    "cancelled": "Cancelled",
+    "active": "Active",
+    "inactive": "Inactive",
+    "suspended": "Suspended"
+  },
+  "time": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "tomorrow": "Tomorrow",
+    "thisWeek": "This Week",
+    "lastWeek": "Last Week",
+    "thisMonth": "This Month",
+    "lastMonth": "Last Month",
+    "thisYear": "This Year",
+    "custom": "Custom Range"
+  },
+  "common": {
+    "loading": "Loading...",
+    "noData": "No data available",
+    "selectOption": "Select an option",
+    "required": "Required",
+    "optional": "Optional",
+    "all": "All",
+    "none": "None",
+    "yes": "Yes",
+    "no": "No",
+    "or": "or",
+    "and": "and"
+  }
+}
