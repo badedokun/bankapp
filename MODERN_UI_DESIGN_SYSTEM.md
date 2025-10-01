@@ -427,6 +427,884 @@ const StatsCard = ({ label, value, change, icon, theme }) => {
 
 ---
 
+## Form Components & Input System
+
+### **🔴 CRITICAL: Standardized Input Components**
+**MANDATORY for all form inputs across the application**
+
+All input components MUST follow the glassmorphic design system with consistent styling, validation states, and user feedback.
+
+### **1. Text Input Component**
+
+#### **Standard Text Input**
+```typescript
+import { useTenantTheme } from '../../context/TenantThemeContext';
+
+const ModernTextInput = ({
+  label,
+  value,
+  onChangeText,
+  placeholder,
+  error,
+  disabled = false,
+  multiline = false,
+  secureTextEntry = false,
+  icon,
+  ...props
+}) => {
+  const { theme } = useTenantTheme();
+  const [isFocused, setIsFocused] = useState(false);
+
+  return (
+    <View style={styles.inputContainer}>
+      {/* Label */}
+      {label && (
+        <Text style={styles.label}>
+          {label}
+        </Text>
+      )}
+
+      {/* Input Wrapper */}
+      <View style={[
+        styles.inputWrapper,
+        isFocused && styles.inputWrapperFocused(theme),
+        error && styles.inputWrapperError,
+        disabled && styles.inputWrapperDisabled,
+      ]}>
+        {/* Icon (optional) */}
+        {icon && (
+          <View style={styles.iconContainer}>
+            <Text style={styles.icon}>{icon}</Text>
+          </View>
+        )}
+
+        {/* Text Input */}
+        <TextInput
+          style={[
+            styles.input,
+            multiline && styles.inputMultiline,
+          ]}
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          placeholderTextColor="#94a3b8"
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          editable={!disabled}
+          secureTextEntry={secureTextEntry}
+          multiline={multiline}
+          {...props}
+        />
+      </View>
+
+      {/* Error Message */}
+      {error && (
+        <Text style={styles.errorText}>{error}</Text>
+      )}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  inputContainer: {
+    marginBottom: 16,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1a1a2e',
+    marginBottom: 8,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    paddingHorizontal: 16,
+    minHeight: 52,
+    ...Platform.select({
+      web: {
+        backdropFilter: 'blur(10px)',
+      }
+    }),
+  },
+  inputWrapperFocused: (theme) => ({
+    borderColor: theme.colors.primary,
+    borderWidth: 2,
+    shadowColor: theme.colors.primary,
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+  }),
+  inputWrapperError: {
+    borderColor: '#EF4444',
+    borderWidth: 2,
+  },
+  inputWrapperDisabled: {
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    opacity: 0.6,
+  },
+  iconContainer: {
+    marginRight: 12,
+  },
+  icon: {
+    fontSize: 20,
+  },
+  input: {
+    flex: 1,
+    fontSize: 16,
+    color: '#1a1a2e',
+    paddingVertical: 12,
+  },
+  inputMultiline: {
+    minHeight: 100,
+    textAlignVertical: 'top',
+  },
+  errorText: {
+    fontSize: 12,
+    color: '#EF4444',
+    marginTop: 4,
+    marginLeft: 4,
+  },
+});
+```
+
+#### **Input States**
+```typescript
+// Default State
+<ModernTextInput
+  label="Account Number"
+  placeholder="Enter 10-digit account number"
+  value={accountNumber}
+  onChangeText={setAccountNumber}
+/>
+
+// With Icon
+<ModernTextInput
+  label="Email Address"
+  icon="✉️"
+  placeholder="you@example.com"
+  value={email}
+  onChangeText={setEmail}
+  keyboardType="email-address"
+/>
+
+// Error State
+<ModernTextInput
+  label="PIN"
+  value={pin}
+  onChangeText={setPin}
+  error="PIN must be exactly 4 digits"
+  secureTextEntry
+  maxLength={4}
+/>
+
+// Disabled State
+<ModernTextInput
+  label="Account Name"
+  value="JOHN DOE (Verified)"
+  disabled
+/>
+
+// Multiline
+<ModernTextInput
+  label="Transaction Narration"
+  placeholder="Enter description (optional)"
+  value={narration}
+  onChangeText={setNarration}
+  multiline
+/>
+```
+
+### **2. Dropdown / Select Component**
+
+```typescript
+const ModernDropdown = ({
+  label,
+  value,
+  options,
+  onSelect,
+  placeholder = "Select an option",
+  error,
+  disabled = false,
+}) => {
+  const { theme } = useTenantTheme();
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <View style={styles.dropdownContainer}>
+      {/* Label */}
+      {label && <Text style={styles.label}>{label}</Text>}
+
+      {/* Dropdown Trigger */}
+      <TouchableOpacity
+        style={[
+          styles.dropdownTrigger,
+          error && styles.dropdownTriggerError,
+          disabled && styles.dropdownTriggerDisabled,
+        ]}
+        onPress={() => !disabled && setIsOpen(true)}
+        disabled={disabled}
+      >
+        <Text style={[
+          styles.dropdownText,
+          !value && styles.dropdownPlaceholder,
+        ]}>
+          {value ? options.find(opt => opt.value === value)?.label : placeholder}
+        </Text>
+        <Text style={styles.dropdownIcon}>▼</Text>
+      </TouchableOpacity>
+
+      {/* Error Message */}
+      {error && <Text style={styles.errorText}>{error}</Text>}
+
+      {/* Dropdown Modal */}
+      <Modal
+        visible={isOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsOpen(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setIsOpen(false)}
+        >
+          <View style={styles.dropdownModal}>
+            <ScrollView style={styles.dropdownList}>
+              {options.map((option) => (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[
+                    styles.dropdownOption,
+                    value === option.value && styles.dropdownOptionSelected(theme),
+                  ]}
+                  onPress={() => {
+                    onSelect(option.value);
+                    setIsOpen(false);
+                  }}
+                >
+                  <Text style={[
+                    styles.dropdownOptionText,
+                    value === option.value && styles.dropdownOptionTextSelected(theme),
+                  ]}>
+                    {option.label}
+                  </Text>
+                  {value === option.value && (
+                    <Text style={styles.checkmark}>✓</Text>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  dropdownContainer: {
+    marginBottom: 16,
+  },
+  dropdownTrigger: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    paddingHorizontal: 16,
+    minHeight: 52,
+    ...Platform.select({
+      web: { backdropFilter: 'blur(10px)' }
+    }),
+  },
+  dropdownTriggerError: {
+    borderColor: '#EF4444',
+    borderWidth: 2,
+  },
+  dropdownTriggerDisabled: {
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    opacity: 0.6,
+  },
+  dropdownText: {
+    fontSize: 16,
+    color: '#1a1a2e',
+  },
+  dropdownPlaceholder: {
+    color: '#94a3b8',
+  },
+  dropdownIcon: {
+    fontSize: 12,
+    color: '#6c757d',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dropdownModal: {
+    backgroundColor: 'rgba(255, 255, 255, 0.98)',
+    borderRadius: 16,
+    width: '80%',
+    maxHeight: '60%',
+    ...Platform.select({
+      web: { backdropFilter: 'blur(20px)' }
+    }),
+  },
+  dropdownList: {
+    padding: 8,
+  },
+  dropdownOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderRadius: 12,
+  },
+  dropdownOptionSelected: (theme) => ({
+    backgroundColor: `${theme.colors.primary}15`,
+  }),
+  dropdownOptionText: {
+    fontSize: 16,
+    color: '#1a1a2e',
+  },
+  dropdownOptionTextSelected: (theme) => ({
+    color: theme.colors.primary,
+    fontWeight: '600',
+  }),
+  checkmark: {
+    fontSize: 18,
+    color: '#10B981',
+  },
+});
+```
+
+**Usage:**
+```typescript
+<ModernDropdown
+  label="Select Bank"
+  placeholder="Choose your bank"
+  value={selectedBank}
+  options={[
+    { label: 'Access Bank', value: 'access' },
+    { label: 'GTBank', value: 'gtb' },
+    { label: 'Zenith Bank', value: 'zenith' },
+  ]}
+  onSelect={setSelectedBank}
+/>
+```
+
+### **3. Date Picker Component**
+
+```typescript
+const ModernDatePicker = ({
+  label,
+  value,
+  onChange,
+  placeholder = "Select date",
+  error,
+  minDate,
+  maxDate,
+}) => {
+  const { theme } = useTenantTheme();
+  const [showPicker, setShowPicker] = useState(false);
+
+  const formatDate = (date) => {
+    if (!date) return '';
+    return date.toLocaleDateString('en-NG', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
+  return (
+    <View style={styles.datePickerContainer}>
+      {label && <Text style={styles.label}>{label}</Text>}
+
+      <TouchableOpacity
+        style={[
+          styles.datePickerTrigger,
+          error && styles.datePickerTriggerError,
+        ]}
+        onPress={() => setShowPicker(true)}
+      >
+        <Text style={styles.dateIcon}>📅</Text>
+        <Text style={[
+          styles.dateText,
+          !value && styles.datePlaceholder,
+        ]}>
+          {value ? formatDate(value) : placeholder}
+        </Text>
+      </TouchableOpacity>
+
+      {error && <Text style={styles.errorText}>{error}</Text>}
+
+      {/* Native Date Picker */}
+      {showPicker && (
+        <DateTimePicker
+          value={value || new Date()}
+          mode="date"
+          display="default"
+          onChange={(event, selectedDate) => {
+            setShowPicker(false);
+            if (selectedDate) onChange(selectedDate);
+          }}
+          minimumDate={minDate}
+          maximumDate={maxDate}
+        />
+      )}
+    </View>
+  );
+};
+```
+
+### **4. Checkbox Component**
+
+```typescript
+const ModernCheckbox = ({
+  label,
+  checked,
+  onChange,
+  disabled = false,
+}) => {
+  const { theme } = useTenantTheme();
+
+  return (
+    <TouchableOpacity
+      style={[
+        styles.checkboxContainer,
+        disabled && styles.checkboxDisabled,
+      ]}
+      onPress={() => !disabled && onChange(!checked)}
+      disabled={disabled}
+      activeOpacity={0.7}
+    >
+      {/* Checkbox Box */}
+      <View style={[
+        styles.checkbox,
+        checked && styles.checkboxChecked(theme),
+        disabled && styles.checkboxDisabledBox,
+      ]}>
+        {checked && (
+          <Text style={styles.checkboxIcon}>✓</Text>
+        )}
+      </View>
+
+      {/* Label */}
+      <Text style={[
+        styles.checkboxLabel,
+        disabled && styles.checkboxLabelDisabled,
+      ]}>
+        {label}
+      </Text>
+    </TouchableOpacity>
+  );
+};
+
+const styles = StyleSheet.create({
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  checkboxDisabled: {
+    opacity: 0.5,
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: '#D1D5DB',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  checkboxChecked: (theme) => ({
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
+  }),
+  checkboxDisabledBox: {
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  checkboxIcon: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  checkboxLabel: {
+    fontSize: 15,
+    color: '#1a1a2e',
+  },
+  checkboxLabelDisabled: {
+    color: '#9CA3AF',
+  },
+});
+```
+
+### **5. Radio Button Component**
+
+```typescript
+const ModernRadioGroup = ({
+  label,
+  options,
+  value,
+  onChange,
+  disabled = false,
+}) => {
+  const { theme } = useTenantTheme();
+
+  return (
+    <View style={styles.radioGroupContainer}>
+      {label && <Text style={styles.label}>{label}</Text>}
+
+      {options.map((option) => (
+        <TouchableOpacity
+          key={option.value}
+          style={styles.radioOption}
+          onPress={() => !disabled && onChange(option.value)}
+          disabled={disabled}
+        >
+          {/* Radio Circle */}
+          <View style={[
+            styles.radioCircle,
+            value === option.value && styles.radioCircleSelected(theme),
+          ]}>
+            {value === option.value && (
+              <View style={styles.radioCircleInner(theme)} />
+            )}
+          </View>
+
+          {/* Label */}
+          <Text style={styles.radioLabel}>{option.label}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  radioGroupContainer: {
+    marginBottom: 16,
+  },
+  radioOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  radioCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#D1D5DB',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  radioCircleSelected: (theme) => ({
+    borderColor: theme.colors.primary,
+  }),
+  radioCircleInner: (theme) => ({
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: theme.colors.primary,
+  }),
+  radioLabel: {
+    fontSize: 15,
+    color: '#1a1a2e',
+  },
+});
+```
+
+### **6. Toggle Switch Component**
+
+```typescript
+const ModernToggle = ({
+  label,
+  value,
+  onChange,
+  disabled = false,
+}) => {
+  const { theme } = useTenantTheme();
+
+  return (
+    <View style={styles.toggleContainer}>
+      <Text style={styles.toggleLabel}>{label}</Text>
+
+      <TouchableOpacity
+        style={[
+          styles.toggleTrack,
+          value && styles.toggleTrackActive(theme),
+          disabled && styles.toggleTrackDisabled,
+        ]}
+        onPress={() => !disabled && onChange(!value)}
+        disabled={disabled}
+        activeOpacity={0.8}
+      >
+        <Animated.View style={[
+          styles.toggleThumb,
+          value && styles.toggleThumbActive,
+        ]} />
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  toggleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  toggleLabel: {
+    fontSize: 15,
+    color: '#1a1a2e',
+    flex: 1,
+  },
+  toggleTrack: {
+    width: 52,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#D1D5DB',
+    padding: 2,
+    justifyContent: 'center',
+  },
+  toggleTrackActive: (theme) => ({
+    backgroundColor: theme.colors.primary,
+  }),
+  toggleTrackDisabled: {
+    opacity: 0.5,
+  },
+  toggleThumb: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  toggleThumbActive: {
+    transform: [{ translateX: 20 }],
+  },
+});
+```
+
+### **7. Search Input Component**
+
+```typescript
+const ModernSearchInput = ({
+  value,
+  onChangeText,
+  placeholder = "Search...",
+  onClear,
+}) => {
+  const { theme } = useTenantTheme();
+
+  return (
+    <View style={styles.searchContainer}>
+      <Text style={styles.searchIcon}>🔍</Text>
+      <TextInput
+        style={styles.searchInput}
+        value={value}
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        placeholderTextColor="#94a3b8"
+      />
+      {value && (
+        <TouchableOpacity
+          style={styles.clearButton}
+          onPress={onClear}
+        >
+          <Text style={styles.clearIcon}>✕</Text>
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    paddingHorizontal: 16,
+    minHeight: 52,
+    marginBottom: 16,
+    ...Platform.select({
+      web: { backdropFilter: 'blur(10px)' }
+    }),
+  },
+  searchIcon: {
+    fontSize: 20,
+    marginRight: 12,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: '#1a1a2e',
+  },
+  clearButton: {
+    padding: 4,
+  },
+  clearIcon: {
+    fontSize: 18,
+    color: '#6c757d',
+  },
+});
+```
+
+### **8. Amount Input Component (Banking-Specific)**
+
+```typescript
+const ModernAmountInput = ({
+  label,
+  value,
+  onChangeText,
+  currency = '₦',
+  error,
+  maxAmount,
+}) => {
+  const { theme } = useTenantTheme();
+
+  const formatAmount = (text) => {
+    // Remove non-numeric characters
+    const numeric = text.replace(/[^0-9]/g, '');
+    // Add comma separators
+    return numeric.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
+
+  return (
+    <View style={styles.amountContainer}>
+      {label && <Text style={styles.label}>{label}</Text>}
+
+      <View style={[
+        styles.amountWrapper,
+        error && styles.amountWrapperError,
+      ]}>
+        <Text style={styles.currencySymbol}>{currency}</Text>
+        <TextInput
+          style={styles.amountInput}
+          value={value}
+          onChangeText={(text) => onChangeText(formatAmount(text))}
+          placeholder="0.00"
+          keyboardType="numeric"
+          placeholderTextColor="#94a3b8"
+        />
+      </View>
+
+      {error && <Text style={styles.errorText}>{error}</Text>}
+      {maxAmount && (
+        <Text style={styles.helperText}>
+          Maximum: {currency}{formatAmount(maxAmount.toString())}
+        </Text>
+      )}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  amountContainer: {
+    marginBottom: 16,
+  },
+  amountWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    paddingHorizontal: 16,
+    minHeight: 64,
+    ...Platform.select({
+      web: { backdropFilter: 'blur(10px)' }
+    }),
+  },
+  amountWrapperError: {
+    borderColor: '#EF4444',
+    borderWidth: 2,
+  },
+  currencySymbol: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#1a1a2e',
+    marginRight: 8,
+  },
+  amountInput: {
+    flex: 1,
+    fontSize: 32,
+    fontWeight: '600',
+    color: '#1a1a2e',
+  },
+  helperText: {
+    fontSize: 12,
+    color: '#6c757d',
+    marginTop: 4,
+    marginLeft: 4,
+  },
+});
+```
+
+### **✅ Form Component Checklist**
+
+Every form input MUST have:
+- [ ] Glassmorphic background (`rgba(255, 255, 255, 0.95)`)
+- [ ] 12px border radius
+- [ ] Minimum height of 52px (48px for compact)
+- [ ] Focus state with tenant primary color border
+- [ ] Error state with red border (#EF4444)
+- [ ] Disabled state with reduced opacity
+- [ ] Clear labels (14px, font-weight: 600)
+- [ ] Error messages below input (12px, red)
+- [ ] Placeholder text in gray (#94a3b8)
+- [ ] Touch target minimum 44x44 points
+
+### **🎨 Input Validation States**
+
+```typescript
+// Success State (after validation)
+<ModernTextInput
+  label="Account Number"
+  value="2011223344"
+  rightIcon="✓"
+  borderColor="#10B981"
+/>
+
+// Warning State
+<ModernTextInput
+  label="Daily Limit"
+  value="100000"
+  warning="Approaching daily limit"
+  borderColor="#F59E0B"
+/>
+
+// Loading State
+<ModernTextInput
+  label="Account Name"
+  value="Verifying..."
+  rightIcon={<ActivityIndicator />}
+  disabled
+/>
+```
+
+---
+
 ## Notification System
 
 ### **Modern Glassmorphic Notifications**
