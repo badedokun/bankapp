@@ -7,7 +7,7 @@
 import React from 'react';
 import {
   TouchableOpacity,
-  Text,
+  Text as RNText,
   StyleSheet,
   Platform,
   TouchableOpacityProps,
@@ -171,7 +171,7 @@ const ModernBackButton: React.FC<ModernBackButtonProps> = ({
       accessibilityRole="button"
       accessibilityLabel="Go back"
     >
-      <Text style={styles.icon}>←</Text>
+      <RNText style={styles.icon}>←</RNText>
     </TouchableOpacity>
   );
 };

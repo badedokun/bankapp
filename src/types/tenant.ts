@@ -67,6 +67,7 @@ export interface TenantTheme {
     surface: string;
     text: string;
     textSecondary: string;
+    textInverse: string;
     error: string;
     warning: string;
     success: string;

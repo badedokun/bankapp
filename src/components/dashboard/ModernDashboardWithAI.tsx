@@ -46,8 +46,24 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [aiInput, setAIInput] = useState('');
+  const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
   const profileMenuRef = useRef<any>(null);
   const profileButtonRef = useRef<any>(null);
+
+  // Update screen width on resize
+  useEffect(() => {
+    const handleResize = () => {
+      setScreenWidth(Dimensions.get('window').width);
+    };
+
+    if (Platform.OS === 'web') {
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    } else {
+      const subscription = Dimensions.addEventListener('change', handleResize);
+      return () => subscription?.remove();
+    }
+  }, []);
 
   // Get time-based greeting
   const getTimeBasedGreeting = () => {
@@ -102,66 +118,68 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
         {/* Header */}
         <View style={[styles.header, { zIndex: 9999, position: 'relative', overflow: 'visible' }]}>
           <View style={[styles.headerContent, { overflow: 'visible' }]}>
-            <View style={styles.logoSection}>
-              {theme?.brandLogo ? (
-                <Image
-                  source={{ uri: theme.brandLogo }}
-                  style={styles.logoImage}
-                  resizeMode="contain"
-                />
-              ) : (
-                <View style={[styles.logo, {
-                  ...Platform.select({
-                    web: {
-                      background: `linear-gradient(135deg, ${gradientStart}, ${gradientEnd})`,
-                    },
-                    default: {
-                      backgroundColor: primaryColor,
-                    },
-                  }),
-                }]}>
-                  <Text style={styles.logoText}>FMFB</Text>
-                </View>
-              )}
-              {screenWidth > 480 && (
-                <Text style={[styles.bankName, {
-                  ...Platform.select({
-                    web: {
-                      background: `linear-gradient(135deg, ${gradientStart}, ${gradientEnd})`,
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                    },
-                    default: {
-                      color: primaryColor,
-                    },
-                  }),
-                }]}>{theme?.brandName || 'Firstmidas Microfinance Bank Limited'}</Text>
-              )}
-            </View>
-
-            <View style={[styles.headerActions, { zIndex: 999999 }]}>
-              {screenWidth > 360 && (
-                <View style={styles.searchBox}>
-                  <Text style={styles.searchIcon}>🔍</Text>
-                  <TextInput
-                    style={styles.searchInput}
-                    placeholder="Search..."
-                    value={searchText}
-                    onChangeText={setSearchText}
-                    placeholderTextColor="#94a3b8"
+            {/* First row: Logo + Notification + Profile (always visible) */}
+            <View style={[screenWidth < 768 ? styles.headerRow : { flexDirection: 'row', flex: 1, justifyContent: 'space-between', alignItems: 'center' }]}>
+              <View style={styles.logoSection}>
+                {theme?.brandLogo ? (
+                  <Image
+                    source={{ uri: theme.brandLogo }}
+                    style={styles.logoImage}
+                    resizeMode="contain"
                   />
-                </View>
-              )}
+                ) : (
+                  <View style={[styles.logo, {
+                    ...Platform.select({
+                      web: {
+                        background: `linear-gradient(135deg, ${gradientStart}, ${gradientEnd})`,
+                      },
+                      default: {
+                        backgroundColor: primaryColor,
+                      },
+                    }),
+                  }]}>
+                    <Text style={styles.logoText}>{theme?.brandCode || tenantTheme?.branding?.code || '🏦'}</Text>
+                  </View>
+                )}
+                {screenWidth >= 540 && (
+                  <Text style={[styles.bankName, {
+                    ...Platform.select({
+                      web: {
+                        background: `linear-gradient(135deg, ${gradientStart}, ${gradientEnd})`,
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                      },
+                      default: {
+                        color: primaryColor,
+                      },
+                    }),
+                  }]} numberOfLines={1} ellipsizeMode="tail">{theme?.brandName || tenantTheme?.branding?.appTitle || ''}</Text>
+                )}
+              </View>
 
-              <TouchableOpacity style={styles.notificationBtn}>
-                <Text style={styles.notificationIcon}>🔔</Text>
-                <View style={styles.notificationBadge}>
-                  <Text style={styles.notificationCount}>3</Text>
-                </View>
-              </TouchableOpacity>
+              <View style={[styles.headerActions, { zIndex: 999999 }]}>
+                {screenWidth >= 768 && (
+                  <View style={styles.searchBox}>
+                    <Text style={styles.searchIcon}>🔍</Text>
+                    <TextInput
+                      style={styles.searchInput}
+                      placeholder="Search..."
+                      value={searchText}
+                      onChangeText={setSearchText}
+                      placeholderTextColor="#94a3b8"
+                    />
+                  </View>
+                )}
 
-              <View style={{ position: 'relative' }}>
-                <TouchableOpacity
+                <TouchableOpacity style={styles.notificationBtn}>
+                  <Text style={styles.notificationIcon}>🔔</Text>
+                  <View style={styles.notificationBadge}>
+                    <Text style={styles.notificationCount}>3</Text>
+                  </View>
+                </TouchableOpacity>
+
+                <View style={{ position: 'relative' }}>
+                  <TouchableOpacity
                   ref={profileButtonRef}
                   style={styles.userProfile}
                   onPress={() => {
@@ -210,6 +228,21 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                 )}
               </View>
             </View>
+            </View>
+
+            {/* Second row: Search field (mobile only) */}
+            {screenWidth < 768 && (
+              <View style={styles.searchBox}>
+                <Text style={styles.searchIcon}>🔍</Text>
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="Search..."
+                  value={searchText}
+                  onChangeText={setSearchText}
+                  placeholderTextColor="#94a3b8"
+                />
+              </View>
+            )}
           </View>
         </View>
 
@@ -580,9 +613,9 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    paddingHorizontal: screenWidth > 480 ? 20 : 10,
-    paddingTop: Platform.OS === 'web' ? 20 : 40,
-    paddingBottom: 20,
+    paddingHorizontal: screenWidth >= 768 ? 20 : 12,
+    paddingTop: Platform.OS === 'web' ? 12 : 16,
+    paddingBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.2)',
     overflow: 'visible',
@@ -593,39 +626,56 @@ const styles = StyleSheet.create({
     }),
   },
   headerContent: {
+    flexDirection: screenWidth < 768 ? 'column' : 'row',
+    justifyContent: 'space-between',
+    alignItems: screenWidth < 768 ? 'stretch' : 'center',
+    minHeight: 60,
+    gap: screenWidth < 768 ? 12 : 0,
+  },
+  headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    minHeight: 60,
   },
   logoSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: screenWidth > 480 ? 12 : 8,
-    flex: screenWidth <= 480 ? 0 : 1,
+    gap: screenWidth >= 768 ? 12 : 8,
+    flex: screenWidth < 768 ? 0 : 1,
+    maxWidth: screenWidth < 768 ? 'auto' : undefined,
   },
   logo: {
-    width: screenWidth > 480 ? 120 : 50,
-    height: screenWidth > 480 ? 120 : 50,
-    borderRadius: screenWidth > 480 ? 24 : 12,
+    width: screenWidth >= 768 ? 48 : 48,
+    height: screenWidth >= 768 ? 48 : 48,
+    borderRadius: screenWidth >= 768 ? 12 : 12,
     justifyContent: 'center',
     alignItems: 'center',
+    flexShrink: 0,
   },
   logoImage: {
-    width: screenWidth > 480 ? 120 : 50,
-    height: screenWidth > 480 ? 120 : 50,
-    borderRadius: screenWidth > 480 ? 24 : 12,
+    width: screenWidth >= 768 ? 48 : 48,
+    height: screenWidth >= 768 ? 48 : 48,
+    borderRadius: screenWidth >= 768 ? 12 : 12,
+    flexShrink: 0,
   },
   logoText: {
     color: 'white',
-    fontSize: screenWidth > 480 ? 36 : 18,
+    fontSize: screenWidth >= 768 ? 20 : 18,
     fontWeight: 'bold',
   },
   bankName: {
-    fontSize: screenWidth > 600 ? 20 : 16,
+    fontSize: screenWidth >= 900 ? 16 : screenWidth >= 540 ? 14 : 12,
     fontWeight: '700',
-    flexWrap: 'wrap',
-    maxWidth: screenWidth > 600 ? 'auto' : screenWidth - 160,
+    flexWrap: 'nowrap',
+    maxWidth: screenWidth >= 1200 ? 500 : screenWidth >= 768 ? Math.max(screenWidth - 600, 200) : screenWidth >= 540 ? Math.max(screenWidth - 300, 150) : 150,
+    overflow: 'hidden',
+    flexShrink: 1,
+    ...Platform.select({
+      web: {
+        whiteSpace: 'nowrap',
+        textOverflow: 'ellipsis',
+      },
+    }),
   },
   headerActions: {
     flexDirection: 'row',
@@ -635,17 +685,20 @@ const styles = StyleSheet.create({
     overflow: 'visible',
     justifyContent: 'flex-end',
     flexWrap: 'nowrap',
+    flexShrink: 0,
   },
   searchBox: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.85)',
     borderRadius: 20,
-    paddingHorizontal: screenWidth > 600 ? 15 : 8,
+    paddingHorizontal: 15,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.3)',
-    flex: 1,
+    flex: screenWidth < 768 ? undefined : 1,
+    width: screenWidth < 768 ? '100%' : undefined,
     minWidth: 0,
+    maxWidth: screenWidth >= 768 ? 300 : undefined,
     ...Platform.select({
       web: {
         backdropFilter: 'blur(10px)',
@@ -659,20 +712,22 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     height: 40,
-    fontSize: screenWidth > 600 ? 14 : 13,
+    fontSize: 14,
     color: '#1a1a2e',
     minWidth: 0,
     paddingRight: 5,
   },
   notificationBtn: {
-    width: screenWidth > 600 ? 40 : 36,
-    height: screenWidth > 600 ? 40 : 36,
+    width: 40,
+    height: 40,
     borderRadius: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
     flexShrink: 0,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     ...Platform.select({
       web: {
         backdropFilter: 'blur(10px)',
@@ -680,7 +735,7 @@ const styles = StyleSheet.create({
     }),
   },
   notificationIcon: {
-    fontSize: screenWidth > 600 ? 20 : 18,
+    fontSize: 18,
   },
   notificationBadge: {
     position: 'absolute',
@@ -706,13 +761,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   userProfile: {
-    width: screenWidth > 600 ? 40 : 36,
-    height: screenWidth > 600 ? 40 : 36,
+    width: 40,
+    height: 40,
     borderRadius: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     justifyContent: 'center',
     alignItems: 'center',
     flexShrink: 0,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     ...Platform.select({
       web: {
         backdropFilter: 'blur(10px)',
@@ -720,7 +777,7 @@ const styles = StyleSheet.create({
     }),
   },
   profileIcon: {
-    fontSize: screenWidth > 600 ? 20 : 18,
+    fontSize: 18,
   },
   profileMenu: {
     position: 'absolute',
@@ -804,9 +861,9 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   statCard: {
-    flex: screenWidth > 480 ? 1 : undefined,
-    width: screenWidth <= 480 ? '100%' : undefined,
-    minWidth: screenWidth > 768 ? 200 : screenWidth > 480 ? '48%' : '100%',
+    flex: screenWidth >= 768 ? 1 : undefined,
+    width: screenWidth < 768 ? '100%' : undefined,
+    minWidth: screenWidth >= 768 ? 200 : '100%',
     backgroundColor: 'rgba(255, 255, 255, 0.85)',
     borderRadius: 16,
     padding: screenWidth > 768 ? 20 : 16,

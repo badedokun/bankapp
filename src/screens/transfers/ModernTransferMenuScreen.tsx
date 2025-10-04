@@ -51,13 +51,29 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [userPermissions, setUserPermissions] = useState<any>({});
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
+
+  // Update screen width on resize
+  useEffect(() => {
+    const handleResize = () => {
+      setScreenWidth(Dimensions.get('window').width);
+    };
+
+    if (Platform.OS === 'web') {
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    } else {
+      const subscription = Dimensions.addEventListener('change', handleResize);
+      return () => subscription?.remove();
+    }
+  }, []);
 
   // Transfer options with modern icons and descriptions
   const transferOptions: TransferOption[] = [
     {
       id: 'internal',
       name: 'Same Bank Transfer',
-      description: 'Instant transfer within FMFB',
+      description: `Instant transfer within ${tenantTheme?.branding?.appTitle || 'this bank'}`,
       icon: '🏦',
       fee: 0,
       available: true,
@@ -245,11 +261,12 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
       marginBottom: 16,
     },
     optionCard: {
-      flex: 1,
+      flex: screenWidth >= 768 ? 1 : undefined,
+      width: screenWidth < 768 ? '100%' : undefined,
       backgroundColor: 'rgba(255, 255, 255, 0.95)',
       borderRadius: 20,
       padding: 20,
-      marginHorizontal: 8,
+      marginHorizontal: screenWidth >= 768 ? 8 : 0,
       minHeight: 180,
       borderWidth: 1,
       borderColor: 'rgba(255, 255, 255, 0.3)',
@@ -390,10 +407,11 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
     },
   });
 
-  // Group options into rows of 2
+  // Group options into rows - 1 per row on mobile, 2 per row on desktop
+  const optionsPerRow = screenWidth >= 768 ? 2 : 1;
   const optionRows: TransferOption[][] = [];
-  for (let i = 0; i < transferOptions.length; i += 2) {
-    optionRows.push(transferOptions.slice(i, i + 2));
+  for (let i = 0; i < transferOptions.length; i += optionsPerRow) {
+    optionRows.push(transferOptions.slice(i, i + optionsPerRow));
   }
 
   return (

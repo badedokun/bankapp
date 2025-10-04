@@ -102,6 +102,7 @@ class TenantThemeManager {
     root.style.setProperty('--color-surface', theme.colors.surface);
     root.style.setProperty('--color-text', theme.colors.text);
     root.style.setProperty('--color-text-secondary', theme.colors.textSecondary);
+    root.style.setProperty('--color-text-inverse', theme.colors.textInverse);
     root.style.setProperty('--color-error', theme.colors.error);
     root.style.setProperty('--color-warning', theme.colors.warning);
     root.style.setProperty('--color-success', theme.colors.success);
