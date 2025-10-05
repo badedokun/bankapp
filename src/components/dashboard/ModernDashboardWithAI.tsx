@@ -15,8 +15,10 @@ import {
   Platform,
   Image,
 } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
 import { useTenantTheme } from '../../context/TenantThemeContext';
+import Typography from '../ui/Typography';
 
 const { width: screenWidth } = Dimensions.get('window');
 const isWeb = Platform.OS === 'web';
@@ -171,7 +173,12 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                   </View>
                 )}
 
-                <TouchableOpacity style={styles.notificationBtn}>
+                <TouchableOpacity
+                  style={styles.notificationBtn}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  }}
+                >
                   <Text style={styles.notificationIcon}>🔔</Text>
                   <View style={styles.notificationBadge}>
                     <Text style={styles.notificationCount}>3</Text>
@@ -183,6 +190,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                   ref={profileButtonRef}
                   style={styles.userProfile}
                   onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                     console.log('🔴 PROFILE CLICKED - Current state:', showProfileMenu);
                     setShowProfileMenu(!showProfileMenu);
                     console.log('🔴 PROFILE CLICKED - New state:', !showProfileMenu);
@@ -249,21 +257,26 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
         {/* Hero Section with Glassmorphism */}
         <View style={styles.heroSection}>
           <View style={styles.welcomeSection}>
-            <Text style={styles.welcomeText}>{getTimeBasedGreeting()}! Welcome back,</Text>
-            <Text style={[styles.userName, {
-              ...Platform.select({
-                web: {
-                  background: `linear-gradient(135deg, ${gradientStart}, ${gradientEnd})`,
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                },
-                default: {
-                  color: primaryColor,
-                },
-              }),
-            }]}>
+            <Typography.BodyLarge color={theme?.colors?.textSecondary || '#6c757d'}>
+              {getTimeBasedGreeting()}! Welcome back,
+            </Typography.BodyLarge>
+            <Typography.DisplayMedium
+              style={{
+                ...Platform.select({
+                  web: {
+                    background: `linear-gradient(135deg, ${gradientStart}, ${gradientEnd})`,
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                  },
+                  default: {
+                    color: primaryColor,
+                  },
+                }),
+                marginBottom: 12,
+              }}
+            >
               {userContext.firstName} {userContext.lastName}
-            </Text>
+            </Typography.DisplayMedium>
             <View style={[styles.roleBadge, {
               ...Platform.select({
                 web: {
@@ -286,38 +299,61 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
               <View style={[styles.statIcon, { backgroundColor: 'rgba(102, 126, 234, 0.1)' }]}>
                 <Text style={styles.statIconText}>💰</Text>
               </View>
-              <Text style={styles.statLabel}>Total Balance</Text>
-              <Text style={styles.statValue}>
-                {formatCurrency(dashboardData.totalBalance || 2450000, tenantTheme.currency, { locale: tenantTheme.locale })}
-              </Text>
-              <Text style={[styles.statChange, styles.positive]}>↑ 12.5%</Text>
+              <Typography.LabelMedium>Total Balance</Typography.LabelMedium>
+              <Typography.Amount
+                value={dashboardData.totalBalance || 2450000}
+                currency={tenantTheme.currency}
+                variant="small"
+                style={{ marginVertical: 4 }}
+              />
+              <Typography.Caption color={theme?.colors?.success} style={{ fontWeight: '500' }}>
+                ↑ 12.5%
+              </Typography.Caption>
             </View>
 
             <View style={styles.statCard}>
               <View style={[styles.statIcon, { backgroundColor: 'rgba(79, 172, 254, 0.1)' }]}>
                 <Text style={styles.statIconText}>💳</Text>
               </View>
-              <Text style={styles.statLabel}>Available Balance</Text>
-              <Text style={styles.statValue}>{formatCurrency(1850000, tenantTheme.currency, { locale: tenantTheme.locale })}</Text>
-              <Text style={[styles.statChange, styles.positive]}>↑ 8.2%</Text>
+              <Typography.LabelMedium>Available Balance</Typography.LabelMedium>
+              <Typography.Amount
+                value={1850000}
+                currency={tenantTheme.currency}
+                variant="small"
+                style={{ marginVertical: 4 }}
+              />
+              <Typography.Caption color={theme?.colors?.success} style={{ fontWeight: '500' }}>
+                ↑ 8.2%
+              </Typography.Caption>
             </View>
 
             <View style={styles.statCard}>
               <View style={[styles.statIcon, { backgroundColor: 'rgba(67, 233, 123, 0.1)' }]}>
                 <Text style={styles.statIconText}>📊</Text>
               </View>
-              <Text style={styles.statLabel}>Monthly Activity</Text>
-              <Text style={styles.statValue}>247</Text>
-              <Text style={[styles.statChange, styles.negative]}>↓ 3.1%</Text>
+              <Typography.LabelMedium>Monthly Activity</Typography.LabelMedium>
+              <Typography.HeadlineSmall style={{ marginVertical: 4 }}>
+                247
+              </Typography.HeadlineSmall>
+              <Typography.Caption color={theme?.colors?.danger} style={{ fontWeight: '500' }}>
+                ↓ 3.1%
+              </Typography.Caption>
             </View>
 
             <View style={styles.statCard}>
               <View style={[styles.statIcon, { backgroundColor: 'rgba(240, 147, 251, 0.1)' }]}>
                 <Text style={styles.statIconText}>🎯</Text>
               </View>
-              <Text style={styles.statLabel}>Savings Goal</Text>
-              <Text style={styles.statValue}>{formatCurrency(500000, tenantTheme.currency, { locale: tenantTheme.locale })}</Text>
-              <Text style={[styles.statChange, styles.positive]}>65% achieved</Text>
+              <Typography.LabelMedium>Savings Goal</Typography.LabelMedium>
+              <Typography.Amount
+                value={500000}
+                currency={tenantTheme.currency}
+                variant="small"
+                style={{ marginVertical: 4 }}
+              />
+              <Typography.Caption color={theme?.colors?.success} style={{ fontWeight: '500' }}>
+                65% achieved
+              </Typography.Caption>
             </View>
           </View>
         </View>

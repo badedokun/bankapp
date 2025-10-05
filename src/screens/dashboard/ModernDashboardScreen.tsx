@@ -5,9 +5,11 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ActivityIndicator, Text } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import { useTenantTheme } from '../../context/TenantThemeContext';
 import ModernDashboardWithAI from '../../components/dashboard/ModernDashboardWithAI';
+import { SkeletonDashboard } from '../../components/ui/SkeletonLoader';
+import Typography from '../../components/ui/Typography';
 import APIService from '../../services/api';
 
 export interface ModernDashboardScreenProps {
@@ -164,9 +166,8 @@ const ModernDashboardScreen: React.FC<ModernDashboardScreenProps> = ({
 
   if (isLoading || !userContext) {
     return (
-      <View style={[styles.container, styles.loadingContainer, { backgroundColor: theme.colors.background }]}>
-        <ActivityIndicator size="large" color={theme.colors.primary} />
-        <Text style={[styles.loadingText, { color: theme.colors.text }]}>Loading dashboard...</Text>
+      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <SkeletonDashboard />
       </View>
     );
   }
@@ -174,13 +175,16 @@ const ModernDashboardScreen: React.FC<ModernDashboardScreenProps> = ({
   if (!dashboardData) {
     return (
       <View style={[styles.container, styles.errorContainer, { backgroundColor: theme.colors.background }]}>
-        <Text style={[styles.errorTitle, { color: theme.colors.danger }]}>Unable to Load Account Data</Text>
-        <Text style={[styles.errorMessage, { color: theme.colors.text }]}>
+        <Text style={{ fontSize: 60, marginBottom: 24 }}>🔌</Text>
+        <Typography.HeadlineMedium color={theme.colors.danger} style={{ marginBottom: 16, textAlign: 'center' }}>
+          Unable to Load Account Data
+        </Typography.HeadlineMedium>
+        <Typography.BodyMedium style={{ marginBottom: 12, textAlign: 'center', lineHeight: 24 }}>
           We couldn't retrieve your account information at the moment. Please check your connection and try again.
-        </Text>
-        <Text style={[styles.errorNote, { color: theme.colors.textSecondary }]}>
+        </Typography.BodyMedium>
+        <Typography.Caption style={{ fontStyle: 'italic', textAlign: 'center', lineHeight: 20 }}>
           For security reasons, we don't display fallback financial data.
-        </Text>
+        </Typography.Caption>
       </View>
     );
   }
