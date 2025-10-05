@@ -7,8 +7,10 @@ import { Request, Response, NextFunction } from 'express';
 import RewardService from '../services/RewardService';
 import AchievementDetector from '../services/AchievementDetector';
 
-const rewardService = new RewardService();
-const achievementDetector = new AchievementDetector();
+// Helper function to get tenant ID from request
+function getTenantId(req: Request): string | null {
+  return (req as any).tenant?.id || null;
+}
 
 /**
  * Award points and check achievements after transfer
@@ -16,7 +18,11 @@ const achievementDetector = new AchievementDetector();
 export async function afterTransferHook(req: Request, res: Response, transferData: any) {
   try {
     const userId = req.user?.id;
-    if (!userId) return;
+    const tenantId = getTenantId(req);
+    if (!userId || !tenantId) return;
+
+    const rewardService = new RewardService(tenantId);
+    const achievementDetector = new AchievementDetector(tenantId);
 
     // Award points for transfer (base: 10 points, tier multiplier applies)
     await rewardService.awardPoints(
@@ -51,7 +57,11 @@ export async function afterTransferHook(req: Request, res: Response, transferDat
 export async function afterSavingsDepositHook(req: Request, res: Response, savingsData: any) {
   try {
     const userId = req.user?.id;
-    if (!userId) return;
+    const tenantId = getTenantId(req);
+    if (!userId || !tenantId) return;
+
+    const rewardService = new RewardService(tenantId);
+    const achievementDetector = new AchievementDetector(tenantId);
 
     // Award points for savings deposit (base: 25 points, no tier multiplier)
     await rewardService.awardPoints(
@@ -85,8 +95,11 @@ export async function afterSavingsDepositHook(req: Request, res: Response, savin
 /**
  * Award points and check achievements after login
  */
-export async function afterLoginHook(userId: string) {
+export async function afterLoginHook(userId: string, tenantId: string) {
   try {
+    const rewardService = new RewardService(tenantId);
+    const achievementDetector = new AchievementDetector(tenantId);
+
     // Award points for daily login (base: 5 points, no tier multiplier)
     await rewardService.awardPoints(
       userId,
@@ -121,7 +134,10 @@ export async function afterLoginHook(userId: string) {
 export async function afterBillPaymentHook(req: Request, res: Response, billData: any) {
   try {
     const userId = req.user?.id;
-    if (!userId) return;
+    const tenantId = getTenantId(req);
+    if (!userId || !tenantId) return;
+
+    const rewardService = new RewardService(tenantId);
 
     // Award points for bill payment (base: 15 points, tier multiplier applies)
     await rewardService.awardPoints(
@@ -151,8 +167,11 @@ export async function afterBillPaymentHook(req: Request, res: Response, billData
 /**
  * Award points for referral
  */
-export async function afterReferralSignupHook(referrerId: string, referredUserId: string) {
+export async function afterReferralSignupHook(referrerId: string, referredUserId: string, tenantId: string) {
   try {
+    const rewardService = new RewardService(tenantId);
+    const achievementDetector = new AchievementDetector(tenantId);
+
     // Award points to referrer (base: 500 points, no tier multiplier)
     await rewardService.awardPoints(
       referrerId,
@@ -182,8 +201,10 @@ export async function afterReferralSignupHook(referrerId: string, referredUserId
 /**
  * Update challenge progress after action
  */
-export async function updateChallengeProgress(userId: string, challengeCode: string, increment: number = 1) {
+export async function updateChallengeProgress(userId: string, challengeCode: string, tenantId: string, increment: number = 1) {
   try {
+    const rewardService = new RewardService(tenantId);
+
     const challenges = await rewardService.getUserChallenges(userId);
     const challenge = challenges.find(c => c.code === challengeCode && c.status === 'active');
 
@@ -221,17 +242,22 @@ export function rewardsMiddleware(actionType: 'transfer' | 'savings' | 'bill' | 
           try {
             let rewardsInfo = null;
 
+            const tenantId = getTenantId(req);
+            const userId = req.user?.id;
+
+            if (!tenantId || !userId) return;
+
             switch (actionType) {
               case 'transfer':
                 rewardsInfo = await afterTransferHook(req, res, body.data?.transfer || body.data);
                 // Update daily transfer challenge
-                await updateChallengeProgress(req.user?.id || '', 'make_transfer');
+                await updateChallengeProgress(userId, 'make_transfer', tenantId);
                 break;
 
               case 'savings':
                 rewardsInfo = await afterSavingsDepositHook(req, res, body.data);
                 // Update daily savings challenge
-                await updateChallengeProgress(req.user?.id || '', 'save_money');
+                await updateChallengeProgress(userId, 'save_money', tenantId);
                 break;
 
               case 'bill':
@@ -239,9 +265,9 @@ export function rewardsMiddleware(actionType: 'transfer' | 'savings' | 'bill' | 
                 break;
 
               case 'login':
-                rewardsInfo = await afterLoginHook(req.user?.id || '');
+                rewardsInfo = await afterLoginHook(userId, tenantId);
                 // Update daily login challenge
-                await updateChallengeProgress(req.user?.id || '', 'daily_login');
+                await updateChallengeProgress(userId, 'daily_login', tenantId);
                 break;
             }
 

@@ -4,7 +4,8 @@
  */
 
 import RewardService from './RewardService';
-import { pool } from '../config/database';
+import { getTenantPool } from '../config/database';
+import { Pool } from 'pg';
 
 interface AchievementCriteria {
   type: string;
@@ -16,9 +17,15 @@ interface AchievementCriteria {
 
 class AchievementDetector {
   private rewardService: RewardService;
+  private tenantId: string;
 
-  constructor() {
-    this.rewardService = new RewardService();
+  constructor(tenantId: string) {
+    this.tenantId = tenantId;
+    this.rewardService = new RewardService(tenantId);
+  }
+
+  private async getPool(): Promise<Pool> {
+    return getTenantPool(this.tenantId);
   }
 
   /**
@@ -88,7 +95,8 @@ class AchievementDetector {
    */
   private async checkTransferCount(userId: string, requiredCount: number): Promise<boolean> {
     try {
-      const result = await pool.query(
+      const pool = await this.getPool();
+    const result = await pool.query(
         'SELECT COUNT(*) as count FROM tenant.transfers WHERE user_id = $1 AND status = $2',
         [userId, 'completed']
       );
@@ -107,7 +115,8 @@ class AchievementDetector {
   private async checkSavingsAmount(userId: string, requiredAmount: number): Promise<boolean> {
     try {
       // Get total savings balance
-      const result = await pool.query(
+      const pool = await this.getPool();
+    const result = await pool.query(
         `SELECT COALESCE(SUM(balance), 0) as total_savings
          FROM tenant.savings_accounts
          WHERE user_id = $1 AND status = $2`,
@@ -127,7 +136,8 @@ class AchievementDetector {
    */
   private async checkLoginStreak(userId: string, requiredDays: number): Promise<boolean> {
     try {
-      const result = await pool.query(
+      const pool = await this.getPool();
+    const result = await pool.query(
         `SELECT current_count
          FROM rewards.user_streaks
          WHERE user_id = $1 AND streak_type = $2`,
@@ -147,7 +157,8 @@ class AchievementDetector {
    */
   private async checkBudgetAdherence(userId: string, requiredMonths: number): Promise<boolean> {
     try {
-      const result = await pool.query(
+      const pool = await this.getPool();
+    const result = await pool.query(
         `SELECT current_count
          FROM rewards.user_streaks
          WHERE user_id = $1 AND streak_type = $2`,
@@ -167,7 +178,8 @@ class AchievementDetector {
    */
   private async checkUserRank(userId: string, maxRank: number): Promise<boolean> {
     try {
-      const result = await pool.query(
+      const pool = await this.getPool();
+    const result = await pool.query(
         `SELECT COUNT(*) as user_rank
          FROM tenant.users
          WHERE created_at < (SELECT created_at FROM tenant.users WHERE id = $1)`,
@@ -188,7 +200,8 @@ class AchievementDetector {
   private async checkReferralCount(userId: string, requiredCount: number): Promise<boolean> {
     try {
       // Assuming referrals table exists
-      const result = await pool.query(
+      const pool = await this.getPool();
+    const result = await pool.query(
         `SELECT COUNT(*) as count
          FROM tenant.referrals
          WHERE referrer_id = $1 AND status = $2`,

@@ -10,6 +10,24 @@ import { z } from 'zod';
 
 const router = express.Router();
 
+// Helper function to get tenant ID from request
+function getTenantId(req: Request): string | null {
+  return (req as any).tenant?.id || null;
+}
+
+// Helper function to create RewardService with tenant ID
+function createRewardService(req: Request, res: Response): RewardService | null {
+  const tenantId = getTenantId(req);
+  if (!tenantId) {
+    res.status(400).json({
+      error: 'Bad Request',
+      message: 'Tenant context required',
+    });
+    return null;
+  }
+  return new RewardService(tenantId);
+}
+
 // ============================================================================
 // Validation Schemas
 // ============================================================================
@@ -45,7 +63,8 @@ router.get('/user/:userId', authenticateToken, async (req: Request, res: Respons
       });
     }
 
-    const rewardService = new RewardService();
+    const rewardService = createRewardService(req, res);
+    if (!rewardService) return;
 
     // Get all rewards data in parallel
     const [
@@ -104,7 +123,8 @@ router.post('/user/:userId/initialize', authenticateToken, async (req: Request, 
       });
     }
 
-    const rewardService = new RewardService();
+    const rewardService = createRewardService(req, res);
+    if (!rewardService) return;
 
     // Check if already initialized
     const existing = await rewardService.getUserRewards(userId);
@@ -163,7 +183,8 @@ router.post('/user/:userId/points', authenticateToken, async (req: Request, res:
 
     const { points, actionType, description, metadata } = validation.data;
 
-    const rewardService = new RewardService();
+    const rewardService = createRewardService(req, res);
+    if (!rewardService) return;
 
     // Award points
     await rewardService.awardPoints(userId, points, actionType, description, metadata);
@@ -207,7 +228,8 @@ router.get('/user/:userId/tier-summary', authenticateToken, async (req: Request,
       });
     }
 
-    const rewardService = new RewardService();
+    const rewardService = createRewardService(req, res);
+    if (!rewardService) return;
     const userRewards = await rewardService.getUserRewards(userId);
 
     if (!userRewards) {
@@ -255,7 +277,8 @@ router.get('/achievements/:userId', authenticateToken, async (req: Request, res:
       });
     }
 
-    const rewardService = new RewardService();
+    const rewardService = createRewardService(req, res);
+    if (!rewardService) return;
     const achievements = await rewardService.getUserAchievements(userId);
 
     return res.json({
@@ -287,7 +310,8 @@ router.post('/achievements/:userId/unlock/:achievementCode', authenticateToken, 
       });
     }
 
-    const rewardService = new RewardService();
+    const rewardService = createRewardService(req, res);
+    if (!rewardService) return;
     const unlocked = await rewardService.unlockAchievement(userId, achievementCode);
 
     if (!unlocked) {
@@ -331,7 +355,8 @@ router.get('/achievements/:userId/preview', authenticateToken, async (req: Reque
       });
     }
 
-    const rewardService = new RewardService();
+    const rewardService = createRewardService(req, res);
+    if (!rewardService) return;
     const achievements = await rewardService.getUserAchievements(userId);
 
     // Get first 3 achievements (2 unlocked, 1 locked for variety)
@@ -376,7 +401,8 @@ router.get('/challenges/:userId', authenticateToken, async (req: Request, res: R
       });
     }
 
-    const rewardService = new RewardService();
+    const rewardService = createRewardService(req, res);
+    if (!rewardService) return;
     const challenges = await rewardService.getUserChallenges(userId);
 
     return res.json({
@@ -420,7 +446,8 @@ router.post('/challenges/:userId/:challengeCode/progress', authenticateToken, as
 
     const { progress } = validation.data;
 
-    const rewardService = new RewardService();
+    const rewardService = createRewardService(req, res);
+    if (!rewardService) return;
     await rewardService.updateChallengeProgress(userId, challengeCode, progress);
 
     // Get updated challenges
@@ -457,7 +484,8 @@ router.post('/challenges/:userId/:challengeCode/claim', authenticateToken, async
       });
     }
 
-    const rewardService = new RewardService();
+    const rewardService = createRewardService(req, res);
+    if (!rewardService) return;
     const claimed = await rewardService.claimChallenge(userId, challengeCode);
 
     if (!claimed) {
@@ -512,7 +540,8 @@ router.get('/streaks/:userId', authenticateToken, async (req: Request, res: Resp
       });
     }
 
-    const rewardService = new RewardService();
+    const rewardService = createRewardService(req, res);
+    if (!rewardService) return;
     const streaks = await rewardService.getUserStreaks(userId);
 
     return res.json({
@@ -553,7 +582,8 @@ router.post('/streaks/:userId/:streakType/update', authenticateToken, async (req
       });
     }
 
-    const rewardService = new RewardService();
+    const rewardService = createRewardService(req, res);
+    if (!rewardService) return;
     await rewardService.updateStreak(userId, streakType as any);
 
     // Get updated streaks
@@ -595,7 +625,8 @@ router.get('/transactions/:userId', authenticateToken, async (req: Request, res:
       });
     }
 
-    const rewardService = new RewardService();
+    const rewardService = createRewardService(req, res);
+    if (!rewardService) return;
     const transactions = await rewardService.getPointTransactions(userId, limit);
 
     return res.json({

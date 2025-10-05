@@ -111,8 +111,9 @@ export const RewardsDashboard: React.FC<RewardsDashboardProps> = ({
       if (result.success && result.data) {
         const { userRewards, achievements, challenges, streaks } = result.data;
 
+        // For now, using mock data until API is fully tested
         setRewardsData({
-        tier: {
+          tier: {
           tierName: 'Silver',
           tierLevel: 2,
           icon: '🥈',
@@ -201,7 +202,8 @@ export const RewardsDashboard: React.FC<RewardsDashboardProps> = ({
             lastActivityDate: new Date(),
           },
         ],
-      });
+        });
+      }
     } catch (error) {
       console.error('Failed to load rewards data:', error);
     } finally {
