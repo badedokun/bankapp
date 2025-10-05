@@ -86,7 +86,7 @@ export const RewardsDashboard: React.FC<RewardsDashboardProps> = ({
   const [selectedTab, setSelectedTab] = useState<'achievements' | 'challenges' | 'streaks'>('achievements');
   const [rewardsData, setRewardsData] = useState<UserRewardsData | null>(null);
 
-  // Mock data for demonstration (replace with API call)
+  // Load rewards data from API
   useEffect(() => {
     loadRewardsData();
   }, [userId]);
@@ -94,11 +94,24 @@ export const RewardsDashboard: React.FC<RewardsDashboardProps> = ({
   const loadRewardsData = async () => {
     setLoading(true);
     try {
-      // TODO: Replace with actual API call to RewardService
-      // const data = await fetch(`/api/rewards/user/${userId}`).then(r => r.json());
+      // Fetch rewards data from API
+      const response = await fetch(`/api/rewards/user/${userId}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
-      // Mock data for now
-      setRewardsData({
+      if (!response.ok) {
+        throw new Error('Failed to fetch rewards data');
+      }
+
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        const { userRewards, achievements, challenges, streaks } = result.data;
+
+        setRewardsData({
         tier: {
           tierName: 'Silver',
           tierLevel: 2,
