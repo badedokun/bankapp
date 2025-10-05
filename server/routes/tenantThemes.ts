@@ -147,8 +147,8 @@ router.get('/:tenantCode', async (req: Request, res: Response) => {
       },
       colors: {
         primary: brandColors.primary || branding.primaryColor || DEFAULT_THEME.colors.primary,
-        primaryGradientStart: brandColors.primary || branding.primaryColor || DEFAULT_THEME.colors.primary,
-        primaryGradientEnd: adjustColorBrightness(brandColors.primary || branding.primaryColor || DEFAULT_THEME.colors.primary, 20),
+        primaryGradientStart: brandColors.primaryGradientStart || brandColors.primary || branding.primaryColor || DEFAULT_THEME.colors.primary,
+        primaryGradientEnd: brandColors.primaryGradientEnd || adjustColorBrightness(brandColors.primary || branding.primaryColor || DEFAULT_THEME.colors.primary, 20),
         secondary: brandColors.secondary || branding.secondaryColor || DEFAULT_THEME.colors.secondary,
         accent: brandColors.accent || branding.accentColor || DEFAULT_THEME.colors.accent,
         success: brandColors.success || '#10B981',
@@ -158,6 +158,7 @@ router.get('/:tenantCode', async (req: Request, res: Response) => {
         text: brandColors.text || branding.textColor || DEFAULT_THEME.colors.text,
         textSecondary: brandColors.textSecondary || '#6B7280',
         textLight: '#9CA3AF',
+        textInverse: brandColors.textInverse || '#FFFFFF',
         background: brandColors.background || branding.backgroundColor || DEFAULT_THEME.colors.background,
         backgroundGradientStart: adjustColorOpacity(brandColors.background || branding.backgroundColor || DEFAULT_THEME.colors.background, 0.1),
         backgroundGradientEnd: adjustColorOpacity(brandColors.background || branding.backgroundColor || DEFAULT_THEME.colors.background, 0.05),

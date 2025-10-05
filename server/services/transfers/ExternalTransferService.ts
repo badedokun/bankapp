@@ -173,6 +173,7 @@ class ExternalTransferService {
         });
 
       return {
+        success: true,
         id: transferId,
         reference,
         status: 'processing' as TransferStatus,
@@ -229,7 +230,7 @@ class ExternalTransferService {
         throw new Error(`NIBSS API error: ${response.status}`);
       }
 
-      const result: NIBSSAccountInquiryResponse = await response.json();
+      const result: NIBSSAccountInquiryResponse = await response.json() as NIBSSAccountInquiryResponse || {} as NIBSSAccountInquiryResponse;
 
       // NIBSS response codes: 00 = success
       if (result.responseCode === '00') {
@@ -300,7 +301,7 @@ class ExternalTransferService {
         body: JSON.stringify(nibssRequest),
       });
 
-      const result: NIBSSTransferResponse = await response.json();
+      const result: NIBSSTransferResponse = await response.json() as NIBSSTransferResponse || {} as NIBSSTransferResponse;
 
       let status: TransferStatus;
       let failureReason: string | null = null;
@@ -562,7 +563,7 @@ class ExternalTransferService {
     const dailyLimit = 5000000; // ₦5M daily limit
 
     if (dailyUsed + amount > dailyLimit) {
-      throw new LimitExceededError(dailyLimit, dailyUsed + amount, 'Daily');
+      throw new LimitExceededError('Daily', dailyLimit, dailyUsed + amount);
     }
 
     // Check monthly limit
@@ -578,7 +579,7 @@ class ExternalTransferService {
     const monthlyLimit = 20000000; // ₦20M monthly limit
 
     if (monthlyUsed + amount > monthlyLimit) {
-      throw new LimitExceededError(monthlyLimit, monthlyUsed + amount, 'Monthly');
+      throw new LimitExceededError('Monthly', monthlyLimit, monthlyUsed + amount);
     }
   }
 

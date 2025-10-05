@@ -1,12 +1,12 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { View, Text } from 'react-native';
+import { View, Text as RNText } from 'react-native';
 
 // Simple test component
 const TestComponent: React.FC<{ title: string }> = ({ title }) => {
   return (
     <View testID="test-component">
-      <Text testID="title">{title}</Text>
+      <RNText testID="title">{title}</RNText>
     </View>
   );
 };

@@ -1,0 +1,2398 @@
+{
+  "config": {
+    "configFile": "/Users/bisiadedokun/bankapp/playwright.config.ts",
+    "rootDir": "/Users/bisiadedokun/bankapp/tests",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": "/Users/bisiadedokun/bankapp/tests/utils/global-setup.ts",
+    "globalTeardown": "/Users/bisiadedokun/bankapp/tests/utils/global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "test-results/junit.xml"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Users/bisiadedokun/bankapp/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/bisiadedokun/bankapp/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/bisiadedokun/bankapp/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/bisiadedokun/bankapp/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/bisiadedokun/bankapp/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/bisiadedokun/bankapp/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/bisiadedokun/bankapp/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "mobile-chrome",
+        "name": "mobile-chrome",
+        "testDir": "/Users/bisiadedokun/bankapp/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/bisiadedokun/bankapp/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "api-tests",
+        "name": "api-tests",
+        "testDir": "/Users/bisiadedokun/bankapp/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/.*\\.api\\.test\\.ts/"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/bisiadedokun/bankapp/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "e2e-tests",
+        "name": "e2e-tests",
+        "testDir": "/Users/bisiadedokun/bankapp/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/.*e2e.*\\.test\\.ts/"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/bisiadedokun/bankapp/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "performance-tests",
+        "name": "performance-tests",
+        "testDir": "/Users/bisiadedokun/bankapp/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/.*performance.*\\.test\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.55.0",
+    "workers": 5,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "backend/compliance-fraud-detection.test.ts",
+      "file": "backend/compliance-fraud-detection.test.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Compliance and Fraud Detection Tests",
+          "file": "backend/compliance-fraud-detection.test.ts",
+          "line": 18,
+          "column": 6,
+          "specs": [],
+          "suites": [
+            {
+              "title": "Fraud Detection System",
+              "file": "backend/compliance-fraud-detection.test.ts",
+              "line": 38,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should detect low-risk transactions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-07f5c31396f2d79b6e0d",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 39,
+                  "column": 9
+                },
+                {
+                  "title": "should detect medium-risk transactions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-05ad600d391a781bdc42",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 57,
+                  "column": 9
+                },
+                {
+                  "title": "should detect high-risk transactions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-56107ec7a9702f03f0a1",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 75,
+                  "column": 9
+                },
+                {
+                  "title": "should flag unusual transfer patterns",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-23aec08150ab436371b5",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 93,
+                  "column": 9
+                },
+                {
+                  "title": "should validate fraud check response structure",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-2a30ece4ea7492ba438d",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 124,
+                  "column": 9
+                },
+                {
+                  "title": "should detect low-risk transactions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-5b5549a69a072f03baae",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 39,
+                  "column": 9
+                },
+                {
+                  "title": "should detect medium-risk transactions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-6b9a0d1f16d774c97bd3",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 57,
+                  "column": 9
+                },
+                {
+                  "title": "should detect high-risk transactions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-1b4a8acdb73e88f283a8",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 75,
+                  "column": 9
+                },
+                {
+                  "title": "should flag unusual transfer patterns",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-47f65915b6cc36df697f",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 93,
+                  "column": 9
+                },
+                {
+                  "title": "should validate fraud check response structure",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-8e7ed6e1978a760ef52c",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 124,
+                  "column": 9
+                },
+                {
+                  "title": "should detect low-risk transactions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-eb26763d3c295b91223a",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 39,
+                  "column": 9
+                },
+                {
+                  "title": "should detect medium-risk transactions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-9625640a163a9839929a",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 57,
+                  "column": 9
+                },
+                {
+                  "title": "should detect high-risk transactions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-68ddb32c984f874eb049",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 75,
+                  "column": 9
+                },
+                {
+                  "title": "should flag unusual transfer patterns",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-9b4c780e37c44c567d62",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 93,
+                  "column": 9
+                },
+                {
+                  "title": "should validate fraud check response structure",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-de21828b8310eb6dd8d5",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 124,
+                  "column": 9
+                },
+                {
+                  "title": "should detect low-risk transactions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-6ca04679235876ff9298",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 39,
+                  "column": 9
+                },
+                {
+                  "title": "should detect medium-risk transactions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-e76a58397245afa0a66f",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 57,
+                  "column": 9
+                },
+                {
+                  "title": "should detect high-risk transactions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-3c2c60a30aef6a588fc9",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 75,
+                  "column": 9
+                },
+                {
+                  "title": "should flag unusual transfer patterns",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-dc5ce6de393fc8eb9d13",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 93,
+                  "column": 9
+                },
+                {
+                  "title": "should validate fraud check response structure",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-fe17bf56002b82fff9f7",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 124,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Transaction Limits Compliance",
+              "file": "backend/compliance-fraud-detection.test.ts",
+              "line": 153,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should enforce daily transaction limits",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-5800ab2c54b530ba890b",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 154,
+                  "column": 9
+                },
+                {
+                  "title": "should reject transfers exceeding single transaction limit",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-4ccf42a95919b148795f",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 177,
+                  "column": 9
+                },
+                {
+                  "title": "should track cumulative daily usage",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-21cb894d5489020c1afc",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 194,
+                  "column": 9
+                },
+                {
+                  "title": "should enforce daily transaction limits",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-15856fdbef1888309eb8",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 154,
+                  "column": 9
+                },
+                {
+                  "title": "should reject transfers exceeding single transaction limit",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-3e1f09a5a7576d8e2c26",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 177,
+                  "column": 9
+                },
+                {
+                  "title": "should track cumulative daily usage",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-db6da0e7717009f74f8d",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 194,
+                  "column": 9
+                },
+                {
+                  "title": "should enforce daily transaction limits",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-06b16527bbe936b7a128",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 154,
+                  "column": 9
+                },
+                {
+                  "title": "should reject transfers exceeding single transaction limit",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-059867619e3c846cfd6b",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 177,
+                  "column": 9
+                },
+                {
+                  "title": "should track cumulative daily usage",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-e9c085ad4c83b2ca4882",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 194,
+                  "column": 9
+                },
+                {
+                  "title": "should enforce daily transaction limits",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-3851b42aa8d3e199e0a2",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 154,
+                  "column": 9
+                },
+                {
+                  "title": "should reject transfers exceeding single transaction limit",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-c8534130ac371561683a",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 177,
+                  "column": 9
+                },
+                {
+                  "title": "should track cumulative daily usage",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-acf086329e8beb532dce",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 194,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "AML/KYC Compliance",
+              "file": "backend/compliance-fraud-detection.test.ts",
+              "line": 222,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should validate KYC tier requirements",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-33fd801b4a016bafd076",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 223,
+                  "column": 9
+                },
+                {
+                  "title": "should require enhanced due diligence for large transactions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-fc8c4c9984263006d2e4",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 233,
+                  "column": 9
+                },
+                {
+                  "title": "should maintain transaction audit trail",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-9cb2f7c1611bdf846598",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 253,
+                  "column": 9
+                },
+                {
+                  "title": "should validate KYC tier requirements",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-5178755a28f97b0a7742",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 223,
+                  "column": 9
+                },
+                {
+                  "title": "should require enhanced due diligence for large transactions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-a3e718eb0610ac2074e3",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 233,
+                  "column": 9
+                },
+                {
+                  "title": "should maintain transaction audit trail",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-712e23dbe282a8109a7e",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 253,
+                  "column": 9
+                },
+                {
+                  "title": "should validate KYC tier requirements",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-a26ab5711fb5161b5222",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 223,
+                  "column": 9
+                },
+                {
+                  "title": "should require enhanced due diligence for large transactions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-bedc3ad756574fc27c09",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 233,
+                  "column": 9
+                },
+                {
+                  "title": "should maintain transaction audit trail",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-20425ee3701b40a3633e",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 253,
+                  "column": 9
+                },
+                {
+                  "title": "should validate KYC tier requirements",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-94827667e82768a98d31",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 223,
+                  "column": 9
+                },
+                {
+                  "title": "should require enhanced due diligence for large transactions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-25a911128c3fbc664c93",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 233,
+                  "column": 9
+                },
+                {
+                  "title": "should maintain transaction audit trail",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-9c60b771f3772b4d6ead",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 253,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "International Transfer Compliance",
+              "file": "backend/compliance-fraud-detection.test.ts",
+              "line": 295,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should validate SWIFT code format",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-d14f01a9dab8a589c494",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 296,
+                  "column": 9
+                },
+                {
+                  "title": "should validate IBAN format",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-1e499e5f11f00a90ff9f",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 306,
+                  "column": 9
+                },
+                {
+                  "title": "should require purpose for international transfers",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-04cc1e36a519fadade77",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 316,
+                  "column": 9
+                },
+                {
+                  "title": "should validate source of funds documentation",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-d088da83c4d4168745c5",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 329,
+                  "column": 9
+                },
+                {
+                  "title": "should check high-risk country restrictions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-5feaaeea8a0d79e02dc4",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 336,
+                  "column": 9
+                },
+                {
+                  "title": "should validate SWIFT code format",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-ac8d1ef63b7d2b04070f",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 296,
+                  "column": 9
+                },
+                {
+                  "title": "should validate IBAN format",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-1422a8e6b4c308c3973b",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 306,
+                  "column": 9
+                },
+                {
+                  "title": "should require purpose for international transfers",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-15050d45d6248a553187",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 316,
+                  "column": 9
+                },
+                {
+                  "title": "should validate source of funds documentation",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-9d45c6815c1e8ddc775b",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 329,
+                  "column": 9
+                },
+                {
+                  "title": "should check high-risk country restrictions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-5cc0c7360b8a7c4bf4e6",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 336,
+                  "column": 9
+                },
+                {
+                  "title": "should validate SWIFT code format",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-60290bdb060d17302ea5",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 296,
+                  "column": 9
+                },
+                {
+                  "title": "should validate IBAN format",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-c22b0451a9462cd50125",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 306,
+                  "column": 9
+                },
+                {
+                  "title": "should require purpose for international transfers",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-ef8ecea18485d43335b8",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 316,
+                  "column": 9
+                },
+                {
+                  "title": "should validate source of funds documentation",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-e4a64089bec9ce40c990",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 329,
+                  "column": 9
+                },
+                {
+                  "title": "should check high-risk country restrictions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-3e7b8b44f0388cbebd9d",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 336,
+                  "column": 9
+                },
+                {
+                  "title": "should validate SWIFT code format",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-755eb94b67f2cc45d773",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 296,
+                  "column": 9
+                },
+                {
+                  "title": "should validate IBAN format",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-4d4186cdd24ce4855917",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 306,
+                  "column": 9
+                },
+                {
+                  "title": "should require purpose for international transfers",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-a7a17c30ec2e8624761d",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 316,
+                  "column": 9
+                },
+                {
+                  "title": "should validate source of funds documentation",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-033b3d293013b6024096",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 329,
+                  "column": 9
+                },
+                {
+                  "title": "should check high-risk country restrictions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-292387a8c9472467ba5b",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 336,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Sanctions Screening",
+              "file": "backend/compliance-fraud-detection.test.ts",
+              "line": 347,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should screen against sanctions lists",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-ea8060752f0956255f1c",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 348,
+                  "column": 9
+                },
+                {
+                  "title": "should flag PEP (Politically Exposed Person) status",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-11f4334b52e416015b24",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 360,
+                  "column": 9
+                },
+                {
+                  "title": "should screen against sanctions lists",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-26b5fb17e3f4f5ff7b28",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 348,
+                  "column": 9
+                },
+                {
+                  "title": "should flag PEP (Politically Exposed Person) status",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-9cc3b1be3e52f261205e",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 360,
+                  "column": 9
+                },
+                {
+                  "title": "should screen against sanctions lists",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-ba811ab605688d19b3cd",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 348,
+                  "column": 9
+                },
+                {
+                  "title": "should flag PEP (Politically Exposed Person) status",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-77e058f3d39bded9c0f5",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 360,
+                  "column": 9
+                },
+                {
+                  "title": "should screen against sanctions lists",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-8b831ef4a171788bd435",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 348,
+                  "column": 9
+                },
+                {
+                  "title": "should flag PEP (Politically Exposed Person) status",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-dbbc8a70f369071acf5a",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 360,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Regulatory Reporting",
+              "file": "backend/compliance-fraud-detection.test.ts",
+              "line": 376,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should identify reportable transactions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-d9e9d6ceae14ada76ce5",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 377,
+                  "column": 9
+                },
+                {
+                  "title": "should aggregate related transactions (structuring detection)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-55618d95594a894342a3",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 387,
+                  "column": 9
+                },
+                {
+                  "title": "should maintain CTR (Currency Transaction Report) data",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-f50a6ea09eac43e90f89",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 405,
+                  "column": 9
+                },
+                {
+                  "title": "should identify reportable transactions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-46977a7d22211d77e214",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 377,
+                  "column": 9
+                },
+                {
+                  "title": "should aggregate related transactions (structuring detection)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-0e5ae7e120a596b09113",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 387,
+                  "column": 9
+                },
+                {
+                  "title": "should maintain CTR (Currency Transaction Report) data",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-3a7f970d1c96eff7aa40",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 405,
+                  "column": 9
+                },
+                {
+                  "title": "should identify reportable transactions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-0e87d45a5d41e8228c13",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 377,
+                  "column": 9
+                },
+                {
+                  "title": "should aggregate related transactions (structuring detection)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-d0f909c65c27d7817b26",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 387,
+                  "column": 9
+                },
+                {
+                  "title": "should maintain CTR (Currency Transaction Report) data",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-dff0a00c29345223ea53",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 405,
+                  "column": 9
+                },
+                {
+                  "title": "should identify reportable transactions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-6593e425d617f280c225",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 377,
+                  "column": 9
+                },
+                {
+                  "title": "should aggregate related transactions (structuring detection)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-41cf6cb82b5f71529c0f",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 387,
+                  "column": 9
+                },
+                {
+                  "title": "should maintain CTR (Currency Transaction Report) data",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-00d335030ac35313e44a",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 405,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Compliance Providers",
+              "file": "backend/compliance-fraud-detection.test.ts",
+              "line": 426,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should validate Nigeria compliance requirements",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-7f6c0aa66422cd98aa1e",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 427,
+                  "column": 9
+                },
+                {
+                  "title": "should validate USA compliance requirements (BSA/FinCEN)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-f90ad8748185d54d0662",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 442,
+                  "column": 9
+                },
+                {
+                  "title": "should validate Europe compliance requirements (AML5)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-29f99fd439bbe4a5de63",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 455,
+                  "column": 9
+                },
+                {
+                  "title": "should validate Canada compliance requirements (PCMLTFA)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-257f3a5a522739127a19",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 468,
+                  "column": 9
+                },
+                {
+                  "title": "should validate Nigeria compliance requirements",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-8de4e6d4ceae43ff8476",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 427,
+                  "column": 9
+                },
+                {
+                  "title": "should validate USA compliance requirements (BSA/FinCEN)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-a6490699ae3783b123e6",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 442,
+                  "column": 9
+                },
+                {
+                  "title": "should validate Europe compliance requirements (AML5)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-1bba49e0451a1f014fa5",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 455,
+                  "column": 9
+                },
+                {
+                  "title": "should validate Canada compliance requirements (PCMLTFA)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-4f7336d7b7969037ba5b",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 468,
+                  "column": 9
+                },
+                {
+                  "title": "should validate Nigeria compliance requirements",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-3bf63f2d8a8d49a5364c",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 427,
+                  "column": 9
+                },
+                {
+                  "title": "should validate USA compliance requirements (BSA/FinCEN)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-8c1e1fa0be7a3f06b9b9",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 442,
+                  "column": 9
+                },
+                {
+                  "title": "should validate Europe compliance requirements (AML5)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-02595f0e77541462a962",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 455,
+                  "column": 9
+                },
+                {
+                  "title": "should validate Canada compliance requirements (PCMLTFA)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-b33b92fffa226d405e7c",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 468,
+                  "column": 9
+                },
+                {
+                  "title": "should validate Nigeria compliance requirements",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-15eb36284891317fc023",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 427,
+                  "column": 9
+                },
+                {
+                  "title": "should validate USA compliance requirements (BSA/FinCEN)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-e36eee1d13851696d05a",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 442,
+                  "column": 9
+                },
+                {
+                  "title": "should validate Europe compliance requirements (AML5)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-8c49e1132cc47fa92774",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 455,
+                  "column": 9
+                },
+                {
+                  "title": "should validate Canada compliance requirements (PCMLTFA)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-380427141d22e3fc35e1",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 468,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Compliance Scoring",
+              "file": "backend/compliance-fraud-detection.test.ts",
+              "line": 485,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should calculate compliance score based on multiple factors",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-4653b0a56a2136024fd7",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 486,
+                  "column": 9
+                },
+                {
+                  "title": "should enforce minimum compliance score for transactions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-8bf272a21bb7f662dc44",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 505,
+                  "column": 9
+                },
+                {
+                  "title": "should calculate compliance score based on multiple factors",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-6b3fdaade000df716322",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 486,
+                  "column": 9
+                },
+                {
+                  "title": "should enforce minimum compliance score for transactions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "firefox",
+                      "projectName": "firefox",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-1fef80f71f5c61a440f4",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 505,
+                  "column": 9
+                },
+                {
+                  "title": "should calculate compliance score based on multiple factors",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-386d22f4aa26c409ac46",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 486,
+                  "column": 9
+                },
+                {
+                  "title": "should enforce minimum compliance score for transactions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "webkit",
+                      "projectName": "webkit",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-37c6f42785b4c727fac2",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 505,
+                  "column": 9
+                },
+                {
+                  "title": "should calculate compliance score based on multiple factors",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-1904bc05116f4e3c33cc",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 486,
+                  "column": 9
+                },
+                {
+                  "title": "should enforce minimum compliance score for transactions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "mobile-chrome",
+                      "projectName": "mobile-chrome",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "6368608e4478af52d952-c0a7abdb3bf0b0c12b43",
+                  "file": "backend/compliance-fraud-detection.test.ts",
+                  "line": 505,
+                  "column": 9
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-10-05T00:05:56.832Z",
+    "duration": 108.75799999999998,
+    "expected": 0,
+    "skipped": 108,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

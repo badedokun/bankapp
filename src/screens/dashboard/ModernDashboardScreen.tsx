@@ -124,9 +124,9 @@ const ModernDashboardScreen: React.FC<ModernDashboardScreenProps> = ({
           id: t.id,
           amount: parseFloat(t.amount),
           description: t.description || t.narration || 'Transaction',
-          date: t.transaction_date || t.created_at,
-          type: t.transaction_type === 'credit' ? 'deposit' : 'withdrawal',
-          created_at: t.created_at
+          date: t.transaction_date || t.createdAt || t.created_at,
+          type: t.direction === 'sent' ? 'withdrawal' : 'deposit',
+          created_at: t.createdAt || t.created_at
         })),
         availableFeatures: ['transfers', 'bill_payments', 'savings', 'loans'],
         monthlySpending: 0, // Calculate from real data

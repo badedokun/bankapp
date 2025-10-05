@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 const appDirectory = path.resolve(__dirname, './');
 
@@ -103,6 +104,21 @@ module.exports = {
       template: path.join(__dirname, 'public', 'index.html'),
       filename: 'index.html',
       inject: 'body',
+    }),
+    new ForkTsCheckerWebpackPlugin({
+      async: false,
+      typescript: {
+        configFile: path.resolve(__dirname, 'tsconfig.json'),
+        diagnosticOptions: {
+          semantic: true,
+          syntactic: true,
+        },
+        mode: 'write-references',
+      },
+      logger: {
+        infrastructure: 'console',
+        issues: 'console',
+      },
     }),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.DefinePlugin({

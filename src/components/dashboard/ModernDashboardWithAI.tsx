@@ -569,7 +569,20 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                     {transaction.description || transaction.recipient_name || 'Transaction'}
                   </Text>
                   <Text style={styles.activityTime}>
-                    {new Date(transaction.created_at).toLocaleString()}
+                    {(() => {
+                      const dateValue = transaction.created_at || transaction.date || transaction.transaction_date;
+                      if (!dateValue) return 'Date unavailable';
+                      const date = new Date(dateValue);
+                      return isNaN(date.getTime())
+                        ? 'Date unavailable'
+                        : date.toLocaleString(tenantTheme.locale || 'en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          });
+                    })()}
                   </Text>
                 </View>
                 <Text style={[

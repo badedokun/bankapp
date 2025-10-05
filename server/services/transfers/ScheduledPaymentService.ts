@@ -6,17 +6,15 @@
 import { Pool } from 'pg';
 import { v4 as uuidv4 } from 'uuid';
 import {
-  TransferRequest,
-  TransferResponse,
-  TransferError,
-  ValidationError,
-  InsufficientFundsError,
   TransferStatus,
+  TransferResult,
   TransferFrequency,
 } from '../../types/transfers';
-import InternalTransferService from './InternalTransferService';
-import ExternalTransferService from './ExternalTransferService';
-import BillPaymentService from './BillPaymentService';
+import { TransferRequest, TransferResponse } from '../../types';
+import { ValidationError } from '../../types/validation-error';
+import { InternalTransferService } from './InternalTransferService';
+import { ExternalTransferService } from './ExternalTransferService';
+import { BillPaymentService } from './BillPaymentService';
 
 interface ScheduledPayment {
   id: string;
@@ -148,7 +146,7 @@ class ScheduledPaymentService {
       return {
         id: scheduledPaymentId,
         reference,
-        status: 'pending' as TransferStatus,
+        status: 'pending',
         amount: request.amount,
         fees: 0, // Will be calculated during execution
         totalAmount: request.amount,
@@ -256,7 +254,7 @@ class ScheduledPaymentService {
 
       return result;
 
-    } catch (error) {
+    } catch (error: any) {
       await client.query('ROLLBACK');
       console.error('Scheduled payment execution failed:', error);
 
@@ -280,13 +278,13 @@ class ScheduledPaymentService {
     userId: string
   ): Promise<ScheduleExecutionResult> {
     try {
-      const response = await this.internalTransferService.processTransfer(request as any, userId);
+      const response = await this.internalTransferService.processTransfer(request as any);
       return {
         success: true,
         transferId: response.id,
         reference: response.reference,
       };
-    } catch (error) {
+    } catch (error: any) {
       return {
         success: false,
         error: error.message,
@@ -308,7 +306,7 @@ class ScheduledPaymentService {
         transferId: response.id,
         reference: response.reference,
       };
-    } catch (error) {
+    } catch (error: any) {
       return {
         success: false,
         error: error.message,
@@ -330,7 +328,7 @@ class ScheduledPaymentService {
         transferId: response.id,
         reference: response.reference,
       };
-    } catch (error) {
+    } catch (error: any) {
       return {
         success: false,
         error: error.message,
@@ -394,7 +392,7 @@ class ScheduledPaymentService {
    */
   async getUserScheduledPayments(userId: string, isActive?: boolean): Promise<ScheduledPayment[]> {
     let query = 'SELECT * FROM scheduled_payments WHERE user_id = $1';
-    const params = [userId];
+    const params: any[] = [userId];
 
     if (isActive !== undefined) {
       query += ' AND is_active = $2';

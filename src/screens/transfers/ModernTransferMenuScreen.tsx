@@ -46,12 +46,15 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
   onBack,
   onSelectTransfer,
 }) => {
-  const { theme, theme: tenantTheme } = useTenantTheme();
+  const { theme } = useTenantTheme();
   const notify = useNotification();
   const [isLoading, setIsLoading] = useState(false);
   const [userPermissions, setUserPermissions] = useState<any>({});
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
+
+  // Use inverse color for text on primary gradient background
+  const inverseColor = theme.colors.textInverse;
 
   // Update screen width on resize
   useEffect(() => {
@@ -73,7 +76,7 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
     {
       id: 'internal',
       name: 'Same Bank Transfer',
-      description: `Instant transfer within ${tenantTheme?.branding?.appTitle || 'this bank'}`,
+      description: `Instant transfer within ${theme.brandName || 'this bank'}`,
       icon: '🏦',
       fee: 0,
       available: true,
@@ -211,7 +214,7 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
       width: 40,
       height: 40,
       borderRadius: 20,
-      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      backgroundColor: `${inverseColor}33`, // 20% opacity
       justifyContent: 'center',
       alignItems: 'center',
       ...Platform.select({
@@ -222,12 +225,12 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
     },
     backButtonText: {
       fontSize: 20,
-      color: '#FFFFFF',
+      color: inverseColor,
     },
     headerTitle: {
       fontSize: 20,
       fontWeight: '600',
-      color: '#FFFFFF',
+      color: inverseColor,
     },
     headerSpacer: {
       width: 40,
@@ -243,12 +246,12 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
     mainTitle: {
       fontSize: 32,
       fontWeight: '700',
-      color: '#FFFFFF',
+      color: inverseColor,
       marginBottom: 8,
     },
     subtitle: {
       fontSize: 16,
-      color: 'rgba(255, 255, 255, 0.9)',
+      color: `${inverseColor}E6`, // 90% opacity
       textAlign: 'center',
     },
     optionsContainer: {
@@ -263,13 +266,13 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
     optionCard: {
       flex: screenWidth >= 768 ? 1 : undefined,
       width: screenWidth < 768 ? '100%' : undefined,
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      backgroundColor: `${theme.colors.surface}F2`, // 95% opacity
       borderRadius: 20,
       padding: 20,
       marginHorizontal: screenWidth >= 768 ? 8 : 0,
       minHeight: 180,
       borderWidth: 1,
-      borderColor: 'rgba(255, 255, 255, 0.3)',
+      borderColor: `${theme.colors.textInverse}4D`, // 30% opacity
       ...Platform.select({
         web: {
           backdropFilter: 'blur(20px)',
@@ -292,7 +295,7 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
       opacity: 0.9,
     },
     optionCardSelected: {
-      backgroundColor: 'rgba(255, 255, 255, 1)',
+      backgroundColor: theme.colors.surface,
       borderColor: theme.colors.primary,
       borderWidth: 2,
     },
@@ -312,7 +315,7 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
       borderRadius: 12,
     },
     badgeText: {
-      color: '#FFFFFF',
+      color: inverseColor,
       fontSize: 10,
       fontWeight: '700',
     },
@@ -366,7 +369,7 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
       zIndex: 999,
     },
     loadingContent: {
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      backgroundColor: `${theme.colors.surface}F2`, // 95% opacity
       padding: 24,
       borderRadius: 16,
       alignItems: 'center',
@@ -382,7 +385,7 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
       color: theme.colors.text,
     },
     infoCard: {
-      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+      backgroundColor: `${theme.colors.surface}E6`, // 90% opacity
       borderRadius: 16,
       padding: 16,
       marginHorizontal: 20,
@@ -417,7 +420,7 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={[theme.colors.primary, theme.colors.secondary]}
+        colors={[theme.colors.primaryGradientStart, theme.colors.primaryGradientEnd]}
         style={styles.gradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -480,7 +483,7 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
                         <View style={styles.feeContainer}>
                           <Text style={styles.feeLabel}>Fee:</Text>
                           <Text style={styles.feeAmount}>
-                            {option.fee === 0 ? 'FREE' : formatCurrency(option.fee, tenantTheme.currency, { locale: tenantTheme.locale })}
+                            {option.fee === 0 ? 'FREE' : formatCurrency(option.fee, 'NGN', { locale: 'en-NG' })}
                           </Text>
                         </View>
                         <Text style={styles.arrow}>→</Text>

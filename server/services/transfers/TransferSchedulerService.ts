@@ -110,7 +110,7 @@ export class TransferSchedulerService {
             );
 
             // Execute the transfer
-            const transferService = new InternalTransferService();
+            const transferService = new InternalTransferService(pool);
             const transferRequest = {
                 walletId: scheduledTransfer.from_wallet_id,
                 recipientWalletNumber: scheduledTransfer.to_wallet_number,
@@ -121,7 +121,7 @@ export class TransferSchedulerService {
                 pin: '' // PIN was already validated when scheduling
             };
 
-            const result = await transferService.initiateTransfer(transferRequest);
+            const result = await transferService.processTransfer(transferRequest, scheduledTransfer.user_id);
 
             // Update scheduled transfer status
             if (result.success) {
@@ -215,7 +215,7 @@ export class TransferSchedulerService {
             console.log(`🔄 Executing recurring transfer: ${recurringTransfer.id}`);
 
             // Execute the transfer
-            const transferService = new InternalTransferService();
+            const transferService = new InternalTransferService(pool);
             const transferRequest = {
                 walletId: recurringTransfer.from_wallet_id,
                 recipientWalletNumber: recurringTransfer.to_wallet_number,
@@ -226,7 +226,7 @@ export class TransferSchedulerService {
                 pin: '' // PIN was already validated when setting up recurring
             };
 
-            const result = await transferService.initiateTransfer(transferRequest);
+            const result = await transferService.processTransfer(transferRequest, recurringTransfer.user_id);
 
             if (result.success) {
                 // Calculate next execution date

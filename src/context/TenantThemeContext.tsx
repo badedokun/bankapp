@@ -37,6 +37,7 @@ const DEFAULT_THEME = {
     text: '#1F2937',
     textSecondary: '#6B7280',
     textLight: '#9CA3AF',
+    textInverse: '#FFFFFF',
     background: '#F9FAFB',
     backgroundGradientStart: '#F3F4F6',
     backgroundGradientEnd: '#E5E7EB',
@@ -89,6 +90,7 @@ export interface TenantTheme {
     text: string;
     textSecondary: string;
     textLight: string;
+    textInverse: string;
     background: string;
     backgroundGradientStart: string;
     backgroundGradientEnd: string;
@@ -197,7 +199,45 @@ export const TenantThemeProvider: React.FC<TenantThemeProviderProps> = ({ childr
       }
 
       const themeData = await response.json();
-      return themeData;
+
+      console.log('🎨 API Theme Data:', themeData);
+
+      // Merge with DEFAULT_THEME to ensure all required properties exist
+      // API colors override default colors, but default colors provide fallback
+      const mergedTheme = {
+        ...DEFAULT_THEME,
+        ...themeData,
+        colors: {
+          ...DEFAULT_THEME.colors,
+          ...(themeData.colors || {}),
+          // Ensure critical colors always exist - these MUST come from API or fallback to default
+          textInverse: themeData.colors?.textInverse || DEFAULT_THEME.colors.textInverse,
+          primaryGradientStart: themeData.colors?.primaryGradientStart || themeData.colors?.primary || DEFAULT_THEME.colors.primaryGradientStart,
+          primaryGradientEnd: themeData.colors?.primaryGradientEnd || themeData.colors?.secondary || DEFAULT_THEME.colors.primaryGradientEnd,
+        },
+        typography: {
+          ...DEFAULT_THEME.typography,
+          ...(themeData.typography || {}),
+        },
+        numberFormat: {
+          ...DEFAULT_THEME.numberFormat,
+          ...(themeData.numberFormat || {}),
+        },
+        layout: {
+          ...DEFAULT_THEME.layout,
+          ...(themeData.layout || {}),
+        },
+      };
+
+      console.log('🎨 Merged Theme Colors:', {
+        primary: mergedTheme.colors.primary,
+        secondary: mergedTheme.colors.secondary,
+        primaryGradientStart: mergedTheme.colors.primaryGradientStart,
+        primaryGradientEnd: mergedTheme.colors.primaryGradientEnd,
+        textInverse: mergedTheme.colors.textInverse,
+      });
+
+      return mergedTheme;
     } catch (error) {
       return null;
     }

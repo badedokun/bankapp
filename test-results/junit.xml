@@ -1,0 +1,442 @@
+<testsuites id="" name="" tests="108" failures="0" skipped="108" errors="0" time="0.10875799999999998">
+<testsuite name="backend/compliance-fraud-detection.test.ts" timestamp="2025-10-05T00:05:56.940Z" hostname="chromium" tests="27" failures="0" skipped="27" time="0" errors="0">
+<testcase name="Compliance and Fraud Detection Tests › Fraud Detection System › should detect low-risk transactions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Fraud Detection System › should detect medium-risk transactions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Fraud Detection System › should detect high-risk transactions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Fraud Detection System › should flag unusual transfer patterns" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Fraud Detection System › should validate fraud check response structure" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Transaction Limits Compliance › should enforce daily transaction limits" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Transaction Limits Compliance › should reject transfers exceeding single transaction limit" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Transaction Limits Compliance › should track cumulative daily usage" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › AML/KYC Compliance › should validate KYC tier requirements" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › AML/KYC Compliance › should require enhanced due diligence for large transactions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › AML/KYC Compliance › should maintain transaction audit trail" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › International Transfer Compliance › should validate SWIFT code format" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › International Transfer Compliance › should validate IBAN format" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › International Transfer Compliance › should require purpose for international transfers" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › International Transfer Compliance › should validate source of funds documentation" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › International Transfer Compliance › should check high-risk country restrictions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Sanctions Screening › should screen against sanctions lists" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Sanctions Screening › should flag PEP (Politically Exposed Person) status" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Regulatory Reporting › should identify reportable transactions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Regulatory Reporting › should aggregate related transactions (structuring detection)" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Regulatory Reporting › should maintain CTR (Currency Transaction Report) data" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Compliance Providers › should validate Nigeria compliance requirements" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Compliance Providers › should validate USA compliance requirements (BSA/FinCEN)" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Compliance Providers › should validate Europe compliance requirements (AML5)" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Compliance Providers › should validate Canada compliance requirements (PCMLTFA)" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Compliance Scoring › should calculate compliance score based on multiple factors" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Compliance Scoring › should enforce minimum compliance score for transactions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="backend/compliance-fraud-detection.test.ts" timestamp="2025-10-05T00:05:56.940Z" hostname="firefox" tests="27" failures="0" skipped="27" time="0" errors="0">
+<testcase name="Compliance and Fraud Detection Tests › Fraud Detection System › should detect low-risk transactions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Fraud Detection System › should detect medium-risk transactions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Fraud Detection System › should detect high-risk transactions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Fraud Detection System › should flag unusual transfer patterns" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Fraud Detection System › should validate fraud check response structure" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Transaction Limits Compliance › should enforce daily transaction limits" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Transaction Limits Compliance › should reject transfers exceeding single transaction limit" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Transaction Limits Compliance › should track cumulative daily usage" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › AML/KYC Compliance › should validate KYC tier requirements" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › AML/KYC Compliance › should require enhanced due diligence for large transactions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › AML/KYC Compliance › should maintain transaction audit trail" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › International Transfer Compliance › should validate SWIFT code format" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › International Transfer Compliance › should validate IBAN format" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › International Transfer Compliance › should require purpose for international transfers" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › International Transfer Compliance › should validate source of funds documentation" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › International Transfer Compliance › should check high-risk country restrictions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Sanctions Screening › should screen against sanctions lists" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Sanctions Screening › should flag PEP (Politically Exposed Person) status" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Regulatory Reporting › should identify reportable transactions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Regulatory Reporting › should aggregate related transactions (structuring detection)" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Regulatory Reporting › should maintain CTR (Currency Transaction Report) data" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Compliance Providers › should validate Nigeria compliance requirements" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Compliance Providers › should validate USA compliance requirements (BSA/FinCEN)" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Compliance Providers › should validate Europe compliance requirements (AML5)" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Compliance Providers › should validate Canada compliance requirements (PCMLTFA)" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Compliance Scoring › should calculate compliance score based on multiple factors" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Compliance Scoring › should enforce minimum compliance score for transactions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="backend/compliance-fraud-detection.test.ts" timestamp="2025-10-05T00:05:56.940Z" hostname="webkit" tests="27" failures="0" skipped="27" time="0" errors="0">
+<testcase name="Compliance and Fraud Detection Tests › Fraud Detection System › should detect low-risk transactions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Fraud Detection System › should detect medium-risk transactions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Fraud Detection System › should detect high-risk transactions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Fraud Detection System › should flag unusual transfer patterns" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Fraud Detection System › should validate fraud check response structure" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Transaction Limits Compliance › should enforce daily transaction limits" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Transaction Limits Compliance › should reject transfers exceeding single transaction limit" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Transaction Limits Compliance › should track cumulative daily usage" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › AML/KYC Compliance › should validate KYC tier requirements" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › AML/KYC Compliance › should require enhanced due diligence for large transactions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › AML/KYC Compliance › should maintain transaction audit trail" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › International Transfer Compliance › should validate SWIFT code format" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › International Transfer Compliance › should validate IBAN format" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › International Transfer Compliance › should require purpose for international transfers" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › International Transfer Compliance › should validate source of funds documentation" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › International Transfer Compliance › should check high-risk country restrictions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Sanctions Screening › should screen against sanctions lists" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Sanctions Screening › should flag PEP (Politically Exposed Person) status" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Regulatory Reporting › should identify reportable transactions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Regulatory Reporting › should aggregate related transactions (structuring detection)" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Regulatory Reporting › should maintain CTR (Currency Transaction Report) data" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Compliance Providers › should validate Nigeria compliance requirements" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Compliance Providers › should validate USA compliance requirements (BSA/FinCEN)" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Compliance Providers › should validate Europe compliance requirements (AML5)" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Compliance Providers › should validate Canada compliance requirements (PCMLTFA)" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Compliance Scoring › should calculate compliance score based on multiple factors" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Compliance Scoring › should enforce minimum compliance score for transactions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="backend/compliance-fraud-detection.test.ts" timestamp="2025-10-05T00:05:56.940Z" hostname="mobile-chrome" tests="27" failures="0" skipped="27" time="0" errors="0">
+<testcase name="Compliance and Fraud Detection Tests › Fraud Detection System › should detect low-risk transactions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Fraud Detection System › should detect medium-risk transactions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Fraud Detection System › should detect high-risk transactions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Fraud Detection System › should flag unusual transfer patterns" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Fraud Detection System › should validate fraud check response structure" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Transaction Limits Compliance › should enforce daily transaction limits" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Transaction Limits Compliance › should reject transfers exceeding single transaction limit" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Transaction Limits Compliance › should track cumulative daily usage" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › AML/KYC Compliance › should validate KYC tier requirements" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › AML/KYC Compliance › should require enhanced due diligence for large transactions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › AML/KYC Compliance › should maintain transaction audit trail" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › International Transfer Compliance › should validate SWIFT code format" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › International Transfer Compliance › should validate IBAN format" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › International Transfer Compliance › should require purpose for international transfers" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › International Transfer Compliance › should validate source of funds documentation" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › International Transfer Compliance › should check high-risk country restrictions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Sanctions Screening › should screen against sanctions lists" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Sanctions Screening › should flag PEP (Politically Exposed Person) status" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Regulatory Reporting › should identify reportable transactions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Regulatory Reporting › should aggregate related transactions (structuring detection)" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Regulatory Reporting › should maintain CTR (Currency Transaction Report) data" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Compliance Providers › should validate Nigeria compliance requirements" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Compliance Providers › should validate USA compliance requirements (BSA/FinCEN)" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Compliance Providers › should validate Europe compliance requirements (AML5)" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Compliance Providers › should validate Canada compliance requirements (PCMLTFA)" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Compliance Scoring › should calculate compliance score based on multiple factors" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Compliance and Fraud Detection Tests › Compliance Scoring › should enforce minimum compliance score for transactions" classname="backend/compliance-fraud-detection.test.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+</testsuites>

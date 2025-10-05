@@ -198,6 +198,7 @@ export class EuropeComplianceProvider extends BaseComplianceProvider {
     }
 
     // Advanced Level: Enhanced Due Diligence (AML5 requirements)
+    let sanctionsResult: any = null;
     if (level === 'advanced') {
       // PEP screening (mandatory under AML5)
       const pepResult = await this.screenPEP(user);
@@ -209,7 +210,7 @@ export class EuropeComplianceProvider extends BaseComplianceProvider {
       }
 
       // EU sanctions screening
-      const sanctionsResult = await this.checkSanctions({
+      sanctionsResult = await this.checkSanctions({
         name: `${user.firstName} ${user.lastName}`,
         dateOfBirth: user.dateOfBirth,
         nationality: user.nationality,
@@ -890,7 +891,7 @@ export class EuropeComplianceProvider extends BaseComplianceProvider {
     return suspiciousKeywords.some(keyword => lower.includes(keyword));
   }
 
-  private async checkSCAREquirement(transaction: Transaction): boolean {
+  private async checkSCAREquirement(transaction: Transaction): Promise<boolean> {
     // PSD2 SCA exemptions
     if (transaction.amount <= 30) return false; // Low-value exemption
     return true; // SCA required

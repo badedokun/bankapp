@@ -15,7 +15,7 @@ import {
 import { useTenantTheme } from '../../tenants/TenantContext';
 import { useBankingAlert } from '../../services/AlertService';
 import Button from '../../components/ui/Button';
-import ModernScreenHeader from '../../components/ui/ModernScreenHeader';
+import TransferHeader from '../../components/transfers/TransferHeader';
 import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
 
 interface FlexibleSavingsScreenProps {
@@ -47,20 +47,19 @@ export const FlexibleSavingsScreen: React.FC<FlexibleSavingsScreenProps> = ({
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: tenantTheme.colors.background }]}>
-      <ModernScreenHeader
+    <View style={styles.container}>
+      <TransferHeader
         title="Flexible Savings"
+        subtitle="Save at your own pace with complete flexibility"
         onBack={onBack}
+        showSteps={false}
       />
 
-      <ScrollView style={styles.content}>
+      <ScrollView style={[styles.content, { backgroundColor: tenantTheme.colors.background }]}>
         <View style={[styles.productCard, { backgroundColor: tenantTheme.colors.surface }]}>
           <RNText style={styles.productIcon}>🌱</RNText>
           <RNText style={[styles.productTitle, { color: tenantTheme.colors.text }]}>
             Flexible Savings Account
-          </RNText>
-          <RNText style={[styles.productSubtitle, { color: tenantTheme.colors.textSecondary }]}>
-            Save at your own pace with complete flexibility
           </RNText>
         </View>
 
@@ -167,7 +166,7 @@ export const FlexibleSavingsScreen: React.FC<FlexibleSavingsScreenProps> = ({
           </RNText>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 

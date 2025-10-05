@@ -7,7 +7,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
-  Text,
+  Text as RNText,
   StyleSheet,
   ScrollView,
   SafeAreaView,
@@ -392,9 +392,9 @@ export const InternalTransferScreen: React.FC<InternalTransferScreenProps> = ({
           style={[styles.modeTab, transferMode === mode && styles.activeModeTab]}
           onPress={() => setTransferMode(mode)}
         >
-          <Text style={[styles.modeTabText, transferMode === mode && styles.activeModeTabText]}>
+          <RNText style={[styles.modeTabText, transferMode === mode && styles.activeModeTabText]}>
             {mode.charAt(0).toUpperCase() + mode.slice(1)}
-          </Text>
+          </RNText>
         </TouchableOpacity>
       ))}
     </View>
@@ -402,24 +402,24 @@ export const InternalTransferScreen: React.FC<InternalTransferScreenProps> = ({
 
   const renderLimitsCard = () => (
     <View style={styles.limitsCard}>
-      <Text style={styles.limitsTitle}>💳 Transfer Limits</Text>
+      <RNText style={styles.limitsTitle}>💳 Transfer Limits</RNText>
       <View style={styles.limitsRow}>
-        <Text style={styles.limitsLabel}>Daily Used/Limit</Text>
-        <Text style={styles.limitsValue}>
+        <RNText style={styles.limitsLabel}>Daily Used/Limit</RNText>
+        <RNText style={styles.limitsValue}>
           {formatCurrency(limits.daily.used, tenantTheme.currency, { locale: tenantTheme.locale })} / {formatCurrency(limits.daily.limit, tenantTheme.currency, { locale: tenantTheme.locale })}
-        </Text>
+        </RNText>
       </View>
       <View style={styles.limitsRow}>
-        <Text style={styles.limitsLabel}>Monthly Used/Limit</Text>
-        <Text style={styles.limitsValue}>
+        <RNText style={styles.limitsLabel}>Monthly Used/Limit</RNText>
+        <RNText style={styles.limitsValue}>
           {formatCurrency(limits.monthly.used, tenantTheme.currency, { locale: tenantTheme.locale })} / {formatCurrency(limits.monthly.limit, tenantTheme.currency, { locale: tenantTheme.locale })}
-        </Text>
+        </RNText>
       </View>
       <View style={styles.limitsRow}>
-        <Text style={styles.limitsLabel}>Per Transaction</Text>
-        <Text style={styles.limitsValue}>
+        <RNText style={styles.limitsLabel}>Per Transaction</RNText>
+        <RNText style={styles.limitsValue}>
           {formatCurrency(limits.perTransaction.min, tenantTheme.currency, { locale: tenantTheme.locale })} - {formatCurrency(limits.perTransaction.max, tenantTheme.currency, { locale: tenantTheme.locale })}
-        </Text>
+        </RNText>
       </View>
     </View>
   );
@@ -439,9 +439,9 @@ export const InternalTransferScreen: React.FC<InternalTransferScreenProps> = ({
 
         {transferMode === 'recurring' && (
           <>
-            <Text style={[styles.sectionTitle, { marginTop: theme.spacing.md }]}>
+            <RNText style={[styles.sectionTitle, { marginTop: theme.spacing.md }]}>
               Frequency
-            </Text>
+            </RNText>
             <View style={styles.frequencySelector}>
               {frequencyOptions.map((option) => (
                 <TouchableOpacity
@@ -452,14 +452,14 @@ export const InternalTransferScreen: React.FC<InternalTransferScreenProps> = ({
                   ]}
                   onPress={() => handleFieldChange('frequency', option.value)}
                 >
-                  <Text
+                  <RNText
                     style={[
                       styles.frequencyOptionText,
                       formData.frequency === option.value && styles.activeFrequencyOptionText,
                     ]}
                   >
                     {option.label}
-                  </Text>
+                  </RNText>
                 </TouchableOpacity>
               ))}
             </View>
@@ -486,42 +486,42 @@ export const InternalTransferScreen: React.FC<InternalTransferScreenProps> = ({
 
     return (
       <View style={styles.reviewSection}>
-        <Text style={styles.reviewTitle}>📋 Transfer Summary</Text>
+        <RNText style={styles.reviewTitle}>📋 Transfer Summary</RNText>
 
         <View style={styles.reviewRow}>
-          <Text style={styles.reviewLabel}>To:</Text>
-          <Text style={styles.reviewValue}>{formData.recipientName}</Text>
+          <RNText style={styles.reviewLabel}>To:</RNText>
+          <RNText style={styles.reviewValue}>{formData.recipientName}</RNText>
         </View>
 
         <View style={styles.reviewRow}>
-          <Text style={styles.reviewLabel}>Account:</Text>
-          <Text style={styles.reviewValue}>{formData.recipientAccountNumber}</Text>
+          <RNText style={styles.reviewLabel}>Account:</RNText>
+          <RNText style={styles.reviewValue}>{formData.recipientAccountNumber}</RNText>
         </View>
 
         <View style={styles.reviewRow}>
-          <Text style={styles.reviewLabel}>Amount:</Text>
-          <Text style={styles.reviewValue}>{formatCurrency(amount, tenantTheme.currency, { locale: tenantTheme.locale })}</Text>
+          <RNText style={styles.reviewLabel}>Amount:</RNText>
+          <RNText style={styles.reviewValue}>{formatCurrency(amount, tenantTheme.currency, { locale: tenantTheme.locale })}</RNText>
         </View>
 
         <View style={styles.reviewRow}>
-          <Text style={styles.reviewLabel}>Fee:</Text>
-          <Text style={styles.reviewValue}>{formatCurrency(fee, tenantTheme.currency, { locale: tenantTheme.locale })}</Text>
+          <RNText style={styles.reviewLabel}>Fee:</RNText>
+          <RNText style={styles.reviewValue}>{formatCurrency(fee, tenantTheme.currency, { locale: tenantTheme.locale })}</RNText>
         </View>
 
         <View style={[styles.reviewRow, { borderBottomWidth: 0, marginTop: theme.spacing.sm }]}>
-          <Text style={[styles.reviewLabel, { fontWeight: 'bold' }]}>Total:</Text>
-          <Text style={[styles.reviewValue, { fontWeight: 'bold', color: theme.colors.primary }]}>
+          <RNText style={[styles.reviewLabel, { fontWeight: 'bold' }]}>Total:</RNText>
+          <RNText style={[styles.reviewValue, { fontWeight: 'bold', color: theme.colors.primary }]}>
             {formatCurrency(total, tenantTheme.currency, { locale: tenantTheme.locale })}
-          </Text>
+          </RNText>
         </View>
 
         {transferMode !== 'instant' && (
           <View style={styles.reviewRow}>
-            <Text style={styles.reviewLabel}>When:</Text>
-            <Text style={styles.reviewValue}>
+            <RNText style={styles.reviewLabel}>When:</RNText>
+            <RNText style={styles.reviewValue}>
               {transferMode === 'scheduled' ? 'One-time' : formData.frequency}
               {formData.scheduledDate && ` starting ${formData.scheduledDate.toLocaleDateString()}`}
-            </Text>
+            </RNText>
           </View>
         )}
       </View>
@@ -543,7 +543,7 @@ export const InternalTransferScreen: React.FC<InternalTransferScreenProps> = ({
 
         {/* Account Selection */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>💰 From Account</Text>
+          <RNText style={styles.sectionTitle}>💰 From Account</RNText>
           <AccountSelector
             accounts={accounts}
             selectedAccount={formData.senderAccount}
@@ -562,7 +562,7 @@ export const InternalTransferScreen: React.FC<InternalTransferScreenProps> = ({
 
         {/* Transfer Details */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>📝 Transfer Details</Text>
+          <RNText style={styles.sectionTitle}>📝 Transfer Details</RNText>
 
           <Input
             label="Recipient Name"
@@ -629,12 +629,12 @@ export const InternalTransferScreen: React.FC<InternalTransferScreenProps> = ({
           style={styles.transferButton}
         />
 
-        <Text style={styles.disclaimerText}>
+        <RNText style={styles.disclaimerText}>
           {transferMode === 'instant'
             ? "Internal transfers are processed instantly and are free of charge."
             : "Scheduled transfers will be processed on the selected date. You can modify or cancel before processing."
           }
-        </Text>
+        </RNText>
       </ScrollView>
     </SafeAreaView>
   );

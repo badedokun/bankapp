@@ -159,6 +159,7 @@ export class USAComplianceProvider extends BaseComplianceProvider {
     }
 
     // Advanced Level: Enhanced due diligence
+    let sanctionsResult: any = null;
     if (level === 'advanced') {
       // PEP screening (required for high-value accounts)
       const pepResult = await this.screenPEP(user);
@@ -170,7 +171,7 @@ export class USAComplianceProvider extends BaseComplianceProvider {
       }
 
       // OFAC sanctions screening (mandatory for all accounts)
-      const sanctionsResult = await this.checkSanctions({
+      sanctionsResult = await this.checkSanctions({
         name: `${user.firstName} ${user.lastName}`,
         dateOfBirth: user.dateOfBirth,
         nationality: user.nationality,

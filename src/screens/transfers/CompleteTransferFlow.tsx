@@ -10,12 +10,12 @@
 import React, { useState, useEffect } from 'react';
 import {
   View,
-  Text,
+  Text as RNText,
   StyleSheet,
   ScrollView,
   SafeAreaView,
   TouchableOpacity,
-  TextInput,
+  TextInput as RNTextInput,
   Dimensions,
   Platform,
   ActivityIndicator,
@@ -999,18 +999,18 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
                   isCompleted && styles.stepCircleCompleted,
                 ]}
               >
-                <Text style={styles.stepCircleText}>
+                <RNText style={styles.stepCircleText}>
                   {isCompleted ? '✓' : step.number}
-                </Text>
+                </RNText>
               </View>
-              <Text
+              <RNText
                 style={[
                   styles.stepLabel,
                   (isActive || isCompleted) && styles.stepLabelActive,
                 ]}
               >
                 {step.label}
-              </Text>
+              </RNText>
             </View>
           );
         })}
@@ -1030,7 +1030,7 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
       >
         <View style={styles.contentPadding}>
           {/* Recipient Information */}
-          <Text style={styles.sectionTitle}>Recipient Details</Text>
+          <RNText style={styles.sectionTitle}>Recipient Details</RNText>
 
           <BankSelectorPicker
             selectedBank={
@@ -1042,8 +1042,8 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
           />
 
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Account Number</Text>
-            <TextInput
+            <RNText style={styles.inputLabel}>Account Number</RNText>
+            <RNTextInput
               style={[
                 styles.inputField,
                 transferData.accountName && styles.validationSuccess,
@@ -1055,62 +1055,62 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
               maxLength={10}
             />
             {isValidatingAccount && (
-              <Text style={[styles.validationMessage, styles.validationSuccessMessage]}>
+              <RNText style={[styles.validationMessage, styles.validationSuccessMessage]}>
                 🔄 Verifying account...
-              </Text>
+              </RNText>
             )}
             {transferData.accountName && (
-              <Text style={[styles.validationMessage, styles.validationSuccessMessage]}>
+              <RNText style={[styles.validationMessage, styles.validationSuccessMessage]}>
                 ✅ Account Name: {transferData.accountName}
-              </Text>
+              </RNText>
             )}
           </View>
 
           {/* Amount Widget */}
           <View style={styles.amountWidget}>
             <View style={styles.amountHeader}>
-              <Text style={styles.amountIcon}>💰</Text>
-              <Text style={styles.amountTitle}>Transfer Amount</Text>
+              <RNText style={styles.amountIcon}>💰</RNText>
+              <RNText style={styles.amountTitle}>Transfer Amount</RNText>
             </View>
 
-            <TextInput
+            <RNTextInput
               style={styles.amountInputLarge}
               placeholder="0"
               value={transferData.amount}
               onChangeText={handleAmountChange}
               keyboardType="number-pad"
             />
-            <Text style={styles.amountCurrencyLabel}>{getCurrencyName(theme.currency)} ({getCurrencySymbol(theme.currency)})</Text>
+            <RNText style={styles.amountCurrencyLabel}>{getCurrencyName(theme.currency)} ({getCurrencySymbol(theme.currency)})</RNText>
 
             <View style={styles.quickAmountsGrid}>
               <TouchableOpacity style={styles.quickAmountBtn} onPress={() => setQuickAmount(1000)}>
-                <Text style={styles.quickAmountBtnText}>{getCurrencySymbol(theme.currency)}1K</Text>
+                <RNText style={styles.quickAmountBtnText}>{getCurrencySymbol(theme.currency)}1K</RNText>
               </TouchableOpacity>
               <TouchableOpacity style={styles.quickAmountBtn} onPress={() => setQuickAmount(5000)}>
-                <Text style={styles.quickAmountBtnText}>{getCurrencySymbol(theme.currency)}5K</Text>
+                <RNText style={styles.quickAmountBtnText}>{getCurrencySymbol(theme.currency)}5K</RNText>
               </TouchableOpacity>
               <TouchableOpacity style={styles.quickAmountBtn} onPress={() => setQuickAmount(10000)}>
-                <Text style={styles.quickAmountBtnText}>{getCurrencySymbol(theme.currency)}10K</Text>
+                <RNText style={styles.quickAmountBtnText}>{getCurrencySymbol(theme.currency)}10K</RNText>
               </TouchableOpacity>
               <TouchableOpacity style={styles.quickAmountBtn} onPress={() => setQuickAmount(50000)}>
-                <Text style={styles.quickAmountBtnText}>{getCurrencySymbol(theme.currency)}50K</Text>
+                <RNText style={styles.quickAmountBtnText}>{getCurrencySymbol(theme.currency)}50K</RNText>
               </TouchableOpacity>
             </View>
 
             <View style={styles.limitsInfo}>
               <View style={styles.limitRow}>
-                <Text style={styles.limitLabel}>Daily Limit:</Text>
-                <Text style={styles.limitValue}>{formatCurrency(limits.dailyLimit)}</Text>
+                <RNText style={styles.limitLabel}>Daily Limit:</RNText>
+                <RNText style={styles.limitValue}>{formatCurrency(limits.dailyLimit)}</RNText>
               </View>
               <View style={styles.limitRow}>
-                <Text style={styles.limitLabel}>Available Balance:</Text>
-                <Text style={styles.limitValue}>{formatCurrency(limits.availableBalance)}</Text>
+                <RNText style={styles.limitLabel}>Available Balance:</RNText>
+                <RNText style={styles.limitValue}>{formatCurrency(limits.availableBalance)}</RNText>
               </View>
               <View style={styles.limitRow}>
-                <Text style={styles.limitLabel}>Remaining Today:</Text>
-                <Text style={[styles.limitValue, styles.limitValueHighlight]}>
+                <RNText style={styles.limitLabel}>Remaining Today:</RNText>
+                <RNText style={[styles.limitValue, styles.limitValueHighlight]}>
                   {formatCurrency(limits.remainingToday)}
-                </Text>
+                </RNText>
               </View>
             </View>
           </View>
@@ -1119,32 +1119,32 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
           {fees.amount > 0 && (
             <View style={styles.feeCalculator}>
               <View style={styles.feeRow}>
-                <Text style={styles.feeLabel}>Transfer Amount</Text>
-                <Text style={styles.feeAmount}>{formatCurrency(fees.amount)}</Text>
+                <RNText style={styles.feeLabel}>Transfer Amount</RNText>
+                <RNText style={styles.feeAmount}>{formatCurrency(fees.amount)}</RNText>
               </View>
               <View style={styles.feeRow}>
-                <Text style={styles.feeLabel}>NIBSS Processing Fee</Text>
-                <Text style={styles.feeAmount}>{formatCurrency(fees.nibssFee)}</Text>
+                <RNText style={styles.feeLabel}>NIBSS Processing Fee</RNText>
+                <RNText style={styles.feeAmount}>{formatCurrency(fees.nibssFee)}</RNText>
               </View>
               <View style={styles.feeRow}>
-                <Text style={styles.feeLabel}>Service Fee</Text>
-                <Text style={styles.feeAmount}>{formatCurrency(fees.serviceFee)}</Text>
+                <RNText style={styles.feeLabel}>Service Fee</RNText>
+                <RNText style={styles.feeAmount}>{formatCurrency(fees.serviceFee)}</RNText>
               </View>
               <View style={styles.feeRow}>
-                <Text style={styles.feeLabel}>VAT (7.5%)</Text>
-                <Text style={styles.feeAmount}>{formatCurrency(fees.vat)}</Text>
+                <RNText style={styles.feeLabel}>VAT (7.5%)</RNText>
+                <RNText style={styles.feeAmount}>{formatCurrency(fees.vat)}</RNText>
               </View>
               <View style={[styles.feeRow, styles.feeRowTotal]}>
-                <Text style={[styles.feeLabel, { fontWeight: '600' }]}>Total Charges</Text>
-                <Text style={[styles.feeAmount, styles.feeAmountTotal]}>
+                <RNText style={[styles.feeLabel, { fontWeight: '600' }]}>Total Charges</RNText>
+                <RNText style={[styles.feeAmount, styles.feeAmountTotal]}>
                   {formatCurrency(fees.totalFees)}
-                </Text>
+                </RNText>
               </View>
             </View>
           )}
 
           {/* Scheduling Options */}
-          <Text style={styles.sectionTitle}>When to Send</Text>
+          <RNText style={styles.sectionTitle}>When to Send</RNText>
           <View style={styles.schedulingOptions}>
             <TouchableOpacity
               style={[
@@ -1153,10 +1153,10 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
               ]}
               onPress={() => handleScheduleChange('now')}
             >
-              <Text style={styles.scheduleIcon}>⚡</Text>
+              <RNText style={styles.scheduleIcon}>⚡</RNText>
               <View style={styles.scheduleInfo}>
-                <Text style={styles.scheduleTitle}>Send Now</Text>
-                <Text style={styles.scheduleSubtitle}>Instant transfer</Text>
+                <RNText style={styles.scheduleTitle}>Send Now</RNText>
+                <RNText style={styles.scheduleSubtitle}>Instant transfer</RNText>
               </View>
             </TouchableOpacity>
 
@@ -1167,10 +1167,10 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
               ]}
               onPress={() => handleScheduleChange('later')}
             >
-              <Text style={styles.scheduleIcon}>⏰</Text>
+              <RNText style={styles.scheduleIcon}>⏰</RNText>
               <View style={styles.scheduleInfo}>
-                <Text style={styles.scheduleTitle}>Send Later</Text>
-                <Text style={styles.scheduleSubtitle}>Schedule for specific time</Text>
+                <RNText style={styles.scheduleTitle}>Send Later</RNText>
+                <RNText style={styles.scheduleSubtitle}>Schedule for specific time</RNText>
               </View>
             </TouchableOpacity>
 
@@ -1181,10 +1181,10 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
               ]}
               onPress={() => handleScheduleChange('recurring')}
             >
-              <Text style={styles.scheduleIcon}>🔄</Text>
+              <RNText style={styles.scheduleIcon}>🔄</RNText>
               <View style={styles.scheduleInfo}>
-                <Text style={styles.scheduleTitle}>Recurring</Text>
-                <Text style={styles.scheduleSubtitle}>Regular payments</Text>
+                <RNText style={styles.scheduleTitle}>Recurring</RNText>
+                <RNText style={styles.scheduleSubtitle}>Regular payments</RNText>
               </View>
             </TouchableOpacity>
           </View>
@@ -1192,7 +1192,7 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
           {/* Send Later - Date/Time Picker */}
           {transferData.scheduleType === 'later' && (
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Schedule Date & Time</Text>
+              <RNText style={styles.inputLabel}>Schedule Date & Time</RNText>
               {Platform.OS === 'web' ? (
                 <input
                   type="datetime-local"
@@ -1221,7 +1221,7 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
                   min={new Date().toISOString().slice(0, 16)}
                 />
               ) : (
-                <TextInput
+                <RNTextInput
                   style={styles.inputField}
                   placeholder="Select date and time"
                   value={transferData.scheduledDate ? transferData.scheduledDate.toLocaleString('en-NG', {
@@ -1239,9 +1239,9 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
                   }}
                 />
               )}
-              <Text style={[styles.inputHint, { color: '#1a1a2e', fontWeight: '500' }]}>
+              <RNText style={[styles.inputHint, { color: '#1a1a2e', fontWeight: '500' }]}>
                 Click the calendar icon to select date and time
-              </Text>
+              </RNText>
             </View>
           )}
 
@@ -1249,7 +1249,7 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
           {transferData.scheduleType === 'recurring' && (
             <>
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Recurring Frequency</Text>
+                <RNText style={styles.inputLabel}>Recurring Frequency</RNText>
                 <View style={styles.frequencyOptions}>
                   <TouchableOpacity
                     style={[
@@ -1258,10 +1258,10 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
                     ]}
                     onPress={() => setTransferData(prev => ({ ...prev, recurringFrequency: 'daily' }))}
                   >
-                    <Text style={[
-                      styles.frequencyText,
+                    <RNText style={[
+                      styles.frequencyText as RNText,
                       transferData.recurringFrequency === 'daily' && styles.frequencyTextSelected,
-                    ]}>Daily</Text>
+                    ]}>Daily</RNText>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[
@@ -1270,10 +1270,10 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
                     ]}
                     onPress={() => setTransferData(prev => ({ ...prev, recurringFrequency: 'weekly' }))}
                   >
-                    <Text style={[
-                      styles.frequencyText,
+                    <RNText style={[
+                      styles.frequencyText as RNText,
                       transferData.recurringFrequency === 'weekly' && styles.frequencyTextSelected,
-                    ]}>Weekly</Text>
+                    ]}>Weekly</RNText>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[
@@ -1282,16 +1282,16 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
                     ]}
                     onPress={() => setTransferData(prev => ({ ...prev, recurringFrequency: 'monthly' }))}
                   >
-                    <Text style={[
-                      styles.frequencyText,
+                    <RNText style={[
+                      styles.frequencyText as RNText,
                       transferData.recurringFrequency === 'monthly' && styles.frequencyTextSelected,
-                    ]}>Monthly</Text>
+                    ]}>Monthly</RNText>
                   </TouchableOpacity>
                 </View>
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Start Date</Text>
+                <RNText style={styles.inputLabel}>Start Date</RNText>
                 {Platform.OS === 'web' ? (
                   <input
                     type="date"
@@ -1320,7 +1320,7 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
                     min={new Date().toISOString().slice(0, 10)}
                   />
                 ) : (
-                  <TextInput
+                  <RNTextInput
                     style={styles.inputField}
                     placeholder="Select start date"
                     value={transferData.scheduledDate ? transferData.scheduledDate.toLocaleDateString('en-NG') : ''}
@@ -1332,13 +1332,13 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
                     }}
                   />
                 )}
-                <Text style={[styles.inputHint, { color: '#1a1a2e', fontWeight: '500' }]}>
+                <RNText style={[styles.inputHint, { color: '#1a1a2e', fontWeight: '500' }]}>
                   Click the calendar icon to select date
-                </Text>
+                </RNText>
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>End Date (Optional)</Text>
+                <RNText style={styles.inputLabel}>End Date (Optional)</RNText>
                 {Platform.OS === 'web' ? (
                   <input
                     type="date"
@@ -1376,7 +1376,7 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
                       new Date().toISOString().slice(0, 10)}
                   />
                 ) : (
-                  <TextInput
+                  <RNTextInput
                     style={styles.inputField}
                     placeholder="Leave empty for indefinite"
                     value={transferData.recurringEndDate ? transferData.recurringEndDate.toLocaleDateString('en-NG') : ''}
@@ -1392,17 +1392,17 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
                     }}
                   />
                 )}
-                <Text style={[styles.inputHint, { color: '#1a1a2e', fontWeight: '500' }]}>
+                <RNText style={[styles.inputHint, { color: '#1a1a2e', fontWeight: '500' }]}>
                   Click the calendar icon to select date (optional)
-                </Text>
+                </RNText>
               </View>
             </>
           )}
 
           {/* Additional Options */}
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Payment Reference (Auto-generated)</Text>
-            <TextInput
+            <RNText style={styles.inputLabel}>Payment Reference (Auto-generated)</RNText>
+            <RNTextInput
               style={[styles.inputField, { backgroundColor: '#f3f4f6', color: '#6c757d' }]}
               placeholder="Generating reference..."
               value={transferData.reference}
@@ -1411,8 +1411,8 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Narration (Optional)</Text>
-            <TextInput
+            <RNText style={styles.inputLabel}>Narration (Optional)</RNText>
+            <RNTextInput
               style={styles.inputField}
               placeholder="Purpose of transfer"
               value={transferData.narration}
@@ -1429,13 +1429,13 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
             style={[styles.btn, styles.btnSecondary, styles.btnHalf]}
             onPress={onBack || (() => navigation?.goBack())}
           >
-            <Text style={[styles.btnText, styles.btnTextSecondary]}>Back</Text>
+            <RNText style={[styles.btnText as RNText, styles.btnTextSecondary]}>Back</RNText>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.btn, styles.btnPrimary, styles.btnHalf]}
             onPress={handleContinueToReview}
           >
-            <Text style={[styles.btnText, styles.btnTextPrimary]}>Continue</Text>
+            <RNText style={[styles.btnText as RNText, styles.btnTextPrimary]}>Continue</RNText>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -1453,47 +1453,47 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.contentPadding}>
-          <Text style={styles.sectionTitle}>Review Transaction</Text>
+          <RNText style={styles.sectionTitle}>Review Transaction</RNText>
         </View>
 
         <View style={styles.transactionSummary}>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Recipient</Text>
+            <RNText style={styles.summaryLabel}>Recipient</RNText>
             <View style={{ flex: 1, alignItems: 'flex-end' }}>
-              <Text style={styles.summaryValue}>{transferData.accountName}</Text>
-              <Text style={[styles.summaryValue, { fontSize: 12, color: '#6c757d' }]}>
+              <RNText style={styles.summaryValue}>{transferData.accountName}</RNText>
+              <RNText style={[styles.summaryValue, { fontSize: 12, color: '#6c757d' }]}>
                 {transferData.bankName} • {transferData.accountNumber}
-              </Text>
+              </RNText>
             </View>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Transfer Amount</Text>
-            <Text style={styles.summaryValue}>{formatCurrency(fees.amount)}</Text>
+            <RNText style={styles.summaryLabel}>Transfer Amount</RNText>
+            <RNText style={styles.summaryValue}>{formatCurrency(fees.amount)}</RNText>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Total Fees</Text>
-            <Text style={styles.summaryValue}>{formatCurrency(fees.totalFees)}</Text>
+            <RNText style={styles.summaryLabel}>Total Fees</RNText>
+            <RNText style={styles.summaryValue}>{formatCurrency(fees.totalFees)}</RNText>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Total Debit</Text>
-            <Text style={[styles.summaryValue, styles.summaryValueHighlight]}>
+            <RNText style={styles.summaryLabel}>Total Debit</RNText>
+            <RNText style={[styles.summaryValue, styles.summaryValueHighlight]}>
               {formatCurrency(fees.totalDebit)}
-            </Text>
+            </RNText>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Transfer Type</Text>
-            <Text style={styles.summaryValue}>Interbank NIP</Text>
+            <RNText style={styles.summaryLabel}>Transfer Type</RNText>
+            <RNText style={styles.summaryValue}>Interbank NIP</RNText>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Processing Time</Text>
-            <Text style={styles.summaryValue}>
+            <RNText style={styles.summaryLabel}>Processing Time</RNText>
+            <RNText style={styles.summaryValue}>
               {transferData.scheduleType === 'now' ? 'Instant' : 'Scheduled'}
-            </Text>
+            </RNText>
           </View>
           {transferData.reference && (
             <View style={[styles.summaryRow, styles.summaryRowLast]}>
-              <Text style={styles.summaryLabel}>Reference</Text>
-              <Text style={styles.summaryValue}>{transferData.reference}</Text>
+              <RNText style={styles.summaryLabel}>Reference</RNText>
+              <RNText style={styles.summaryValue}>{transferData.reference}</RNText>
             </View>
           )}
         </View>
@@ -1501,23 +1501,23 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
         {/* Security Verification */}
         <View style={styles.featuresBanner}>
           <View style={styles.securityRow}>
-            <Text style={styles.securityIcon}>✅</Text>
-            <Text style={styles.securityText}>Recipient name verified via NIBSS</Text>
+            <RNText style={styles.securityIcon}>✅</RNText>
+            <RNText style={styles.securityText}>Recipient name verified via NIBSS</RNText>
           </View>
           <View style={styles.securityRow}>
-            <Text style={styles.securityIcon}>🔒</Text>
-            <Text style={styles.securityText}>Transaction will be encrypted & logged</Text>
+            <RNText style={styles.securityIcon}>🔒</RNText>
+            <RNText style={styles.securityText}>Transaction will be encrypted & logged</RNText>
           </View>
           <View style={[styles.securityRow, styles.securityRowLast]}>
-            <Text style={styles.securityIcon}>📱</Text>
-            <Text style={styles.securityText}>SMS & email confirmation will be sent</Text>
+            <RNText style={styles.securityIcon}>📱</RNText>
+            <RNText style={styles.securityText}>SMS & email confirmation will be sent</RNText>
           </View>
         </View>
 
         <View style={styles.contentPadding}>
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Transaction PIN</Text>
-            <TextInput
+            <RNText style={styles.inputLabel}>Transaction PIN</RNText>
+            <RNTextInput
               style={styles.inputField}
               placeholder="Enter your 4-digit PIN"
               value={transferData.pin}
@@ -1535,16 +1535,16 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
             style={[styles.btn, styles.btnSecondary, styles.btnHalf]}
             onPress={handleBackToDetails}
           >
-            <Text style={[styles.btnText, styles.btnTextSecondary]}>Back</Text>
+            <RNText style={[styles.btnText as RNText, styles.btnTextSecondary]}>Back</RNText>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.btn, styles.btnSuccess, styles.btnHalf]}
             onPress={handleProcessTransfer}
             disabled={isProcessing}
           >
-            <Text style={[styles.btnText, styles.btnTextPrimary]}>
+            <RNText style={[styles.btnText as RNText, styles.btnTextPrimary]}>
               {isProcessing ? 'Processing...' : 'Send Money'}
-            </Text>
+            </RNText>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -1564,62 +1564,62 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
       >
         <View style={styles.successContainer}>
           <View style={styles.successIcon}>
-            <Text style={styles.successIconText}>✅</Text>
+            <RNText style={styles.successIconText}>✅</RNText>
           </View>
-          <Text style={styles.successTitle}>Transfer Successful!</Text>
-          <Text style={styles.successSubtitle}>Your money has been sent successfully</Text>
+          <RNText style={styles.successTitle}>Transfer Successful!</RNText>
+          <RNText style={styles.successSubtitle}>Your money has been sent successfully</RNText>
         </View>
 
         {/* Transaction Receipt */}
         <View style={styles.receipt}>
           <View style={styles.receiptHeader}>
-            <Text style={styles.receiptTitle}>Transaction Receipt</Text>
-            <Text style={styles.receiptRef}>REF: {transactionReference}</Text>
+            <RNText style={styles.receiptTitle}>Transaction Receipt</RNText>
+            <RNText style={styles.receiptRef}>REF: {transactionReference}</RNText>
           </View>
 
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Date & Time</Text>
-            <Text style={styles.summaryValue}>
+            <RNText style={styles.summaryLabel}>Date & Time</RNText>
+            <RNText style={styles.summaryValue}>
               {currentDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} • {currentDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
-            </Text>
+            </RNText>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>From</Text>
+            <RNText style={styles.summaryLabel}>From</RNText>
             <View style={{ flex: 1, alignItems: 'flex-end' }}>
-              <Text style={styles.summaryValue}>Your Account</Text>
-              <Text style={[styles.summaryValue, { fontSize: 12, color: '#6c757d' }]}>
+              <RNText style={styles.summaryValue}>Your Account</RNText>
+              <RNText style={[styles.summaryValue, { fontSize: 12, color: '#6c757d' }]}>
                 FMFB • {limits.availableBalance > 0 ? '0987654321' : 'N/A'}
-              </Text>
+              </RNText>
             </View>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>To</Text>
+            <RNText style={styles.summaryLabel}>To</RNText>
             <View style={{ flex: 1, alignItems: 'flex-end' }}>
-              <Text style={styles.summaryValue}>{transferData.accountName}</Text>
-              <Text style={[styles.summaryValue, { fontSize: 12, color: '#6c757d' }]}>
+              <RNText style={styles.summaryValue}>{transferData.accountName}</RNText>
+              <RNText style={[styles.summaryValue, { fontSize: 12, color: '#6c757d' }]}>
                 {transferData.bankName?.split('(')[0].trim()} • {transferData.accountNumber}
-              </Text>
+              </RNText>
             </View>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Amount Sent</Text>
-            <Text style={styles.summaryValue}>{formatCurrency(fees.amount)}</Text>
+            <RNText style={styles.summaryLabel}>Amount Sent</RNText>
+            <RNText style={styles.summaryValue}>{formatCurrency(fees.amount)}</RNText>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Fees</Text>
-            <Text style={styles.summaryValue}>{formatCurrency(fees.totalFees)}</Text>
+            <RNText style={styles.summaryLabel}>Fees</RNText>
+            <RNText style={styles.summaryValue}>{formatCurrency(fees.totalFees)}</RNText>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Total Debited</Text>
-            <Text style={[styles.summaryValue, styles.summaryValueHighlight]}>
+            <RNText style={styles.summaryLabel}>Total Debited</RNText>
+            <RNText style={[styles.summaryValue, styles.summaryValueHighlight]}>
               {formatCurrency(fees.totalDebit)}
-            </Text>
+            </RNText>
           </View>
           <View style={[styles.summaryRow, styles.summaryRowLast]}>
-            <Text style={styles.summaryLabel}>Status</Text>
-            <Text style={[styles.summaryValue, { color: theme.colors.success, fontWeight: '600' }]}>
+            <RNText style={styles.summaryLabel}>Status</RNText>
+            <RNText style={[styles.summaryValue, { color: theme.colors.success, fontWeight: '600' }]}>
               Completed
-            </Text>
+            </RNText>
           </View>
         </View>
 
@@ -1629,25 +1629,25 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
             style={[styles.btn, styles.btnPrimary, { marginBottom: 10 }]}
             onPress={handleShareReceipt}
           >
-            <Text style={[styles.btnText, styles.btnTextPrimary]}>Share Receipt</Text>
+            <RNText style={[styles.btnText as RNText, styles.btnTextPrimary]}>Share Receipt</RNText>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.btn, styles.btnSecondary, { marginBottom: 10 }]}
             onPress={handleDownloadReceipt}
           >
-            <Text style={[styles.btnText, styles.btnTextSecondary]}>Download PDF</Text>
+            <RNText style={[styles.btnText as RNText, styles.btnTextSecondary]}>Download PDF</RNText>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.btn, styles.btnSecondary, { marginBottom: 10 }]}
             onPress={handleNewTransfer}
           >
-            <Text style={[styles.btnText, styles.btnTextSecondary]}>Send Another</Text>
+            <RNText style={[styles.btnText as RNText, styles.btnTextSecondary]}>Send Another</RNText>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.btn, styles.btnSecondary]}
             onPress={handleGoHome}
           >
-            <Text style={[styles.btnText, styles.btnTextSecondary]}>Back to Home</Text>
+            <RNText style={[styles.btnText as RNText, styles.btnTextSecondary]}>Back to Home</RNText>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -1669,9 +1669,9 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
               style={styles.backButton}
               onPress={currentStep === 'complete' ? handleGoHome : (onBack || (() => navigation?.goBack()))}
             >
-              <Text style={styles.backButtonText}>←</Text>
+              <RNText style={styles.backButtonText}>←</RNText>
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>Money Transfer</Text>
+            <RNText style={styles.headerTitle}>Money Transfer</RNText>
             <View style={styles.headerSpacer} />
           </View>
 
@@ -1688,7 +1688,7 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
             <View style={styles.loadingOverlay}>
               <View style={styles.loadingContent}>
                 <ActivityIndicator size="large" color={theme.colors.primary} />
-                <Text style={styles.loadingText}>Processing transfer...</Text>
+                <RNText style={styles.loadingText}>Processing transfer...</RNText>
               </View>
             </View>
           )}

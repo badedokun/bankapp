@@ -45,6 +45,9 @@ export const TransferHeader: React.FC<TransferHeaderProps> = ({
 
   const currentStepIndex = currentStep ? stepOrder.indexOf(currentStep) : 0;
 
+  // Use inverse color for text on primary gradient background
+  const inverseColor = theme.colors.textInverse;
+
   const styles = StyleSheet.create({
     container: {
       backgroundColor: theme.colors.primary,
@@ -55,36 +58,44 @@ export const TransferHeader: React.FC<TransferHeaderProps> = ({
     headerRow: {
       flexDirection: 'row',
       alignItems: 'center',
+      justifyContent: 'space-between',
       marginBottom: showSteps ? theme.spacing.md : 0,
     },
     backButton: {
-      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      backgroundColor: `${inverseColor}33`, // 20% opacity
       width: 40,
       height: 40,
       borderRadius: 20, // Circular button
       justifyContent: 'center',
       alignItems: 'center',
-      marginRight: theme.spacing.md,
       borderWidth: 1,
-      borderColor: 'rgba(255, 255, 255, 0.3)',
+      borderColor: `${inverseColor}4D`, // 30% opacity
     },
     backButtonText: {
-      color: '#ffffff',
+      color: inverseColor,
       fontSize: 20,
       fontWeight: '600',
     },
     titleContainer: {
       flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: theme.spacing.md,
+    },
+    headerSpacer: {
+      width: 40,
     },
     title: {
       fontSize: theme.typography.sizes.xl,
       fontWeight: theme.typography.weights.bold as any,
-      color: '#ffffff',
+      color: inverseColor,
+      textAlign: 'center',
       marginBottom: subtitle ? theme.spacing.xs : 0,
     },
     subtitle: {
       fontSize: theme.typography.sizes.sm,
-      color: 'rgba(255, 255, 255, 0.9)',
+      color: `${inverseColor}E6`, // 90% opacity
+      textAlign: 'center',
     },
     stepsContainer: {
       flexDirection: 'row',
@@ -100,32 +111,32 @@ export const TransferHeader: React.FC<TransferHeaderProps> = ({
       width: 32,
       height: 32,
       borderRadius: 16,
-      backgroundColor: 'rgba(255, 255, 255, 0.3)',
+      backgroundColor: `${inverseColor}4D`, // 30% opacity
       justifyContent: 'center',
       alignItems: 'center',
       marginBottom: theme.spacing.xs,
     },
     stepCircleActive: {
-      backgroundColor: '#ffffff',
+      backgroundColor: inverseColor,
     },
     stepCircleCompleted: {
-      backgroundColor: theme.colors.success || '#4CAF50',
+      backgroundColor: theme.colors.success,
     },
     stepNumber: {
       fontSize: 14,
       fontWeight: '600',
-      color: '#ffffff',
+      color: inverseColor,
     },
     stepNumberActive: {
       color: theme.colors.primary,
     },
     stepLabel: {
       fontSize: 12,
-      color: 'rgba(255, 255, 255, 0.8)',
+      color: `${inverseColor}CC`, // 80% opacity
       textAlign: 'center',
     },
     stepLabelActive: {
-      color: '#ffffff',
+      color: inverseColor,
       fontWeight: '600',
     },
     stepConnector: {
@@ -134,11 +145,11 @@ export const TransferHeader: React.FC<TransferHeaderProps> = ({
       left: '50%',
       right: '-50%',
       height: 2,
-      backgroundColor: 'rgba(255, 255, 255, 0.3)',
+      backgroundColor: `${inverseColor}4D`, // 30% opacity
       zIndex: -1,
     },
     stepConnectorCompleted: {
-      backgroundColor: '#ffffff',
+      backgroundColor: inverseColor,
     },
   });
 
@@ -195,15 +206,18 @@ export const TransferHeader: React.FC<TransferHeaderProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
-        {onBack && (
+        {onBack ? (
           <TouchableOpacity style={styles.backButton} onPress={onBack}>
             <Text style={styles.backButtonText}>←</Text>
           </TouchableOpacity>
+        ) : (
+          <View style={styles.headerSpacer} />
         )}
         <View style={styles.titleContainer}>
           <Text style={styles.title}>{title}</Text>
           {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
         </View>
+        <View style={styles.headerSpacer} />
       </View>
       {renderStepIndicator()}
     </View>

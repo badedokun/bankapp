@@ -1,24 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import { RBACService } from '../services/rbac';
 import { Pool } from 'pg';
+import { AuthenticatedUser, TenantInfo } from '../types';
 
 export interface RBACRequest extends Request {
-  user?: {
-    id: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    role: string;
-    tenantId: string;
-    tenantName: string;
-    tenantDisplayName: string;
-    permissions: string[];
-    mfaEnabled: boolean;
-  };
-  tenant?: {
-    id: string;
-    name: string;
-  };
+  user?: AuthenticatedUser;
+  tenant?: TenantInfo;
   rbac?: {
     permissions: Record<string, string>;
     roles: Array<{ roleCode: string; roleName: string; }>;

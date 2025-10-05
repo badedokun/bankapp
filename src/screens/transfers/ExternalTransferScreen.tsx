@@ -7,12 +7,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
-  Text,
+  Text as RNText,
   StyleSheet,
   ScrollView,
   SafeAreaView,
   TouchableOpacity,
-  TextInput,
+  TextInput as RNTextInput,
   FlatList,
   Modal,
   Pressable,
@@ -556,28 +556,28 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
 
   const renderBankSelector = () => (
     <View>
-      <Text style={[styles.sectionTitle, { marginBottom: theme.spacing.sm }]}>🏛️ Recipient Bank</Text>
+      <RNText style={[styles.sectionTitle, { marginBottom: theme.spacing.sm }]}>🏛️ Recipient Bank</RNText>
       <TouchableOpacity
         style={styles.bankSelector}
         onPress={() => setShowBankModal(true)}
       >
         <View style={styles.bankSelectorPlaceholder}>
-          <Text style={[
+          <RNText style={[
             styles.bankSelectorText,
             formData.recipientBank && styles.selectedBank
           ]}>
             {formData.recipientBank ? formData.recipientBank.name : 'Select bank'}
-          </Text>
-          <Text style={styles.chevron}>▼</Text>
+          </RNText>
+          <RNText style={styles.chevron}>▼</RNText>
         </View>
       </TouchableOpacity>
 
       {formData.recipientBank && (
         <View style={styles.feeInfo}>
-          <Text style={styles.feeLabel}>Transfer Fee:</Text>
-          <Text style={styles.feeAmount}>
+          <RNText style={styles.feeLabel}>Transfer Fee:</RNText>
+          <RNText style={styles.feeAmount}>
             {formatCurrency(formData.recipientBank.transferFee, tenantTheme.currency, { locale: tenantTheme.locale })}
-          </Text>
+          </RNText>
         </View>
       )}
     </View>
@@ -591,9 +591,9 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
     if (isValidatingAccount) {
       return (
         <View style={styles.validationContainer}>
-          <Text style={[styles.validationText, styles.validationLoading]}>
+          <RNText style={[styles.validationText, styles.validationLoading]}>
             🔍 Verifying account with NIBSS...
-          </Text>
+          </RNText>
         </View>
       );
     }
@@ -601,18 +601,18 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
     if (accountValidation.isValid) {
       return (
         <View style={styles.validationContainer}>
-          <Text style={[styles.validationText, styles.validationSuccess]}>
+          <RNText style={[styles.validationText, styles.validationSuccess]}>
             ✅ Account verified: {accountValidation.accountName} - {accountValidation.bankName}
-          </Text>
+          </RNText>
         </View>
       );
     }
 
     return (
       <View style={styles.validationContainer}>
-        <Text style={[styles.validationText, styles.validationError]}>
+        <RNText style={[styles.validationText, styles.validationError]}>
           ❌ Account verification failed. Please check account number and bank.
-        </Text>
+        </RNText>
       </View>
     );
   };
@@ -626,38 +626,38 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
 
     return (
       <View style={styles.reviewSection}>
-        <Text style={styles.reviewTitle}>📋 Transfer Summary</Text>
+        <RNText style={styles.reviewTitle}>📋 Transfer Summary</RNText>
 
         <View style={styles.reviewRow}>
-          <Text style={styles.reviewLabel}>To:</Text>
-          <Text style={styles.reviewValue}>{formData.recipientName}</Text>
+          <RNText style={styles.reviewLabel}>To:</RNText>
+          <RNText style={styles.reviewValue}>{formData.recipientName}</RNText>
         </View>
 
         <View style={styles.reviewRow}>
-          <Text style={styles.reviewLabel}>Account:</Text>
-          <Text style={styles.reviewValue}>{formData.recipientAccountNumber}</Text>
+          <RNText style={styles.reviewLabel}>Account:</RNText>
+          <RNText style={styles.reviewValue}>{formData.recipientAccountNumber}</RNText>
         </View>
 
         <View style={styles.reviewRow}>
-          <Text style={styles.reviewLabel}>Bank:</Text>
-          <Text style={styles.reviewValue}>{formData.recipientBank.name}</Text>
+          <RNText style={styles.reviewLabel}>Bank:</RNText>
+          <RNText style={styles.reviewValue}>{formData.recipientBank.name}</RNText>
         </View>
 
         <View style={styles.reviewRow}>
-          <Text style={styles.reviewLabel}>Amount:</Text>
-          <Text style={styles.reviewValue}>{formatCurrency(amount, tenantTheme.currency, { locale: tenantTheme.locale })}</Text>
+          <RNText style={styles.reviewLabel}>Amount:</RNText>
+          <RNText style={styles.reviewValue}>{formatCurrency(amount, tenantTheme.currency, { locale: tenantTheme.locale })}</RNText>
         </View>
 
         <View style={styles.reviewRow}>
-          <Text style={styles.reviewLabel}>NIBSS Fee:</Text>
-          <Text style={styles.reviewValue}>{formatCurrency(fee, tenantTheme.currency, { locale: tenantTheme.locale })}</Text>
+          <RNText style={styles.reviewLabel}>NIBSS Fee:</RNText>
+          <RNText style={styles.reviewValue}>{formatCurrency(fee, tenantTheme.currency, { locale: tenantTheme.locale })}</RNText>
         </View>
 
         <View style={[styles.reviewRow, { borderBottomWidth: 0, marginTop: theme.spacing.sm }]}>
-          <Text style={[styles.reviewLabel, { fontWeight: 'bold' }]}>Total:</Text>
-          <Text style={[styles.reviewValue, { fontWeight: 'bold', color: theme.colors.primary }]}>
+          <RNText style={[styles.reviewLabel, { fontWeight: 'bold' }]}>Total:</RNText>
+          <RNText style={[styles.reviewValue, { fontWeight: 'bold', color: theme.colors.primary }]}>
             {formatCurrency(total, tenantTheme.currency, { locale: tenantTheme.locale })}
-          </Text>
+          </RNText>
         </View>
       </View>
     );
@@ -675,16 +675,16 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* NIBSS Info */}
         <View style={styles.nibssCard}>
-          <Text style={styles.nibssTitle}>🏛️ NIBSS Instant Payments (NIP)</Text>
-          <Text style={styles.nibssDescription}>
+          <RNText style={styles.nibssTitle}>🏛️ NIBSS Instant Payments (NIP)</RNText>
+          <RNText style={styles.nibssDescription}>
             Send money to any bank in Nigeria instantly. Transfers are processed 24/7
             with real-time account verification and settlement.
-          </Text>
+          </RNText>
         </View>
 
         {/* Account Selection */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>💰 From Account</Text>
+          <RNText style={styles.sectionTitle}>💰 From Account</RNText>
           <AccountSelector
             accounts={accounts}
             selectedAccount={formData.senderAccount}
@@ -703,7 +703,7 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
 
         {/* Transfer Details */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>📝 Transfer Details</Text>
+          <RNText style={styles.sectionTitle}>📝 Transfer Details</RNText>
 
           {renderBankSelector()}
 
@@ -751,11 +751,11 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
             onPress={() => handleFieldChange('saveBeneficiary', !formData.saveBeneficiary)}
           >
             <View style={[styles.checkbox, formData.saveBeneficiary && styles.checkboxChecked]}>
-              {formData.saveBeneficiary && <Text style={styles.checkboxText}>✓</Text>}
+              {formData.saveBeneficiary && <RNText style={styles.checkboxText}>✓</RNText>}
             </View>
-            <Text style={styles.saveBeneficiaryLabel}>
+            <RNText style={styles.saveBeneficiaryLabel}>
               Save as beneficiary for future transfers
-            </Text>
+            </RNText>
           </TouchableOpacity>
 
           {formData.saveBeneficiary && (
@@ -789,10 +789,10 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
           style={styles.transferButton}
         />
 
-        <Text style={styles.disclaimerText}>
+        <RNText style={styles.disclaimerText}>
           External transfers via NIBSS are processed instantly during banking hours.
           A fee of {formatCurrency(52.50, tenantTheme.currency, { locale: tenantTheme.locale })} applies per transaction.
-        </Text>
+        </RNText>
       </ScrollView>
 
       {/* Bank Selection Modal */}
@@ -804,7 +804,7 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
       >
         <Pressable style={styles.modalOverlay} onPress={() => setShowBankModal(false)}>
           <Pressable style={styles.modalContent} onPress={(e) => e.stopPropagation()}>
-            <Text style={styles.modalTitle}>Select Bank</Text>
+            <RNText style={styles.modalTitle}>Select Bank</RNText>
 
             <View style={styles.searchContainer}>
               <TextInput
@@ -828,11 +828,11 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
                   ]}
                   onPress={() => handleBankSelect(item)}
                 >
-                  <Text style={styles.bankItemName}>{item.name}</Text>
-                  <Text style={styles.bankItemCode}>{item.code}</Text>
-                  <Text style={styles.bankItemFee}>
+                  <RNText style={styles.bankItemName}>{item.name}</RNText>
+                  <RNText style={styles.bankItemCode}>{item.code}</RNText>
+                  <RNText style={styles.bankItemFee}>
                     Fee: {formatCurrency(item.transferFee, tenantTheme.currency, { locale: tenantTheme.locale })}
-                  </Text>
+                  </RNText>
                 </TouchableOpacity>
               )}
             />
@@ -841,7 +841,7 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
               style={styles.closeButton}
               onPress={() => setShowBankModal(false)}
             >
-              <Text style={styles.closeButtonText}>Close</Text>
+              <RNText style={styles.closeButtonText}>Close</RNText>
             </TouchableOpacity>
           </Pressable>
         </Pressable>

@@ -68,13 +68,16 @@ export interface InternalTransfer extends BaseTransfer {
 
 export interface ExternalTransferRequest {
     sourceWalletId: string;
+    senderAccountId?: string;
     recipientAccountNumber: string;
     recipientBankCode: string;
     recipientName?: string; // Will be validated via name enquiry
     amount: number;
     narration: string;
+    description?: string;
     saveBeneficiary?: boolean;
     beneficiaryNickname?: string;
+    pin?: string;
 }
 
 export interface ExternalTransfer extends BaseTransfer {
@@ -148,6 +151,8 @@ export interface BillerInfo {
     tenantId: string;
     billerCode: string;
     billerName: string;
+    name?: string; // Alias for billerName
+    code?: string; // Alias for billerCode
     category: BillerCategory;
     paymentMethods: string[];
     feeStructure: Record<string, any>;
@@ -156,6 +161,8 @@ export interface BillerInfo {
     isActive: boolean;
     supportsValidation: boolean;
     description?: string;
+    logo?: string;
+    fields?: any;
 }
 
 export type BillerCategory =
@@ -178,6 +185,9 @@ export interface BillPaymentRequest {
     amount: number;
     walletId: string;
     validateCustomer?: boolean;
+    senderAccountId?: string;
+    description?: string;
+    pin?: string;
 }
 
 export interface BillPayment extends BaseTransfer {
@@ -219,6 +229,8 @@ export interface BillerValidationResponse {
     minimumAmount?: number;
     maximumAmount?: number;
     validationMessage?: string;
+    error?: string;
+    amountDue?: number;
 }
 
 // ============================================================================
@@ -287,6 +299,15 @@ export type ScheduleType =
     | 'quarterly'
     | 'yearly';
 
+// Legacy type alias for backward compatibility
+export type TransferFrequency =
+    | 'once'
+    | 'daily'
+    | 'weekly'
+    | 'monthly'
+    | 'quarterly'
+    | 'yearly';
+
 export type ScheduledPaymentStatus =
     | 'active'
     | 'paused'
@@ -342,6 +363,7 @@ export interface ScheduledPaymentExecution {
 
 export interface InternationalTransferRequest {
     sourceWalletId: string;
+    senderAccountId?: string; // Legacy field
     amount: number;
     sourceCurrency: string;
     destinationCurrency: string;
@@ -350,8 +372,10 @@ export interface InternationalTransferRequest {
     recipientName: string;
     recipientAddress: string;
     recipientCountry: string; // ISO country code
+    recipientCity?: string;
     recipientBankName: string;
     recipientBankSwift: string;
+    recipientSwiftCode?: string; // Alias for recipientBankSwift
     recipientAccountNumber: string;
     recipientIban?: string;
 
@@ -361,9 +385,13 @@ export interface InternationalTransferRequest {
 
     // Transfer purpose and compliance
     transferPurpose: string;
+    purpose?: string; // Alias for transferPurpose
+    sourceOfFunds?: string;
     purposeCode?: string;
     regulatoryReference?: string;
     complianceDocuments?: string[]; // File URLs
+    description?: string;
+    pin?: string;
 }
 
 export interface InternationalTransfer extends BaseTransfer {
@@ -519,15 +547,21 @@ export interface TransferValidationResult {
 
 export interface TransferResult<T = any> {
     success: boolean;
+    id?: string;
     transactionId?: string;
     reference?: string;
     status: TransferStatus;
     message: string;
+    amount?: number;
+    fees?: number;
+    totalAmount?: number;
+    recipient?: any;
     data?: T;
     errors?: string[];
     warnings?: string[];
     estimatedCompletionTime?: Date;
     receiptId?: string;
+    scheduledDate?: Date;
 }
 
 export interface ProcessingError {

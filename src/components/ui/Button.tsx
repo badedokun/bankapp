@@ -6,7 +6,7 @@
 import React from 'react';
 import {
   TouchableOpacity,
-  Text,
+  Text as RNText,
   StyleSheet,
   ActivityIndicator,
   View,
@@ -176,7 +176,7 @@ export const Button: React.FC<ButtonProps> = ({
         {!loading && leftIcon && (
           <View style={styles.leftIcon}>{leftIcon}</View>
         )}
-        <Text style={styles.text}>{title}</Text>
+        <RNText style={styles.text}>{title}</RNText>
         {!loading && rightIcon && (
           <View style={styles.rightIcon}>{rightIcon}</View>
         )}

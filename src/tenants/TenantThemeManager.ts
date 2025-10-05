@@ -33,7 +33,7 @@ class TenantThemeManager {
     }
 
     const baseTheme = createBaseTheme(config.branding.primaryColor);
-    
+
     // Customize theme based on tenant branding
     const customTheme: TenantTheme = {
       ...baseTheme,
@@ -42,6 +42,8 @@ class TenantThemeManager {
         primary: config.branding.primaryColor,
         secondary: config.branding.secondaryColor,
         accent: config.branding.accentColor,
+        // Explicitly ensure textInverse is always set for gradient backgrounds
+        textInverse: baseTheme.colors.textInverse,
       },
       typography: {
         ...baseTheme.typography,
@@ -58,7 +60,7 @@ class TenantThemeManager {
 
     // Cache the theme
     this.themeCache.set(config.id as TenantID, customTheme);
-    
+
     return customTheme;
   }
 

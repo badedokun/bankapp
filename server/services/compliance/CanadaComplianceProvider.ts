@@ -224,6 +224,7 @@ export class CanadaComplianceProvider extends BaseComplianceProvider {
     }
 
     // Advanced Level: Enhanced measures for high-risk and PEPs
+    let sanctionsResult: any = null;
     if (level === 'advanced') {
       // PEP screening (required under PCMLTFA for high-risk)
       const pepResult = await this.screenPEP(user);
@@ -235,7 +236,7 @@ export class CanadaComplianceProvider extends BaseComplianceProvider {
       }
 
       // OSFI sanctions screening (mandatory)
-      const sanctionsResult = await this.checkSanctions({
+      sanctionsResult = await this.checkSanctions({
         name: `${user.firstName} ${user.lastName}`,
         dateOfBirth: user.dateOfBirth,
         nationality: user.nationality,

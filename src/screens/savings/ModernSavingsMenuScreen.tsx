@@ -56,6 +56,9 @@ const ModernSavingsMenuScreen: React.FC<ModernSavingsMenuScreenProps> = ({
   const notify = useNotification();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
+
+  // Use inverse color for text on primary gradient background
+  const inverseColor = theme.colors.textInverse;
   const [savingsSummary, setSavingsSummary] = useState({
     totalSaved: 750000,
     interestEarned: 37500,
@@ -224,13 +227,13 @@ const ModernSavingsMenuScreen: React.FC<ModernSavingsMenuScreenProps> = ({
     },
     backButtonText: {
       fontSize: 20,
-      color: '#FFFFFF',
+      color: inverseColor,
       fontWeight: '600',
     },
     headerTitle: {
       fontSize: 20,
       fontWeight: '600',
-      color: '#FFFFFF',
+      color: inverseColor,
     },
     headerSpacer: {
       width: 40,
@@ -246,12 +249,12 @@ const ModernSavingsMenuScreen: React.FC<ModernSavingsMenuScreenProps> = ({
     heroTitle: {
       fontSize: 32,
       fontWeight: '700',
-      color: '#FFFFFF',
+      color: inverseColor,
       marginBottom: 8,
     },
     heroSubtitle: {
       fontSize: 16,
-      color: 'rgba(255, 255, 255, 0.9)',
+      color: `${inverseColor}E6`, // 90% opacity
       textAlign: 'center',
     },
     summaryCard: {
@@ -501,7 +504,7 @@ const ModernSavingsMenuScreen: React.FC<ModernSavingsMenuScreenProps> = ({
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={[theme.colors.primary, theme.colors.secondary]}
+        colors={[theme.colors.primaryGradientStart, theme.colors.primaryGradientEnd]}
         style={styles.gradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}

@@ -7,13 +7,13 @@ import { Pool } from 'pg';
 import { v4 as uuidv4 } from 'uuid';
 import {
   InternationalTransferRequest,
-  TransferResponse,
   TransferError,
-  ValidationError,
   InsufficientFundsError,
   LimitExceededError,
   TransferStatus,
 } from '../../types/transfers';
+import { TransferResponse } from '../../types';
+import { ValidationError } from '../../types/validation-error';
 
 interface SWIFTTransferRequest {
   messageType: string; // MT103 for customer credit transfer
@@ -229,7 +229,7 @@ class InternationalTransferService {
       return {
         id: transferId,
         reference,
-        status: 'processing' as TransferStatus,
+        status: 'processing',
         amount: request.amount,
         fees: feeStructure.totalFees,
         totalAmount,
@@ -703,7 +703,7 @@ class InternationalTransferService {
     const dailyLimit = 2000000; // ₦2M daily limit for international
 
     if (dailyUsed + amount > dailyLimit) {
-      throw new LimitExceededError(dailyLimit, dailyUsed + amount, 'Daily international');
+      throw new LimitExceededError('Daily international', dailyLimit, dailyUsed + amount);
     }
 
     // Check monthly limit
@@ -712,14 +712,14 @@ class InternationalTransferService {
       FROM international_transfers
       WHERE sender_account_id = $1
       AND DATE_TRUNC('month', created_at) = $2
-      AND status IN ('completed', 'processing')
+      AND STATUS IN ('completed', 'processing')
     `, [accountId, thisMonth + '-01']);
 
     const monthlyUsed = parseFloat(monthlyResult.rows[0].monthly_total);
     const monthlyLimit = 50000000; // ₦50M monthly limit
 
     if (monthlyUsed + amount > monthlyLimit) {
-      throw new LimitExceededError(monthlyLimit, monthlyUsed + amount, 'Monthly international');
+      throw new LimitExceededError('Monthly international', monthlyLimit, monthlyUsed + amount);
     }
   }
 

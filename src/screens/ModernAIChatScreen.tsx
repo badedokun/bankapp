@@ -309,7 +309,7 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
         return {
           message: 'I can help you with transfers. Would you like to make an internal or external transfer?',
           actions: ['Internal Transfer', 'External Transfer'],
-          suggestions: [`Send ${formatCurrency(5000, tenantTheme.currency, { locale: tenantTheme.locale })}`, 'Transfer to savings'],
+          suggestions: [`Send ${formatCurrency(5000, 'NGN', { locale: 'en-NG' })}`, 'Transfer to savings'],
         };
       } else {
         return {
@@ -658,8 +658,8 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
       }),
     },
     voiceButtonListening: {
-      backgroundColor: theme.colors.error,
-      borderColor: theme.colors.error,
+      backgroundColor: theme.colors.danger,
+      borderColor: theme.colors.danger,
       transform: [{ scale: 1.1 }],
     },
     voiceButtonProcessing: {
@@ -695,7 +695,7 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
       width: 12,
       height: 12,
       borderRadius: 6,
-      backgroundColor: theme.colors.error,
+      backgroundColor: theme.colors.danger,
     },
   });
 
