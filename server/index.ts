@@ -38,6 +38,7 @@ import loansRoutes from './routes/loans';
 import banksRoutes from './routes/banks';
 import tenantThemesRoutes from './routes/tenantThemes';
 import rewardsRoutes from './routes/rewards';
+import referralRoutes from './routes/referrals';
 
 // Import middleware
 import { errorHandler, notFound } from './middleware/errorHandler';
@@ -173,6 +174,7 @@ app.use('/api/savings', authenticateToken, tenantMiddleware, savingsRoutes);
 app.use('/api/loans', authenticateToken, tenantMiddleware, loansRoutes);
 app.use('/api/banks', authenticateToken, tenantMiddleware, banksRoutes);
 app.use('/api/rewards', authenticateToken, tenantMiddleware, rewardsRoutes);
+app.use('/api/referrals', tenantMiddleware, referralRoutes); // Mixed auth (some endpoints public)
 
 // Error handling
 app.use(notFound);
