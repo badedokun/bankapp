@@ -422,7 +422,20 @@ DO $$
 DECLARE
     tenant_record RECORD;
     configs_created INTEGER := 0;
+    tenants_table_exists BOOLEAN;
 BEGIN
+    -- Check if tenants table exists (it may be in platform database)
+    SELECT EXISTS (
+        SELECT FROM information_schema.tables
+        WHERE table_name = 'tenants'
+    ) INTO tenants_table_exists;
+
+    IF NOT tenants_table_exists THEN
+        RAISE NOTICE 'Tenants table not found in current database - skipping default config creation';
+        RAISE NOTICE 'Note: Configs will be auto-created on first access via get_referral_config()';
+        RETURN;
+    END IF;
+
     -- Get all existing tenants from platform schema
     FOR tenant_record IN
         SELECT id, name FROM tenants

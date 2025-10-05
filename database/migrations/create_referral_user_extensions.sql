@@ -130,25 +130,27 @@ END $$;
 -- Returns the user ID of the referrer if valid, NULL otherwise
 -- ============================================================================
 
+DROP FUNCTION IF EXISTS tenant.validate_referral_code(VARCHAR);
+
 CREATE OR REPLACE FUNCTION tenant.validate_referral_code(p_code VARCHAR(12))
 RETURNS TABLE(
     is_valid BOOLEAN,
     referrer_id UUID,
-    referrer_name VARCHAR(255),
-    referrer_tier VARCHAR(50)
+    referrer_name TEXT,
+    referrer_tier TEXT
 ) AS $$
 BEGIN
     RETURN QUERY
     SELECT
         true AS is_valid,
         u.id AS referrer_id,
-        CONCAT(u.first_name, ' ', u.last_name) AS referrer_name,
+        CONCAT(u.first_name, ' ', u.last_name)::TEXT AS referrer_name,
         COALESCE(
             (SELECT tier_name FROM rewards.tiers t
              INNER JOIN rewards.user_rewards ur ON t.id = ur.current_tier_id
              WHERE ur.user_id = u.id),
             'Bronze'
-        ) AS referrer_tier
+        )::TEXT AS referrer_tier
     FROM tenant.users u
     WHERE u.referral_code = p_code
       AND u.account_status NOT IN ('suspended', 'closed')
@@ -157,7 +159,7 @@ BEGIN
 
     -- If no results, return invalid
     IF NOT FOUND THEN
-        RETURN QUERY SELECT false, NULL::UUID, NULL::VARCHAR, NULL::VARCHAR;
+        RETURN QUERY SELECT false, NULL::UUID, NULL::TEXT, NULL::TEXT;
     END IF;
 END;
 $$ LANGUAGE plpgsql;

@@ -34,7 +34,7 @@ CREATE TABLE aggregators.partners (
     -- ========================================================================
     -- Compensation Configuration
     -- ========================================================================
-    compensation_tier_id UUID REFERENCES aggregators.compensation_tiers(id),
+    compensation_tier_id UUID, -- FK added later
     compensation_type VARCHAR(20) DEFAULT 'per_referral'
         CHECK (compensation_type IN ('per_referral', 'percentage', 'tiered', 'hybrid')),
     base_rate DECIMAL(15,2), -- Amount per referral or base percentage
@@ -235,6 +235,15 @@ INSERT INTO aggregators.compensation_tiers (
     500000.00,
     ARRAY['Executive support', 'Custom integrations', 'Joint campaigns', 'Performance bonuses']
 );
+
+-- ============================================================================
+-- Add Foreign Key Constraints
+-- ============================================================================
+-- Add after all tables are created to avoid ordering issues
+
+ALTER TABLE aggregators.partners
+ADD CONSTRAINT fk_partners_compensation_tier
+FOREIGN KEY (compensation_tier_id) REFERENCES aggregators.compensation_tiers(id);
 
 -- ============================================================================
 -- Table: Aggregator Payouts
