@@ -144,7 +144,12 @@ const ModernDashboardScreen: React.FC<ModernDashboardScreenProps> = ({
 
   // Handle feature navigation
   const handleFeatureNavigation = (feature: string, params?: any) => {
-    if (onNavigateToFeature) {
+    if (feature === 'rewards') {
+      // Navigate to rewards screen
+      if (onNavigateToFeature) {
+        onNavigateToFeature('rewards', params);
+      }
+    } else if (onNavigateToFeature) {
       onNavigateToFeature(feature, params);
     }
   };

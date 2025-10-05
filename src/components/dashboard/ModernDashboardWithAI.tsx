@@ -19,6 +19,7 @@ import * as Haptics from 'expo-haptics';
 import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
 import { useTenantTheme } from '../../context/TenantThemeContext';
 import Typography from '../ui/Typography';
+import { TierProgressIndicator } from '../rewards';
 
 const { width: screenWidth } = Dimensions.get('window');
 const isWeb = Platform.OS === 'web';
@@ -340,22 +341,77 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
               </Typography.Caption>
             </View>
 
-            <View style={styles.statCard}>
-              <View style={[styles.statIcon, { backgroundColor: 'rgba(240, 147, 251, 0.1)' }]}>
-                <Text style={styles.statIconText}>🎯</Text>
+            <TouchableOpacity
+              style={styles.statCard}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                onFeatureNavigation('rewards');
+              }}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.statIcon, { backgroundColor: 'rgba(192, 192, 192, 0.15)' }]}>
+                <Text style={styles.statIconText}>🥈</Text>
               </View>
-              <Typography.LabelMedium>Savings Goal</Typography.LabelMedium>
-              <Typography.Amount
-                value={500000}
-                currency={tenantTheme.currency}
-                variant="small"
-                style={{ marginVertical: 4 }}
-              />
-              <Typography.Caption color={theme?.colors?.success} style={{ fontWeight: '500' }}>
-                65% achieved
+              <Typography.LabelMedium>Your Tier</Typography.LabelMedium>
+              <Typography.TitleMedium style={{ marginVertical: 4, fontWeight: '700', color: '#C0C0C0' }}>
+                Silver
+              </Typography.TitleMedium>
+              <Typography.Caption color={theme?.colors?.primary} style={{ fontWeight: '500' }}>
+                1,500 points 🎉
               </Typography.Caption>
-            </View>
+            </TouchableOpacity>
           </View>
+
+          {/* Rewards Progress Widget */}
+          <TouchableOpacity
+            style={styles.rewardsWidget}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              onFeatureNavigation('rewards');
+            }}
+            activeOpacity={0.9}
+          >
+            <View style={styles.rewardsWidgetHeader}>
+              <Typography.TitleMedium style={{ fontWeight: '700' }}>
+                🎮 Rewards & Achievements
+              </Typography.TitleMedium>
+              <Typography.LabelMedium color={theme?.colors?.primary} style={{ fontWeight: '600' }}>
+                View All →
+              </Typography.LabelMedium>
+            </View>
+            <TierProgressIndicator
+              currentTier={{
+                tierName: 'Silver',
+                tierLevel: 2,
+                icon: '🥈',
+                color: '#C0C0C0',
+              }}
+              totalPoints={1500}
+              pointsToNextTier={3500}
+              nextTier={{
+                tierName: 'Gold',
+                pointsRequired: 5000,
+                icon: '🥇',
+              }}
+              compact={true}
+            />
+            <View style={styles.achievementPreview}>
+              <View style={styles.achievementBadgeSmall}>
+                <Text style={{ fontSize: 20 }}>💸</Text>
+              </View>
+              <View style={styles.achievementBadgeSmall}>
+                <Text style={{ fontSize: 20 }}>🌱</Text>
+              </View>
+              <View style={[styles.achievementBadgeSmall, { opacity: 0.3 }]}>
+                <Text style={{ fontSize: 20, filter: 'grayscale(1)' }}>🚀</Text>
+              </View>
+              <View style={styles.achievementCounter}>
+                <Typography.Caption color={theme?.colors?.textSecondary}>
+                  2/9 unlocked
+                </Typography.Caption>
+              </View>
+            </View>
+          </TouchableOpacity>
         </View>
 
         {/* AI Assistant Panel with Chat Interface */}
@@ -955,6 +1011,47 @@ const styles = StyleSheet.create({
   },
   negative: {
     color: '#ef4444',
+  },
+  rewardsWidget: {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 16,
+    padding: 20,
+    marginTop: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(192, 192, 192, 0.2)',
+    gap: 12,
+    ...Platform.select({
+      web: {
+        backdropFilter: 'blur(10px)',
+        transition: 'all 0.2s ease',
+      },
+    }),
+  },
+  rewardsWidgetHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  achievementPreview: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 8,
+  },
+  achievementBadgeSmall: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(192, 192, 192, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(192, 192, 192, 0.3)',
+  },
+  achievementCounter: {
+    flex: 1,
+    alignItems: 'flex-end',
   },
   aiAssistantPanel: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
