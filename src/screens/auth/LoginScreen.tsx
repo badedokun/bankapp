@@ -18,15 +18,21 @@ import {
   Image,
   KeyboardAvoidingView,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, { FadeInDown, FadeInUp, useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { useTenant, useTenantBranding } from '../../tenants/TenantContext';
 import { useTenantTheme } from '../../context/TenantThemeContext';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
+import { GlassCard } from '../../components/ui/GlassCard';
+import { triggerHaptic } from '../../utils/haptics';
 import { SecurityMonitor, SecurityConfig } from '../../utils/security';
 import APIService from '../../services/api';
 import DeploymentManager from '../../config/deployment';
 import { useNotification } from '../../services/ModernNotificationService';
 import { ENV_CONFIG, buildApiUrl } from '../../config/environment';
+
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -335,6 +341,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
   // Handle biometric authentication
   const handleBiometricAuth = useCallback((type: 'fingerprint' | 'faceId' | 'voice') => {
+    triggerHaptic('impactLight');
     if (onBiometricAuth) {
       onBiometricAuth(type);
     } else {
@@ -343,7 +350,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         faceId: { emoji: '😊', name: 'Face ID' },
         voice: { emoji: '🎤', name: 'Voice' }
       };
-      
+
       notify.info(
         `${typeMap[type].name} authentication is not yet configured for this device. This feature would securely authenticate using your device's biometric sensors in a production environment.`,
         `${typeMap[type].emoji} ${typeMap[type].name} Authentication`,
@@ -365,6 +372,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
   // Handle forgot password
   const handleForgotPassword = useCallback(() => {
+    triggerHaptic('impactLight');
     if (onForgotPassword) {
       onForgotPassword();
     } else {
@@ -406,7 +414,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
       maxWidth: 400,
       alignSelf: 'center',
       width: '100%',
-      shadowColor: '#000',
+      shadowColor: theme.colors.text?.primary || '#000',
       shadowOffset: { width: 0, height: 10 },
       shadowOpacity: 0.1,
       shadowRadius: 20,
@@ -433,7 +441,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     tenantLogoText: {
       fontSize: 28,
       fontWeight: '700' as any,
-      color: '#ffffff',
+      color: theme.colors.text?.inverse || '#ffffff',
+      fontFamily: theme.typography?.fontFamily?.primary,
     },
     tenantLogoImage: {
       width: 60,
@@ -443,8 +452,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     tenantName: {
       fontSize: 20,
       fontWeight: '600' as any,
-      color: '#ffffff',
+      color: theme.colors.text?.inverse || '#ffffff',
       marginBottom: theme.layout.spacing * 0.25,
+      fontFamily: theme.typography?.fontFamily?.primary,
     },
     tenantSubtitle: {
       fontSize: 14,
@@ -502,7 +512,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     dividerLine: {
       flex: 1,
       height: 1,
-      backgroundColor: '#e1e5e9',
+      backgroundColor: theme.colors.border || '#e1e5e9',
     },
     dividerText: {
       paddingHorizontal: theme.layout.spacing * 0.75,
@@ -520,7 +530,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
       backgroundColor: theme.colors.background,
       borderRadius: theme.layout.borderRadius,
       borderWidth: 2,
-      borderColor: '#e1e5e9',
+      borderColor: theme.colors.border || '#e1e5e9',
       justifyContent: 'center',
       alignItems: 'center',
     },
@@ -693,20 +703,26 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             <TouchableOpacity
               onPress={() => {
                 console.log('🚀 TouchableOpacity onPress triggered!');
+                triggerHaptic('impactMedium');
                 handleSubmit();
               }}
               style={{
-                backgroundColor: '#010080',
-                borderRadius: 8,
-                paddingHorizontal: 16,
-                paddingVertical: 12,
+                backgroundColor: theme.colors.primary,
+                borderRadius: theme.layout.borderRadius || 8,
+                paddingHorizontal: theme.layout.spacing || 16,
+                paddingVertical: theme.layout.spacing * 0.75 || 12,
                 alignItems: 'center',
                 justifyContent: 'center',
                 minHeight: 48,
                 width: '100%'
               }}
             >
-              <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>
+              <Text style={{
+                color: theme.colors.text?.inverse || '#ffffff',
+                fontSize: theme.typography?.scale?.body?.large || 16,
+                fontWeight: '600',
+                fontFamily: theme.typography?.fontFamily?.primary
+              }}>
                 Sign In
               </Text>
             </TouchableOpacity>
