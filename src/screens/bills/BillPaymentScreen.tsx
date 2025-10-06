@@ -30,7 +30,7 @@ export const BillPaymentScreen: React.FC<BillPaymentScreenProps> = ({
   onPaymentComplete,
 }) => {
   const theme = useTenantTheme();
-  const { theme: tenantTheme } = useTenantTheme();
+  const tenantTheme = useTenantTheme();
   const { showAlert } = useBankingAlert();
   const [selectedCategory, setSelectedCategory] = useState('utilities');
   const [loading, setLoading] = useState(false);

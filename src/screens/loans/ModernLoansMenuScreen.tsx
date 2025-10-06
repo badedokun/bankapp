@@ -50,7 +50,7 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
   onBack,
   onSelectProduct,
 }) => {
-  const { theme: tenantTheme } = useTenantTheme();
+  const tenantTheme = useTenantTheme();
   const theme = tenantTheme;
   const notify = useNotification();
   const [isLoading, setIsLoading] = useState(false);

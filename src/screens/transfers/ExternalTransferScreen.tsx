@@ -43,7 +43,7 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
   onTransferComplete,
 }) => {
   const theme = useTenantTheme();
-  const { theme: tenantTheme } = useTenantTheme();
+  const tenantTheme = useTenantTheme();
   const { showAlert, showConfirm } = useBankingAlert();
 
   // State management
