@@ -16,11 +16,16 @@ import {
   Platform,
   ActivityIndicator,
 } from 'react-native';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import LinearGradient from '../../components/common/LinearGradient';
+import { GlassCard } from '../../components/ui/GlassCard';
+import { triggerHaptic } from '../../utils/haptics';
 import { useTenantTheme } from '../../context/TenantThemeContext';
 import { useNotification } from '../../services/ModernNotificationService';
 import APIService from '../../services/api';
 import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
+
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -147,6 +152,7 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
   };
 
   const handleTransferSelect = async (transferType: string) => {
+    triggerHaptic('impactMedium');
     setSelectedOption(transferType);
     setIsLoading(true);
 
@@ -155,6 +161,7 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
       const option = transferOptions.find(opt => opt.id === transferType);
 
       if (option?.requiresVerification) {
+        triggerHaptic('impactLight');
         notify.info(
           'International transfers require additional verification',
           'Verification Required'
@@ -188,6 +195,7 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
       }, 500);
     } catch (error) {
       setIsLoading(false);
+      triggerHaptic('notificationError');
       notify.error('Unable to proceed with transfer', 'Error');
     }
   };
@@ -443,27 +451,33 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
             contentContainerStyle={styles.scrollContent}
           >
             {/* Title Section */}
-            <View style={styles.titleSection}>
-              <Text style={styles.mainTitle}>Send Money</Text>
-              <Text style={styles.subtitle}>
+            <Animated.View entering={FadeInUp.springify()} style={styles.titleSection}>
+              <Text style={[styles.mainTitle, { fontFamily: theme.typography.fontFamily?.display || theme.typography.fontFamily?.primary }]}>
+                Send Money
+              </Text>
+              <Text style={[styles.subtitle, { fontFamily: theme.typography.fontFamily?.primary }]}>
                 Choose how you want to transfer funds
               </Text>
-            </View>
+            </Animated.View>
 
             {/* Transfer Options Grid */}
             <View style={styles.optionsContainer}>
               {optionRows.map((row, rowIndex) => (
                 <View key={rowIndex} style={styles.optionRow}>
-                  {row.map((option) => (
-                    <TouchableOpacity
+                  {row.map((option, optionIndex) => (
+                    <Animated.View
                       key={option.id}
-                      style={[
-                        styles.optionCard,
-                        selectedOption === option.id && styles.optionCardSelected,
-                      ]}
-                      onPress={() => handleTransferSelect(option.id)}
-                      activeOpacity={0.8}
+                      entering={FadeInDown.delay((rowIndex * row.length + optionIndex) * 100).springify()}
+                      style={{ flex: 1 }}
                     >
+                      <AnimatedTouchable
+                        style={[
+                          styles.optionCard,
+                          selectedOption === option.id && styles.optionCardSelected,
+                        ]}
+                        onPress={() => handleTransferSelect(option.id)}
+                        activeOpacity={0.8}
+                      >
                       <View style={styles.optionHeader}>
                         <Text style={styles.optionIcon}>{option.icon}</Text>
                         {option.badge && (
@@ -481,14 +495,15 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
 
                       <View style={styles.optionFooter}>
                         <View style={styles.feeContainer}>
-                          <Text style={styles.feeLabel}>Fee:</Text>
-                          <Text style={styles.feeAmount}>
+                          <Text style={[styles.feeLabel, { fontFamily: theme.typography.fontFamily?.primary }]}>Fee:</Text>
+                          <Text style={[styles.feeAmount, { fontFamily: theme.typography.fontFamily?.mono }]}>
                             {option.fee === 0 ? 'FREE' : formatCurrency(option.fee, 'NGN', { locale: 'en-NG' })}
                           </Text>
                         </View>
                         <Text style={styles.arrow}>→</Text>
                       </View>
-                    </TouchableOpacity>
+                    </AnimatedTouchable>
+                    </Animated.View>
                   ))}
                   {row.length === 1 && <View style={{ flex: 1, marginHorizontal: 8 }} />}
                 </View>
@@ -496,13 +511,15 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
             </View>
 
             {/* Info Card */}
-            <View style={styles.infoCard}>
-              <Text style={styles.infoIcon}>💡</Text>
-              <Text style={styles.infoText}>
-                Transfer limits apply based on your account type.
-                Upgrade to Premium for higher limits and reduced fees.
-              </Text>
-            </View>
+            <Animated.View entering={FadeInUp.delay(600).springify()}>
+              <GlassCard style={styles.infoCard}>
+                <Text style={styles.infoIcon}>💡</Text>
+                <Text style={[styles.infoText, { fontFamily: theme.typography.fontFamily?.primary }]}>
+                  Transfer limits apply based on your account type.
+                  Upgrade to Premium for higher limits and reduced fees.
+                </Text>
+              </GlassCard>
+            </Animated.View>
           </ScrollView>
 
           {/* Loading Overlay */}
