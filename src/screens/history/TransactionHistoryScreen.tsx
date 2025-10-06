@@ -67,7 +67,7 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
   const theme = useTenantTheme();
   const tenantTheme = useTenantTheme();
   const { showAlert } = useBankingAlert();
-  
+
   // State
   const [historyData, setHistoryData] = useState<TransactionHistoryData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -78,6 +78,8 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
   const [dateRange, setDateRange] = useState('this-month');
   const [viewMode, setViewMode] = useState<'list' | 'table'>('list');
   const [filteredTransactions, setFilteredTransactions] = useState<DetailedTransaction[]>([]);
+  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
+  const [showTypeDropdown, setShowTypeDropdown] = useState(false);
 
   // Load transaction history
   const loadHistoryData = useCallback(async () => {
@@ -396,6 +398,65 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       fontSize: 12,
       color: tenantTheme.colors.textSecondary,
       marginLeft: 8,
+    },
+    dropdownMenu: {
+      position: 'absolute',
+      top: '100%',
+      left: 0,
+      right: 0,
+      marginTop: 8,
+      backgroundColor: tenantTheme.colors.surface,
+      borderRadius: 12,
+      borderWidth: 2,
+      borderColor: tenantTheme.colors.border,
+      zIndex: 1000,
+      ...Platform.select({
+        ios: {
+          shadowColor: tenantTheme.colors.text,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.15,
+          shadowRadius: 12,
+        },
+        android: {
+          elevation: 8,
+        },
+        web: {
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+        },
+      }),
+    },
+    dropdownItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: 12,
+    },
+    dropdownItemBorder: {
+      borderBottomWidth: 1,
+      borderBottomColor: tenantTheme.colors.border,
+    },
+    dropdownItemActive: {
+      backgroundColor: `${tenantTheme.colors.primary}10`,
+    },
+    dropdownItemIcon: {
+      fontSize: 18,
+      marginRight: 12,
+    },
+    dropdownItemText: {
+      flex: 1,
+      fontSize: 15,
+      fontWeight: '400',
+      color: tenantTheme.colors.text,
+      letterSpacing: 0.1,
+    },
+    dropdownItemTextActive: {
+      fontWeight: '600',
+      color: tenantTheme.colors.primary,
+    },
+    dropdownItemCheck: {
+      fontSize: 18,
+      color: tenantTheme.colors.primary,
+      fontWeight: '700',
     },
     summaryGrid: {
       flexDirection: 'row',
@@ -815,44 +876,106 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
             <View style={dynamicStyles.filterRow}>
               <View style={dynamicStyles.filterGroup}>
                 <Text style={dynamicStyles.filterLabel}>Status</Text>
-                <TouchableOpacity
-                  style={dynamicStyles.filterPicker}
-                  onPress={() => {
-                    showAlert('Select Status', 'Choose transaction status', [
-                      { text: 'All Statuses', onPress: () => setStatusFilter('all') },
-                      { text: 'Successful', onPress: () => setStatusFilter('successful') },
-                      { text: 'Pending', onPress: () => setStatusFilter('pending') },
-                      { text: 'Failed', onPress: () => setStatusFilter('failed') },
-                      { text: 'Cancel', style: 'cancel' },
-                    ]);
-                  }}
-                >
-                  <Text style={dynamicStyles.filterPickerText}>
-                    {statusFilter === 'all' ? 'All Statuses' : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}
-                  </Text>
-                  <Text style={dynamicStyles.filterPickerArrow}>▼</Text>
-                </TouchableOpacity>
+                <View>
+                  <TouchableOpacity
+                    style={dynamicStyles.filterPicker}
+                    onPress={() => {
+                      setShowStatusDropdown(!showStatusDropdown);
+                      setShowTypeDropdown(false);
+                    }}
+                  >
+                    <Text style={dynamicStyles.filterPickerText}>
+                      {statusFilter === 'all' ? 'All Statuses' : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}
+                    </Text>
+                    <Text style={dynamicStyles.filterPickerArrow}>▼</Text>
+                  </TouchableOpacity>
+                  {showStatusDropdown && (
+                    <View style={dynamicStyles.dropdownMenu}>
+                      {[
+                        { value: 'all', label: 'All Statuses', icon: '📋' },
+                        { value: 'successful', label: 'Successful', icon: '✅' },
+                        { value: 'pending', label: 'Pending', icon: '⏳' },
+                        { value: 'failed', label: 'Failed', icon: '❌' },
+                      ].map((option, index, array) => (
+                        <TouchableOpacity
+                          key={option.value}
+                          style={[
+                            dynamicStyles.dropdownItem,
+                            index < array.length - 1 && dynamicStyles.dropdownItemBorder,
+                            statusFilter === option.value && dynamicStyles.dropdownItemActive
+                          ]}
+                          onPress={() => {
+                            setStatusFilter(option.value);
+                            setShowStatusDropdown(false);
+                          }}
+                        >
+                          <Text style={dynamicStyles.dropdownItemIcon}>{option.icon}</Text>
+                          <Text style={[
+                            dynamicStyles.dropdownItemText,
+                            statusFilter === option.value && dynamicStyles.dropdownItemTextActive
+                          ]}>
+                            {option.label}
+                          </Text>
+                          {statusFilter === option.value && (
+                            <Text style={dynamicStyles.dropdownItemCheck}>✓</Text>
+                          )}
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
+                </View>
               </View>
 
               <View style={dynamicStyles.filterGroup}>
                 <Text style={dynamicStyles.filterLabel}>Type</Text>
-                <TouchableOpacity
-                  style={dynamicStyles.filterPicker}
-                  onPress={() => {
-                    showAlert('Select Type', 'Choose transaction type', [
-                      { text: 'All Types', onPress: () => setTypeFilter('all') },
-                      { text: 'Sent', onPress: () => setTypeFilter('sent') },
-                      { text: 'Received', onPress: () => setTypeFilter('received') },
-                      { text: 'Bills', onPress: () => setTypeFilter('bills') },
-                      { text: 'Cancel', style: 'cancel' },
-                    ]);
-                  }}
-                >
-                  <Text style={dynamicStyles.filterPickerText}>
-                    {typeFilter === 'all' ? 'All Types' : typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1)}
-                  </Text>
-                  <Text style={dynamicStyles.filterPickerArrow}>▼</Text>
-                </TouchableOpacity>
+                <View>
+                  <TouchableOpacity
+                    style={dynamicStyles.filterPicker}
+                    onPress={() => {
+                      setShowTypeDropdown(!showTypeDropdown);
+                      setShowStatusDropdown(false);
+                    }}
+                  >
+                    <Text style={dynamicStyles.filterPickerText}>
+                      {typeFilter === 'all' ? 'All Types' : typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1)}
+                    </Text>
+                    <Text style={dynamicStyles.filterPickerArrow}>▼</Text>
+                  </TouchableOpacity>
+                  {showTypeDropdown && (
+                    <View style={dynamicStyles.dropdownMenu}>
+                      {[
+                        { value: 'all', label: 'All Types', icon: '📋' },
+                        { value: 'sent', label: 'Sent', icon: '📤' },
+                        { value: 'received', label: 'Received', icon: '📥' },
+                        { value: 'bills', label: 'Bills', icon: '💡' },
+                      ].map((option, index, array) => (
+                        <TouchableOpacity
+                          key={option.value}
+                          style={[
+                            dynamicStyles.dropdownItem,
+                            index < array.length - 1 && dynamicStyles.dropdownItemBorder,
+                            typeFilter === option.value && dynamicStyles.dropdownItemActive
+                          ]}
+                          onPress={() => {
+                            setTypeFilter(option.value);
+                            setShowTypeDropdown(false);
+                          }}
+                        >
+                          <Text style={dynamicStyles.dropdownItemIcon}>{option.icon}</Text>
+                          <Text style={[
+                            dynamicStyles.dropdownItemText,
+                            typeFilter === option.value && dynamicStyles.dropdownItemTextActive
+                          ]}>
+                            {option.label}
+                          </Text>
+                          {typeFilter === option.value && (
+                            <Text style={dynamicStyles.dropdownItemCheck}>✓</Text>
+                          )}
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
+                </View>
               </View>
             </View>
           </View>
