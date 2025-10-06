@@ -6,10 +6,11 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
 import bcrypt from 'bcrypt';
-import { query, transaction } from '../config/database';
+import { query, transaction, getTenantPool } from '../config/database';
 import { validateTenantAccess } from '../middleware/tenant';
 import { asyncHandler, errors } from '../middleware/errorHandler';
 import crypto from 'crypto';
+import { ReferralService } from '../services/referrals';
 
 const router = express.Router();
 
@@ -28,6 +29,7 @@ router.post('/start', validateTenantAccess, [
   body('middleName').optional().isLength({ max: 100 }).withMessage('Middle name too long'),
   body('dateOfBirth').isISO8601().withMessage('Valid date of birth required'),
   body('agreeToTerms').equals('true').withMessage('Must agree to terms and conditions'),
+  body('referralCode').optional().isLength({ min: 6, max: 8 }).withMessage('Invalid referral code format'),
 ], asyncHandler(async (req, res) => {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
@@ -47,12 +49,31 @@ router.post('/start', validateTenantAccess, [
     lastName,
     middleName,
     dateOfBirth,
-    agreeToTerms
+    agreeToTerms,
+    referralCode
   } = req.body;
 
   const tenantId = req.tenant.id;
 
   try {
+    // Validate referral code if provided
+    let referralData: any = null;
+    if (referralCode) {
+      const tenantPool = getTenantPool(tenantId);
+      const referralService = new ReferralService(tenantId, tenantPool);
+
+      const validation = await referralService.validateReferralCode(referralCode);
+      if (!validation.isValid) {
+        return res.status(400).json({
+          success: false,
+          error: validation.message || 'Invalid referral code',
+          code: 'INVALID_REFERRAL_CODE'
+        });
+      }
+
+      referralData = validation;
+    }
+
     // Start database transaction
     await transaction(async (client) => {
       // Check if user already exists
@@ -109,6 +130,30 @@ router.post('/start', validateTenantAccess, [
 
       const newUser = userResult.rows[0];
 
+      // Create referral record if referral code was provided
+      let referralBonus = 0;
+      if (referralCode && referralData) {
+        try {
+          const tenantPool = getTenantPool(tenantId);
+          const referralService = new ReferralService(tenantId, tenantPool);
+
+          await referralService.createReferral({
+            referrerId: referralData.referrerId,
+            refereeId: newUser.id,
+            referralCode: referralCode,
+            deviceFingerprint: req.get('User-Agent'),
+            ipAddress: req.ip,
+          });
+
+          referralBonus = referralData.bonusPoints || 100;
+
+          console.log(`✅ Referral created: ${referralCode} -> User ${newUser.id}`);
+        } catch (error) {
+          console.error('Failed to create referral:', error);
+          // Don't fail registration if referral creation fails
+        }
+      }
+
       // Log registration activity
       await client.query(`
         INSERT INTO tenant.user_activity_logs (
@@ -116,7 +161,13 @@ router.post('/start', validateTenantAccess, [
         ) VALUES ($1, 'registration_started', 'User started registration process', $2, $3, $4)
       `, [
         newUser.id, req.ip, req.get('User-Agent'),
-        JSON.stringify({ step: 'basic_info', email_verified: false, phone_verified: false })
+        JSON.stringify({
+          step: 'basic_info',
+          email_verified: false,
+          phone_verified: false,
+          referral_code: referralCode || null,
+          referral_bonus: referralBonus
+        })
       ]);
 
       // TODO: Send email verification (integrate with email service)
@@ -124,7 +175,9 @@ router.post('/start', validateTenantAccess, [
 
       res.status(201).json({
         success: true,
-        message: 'Registration started successfully',
+        message: referralCode
+          ? `Registration started successfully! You'll receive ${referralBonus} points after verification.`
+          : 'Registration started successfully',
         data: {
           userId: newUser.id,
           email: newUser.email,
@@ -133,7 +186,8 @@ router.post('/start', validateTenantAccess, [
           verificationRequired: {
             email: true,
             phone: true
-          }
+          },
+          referralBonus: referralBonus > 0 ? referralBonus : undefined,
         }
       });
     });

@@ -1,8 +1,9 @@
 /**
  * ============================================================================
- * REFERRAL SCREEN
+ * REFERRAL SCREEN (WORLD-CLASS UI)
  * ============================================================================
  * Purpose: Main screen for referring friends and tracking referral rewards
+ * Design: Nubank-inspired glassmorphism + gamification
  * Created: October 5, 2025
  * Phase: 3 - Frontend Integration
  * ============================================================================
@@ -19,9 +20,22 @@ import {
   Linking,
   Clipboard,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, {
+  FadeInDown,
+  FadeInUp,
+  BounceIn,
+  useAnimatedStyle,
+  withSpring,
+  useSharedValue,
+} from 'react-native-reanimated';
 import { Text } from '../../components/ui';
+import { GlassCard } from '../../components/ui/GlassCard';
+import { SkeletonLoader } from '../../components/ui/SkeletonLoader';
+import { EmptyState } from '../../components/ui/EmptyState';
 import { useTenantTheme } from '../../context/TenantThemeContext';
 import { apiRequest } from '../../services/api';
+import { triggerHaptic } from '../../utils/haptics';
 
 interface ReferralStats {
   totalReferrals: number;
@@ -53,6 +67,8 @@ interface ShareAnalytics {
   topShareMethod: string;
 }
 
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
+
 const ReferralScreen: React.FC = () => {
   const { theme } = useTenantTheme();
   const [referralCode, setReferralCode] = useState<string>('');
@@ -61,6 +77,8 @@ const ReferralScreen: React.FC = () => {
   const [shareAnalytics, setShareAnalytics] = useState<ShareAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState<'overview' | 'history' | 'analytics'>('overview');
+
+  const codeScale = useSharedValue(1);
 
   useEffect(() => {
     loadReferralData();
@@ -91,8 +109,16 @@ const ReferralScreen: React.FC = () => {
   };
 
   const handleCopyCode = async () => {
+    // Haptic feedback
+    triggerHaptic('impactMedium');
+
+    // Scale animation
+    codeScale.value = withSpring(0.95, {}, () => {
+      codeScale.value = withSpring(1);
+    });
+
     Clipboard.setString(referralCode);
-    Alert.alert('Copied!', `Referral code ${referralCode} copied to clipboard`);
+    Alert.alert('Copied! ✅', `Referral code ${referralCode} copied to clipboard`);
 
     // Track share event
     try {
@@ -110,6 +136,8 @@ const ReferralScreen: React.FC = () => {
   };
 
   const handleShareVia = async (method: string) => {
+    triggerHaptic('impactLight');
+
     try {
       const response = await apiRequest('/referrals/share', {
         method: 'POST',
@@ -153,11 +181,11 @@ const ReferralScreen: React.FC = () => {
         return theme.colors.warning;
       case 'expired':
       case 'cancelled':
-        return theme.colors.textSecondary;
+        return theme.colors.text.secondary;
       case 'fraud_flagged':
         return theme.colors.error;
       default:
-        return theme.colors.textSecondary;
+        return theme.colors.text.secondary;
     }
   };
 
@@ -180,174 +208,218 @@ const ReferralScreen: React.FC = () => {
     }
   };
 
+  const codeAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: codeScale.value }],
+  }));
+
   const renderOverview = () => (
     <View style={styles.tabContent}>
-      {/* Referral Code Card */}
-      <View style={[styles.card, { backgroundColor: theme.colors.primary }]}>
-        <Text style={[styles.cardTitle, { color: '#FFFFFF' }]}>Your Referral Code</Text>
-        <Text style={[styles.referralCode, { color: '#FFFFFF' }]}>{referralCode}</Text>
-        <TouchableOpacity
-          style={[styles.copyButton, { backgroundColor: 'rgba(255,255,255,0.2)' }]}
-          onPress={handleCopyCode}
+      {/* Referral Code Card - Glassmorphic Hero */}
+      <Animated.View entering={FadeInDown.delay(100).springify()}>
+        <LinearGradient
+          colors={[theme.colors.primary, theme.colors.primaryDark || theme.colors.primary]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.heroGradient}
         >
-          <Text style={[styles.copyButtonText, { color: '#FFFFFF' }]}>Copy Code</Text>
-        </TouchableOpacity>
-      </View>
+          <GlassCard style={styles.heroCard}>
+            <Text style={[styles.heroTitle, { fontFamily: theme.typography.fontFamily.primary }]}>
+              Your Referral Code
+            </Text>
+            <AnimatedTouchable
+              style={[styles.codeContainer, codeAnimatedStyle]}
+              onPress={handleCopyCode}
+              activeOpacity={0.9}
+            >
+              <Text style={[styles.referralCode, { fontFamily: theme.typography.fontFamily.mono }]}>
+                {referralCode}
+              </Text>
+            </AnimatedTouchable>
+            <TouchableOpacity
+              style={[styles.copyButton, { backgroundColor: 'rgba(255,255,255,0.25)' }]}
+              onPress={handleCopyCode}
+            >
+              <Text style={[styles.copyButtonText, { fontFamily: theme.typography.fontFamily.primary }]}>
+                📋 Tap to Copy
+              </Text>
+            </TouchableOpacity>
+          </GlassCard>
+        </LinearGradient>
+      </Animated.View>
 
-      {/* Stats Grid */}
-      <View style={styles.statsGrid}>
-        <View style={[styles.statCard, { backgroundColor: theme.colors.surface }]}>
-          <Text style={[styles.statValue, { color: theme.colors.primary }]}>
-            {stats?.totalReferrals || 0}
-          </Text>
-          <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>
-            Total Referrals
-          </Text>
-        </View>
+      {/* Stats Grid - With Celebration Animation */}
+      <Animated.View entering={FadeInUp.delay(200).springify()}>
+        <View style={styles.statsGrid}>
+          <GlassCard style={styles.statCard}>
+            <Text style={[styles.statValue, { color: theme.colors.primary, fontFamily: theme.typography.fontFamily.mono }]}>
+              {stats?.totalReferrals || 0}
+            </Text>
+            <Text style={[styles.statLabel, { color: theme.colors.text.secondary }]}>
+              Total Referrals
+            </Text>
+          </GlassCard>
 
-        <View style={[styles.statCard, { backgroundColor: theme.colors.surface }]}>
-          <Text style={[styles.statValue, { color: theme.colors.success }]}>
-            {stats?.awardedReferrals || 0}
-          </Text>
-          <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>
-            Rewarded
-          </Text>
-        </View>
+          <GlassCard style={styles.statCard}>
+            <Text style={[styles.statValue, { color: theme.colors.success, fontFamily: theme.typography.fontFamily.mono }]}>
+              {stats?.awardedReferrals || 0}
+            </Text>
+            <Text style={[styles.statLabel, { color: theme.colors.text.secondary }]}>
+              🎉 Rewarded
+            </Text>
+          </GlassCard>
 
-        <View style={[styles.statCard, { backgroundColor: theme.colors.surface }]}>
-          <Text style={[styles.statValue, { color: theme.colors.warning }]}>
-            {stats?.pendingReferrals || 0}
-          </Text>
-          <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>
-            Pending
-          </Text>
-        </View>
+          <GlassCard style={styles.statCard}>
+            <Text style={[styles.statValue, { color: theme.colors.warning, fontFamily: theme.typography.fontFamily.mono }]}>
+              {stats?.pendingReferrals || 0}
+            </Text>
+            <Text style={[styles.statLabel, { color: theme.colors.text.secondary }]}>
+              ⏳ Pending
+            </Text>
+          </GlassCard>
 
-        <View style={[styles.statCard, { backgroundColor: theme.colors.surface }]}>
-          <Text style={[styles.statValue, { color: theme.colors.primary }]}>
-            {stats?.totalPointsEarned || 0}
-          </Text>
-          <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>
-            Points Earned
-          </Text>
+          <GlassCard style={styles.statCard}>
+            <Text style={[styles.statValue, { color: theme.colors.reward?.gold || theme.colors.primary, fontFamily: theme.typography.fontFamily.mono }]}>
+              {stats?.totalPointsEarned || 0}
+            </Text>
+            <Text style={[styles.statLabel, { color: theme.colors.text.secondary }]}>
+              ⭐ Points Earned
+            </Text>
+          </GlassCard>
         </View>
-      </View>
+      </Animated.View>
 
       {/* Share Options */}
-      <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-        <Text style={[styles.cardTitle, { color: theme.colors.text }]}>Share Your Code</Text>
-        <View style={styles.shareButtons}>
-          <TouchableOpacity
-            style={[styles.shareButton, { backgroundColor: theme.colors.primary }]}
-            onPress={() => handleShareVia('whatsapp')}
-          >
-            <Text style={[styles.shareButtonText, { color: '#FFFFFF' }]}>WhatsApp</Text>
-          </TouchableOpacity>
+      <Animated.View entering={FadeInUp.delay(300).springify()}>
+        <GlassCard>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text.primary, fontFamily: theme.typography.fontFamily.primary }]}>
+            Share Your Code
+          </Text>
+          <View style={styles.shareButtons}>
+            <TouchableOpacity
+              style={[styles.shareButton, { backgroundColor: '#25D366' }]}
+              onPress={() => handleShareVia('whatsapp')}
+            >
+              <Text style={styles.shareButtonEmoji}>💬</Text>
+              <Text style={[styles.shareButtonText, { fontFamily: theme.typography.fontFamily.primary }]}>
+                WhatsApp
+              </Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.shareButton, { backgroundColor: theme.colors.primary }]}
-            onPress={() => handleShareVia('sms')}
-          >
-            <Text style={[styles.shareButtonText, { color: '#FFFFFF' }]}>SMS</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.shareButton, { backgroundColor: '#007AFF' }]}
+              onPress={() => handleShareVia('sms')}
+            >
+              <Text style={styles.shareButtonEmoji}>💬</Text>
+              <Text style={[styles.shareButtonText, { fontFamily: theme.typography.fontFamily.primary }]}>
+                SMS
+              </Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.shareButton, { backgroundColor: theme.colors.primary }]}
-            onPress={() => handleShareVia('email')}
-          >
-            <Text style={[styles.shareButtonText, { color: '#FFFFFF' }]}>Email</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.shareButton, { backgroundColor: '#EA4335' }]}
+              onPress={() => handleShareVia('email')}
+            >
+              <Text style={styles.shareButtonEmoji}>📧</Text>
+              <Text style={[styles.shareButtonText, { fontFamily: theme.typography.fontFamily.primary }]}>
+                Email
+              </Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.shareButton, { backgroundColor: theme.colors.primary }]}
-            onPress={() => handleShareVia('social')}
-          >
-            <Text style={[styles.shareButtonText, { color: '#FFFFFF' }]}>More</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+            <TouchableOpacity
+              style={[styles.shareButton, { backgroundColor: theme.colors.primary }]}
+              onPress={() => handleShareVia('social')}
+            >
+              <Text style={styles.shareButtonEmoji}>📱</Text>
+              <Text style={[styles.shareButtonText, { fontFamily: theme.typography.fontFamily.primary }]}>
+                More
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </GlassCard>
+      </Animated.View>
 
       {/* How It Works */}
-      <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-        <Text style={[styles.cardTitle, { color: theme.colors.text }]}>How It Works</Text>
-        <View style={styles.stepsList}>
-          <View style={styles.step}>
-            <View style={[styles.stepNumber, { backgroundColor: theme.colors.primary }]}>
-              <Text style={[styles.stepNumberText, { color: '#FFFFFF' }]}>1</Text>
-            </View>
-            <Text style={[styles.stepText, { color: theme.colors.text }]}>
-              Share your referral code with friends
-            </Text>
+      <Animated.View entering={FadeInUp.delay(400).springify()}>
+        <GlassCard>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text.primary, fontFamily: theme.typography.fontFamily.primary }]}>
+            How It Works
+          </Text>
+          <View style={styles.stepsList}>
+            {[
+              { emoji: '1️⃣', text: 'Share your referral code with friends' },
+              { emoji: '2️⃣', text: 'They sign up and complete KYC verification' },
+              { emoji: '3️⃣', text: 'They make their first deposit (minimum ₦5,000)' },
+              { emoji: '4️⃣', text: 'You both get rewarded with points! 🎉' },
+            ].map((step, index) => (
+              <View key={index} style={styles.step}>
+                <Text style={styles.stepEmoji}>{step.emoji}</Text>
+                <Text style={[styles.stepText, { color: theme.colors.text.primary, fontFamily: theme.typography.fontFamily.primary }]}>
+                  {step.text}
+                </Text>
+              </View>
+            ))}
           </View>
-
-          <View style={styles.step}>
-            <View style={[styles.stepNumber, { backgroundColor: theme.colors.primary }]}>
-              <Text style={[styles.stepNumberText, { color: '#FFFFFF' }]}>2</Text>
-            </View>
-            <Text style={[styles.stepText, { color: theme.colors.text }]}>
-              They sign up and complete KYC verification
-            </Text>
-          </View>
-
-          <View style={styles.step}>
-            <View style={[styles.stepNumber, { backgroundColor: theme.colors.primary }]}>
-              <Text style={[styles.stepNumberText, { color: '#FFFFFF' }]}>3</Text>
-            </View>
-            <Text style={[styles.stepText, { color: theme.colors.text }]}>
-              They make their first deposit (minimum ₦5,000)
-            </Text>
-          </View>
-
-          <View style={styles.step}>
-            <View style={[styles.stepNumber, { backgroundColor: theme.colors.primary }]}>
-              <Text style={[styles.stepNumberText, { color: '#FFFFFF' }]}>4</Text>
-            </View>
-            <Text style={[styles.stepText, { color: theme.colors.text }]}>
-              You both get rewarded with points!
-            </Text>
-          </View>
-        </View>
-      </View>
+        </GlassCard>
+      </Animated.View>
     </View>
   );
 
   const renderHistory = () => (
     <View style={styles.tabContent}>
       {referrals.length === 0 ? (
-        <View style={[styles.emptyState, { backgroundColor: theme.colors.surface }]}>
-          <Text style={[styles.emptyText, { color: theme.colors.textSecondary }]}>
-            No referrals yet. Start sharing your code!
-          </Text>
-        </View>
+        <EmptyState
+          icon="🤝"
+          title="No referrals yet"
+          message="Start sharing your code to see your referrals here!"
+          actionLabel="Copy Code"
+          onAction={handleCopyCode}
+        />
       ) : (
-        referrals.map((referral) => (
-          <View key={referral.id} style={[styles.referralCard, { backgroundColor: theme.colors.surface }]}>
-            <View style={styles.referralHeader}>
-              <Text style={[styles.referralId, { color: theme.colors.text }]}>
-                Referral #{referral.id.substring(0, 8)}
-              </Text>
-              <View style={[styles.statusBadge, { backgroundColor: getBonusStatusColor(referral.bonusStatus) }]}>
-                <Text style={[styles.statusText, { color: '#FFFFFF' }]}>
-                  {getBonusStatusText(referral.bonusStatus)}
+        referrals.map((referral, index) => (
+          <Animated.View
+            key={referral.id}
+            entering={FadeInDown.delay(index * 100).springify()}
+          >
+            <GlassCard style={styles.referralCard}>
+              <View style={styles.referralHeader}>
+                <Text style={[styles.referralId, { color: theme.colors.text.primary, fontFamily: theme.typography.fontFamily.primary }]}>
+                  Referral #{referral.id.substring(0, 8)}
                 </Text>
+                <View style={[styles.statusBadge, { backgroundColor: getBonusStatusColor(referral.bonusStatus) }]}>
+                  <Text style={[styles.statusText, { fontFamily: theme.typography.fontFamily.primary }]}>
+                    {getBonusStatusText(referral.bonusStatus)}
+                  </Text>
+                </View>
               </View>
-            </View>
 
-            <View style={styles.referralDetails}>
-              <Text style={[styles.detailText, { color: theme.colors.textSecondary }]}>
-                Bonus: {Math.round(referral.bonusPoints * referral.bonusMultiplier)} points
-              </Text>
-              <Text style={[styles.detailText, { color: theme.colors.textSecondary }]}>
-                KYC: {referral.refereeKycCompleted ? '✓ Complete' : '✗ Pending'}
-              </Text>
-              <Text style={[styles.detailText, { color: theme.colors.textSecondary }]}>
-                Funded: {referral.refereeFunded ? '✓ Yes' : '✗ No'}
-              </Text>
-              <Text style={[styles.detailText, { color: theme.colors.textSecondary }]}>
-                Date: {new Date(referral.createdAt).toLocaleDateString()}
-              </Text>
-            </View>
-          </View>
+              <View style={styles.referralDetails}>
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailEmoji}>⭐</Text>
+                  <Text style={[styles.detailText, { color: theme.colors.text.secondary }]}>
+                    Bonus: {Math.round(referral.bonusPoints * referral.bonusMultiplier)} points
+                  </Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailEmoji}>{referral.refereeKycCompleted ? '✅' : '⏳'}</Text>
+                  <Text style={[styles.detailText, { color: theme.colors.text.secondary }]}>
+                    KYC: {referral.refereeKycCompleted ? 'Complete' : 'Pending'}
+                  </Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailEmoji}>{referral.refereeFunded ? '💰' : '⏳'}</Text>
+                  <Text style={[styles.detailText, { color: theme.colors.text.secondary }]}>
+                    Funded: {referral.refereeFunded ? 'Yes' : 'No'}
+                  </Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailEmoji}>📅</Text>
+                  <Text style={[styles.detailText, { color: theme.colors.text.secondary }]}>
+                    {new Date(referral.createdAt).toLocaleDateString()}
+                  </Text>
+                </View>
+              </View>
+            </GlassCard>
+          </Animated.View>
         ))
       )}
     </View>
@@ -355,117 +427,127 @@ const ReferralScreen: React.FC = () => {
 
   const renderAnalytics = () => (
     <View style={styles.tabContent}>
-      <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-        <Text style={[styles.cardTitle, { color: theme.colors.text }]}>Share Performance</Text>
+      <Animated.View entering={FadeInUp.delay(100).springify()}>
+        <GlassCard>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text.primary, fontFamily: theme.typography.fontFamily.primary }]}>
+            📊 Share Performance
+          </Text>
 
-        <View style={styles.analyticsGrid}>
-          <View style={styles.analyticsItem}>
-            <Text style={[styles.analyticsValue, { color: theme.colors.primary }]}>
-              {shareAnalytics?.totalShares || 0}
-            </Text>
-            <Text style={[styles.analyticsLabel, { color: theme.colors.textSecondary }]}>
-              Total Shares
-            </Text>
+          <View style={styles.analyticsGrid}>
+            <View style={styles.analyticsItem}>
+              <Text style={[styles.analyticsValue, { color: theme.colors.primary, fontFamily: theme.typography.fontFamily.mono }]}>
+                {shareAnalytics?.totalShares || 0}
+              </Text>
+              <Text style={[styles.analyticsLabel, { color: theme.colors.text.secondary }]}>
+                Total Shares
+              </Text>
+            </View>
+
+            <View style={styles.analyticsItem}>
+              <Text style={[styles.analyticsValue, { color: theme.colors.info, fontFamily: theme.typography.fontFamily.mono }]}>
+                {shareAnalytics?.totalClicks || 0}
+              </Text>
+              <Text style={[styles.analyticsLabel, { color: theme.colors.text.secondary }]}>
+                Link Clicks
+              </Text>
+            </View>
+
+            <View style={styles.analyticsItem}>
+              <Text style={[styles.analyticsValue, { color: theme.colors.success, fontFamily: theme.typography.fontFamily.mono }]}>
+                {shareAnalytics?.totalConversions || 0}
+              </Text>
+              <Text style={[styles.analyticsLabel, { color: theme.colors.text.secondary }]}>
+                Sign-ups
+              </Text>
+            </View>
+
+            <View style={styles.analyticsItem}>
+              <Text style={[styles.analyticsValue, { color: theme.colors.warning, fontFamily: theme.typography.fontFamily.mono }]}>
+                {shareAnalytics?.conversionRate.toFixed(1) || 0}%
+              </Text>
+              <Text style={[styles.analyticsLabel, { color: theme.colors.text.secondary }]}>
+                Conversion
+              </Text>
+            </View>
           </View>
 
-          <View style={styles.analyticsItem}>
-            <Text style={[styles.analyticsValue, { color: theme.colors.primary }]}>
-              {shareAnalytics?.totalClicks || 0}
-            </Text>
-            <Text style={[styles.analyticsLabel, { color: theme.colors.textSecondary }]}>
-              Link Clicks
-            </Text>
-          </View>
-
-          <View style={styles.analyticsItem}>
-            <Text style={[styles.analyticsValue, { color: theme.colors.success }]}>
-              {shareAnalytics?.totalConversions || 0}
-            </Text>
-            <Text style={[styles.analyticsLabel, { color: theme.colors.textSecondary }]}>
-              Sign-ups
-            </Text>
-          </View>
-
-          <View style={styles.analyticsItem}>
-            <Text style={[styles.analyticsValue, { color: theme.colors.warning }]}>
-              {shareAnalytics?.conversionRate.toFixed(1) || 0}%
-            </Text>
-            <Text style={[styles.analyticsLabel, { color: theme.colors.textSecondary }]}>
-              Conversion
-            </Text>
-          </View>
-        </View>
-
-        {shareAnalytics?.topShareMethod && (
-          <View style={styles.topMethod}>
-            <Text style={[styles.topMethodLabel, { color: theme.colors.textSecondary }]}>
-              Top Channel:
-            </Text>
-            <Text style={[styles.topMethodValue, { color: theme.colors.primary }]}>
-              {shareAnalytics.topShareMethod}
-            </Text>
-          </View>
-        )}
-      </View>
+          {shareAnalytics?.topShareMethod && (
+            <View style={styles.topMethodContainer}>
+              <View style={[styles.topMethodBadge, { backgroundColor: theme.colors.primary + '20' }]}>
+                <Text style={styles.topMethodEmoji}>🏆</Text>
+                <View>
+                  <Text style={[styles.topMethodLabel, { color: theme.colors.text.secondary }]}>
+                    Top Channel
+                  </Text>
+                  <Text style={[styles.topMethodValue, { color: theme.colors.primary, fontFamily: theme.typography.fontFamily.primary }]}>
+                    {shareAnalytics.topShareMethod}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          )}
+        </GlassCard>
+      </Animated.View>
     </View>
   );
 
   if (loading) {
     return (
-      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <Text style={[styles.loadingText, { color: theme.colors.textSecondary }]}>Loading...</Text>
-      </View>
+      <LinearGradient
+        colors={[theme.colors.background.primary, theme.colors.background.secondary]}
+        style={styles.container}
+      >
+        <SkeletonLoader count={5} height={120} style={{ marginBottom: 16 }} />
+      </LinearGradient>
     );
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <LinearGradient
+      colors={[theme.colors.background.primary, theme.colors.background.secondary]}
+      style={styles.container}
+    >
       {/* Tabs */}
       <View style={[styles.tabs, { backgroundColor: theme.colors.surface }]}>
-        <TouchableOpacity
-          style={[
-            styles.tab,
-            selectedTab === 'overview' && { borderBottomColor: theme.colors.primary, borderBottomWidth: 2 },
-          ]}
-          onPress={() => setSelectedTab('overview')}
-        >
-          <Text style={[styles.tabText, { color: selectedTab === 'overview' ? theme.colors.primary : theme.colors.textSecondary }]}>
-            Overview
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.tab,
-            selectedTab === 'history' && { borderBottomColor: theme.colors.primary, borderBottomWidth: 2 },
-          ]}
-          onPress={() => setSelectedTab('history')}
-        >
-          <Text style={[styles.tabText, { color: selectedTab === 'history' ? theme.colors.primary : theme.colors.textSecondary }]}>
-            History
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.tab,
-            selectedTab === 'analytics' && { borderBottomColor: theme.colors.primary, borderBottomWidth: 2 },
-          ]}
-          onPress={() => setSelectedTab('analytics')}
-        >
-          <Text style={[styles.tabText, { color: selectedTab === 'analytics' ? theme.colors.primary : theme.colors.textSecondary }]}>
-            Analytics
-          </Text>
-        </TouchableOpacity>
+        {(['overview', 'history', 'analytics'] as const).map((tab) => (
+          <TouchableOpacity
+            key={tab}
+            style={[
+              styles.tab,
+              selectedTab === tab && { borderBottomColor: theme.colors.primary, borderBottomWidth: 3 },
+            ]}
+            onPress={() => {
+              triggerHaptic('impactLight');
+              setSelectedTab(tab);
+            }}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                {
+                  color: selectedTab === tab ? theme.colors.primary : theme.colors.text.secondary,
+                  fontFamily: theme.typography.fontFamily.primary,
+                  fontWeight: selectedTab === tab ? '600' : '400',
+                },
+              ]}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
       {/* Content */}
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         {selectedTab === 'overview' && renderOverview()}
         {selectedTab === 'history' && renderHistory()}
         {selectedTab === 'analytics' && renderAnalytics()}
       </ScrollView>
-    </View>
+    </LinearGradient>
   );
 };
 
@@ -473,15 +555,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  loadingText: {
-    textAlign: 'center',
-    marginTop: 50,
-    fontSize: 16,
-  },
   tabs: {
     flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   tab: {
     flex: 1,
@@ -489,8 +569,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   tabText: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 15,
   },
   scrollView: {
     flex: 1,
@@ -501,36 +580,40 @@ const styles = StyleSheet.create({
   tabContent: {
     gap: 16,
   },
-  card: {
-    borderRadius: 12,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+  heroGradient: {
+    borderRadius: 20,
+    padding: 2,
   },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+  heroCard: {
+    padding: 24,
+    alignItems: 'center',
+  },
+  heroTitle: {
+    fontSize: 16,
+    color: '#FFFFFF',
     marginBottom: 16,
+    opacity: 0.9,
+  },
+  codeContainer: {
+    paddingVertical: 16,
   },
   referralCode: {
-    fontSize: 32,
+    fontSize: 36,
     fontWeight: 'bold',
+    color: '#FFFFFF',
     textAlign: 'center',
-    marginVertical: 16,
-    letterSpacing: 4,
+    letterSpacing: 6,
   },
   copyButton: {
     paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    alignSelf: 'center',
+    paddingHorizontal: 32,
+    borderRadius: 12,
+    marginTop: 16,
   },
   copyButtonText: {
     fontSize: 16,
     fontWeight: '600',
+    color: '#FFFFFF',
   },
   statsGrid: {
     flexDirection: 'row',
@@ -539,19 +622,23 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    minWidth: '45%',
-    borderRadius: 12,
-    padding: 16,
+    minWidth: '47%',
+    padding: 20,
     alignItems: 'center',
   },
   statValue: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginBottom: 8,
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: 13,
     textAlign: 'center',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 16,
   },
   shareButtons: {
     flexDirection: 'row',
@@ -560,14 +647,19 @@ const styles = StyleSheet.create({
   },
   shareButton: {
     flex: 1,
-    minWidth: '45%',
-    paddingVertical: 12,
-    borderRadius: 8,
+    minWidth: '47%',
+    paddingVertical: 16,
+    borderRadius: 12,
     alignItems: 'center',
+    gap: 4,
+  },
+  shareButtonEmoji: {
+    fontSize: 24,
   },
   shareButtonText: {
     fontSize: 14,
     fontWeight: '600',
+    color: '#FFFFFF',
   },
   stepsList: {
     gap: 16,
@@ -577,34 +669,16 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: 12,
   },
-  stepNumber: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  stepNumberText: {
-    fontSize: 16,
-    fontWeight: 'bold',
+  stepEmoji: {
+    fontSize: 24,
   },
   stepText: {
     flex: 1,
-    fontSize: 14,
-    lineHeight: 20,
-    paddingTop: 6,
-  },
-  emptyState: {
-    padding: 40,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  emptyText: {
-    fontSize: 16,
-    textAlign: 'center',
+    fontSize: 15,
+    lineHeight: 22,
+    paddingTop: 2,
   },
   referralCard: {
-    borderRadius: 12,
     padding: 16,
     marginBottom: 12,
   },
@@ -612,32 +686,41 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
   },
   referralId: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
   },
   statusBadge: {
     paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
   },
   statusText: {
     fontSize: 12,
     fontWeight: '600',
+    color: '#FFFFFF',
   },
   referralDetails: {
-    gap: 4,
+    gap: 8,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  detailEmoji: {
+    fontSize: 16,
   },
   detailText: {
-    fontSize: 13,
+    fontSize: 14,
   },
   analyticsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 16,
-    marginBottom: 16,
+    gap: 20,
+    marginBottom: 20,
   },
   analyticsItem: {
     flex: 1,
@@ -645,27 +728,35 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   analyticsValue: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 4,
   },
   analyticsLabel: {
-    fontSize: 12,
+    fontSize: 13,
   },
-  topMethod: {
+  topMethodContainer: {
+    marginTop: 8,
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.05)',
+  },
+  topMethodBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
+    gap: 12,
+    padding: 16,
+    borderRadius: 12,
+  },
+  topMethodEmoji: {
+    fontSize: 32,
   },
   topMethodLabel: {
-    fontSize: 14,
+    fontSize: 12,
+    marginBottom: 4,
   },
   topMethodValue: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
     textTransform: 'capitalize',
   },
