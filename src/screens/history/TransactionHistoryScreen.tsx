@@ -346,6 +346,8 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
     filterRow: {
       flexDirection: 'row',
       gap: theme.spacing.md,
+      position: 'relative',
+      zIndex: 10,
     },
     filterGroup: {
       flex: 1,
@@ -466,6 +468,8 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       flexDirection: 'row',
       padding: theme.spacing.lg,
       gap: theme.spacing.sm,
+      position: 'relative',
+      zIndex: 1,
     },
     summaryCard: {
       flex: 1,
