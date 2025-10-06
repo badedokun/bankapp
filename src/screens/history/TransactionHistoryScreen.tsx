@@ -375,16 +375,27 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       fontSize: 16,
     },
     filterPicker: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
       borderWidth: 2,
       borderColor: tenantTheme.colors.border,
       borderRadius: 12,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.sm,
+      backgroundColor: tenantTheme.colors.background,
+    },
+    filterPickerText: {
+      flex: 1,
       fontSize: 16,
       fontWeight: '400',
       lineHeight: 24,
-      backgroundColor: tenantTheme.colors.background,
       color: tenantTheme.colors.text,
+    },
+    filterPickerArrow: {
+      fontSize: 12,
+      color: tenantTheme.colors.textSecondary,
+      marginLeft: 8,
     },
     summaryGrid: {
       flexDirection: 'row',
@@ -804,22 +815,44 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
             <View style={dynamicStyles.filterRow}>
               <View style={dynamicStyles.filterGroup}>
                 <Text style={dynamicStyles.filterLabel}>Status</Text>
-                <TextInput
+                <TouchableOpacity
                   style={dynamicStyles.filterPicker}
-                  placeholder="All Statuses"
-                  value={statusFilter === 'all' ? 'All Statuses' : statusFilter}
-                  editable={false}
-                />
+                  onPress={() => {
+                    showAlert('Select Status', 'Choose transaction status', [
+                      { text: 'All Statuses', onPress: () => setStatusFilter('all') },
+                      { text: 'Successful', onPress: () => setStatusFilter('successful') },
+                      { text: 'Pending', onPress: () => setStatusFilter('pending') },
+                      { text: 'Failed', onPress: () => setStatusFilter('failed') },
+                      { text: 'Cancel', style: 'cancel' },
+                    ]);
+                  }}
+                >
+                  <Text style={dynamicStyles.filterPickerText}>
+                    {statusFilter === 'all' ? 'All Statuses' : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}
+                  </Text>
+                  <Text style={dynamicStyles.filterPickerArrow}>▼</Text>
+                </TouchableOpacity>
               </View>
 
               <View style={dynamicStyles.filterGroup}>
                 <Text style={dynamicStyles.filterLabel}>Type</Text>
-                <TextInput
+                <TouchableOpacity
                   style={dynamicStyles.filterPicker}
-                  placeholder="All Types"
-                  value={typeFilter === 'all' ? 'All Types' : typeFilter}
-                  editable={false}
-                />
+                  onPress={() => {
+                    showAlert('Select Type', 'Choose transaction type', [
+                      { text: 'All Types', onPress: () => setTypeFilter('all') },
+                      { text: 'Sent', onPress: () => setTypeFilter('sent') },
+                      { text: 'Received', onPress: () => setTypeFilter('received') },
+                      { text: 'Bills', onPress: () => setTypeFilter('bills') },
+                      { text: 'Cancel', style: 'cancel' },
+                    ]);
+                  }}
+                >
+                  <Text style={dynamicStyles.filterPickerText}>
+                    {typeFilter === 'all' ? 'All Types' : typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1)}
+                  </Text>
+                  <Text style={dynamicStyles.filterPickerArrow}>▼</Text>
+                </TouchableOpacity>
               </View>
             </View>
           </View>
