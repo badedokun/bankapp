@@ -396,24 +396,25 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
     },
     backButtonText: {
       fontSize: 20,
-      color: '#FFFFFF',
+      color: theme.colors.textInverse,
       fontWeight: '600',
     },
     headerTitle: {
-      fontSize: 20,
-      fontWeight: '600',
-      color: '#FFFFFF',
+      fontSize: 22,
+      fontWeight: '700',
+      letterSpacing: 0.3,
+      color: theme.colors.textInverse,
     },
     headerSubtitle: {
       fontSize: 12,
-      color: 'rgba(255, 255, 255, 0.8)',
+      color: `${theme.colors.textInverse}CC`, // 80% opacity
       marginTop: 2,
     },
     statusIndicator: {
       width: 8,
       height: 8,
       borderRadius: 4,
-      backgroundColor: '#10B981',
+      backgroundColor: theme.colors.success,
       marginRight: 6,
     },
     statusContainer: {
@@ -471,11 +472,12 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
       borderColor: 'rgba(255, 255, 255, 0.3)',
     },
     messageText: {
-      fontSize: 15,
-      lineHeight: 22,
+      fontSize: 16,
+      lineHeight: 24,
+      fontWeight: '400',
     },
     userMessageText: {
-      color: '#FFFFFF',
+      color: theme.colors.textInverse,
     },
     aiMessageText: {
       color: theme.colors.text,
@@ -562,7 +564,9 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
     },
     suggestionText: {
       fontSize: 14,
-      color: '#FFFFFF',
+      fontWeight: '500',
+      letterSpacing: 0.2,
+      color: theme.colors.textInverse,
     },
     inputContainer: {
       flexDirection: 'row',
@@ -590,7 +594,8 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
     },
     textInput: {
       flex: 1,
-      fontSize: 15,
+      fontSize: 16,
+      fontWeight: '400',
       color: theme.colors.text,
       maxHeight: 100,
       ...Platform.select({
@@ -607,18 +612,19 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
       justifyContent: 'center',
       alignItems: 'center',
       ...Platform.select({
-        web: {
-          transition: 'all 0.2s ease',
-          cursor: 'pointer',
-        },
         ios: {
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.2,
-          shadowRadius: 4,
+          shadowColor: theme.colors.primary,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
         },
         android: {
-          elevation: 4,
+          elevation: 6,
+        },
+        web: {
+          boxShadow: `0 4px 12px ${theme.colors.primary}40`,
+          transition: 'all 0.2s ease',
+          cursor: 'pointer',
         },
       }),
     },
@@ -627,7 +633,7 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
     },
     sendButtonText: {
       fontSize: 20,
-      color: '#FFFFFF',
+      color: theme.colors.textInverse,
       fontWeight: '600',
     },
     voiceButton: {

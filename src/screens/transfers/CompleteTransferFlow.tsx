@@ -437,13 +437,15 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
       }),
     },
     backButtonText: {
-      fontSize: 20,
-      color: '#FFFFFF',
+      fontSize: 22,
+      fontWeight: '700',
+      color: theme.colors.textInverse,
     },
     headerTitle: {
-      fontSize: 20,
-      fontWeight: '600',
-      color: '#FFFFFF',
+      fontSize: 22,
+      fontWeight: '700',
+      letterSpacing: 0.3,
+      color: theme.colors.textInverse,
     },
     headerSpacer: {
       width: 40,
@@ -452,6 +454,9 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
       flexDirection: 'row',
       paddingHorizontal: 20,
       paddingVertical: 20,
+      marginHorizontal: 20,
+      marginTop: 10,
+      borderRadius: 12,
       backgroundColor: 'rgba(255, 255, 255, 0.95)',
       ...Platform.select({
         web: {
@@ -470,7 +475,7 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
       left: '50%',
       right: '-50%',
       height: 2,
-      backgroundColor: '#e5e7eb',
+      backgroundColor: theme.colors.border,
     },
     stepLineActive: {
       backgroundColor: theme.colors.primary,
@@ -479,7 +484,7 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
       width: 24,
       height: 24,
       borderRadius: 12,
-      backgroundColor: '#e5e7eb',
+      backgroundColor: theme.colors.border,
       justifyContent: 'center',
       alignItems: 'center',
       zIndex: 2,
@@ -493,16 +498,16 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
     stepCircleText: {
       fontSize: 12,
       fontWeight: '600',
-      color: '#FFFFFF',
+      color: theme.colors.textInverse,
     },
     stepLabel: {
       fontSize: 11,
-      color: '#6c757d',
+      color: theme.colors.textSecondary,
       marginTop: 8,
       fontWeight: '500',
     },
     stepLabelActive: {
-      color: '#1a1a2e',
+      color: theme.colors.text,
     },
     scrollContent: {
       paddingBottom: 100,
@@ -512,9 +517,10 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
       paddingTop: 20,
     },
     sectionTitle: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: '#FFFFFF',
+      fontSize: 18,
+      fontWeight: '700',
+      letterSpacing: 0.2,
+      color: theme.colors.textInverse,
       marginBottom: 15,
     },
     inputGroup: {
@@ -522,19 +528,22 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
     },
     inputLabel: {
       fontSize: 14,
-      fontWeight: '500',
-      color: '#FFFFFF',
+      fontWeight: '600',
+      letterSpacing: 0.2,
+      color: theme.colors.textInverse,
       marginBottom: 8,
     },
     inputField: {
       width: '100%',
       padding: 12,
       borderWidth: 2,
-      borderColor: '#e2e8f0',
+      borderColor: theme.colors.border,
       borderRadius: 8,
       fontSize: 16,
-      backgroundColor: '#FFFFFF',
-      color: '#1a1a2e',
+      fontWeight: '400',
+      lineHeight: 24,
+      backgroundColor: theme.colors.surface,
+      color: theme.colors.text,
     },
     inputFieldFocused: {
       borderColor: theme.colors.primary,
@@ -542,7 +551,7 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
     },
     validationSuccess: {
       borderColor: theme.colors.success,
-      backgroundColor: '#FFFFFF',
+      backgroundColor: theme.colors.surface,
     },
     validationError: {
       borderColor: theme.colors.danger,
@@ -589,18 +598,19 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
     amountTitle: {
       fontSize: 18,
       fontWeight: '600',
-      color: '#1a1a2e',
+      color: theme.colors.text,
     },
     amountInputLarge: {
       fontSize: 48,
       fontWeight: '700',
+      letterSpacing: -0.5,
       textAlign: 'center',
       color: theme.colors.primary,
       marginBottom: 10,
     },
     amountCurrencyLabel: {
       fontSize: 14,
-      color: '#6c757d',
+      color: theme.colors.textSecondary,
       textAlign: 'center',
       marginBottom: 20,
     },
@@ -627,7 +637,7 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
     },
     limitsInfo: {
       borderTopWidth: 1,
-      borderTopColor: '#e2e8f0',
+      borderTopColor: theme.colors.border,
       paddingTop: 15,
     },
     limitRow: {
@@ -637,12 +647,12 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
     },
     limitLabel: {
       fontSize: 13,
-      color: '#6c757d',
+      color: theme.colors.textSecondary,
     },
     limitValue: {
       fontSize: 13,
       fontWeight: '600',
-      color: '#1a1a2e',
+      color: theme.colors.text,
     },
     limitValueHighlight: {
       color: theme.colors.primary,
@@ -674,12 +684,12 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
     },
     feeLabel: {
       fontSize: 14,
-      color: '#6c757d',
+      color: theme.colors.textSecondary,
     },
     feeAmount: {
       fontSize: 14,
       fontWeight: '500',
-      color: '#1a1a2e',
+      color: theme.colors.text,
     },
     feeAmountTotal: {
       fontWeight: '600',
@@ -718,16 +728,16 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
     scheduleTitle: {
       fontSize: 14,
       fontWeight: '600',
-      color: '#1a1a2e',
+      color: theme.colors.text,
       marginBottom: 2,
     },
     scheduleSubtitle: {
       fontSize: 12,
-      color: '#6c757d',
+      color: theme.colors.textSecondary,
     },
     inputHint: {
       fontSize: 12,
-      color: '#6c757d',
+      color: theme.colors.textSecondary,
       marginTop: 4,
       fontStyle: 'italic',
     },
@@ -739,9 +749,9 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
     frequencyOption: {
       flex: 1,
       padding: 12,
-      backgroundColor: '#FFFFFF',
+      backgroundColor: theme.colors.surface,
       borderWidth: 2,
-      borderColor: '#e2e8f0',
+      borderColor: theme.colors.border,
       borderRadius: 8,
       alignItems: 'center',
     },
@@ -752,7 +762,7 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
     frequencyText: {
       fontSize: 14,
       fontWeight: '500',
-      color: '#1a1a2e',
+      color: theme.colors.text,
     },
     frequencyTextSelected: {
       color: theme.colors.primary,
@@ -762,7 +772,17 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
       flexDirection: 'row',
       gap: 10,
       marginTop: 20,
+      marginHorizontal: 20,
+      marginBottom: 20,
       paddingHorizontal: 20,
+      paddingVertical: 15,
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      borderRadius: 12,
+      ...Platform.select({
+        web: {
+          backdropFilter: 'blur(20px)',
+        },
+      }),
     },
     btnHalf: {
       flex: 1,
@@ -775,21 +795,64 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
     },
     btnPrimary: {
       backgroundColor: theme.colors.primary,
+      ...Platform.select({
+        ios: {
+          shadowColor: theme.colors.primary,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+        },
+        android: {
+          elevation: 6,
+        },
+        web: {
+          boxShadow: `0 4px 12px ${theme.colors.primary}40`,
+        },
+      }),
     },
     btnSecondary: {
-      backgroundColor: '#FFFFFF',
+      backgroundColor: theme.colors.surface,
       borderWidth: 2,
       borderColor: theme.colors.primary,
+      ...Platform.select({
+        ios: {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+        },
+        android: {
+          elevation: 2,
+        },
+        web: {
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        },
+      }),
     },
     btnSuccess: {
       backgroundColor: theme.colors.primary,
+      ...Platform.select({
+        ios: {
+          shadowColor: theme.colors.success,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+        },
+        android: {
+          elevation: 6,
+        },
+        web: {
+          boxShadow: `0 4px 12px ${theme.colors.success}40`,
+        },
+      }),
     },
     btnText: {
       fontSize: 16,
-      fontWeight: '600',
+      fontWeight: '700',
+      letterSpacing: 0.3,
     },
     btnTextPrimary: {
-      color: '#FFFFFF',
+      color: theme.colors.textInverse,
     },
     btnTextSecondary: {
       color: theme.colors.primary,
@@ -814,19 +877,19 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
       justifyContent: 'space-between',
       paddingVertical: 12,
       borderBottomWidth: 1,
-      borderBottomColor: '#e2e8f0',
+      borderBottomColor: theme.colors.border,
     },
     summaryRowLast: {
       borderBottomWidth: 0,
     },
     summaryLabel: {
       fontSize: 14,
-      color: '#6c757d',
+      color: theme.colors.textSecondary,
     },
     summaryValue: {
       fontSize: 14,
       fontWeight: '500',
-      color: '#1a1a2e',
+      color: theme.colors.text,
       textAlign: 'right',
       flex: 1,
       marginLeft: 10,
@@ -883,26 +946,29 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
     },
     successIconText: {
       fontSize: 40,
-      color: '#FFFFFF',
+      color: theme.colors.textInverse,
     },
     successTitle: {
       fontSize: 24,
       fontWeight: '700',
+      letterSpacing: 0.3,
       color: theme.colors.success,
       marginBottom: 10,
       textAlign: 'center',
     },
     successSubtitle: {
       fontSize: 14,
-      color: '#6c757d',
+      fontWeight: '400',
+      lineHeight: 20,
+      color: theme.colors.textSecondary,
       marginBottom: 30,
       textAlign: 'center',
     },
     receipt: {
-      backgroundColor: '#FFFFFF',
+      backgroundColor: theme.colors.surface,
       borderWidth: 2,
       borderStyle: 'dashed',
-      borderColor: '#e2e8f0',
+      borderColor: theme.colors.border,
       borderRadius: 12,
       padding: 20,
       marginBottom: 25,
@@ -914,17 +980,17 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
       paddingBottom: 15,
       borderBottomWidth: 1,
       borderBottomStyle: 'dashed',
-      borderBottomColor: '#e2e8f0',
+      borderBottomColor: theme.colors.border,
     },
     receiptTitle: {
       fontSize: 16,
       fontWeight: '600',
-      color: '#1a1a2e',
+      color: theme.colors.text,
       marginBottom: 5,
     },
     receiptRef: {
       fontSize: 12,
-      color: '#6c757d',
+      color: theme.colors.textSecondary,
       fontFamily: Platform.select({ ios: 'Courier', android: 'monospace', default: 'monospace' }),
     },
     loadingOverlay: {
@@ -952,7 +1018,7 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
     loadingText: {
       marginTop: 12,
       fontSize: 16,
-      color: '#1a1a2e',
+      color: theme.colors.text,
     },
   });
 
@@ -1200,12 +1266,12 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
                     width: '100%',
                     padding: 12,
                     borderWidth: 2,
-                    borderColor: '#e2e8f0',
+                    borderColor: theme.colors.border,
                     borderRadius: 8,
                     fontSize: 16,
-                    backgroundColor: '#FFFFFF',
-                    color: '#1a1a2e',
-                    border: '2px solid #e2e8f0',
+                    backgroundColor: theme.colors.surface,
+                    color: theme.colors.text,
+                    border: `2px solid ${theme.colors.border}`,
                     outline: 'none',
                   }}
                   value={transferData.scheduledDate ?
@@ -1239,7 +1305,7 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
                   }}
                 />
               )}
-              <RNText style={[styles.inputHint, { color: '#1a1a2e', fontWeight: '500' }]}>
+              <RNText style={[styles.inputHint, { color: theme.colors.text, fontWeight: '500' }]}>
                 Click the calendar icon to select date and time
               </RNText>
             </View>
@@ -1299,12 +1365,12 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
                       width: '100%',
                       padding: 12,
                       borderWidth: 2,
-                      borderColor: '#e2e8f0',
+                      borderColor: theme.colors.border,
                       borderRadius: 8,
                       fontSize: 16,
-                      backgroundColor: '#FFFFFF',
-                      color: '#1a1a2e',
-                      border: '2px solid #e2e8f0',
+                      backgroundColor: theme.colors.surface,
+                      color: theme.colors.text,
+                      border: `2px solid ${theme.colors.border}`,
                       outline: 'none',
                     }}
                     value={transferData.scheduledDate ?
@@ -1332,7 +1398,7 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
                     }}
                   />
                 )}
-                <RNText style={[styles.inputHint, { color: '#1a1a2e', fontWeight: '500' }]}>
+                <RNText style={[styles.inputHint, { color: theme.colors.text, fontWeight: '500' }]}>
                   Click the calendar icon to select date
                 </RNText>
               </View>
@@ -1346,12 +1412,12 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
                       width: '100%',
                       padding: 12,
                       borderWidth: 2,
-                      borderColor: '#e2e8f0',
+                      borderColor: theme.colors.border,
                       borderRadius: 8,
                       fontSize: 16,
-                      backgroundColor: '#FFFFFF',
-                      color: '#1a1a2e',
-                      border: '2px solid #e2e8f0',
+                      backgroundColor: theme.colors.surface,
+                      color: theme.colors.text,
+                      border: `2px solid ${theme.colors.border}`,
                       outline: 'none',
                     }}
                     placeholder="Leave empty for indefinite"
@@ -1392,7 +1458,7 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
                     }}
                   />
                 )}
-                <RNText style={[styles.inputHint, { color: '#1a1a2e', fontWeight: '500' }]}>
+                <RNText style={[styles.inputHint, { color: theme.colors.text, fontWeight: '500' }]}>
                   Click the calendar icon to select date (optional)
                 </RNText>
               </View>
@@ -1403,7 +1469,7 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
           <View style={styles.inputGroup}>
             <RNText style={styles.inputLabel}>Payment Reference (Auto-generated)</RNText>
             <RNTextInput
-              style={[styles.inputField, { backgroundColor: '#f3f4f6', color: '#6c757d' }]}
+              style={[styles.inputField, { backgroundColor: theme.colors.background, color: theme.colors.textSecondary }]}
               placeholder="Generating reference..."
               value={transferData.reference}
               editable={false}
@@ -1461,7 +1527,7 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
             <RNText style={styles.summaryLabel}>Recipient</RNText>
             <View style={{ flex: 1, alignItems: 'flex-end' }}>
               <RNText style={styles.summaryValue}>{transferData.accountName}</RNText>
-              <RNText style={[styles.summaryValue, { fontSize: 12, color: '#6c757d' }]}>
+              <RNText style={[styles.summaryValue, { fontSize: 12, color: theme.colors.textSecondary }]}>
                 {transferData.bankName} • {transferData.accountNumber}
               </RNText>
             </View>
@@ -1587,7 +1653,7 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
             <RNText style={styles.summaryLabel}>From</RNText>
             <View style={{ flex: 1, alignItems: 'flex-end' }}>
               <RNText style={styles.summaryValue}>Your Account</RNText>
-              <RNText style={[styles.summaryValue, { fontSize: 12, color: '#6c757d' }]}>
+              <RNText style={[styles.summaryValue, { fontSize: 12, color: theme.colors.textSecondary }]}>
                 FMFB • {limits.availableBalance > 0 ? '0987654321' : 'N/A'}
               </RNText>
             </View>
@@ -1596,7 +1662,7 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
             <RNText style={styles.summaryLabel}>To</RNText>
             <View style={{ flex: 1, alignItems: 'flex-end' }}>
               <RNText style={styles.summaryValue}>{transferData.accountName}</RNText>
-              <RNText style={[styles.summaryValue, { fontSize: 12, color: '#6c757d' }]}>
+              <RNText style={[styles.summaryValue, { fontSize: 12, color: theme.colors.textSecondary }]}>
                 {transferData.bankName?.split('(')[0].trim()} • {transferData.accountNumber}
               </RNText>
             </View>

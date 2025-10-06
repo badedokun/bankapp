@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import {
   LoginScreen,
   ModernDashboardScreen,
@@ -373,56 +373,58 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
     if (!isAuthenticated || currentScreen === 'Login') return null;
 
     return (
-      <View style={styles.tabBar}>
-        <TouchableOpacity
-          style={[styles.tab, currentScreen === 'Dashboard' && styles.activeTab]}
-          onPress={() => navigate('Dashboard')}
-        >
-          <Text style={styles.tabIcon}>🏠</Text>
-          <Text style={[styles.tabLabel, currentScreen === 'Dashboard' && styles.activeLabel]}>
-            Home
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={[styles.tab, currentScreen === 'Transfer' && styles.activeTab]}
-          onPress={() => navigate('Transfer')}
-        >
-          <Text style={styles.tabIcon}>💸</Text>
-          <Text style={[styles.tabLabel, currentScreen === 'Transfer' && styles.activeLabel]}>
-            Send Money
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={[styles.tab, currentScreen === 'History' && styles.activeTab]}
-          onPress={() => navigate('History')}
-        >
-          <Text style={styles.tabIcon}>📊</Text>
-          <Text style={[styles.tabLabel, currentScreen === 'History' && styles.activeLabel]}>
-            History
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={[styles.tab, currentScreen === 'AIChat' && styles.activeTab]}
-          onPress={() => navigate('AIChat')}
-        >
-          <Text style={styles.tabIcon}>🤖</Text>
-          <Text style={[styles.tabLabel, currentScreen === 'AIChat' && styles.activeLabel]}>
-            AI Assistant
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={[styles.tab, currentScreen === 'Settings' && styles.activeTab]}
-          onPress={() => navigate('Settings')}
-        >
-          <Text style={styles.tabIcon}>⚙️</Text>
-          <Text style={[styles.tabLabel, currentScreen === 'Settings' && styles.activeLabel]}>
-            Settings
-          </Text>
-        </TouchableOpacity>
+      <View style={styles.tabBarContainer}>
+        <View style={styles.tabBar}>
+          <TouchableOpacity
+            style={[styles.tab, currentScreen === 'Dashboard' && styles.activeTab]}
+            onPress={() => navigate('Dashboard')}
+          >
+            <Text style={styles.tabIcon}>🏠</Text>
+            <Text style={[styles.tabLabel, currentScreen === 'Dashboard' && styles.activeLabel]}>
+              Home
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.tab, currentScreen === 'Transfer' && styles.activeTab]}
+            onPress={() => navigate('Transfer')}
+          >
+            <Text style={styles.tabIcon}>💸</Text>
+            <Text style={[styles.tabLabel, currentScreen === 'Transfer' && styles.activeLabel]}>
+              Send Money
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.tab, currentScreen === 'History' && styles.activeTab]}
+            onPress={() => navigate('History')}
+          >
+            <Text style={styles.tabIcon}>📊</Text>
+            <Text style={[styles.tabLabel, currentScreen === 'History' && styles.activeLabel]}>
+              History
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.tab, currentScreen === 'AIChat' && styles.activeTab]}
+            onPress={() => navigate('AIChat')}
+          >
+            <Text style={styles.tabIcon}>🤖</Text>
+            <Text style={[styles.tabLabel, currentScreen === 'AIChat' && styles.activeLabel]}>
+              AI Assistant
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.tab, currentScreen === 'Settings' && styles.activeTab]}
+            onPress={() => navigate('Settings')}
+          >
+            <Text style={styles.tabIcon}>⚙️</Text>
+            <Text style={[styles.tabLabel, currentScreen === 'Settings' && styles.activeLabel]}>
+              Settings
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   };
@@ -440,18 +442,38 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: 'transparent',
   },
   screen: {
     flex: 1,
   },
+  tabBarContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    backgroundColor: 'transparent',
+  },
   tabBar: {
     flexDirection: 'row',
     backgroundColor: '#ffffff',
-    borderTopWidth: 1,
-    borderTopColor: '#e1e5e9',
     paddingVertical: 8,
     height: 80,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e1e5e9',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 8,
+      },
+      web: {
+        boxShadow: '0 -2px 8px rgba(0,0,0,0.1)',
+      },
+    }),
   },
   tab: {
     flex: 1,
