@@ -305,6 +305,7 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
     filtersSection: {
       backgroundColor: tenantTheme.colors.surface,
       padding: theme.spacing.lg,
+      overflow: 'visible',
       ...Platform.select({
         ios: {
           shadowColor: tenantTheme.colors.text,
@@ -340,6 +341,7 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
     },
     filtersGrid: {
       gap: theme.spacing.md,
+      overflow: 'visible',
     },
     filterRow: {
       flexDirection: 'row',
@@ -347,6 +349,8 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
     },
     filterGroup: {
       flex: 1,
+      position: 'relative',
+      zIndex: 1,
     },
     filterLabel: {
       fontSize: 14,
@@ -409,7 +413,7 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       borderRadius: 12,
       borderWidth: 2,
       borderColor: tenantTheme.colors.border,
-      zIndex: 1000,
+      zIndex: 9999,
       ...Platform.select({
         ios: {
           shadowColor: tenantTheme.colors.text,
