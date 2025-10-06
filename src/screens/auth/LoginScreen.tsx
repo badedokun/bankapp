@@ -399,84 +399,108 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: `linear-gradient(135deg, ${theme.colors.primary}22 0%, ${theme.colors.secondary}22 100%)`,
+      backgroundColor: theme.colors.background,
     },
     scrollContainer: {
       flexGrow: 1,
       justifyContent: 'center',
-      paddingHorizontal: theme.layout.spacing,
-      paddingVertical: theme.layout.spacing * 1.5,
+      paddingHorizontal: theme.layout.spacing * 1.25,
+      paddingVertical: theme.layout.spacing * 2,
+      minHeight: '100%',
     },
     loginCard: {
       backgroundColor: theme.colors.surface,
       borderRadius: theme.layout.borderRadiusLarge,
       marginHorizontal: screenWidth > 600 ? '20%' : 0,
-      maxWidth: 400,
+      maxWidth: 440,
       alignSelf: 'center',
       width: '100%',
-      shadowColor: theme.colors.text?.primary || '#000',
-      shadowOffset: { width: 0, height: 10 },
-      shadowOpacity: 0.1,
-      shadowRadius: 20,
-      elevation: 10,
+      overflow: 'hidden',
+      ...Platform.select({
+        ios: {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 12 },
+          shadowOpacity: 0.15,
+          shadowRadius: 24,
+        },
+        android: {
+          elevation: 12,
+        },
+        web: {
+          boxShadow: '0 12px 40px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)',
+        },
+      }),
     },
     tenantHeader: {
       backgroundColor: theme.colors.primary,
-      paddingVertical: theme.layout.spacing * 1.5,
-      paddingHorizontal: theme.layout.spacing,
+      paddingTop: theme.layout.spacing * 2.5,
+      paddingBottom: theme.layout.spacing * 2,
+      paddingHorizontal: theme.layout.spacing * 1.5,
       alignItems: 'center',
       borderTopLeftRadius: theme.layout.borderRadiusLarge,
       borderTopRightRadius: theme.layout.borderRadiusLarge,
     },
     tenantLogo: {
-      width: 70,
-      height: 70,
-      backgroundColor: 'rgba(255, 255, 255, 0.2)',
-      borderRadius: 35,
+      width: 80,
+      height: 80,
+      backgroundColor: 'rgba(255, 255, 255, 0.15)',
+      borderRadius: 40,
       justifyContent: 'center',
       alignItems: 'center',
-      marginBottom: theme.layout.spacing * 0.75,
+      marginBottom: theme.layout.spacing,
       overflow: 'hidden',
+      borderWidth: 2,
+      borderColor: 'rgba(255, 255, 255, 0.25)',
     },
     tenantLogoText: {
-      fontSize: 28,
+      fontSize: 32,
       fontWeight: '700' as any,
-      color: theme.colors.text?.inverse || '#ffffff',
-      fontFamily: theme.typography?.fontFamily?.primary,
+      color: theme.colors.textInverse,
+      fontFamily: theme.typography?.fontFamily,
+      letterSpacing: 1,
     },
     tenantLogoImage: {
-      width: 60,
-      height: 60,
+      width: 68,
+      height: 68,
       borderRadius: 30,
     },
     tenantName: {
-      fontSize: 20,
-      fontWeight: '600' as any,
-      color: theme.colors.text?.inverse || '#ffffff',
-      marginBottom: theme.layout.spacing * 0.25,
-      fontFamily: theme.typography?.fontFamily?.primary,
+      fontSize: 22,
+      fontWeight: '700' as any,
+      color: theme.colors.textInverse,
+      marginBottom: theme.layout.spacing * 0.5,
+      fontFamily: theme.typography?.fontFamily,
+      textAlign: 'center',
+      letterSpacing: 0.5,
     },
     tenantSubtitle: {
-      fontSize: 14,
-      color: 'rgba(255, 255, 255, 0.9)',
+      fontSize: 15,
+      fontWeight: '500' as any,
+      color: 'rgba(255, 255, 255, 0.85)',
+      textAlign: 'center',
+      letterSpacing: 0.3,
     },
     formContainer: {
-      padding: theme.layout.spacing * 1.5,
+      padding: theme.layout.spacing * 2,
     },
     welcomeSection: {
       alignItems: 'center',
-      marginBottom: theme.layout.spacing * 1.5,
+      marginBottom: theme.layout.spacing * 2,
     },
     welcomeTitle: {
-      fontSize: 20,
-      fontWeight: '600' as any,
+      fontSize: 26,
+      fontWeight: '700' as any,
       color: theme.colors.text,
-      marginBottom: theme.layout.spacing * 0.25,
+      marginBottom: theme.layout.spacing * 0.5,
+      fontFamily: theme.typography?.fontFamily,
+      letterSpacing: 0.3,
     },
     welcomeSubtitle: {
-      fontSize: 14,
+      fontSize: 15,
+      fontWeight: '400' as any,
       color: theme.colors.textSecondary,
       textAlign: 'center',
+      lineHeight: 22,
     },
     formSection: {
       marginBottom: theme.layout.spacing,
@@ -490,19 +514,75 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     rememberContainer: {
       flexDirection: 'row',
       alignItems: 'center',
+      paddingVertical: theme.layout.spacing * 0.5,
+    },
+    checkbox: {
+      width: 20,
+      height: 20,
+      borderRadius: 4,
+      borderWidth: 2,
+      borderColor: theme.colors.border,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: theme.colors.surface,
+    },
+    checkboxChecked: {
+      backgroundColor: theme.colors.primary,
+      borderColor: theme.colors.primary,
+    },
+    checkmark: {
+      color: theme.colors.textInverse,
+      fontSize: 14,
+      fontWeight: '700' as any,
     },
     rememberText: {
       fontSize: 14,
+      fontWeight: '500' as any,
       color: theme.colors.text,
-      marginLeft: theme.layout.spacing * 0.5,
+      marginLeft: theme.layout.spacing * 0.75,
     },
     forgotPasswordButton: {
-      padding: theme.layout.spacing * 0.25,
+      padding: theme.layout.spacing * 0.5,
     },
     forgotPasswordText: {
       fontSize: 14,
       color: theme.colors.primary,
-      fontWeight: '500' as any,
+      fontWeight: '600' as any,
+    },
+    signInButton: {
+      backgroundColor: theme.colors.primary,
+      borderRadius: theme.layout.borderRadius,
+      paddingVertical: theme.layout.spacing * 0.875,
+      paddingHorizontal: theme.layout.spacing * 1.5,
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: 52,
+      width: '100%',
+      marginBottom: theme.layout.spacing * 1.5,
+      ...Platform.select({
+        ios: {
+          shadowColor: theme.colors.primary,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+        },
+        android: {
+          elevation: 4,
+        },
+        web: {
+          boxShadow: `0 4px 12px ${theme.colors.primary}40`,
+        },
+      }),
+    },
+    signInButtonDisabled: {
+      opacity: 0.6,
+    },
+    signInButtonText: {
+      color: theme.colors.textInverse,
+      fontSize: 16,
+      fontWeight: '700' as any,
+      fontFamily: theme.typography?.fontFamily,
+      letterSpacing: 0.5,
     },
     divider: {
       flexDirection: 'row',
@@ -522,37 +602,69 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     biometricContainer: {
       flexDirection: 'row',
       justifyContent: 'center',
-      gap: theme.layout.spacing * 0.75,
+      gap: theme.layout.spacing,
+      marginBottom: theme.layout.spacing * 1.5,
     },
     biometricButton: {
-      width: 60,
-      height: 60,
-      backgroundColor: theme.colors.background,
+      flex: 1,
+      maxWidth: 100,
+      paddingVertical: theme.layout.spacing * 0.75,
+      paddingHorizontal: theme.layout.spacing * 0.5,
+      backgroundColor: theme.colors.surface,
       borderRadius: theme.layout.borderRadius,
-      borderWidth: 2,
-      borderColor: theme.colors.border || '#e1e5e9',
+      borderWidth: 1.5,
+      borderColor: theme.colors.border,
       justifyContent: 'center',
       alignItems: 'center',
     },
-    biometricButtonActive: {
-      borderColor: theme.colors.primary,
-      backgroundColor: `${theme.colors.primary}10`,
+    biometricIconContainer: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: theme.colors.background,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: theme.layout.spacing * 0.5,
     },
-    biometricIcon: {
-      fontSize: 24,
+    biometricIconText: {
+      fontSize: 20,
+      color: theme.colors.primary,
     },
-    securityInfo: {
-      marginTop: theme.layout.spacing,
-      padding: theme.layout.spacing * 0.75,
-      backgroundColor: `${theme.colors.info}10`,
-      borderRadius: theme.layout.borderRadius * 0.5,
-      borderLeftWidth: 4,
-      borderLeftColor: theme.colors.info,
-    },
-    securityText: {
-      fontSize: 12,
+    biometricLabel: {
+      fontSize: 11,
+      fontWeight: '600' as any,
       color: theme.colors.textSecondary,
       textAlign: 'center',
+    },
+    securityInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: theme.layout.spacing * 0.5,
+      padding: theme.layout.spacing,
+      backgroundColor: `${theme.colors.info}08`,
+      borderRadius: theme.layout.borderRadius,
+      borderWidth: 1,
+      borderColor: `${theme.colors.info}20`,
+    },
+    securityIconContainer: {
+      width: 20,
+      height: 20,
+      borderRadius: 10,
+      backgroundColor: theme.colors.info,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: theme.layout.spacing * 0.75,
+    },
+    securityIcon: {
+      fontSize: 10,
+      color: theme.colors.textInverse,
+    },
+    securityText: {
+      flex: 1,
+      fontSize: 12,
+      fontWeight: '500' as any,
+      color: theme.colors.textSecondary,
+      lineHeight: 18,
     },
   });
 
@@ -671,22 +783,41 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                 returnKeyType="done"
                 onSubmitEditing={handleSubmit}
                 rightIcon={
-                  <Text style={{ fontSize: 18 }}>
-                    {showPassword ? '🙈' : '👁️'}
-                  </Text>
+                  <View style={{
+                    width: 24,
+                    height: 24,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    borderRadius: 12,
+                    backgroundColor: showPassword ? 'rgba(0, 0, 0, 0.05)' : 'transparent',
+                  }}>
+                    <Text style={{
+                      fontSize: 18,
+                      color: theme.colors.textSecondary,
+                    }}>
+                      {showPassword ? '○' : '●'}
+                    </Text>
+                  </View>
                 }
                 onRightIconPress={togglePasswordVisibility}
               />
             </View>
 
             <View style={styles.rememberForgotContainer}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.rememberContainer}
                 onPress={() => handleFieldChange('rememberMe', !formData.rememberMe)}
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: formData.rememberMe }}
               >
-                <Text style={{ fontSize: 16 }}>
-                  {formData.rememberMe ? '☑️' : '☐'}
-                </Text>
+                <View style={[
+                  styles.checkbox,
+                  formData.rememberMe && styles.checkboxChecked
+                ]}>
+                  {formData.rememberMe && (
+                    <Text style={styles.checkmark}>✓</Text>
+                  )}
+                </View>
                 <Text style={styles.rememberText}>Remember me</Text>
               </TouchableOpacity>
               
@@ -702,28 +833,18 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
             <TouchableOpacity
               onPress={() => {
-                console.log('🚀 TouchableOpacity onPress triggered!');
+                console.log('🚀 Sign In button pressed');
                 triggerHaptic('impactMedium');
                 handleSubmit();
               }}
-              style={{
-                backgroundColor: theme.colors.primary,
-                borderRadius: theme.layout.borderRadius || 8,
-                paddingHorizontal: theme.layout.spacing || 16,
-                paddingVertical: theme.layout.spacing * 0.75 || 12,
-                alignItems: 'center',
-                justifyContent: 'center',
-                minHeight: 48,
-                width: '100%'
-              }}
+              style={[styles.signInButton, isSubmitting && styles.signInButtonDisabled]}
+              disabled={isSubmitting}
+              accessibilityRole="button"
+              accessibilityLabel="Sign in to your account"
+              accessibilityState={{ disabled: isSubmitting }}
             >
-              <Text style={{
-                color: theme.colors.text?.inverse || '#ffffff',
-                fontSize: theme.typography?.scale?.body?.large || 16,
-                fontWeight: '600',
-                fontFamily: theme.typography?.fontFamily?.primary
-              }}>
-                Sign In
+              <Text style={styles.signInButtonText}>
+                {isSubmitting ? 'Signing in...' : 'Sign In'}
               </Text>
             </TouchableOpacity>
 
@@ -737,31 +858,49 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             {/* Biometric Authentication */}
             <View style={styles.biometricContainer}>
               <TouchableOpacity
-                style={[styles.biometricButton]}
+                style={styles.biometricButton}
                 onPress={() => handleBiometricAuth('fingerprint')}
+                accessibilityRole="button"
+                accessibilityLabel="Sign in with fingerprint"
               >
-                <Text style={styles.biometricIcon}>👆</Text>
+                <View style={styles.biometricIconContainer}>
+                  <Text style={styles.biometricIconText}>●</Text>
+                </View>
+                <Text style={styles.biometricLabel}>Touch ID</Text>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
-                style={[styles.biometricButton]}
+                style={styles.biometricButton}
                 onPress={() => handleBiometricAuth('faceId')}
+                accessibilityRole="button"
+                accessibilityLabel="Sign in with Face ID"
               >
-                <Text style={styles.biometricIcon}>😊</Text>
+                <View style={styles.biometricIconContainer}>
+                  <Text style={styles.biometricIconText}>◐</Text>
+                </View>
+                <Text style={styles.biometricLabel}>Face ID</Text>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
-                style={[styles.biometricButton]}
+                style={styles.biometricButton}
                 onPress={() => handleBiometricAuth('voice')}
+                accessibilityRole="button"
+                accessibilityLabel="Sign in with voice"
               >
-                <Text style={styles.biometricIcon}>🎤</Text>
+                <View style={styles.biometricIconContainer}>
+                  <Text style={styles.biometricIconText}>♫</Text>
+                </View>
+                <Text style={styles.biometricLabel}>Voice</Text>
               </TouchableOpacity>
             </View>
 
             {/* Security Info */}
             <View style={styles.securityInfo}>
+              <View style={styles.securityIconContainer}>
+                <Text style={styles.securityIcon}>●</Text>
+              </View>
               <Text style={styles.securityText}>
-                🔐 Your data is protected with bank-level security and encryption
+                Your data is protected with bank-level security and encryption
               </Text>
             </View>
           </View>

@@ -53,6 +53,11 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
   const profileMenuRef = useRef<any>(null);
   const profileButtonRef = useRef<any>(null);
 
+  // Debug effect to log showProfileMenu state changes
+  useEffect(() => {
+    console.log('🟢 showProfileMenu state changed to:', showProfileMenu);
+  }, [showProfileMenu]);
+
   // Update screen width on resize
   useEffect(() => {
     const handleResize = () => {
@@ -78,18 +83,30 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
 
   // Handle click outside to close menu
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (showProfileMenu &&
-          profileMenuRef.current &&
-          !profileMenuRef.current.contains(event.target) &&
-          profileButtonRef.current &&
-          !profileButtonRef.current.contains(event.target)) {
+    if (Platform.OS !== 'web') return;
+
+    const handleClickOutside = (event: any) => {
+      if (!showProfileMenu) return;
+
+      const target = event.target as HTMLElement;
+
+      // Check if click is outside both the menu and the button
+      const menuElement = document.getElementById('profile-dropdown-menu');
+      const isClickInsideMenu = menuElement?.contains(target);
+      const isClickOnButton = profileButtonRef.current && (profileButtonRef.current as any).contains?.(target);
+
+      if (!isClickInsideMenu && !isClickOnButton) {
+        console.log('🔴 Click outside detected, closing menu');
         setShowProfileMenu(false);
       }
     };
 
     if (showProfileMenu) {
-      document.addEventListener('mousedown', handleClickOutside);
+      // Add listener with a slight delay to prevent immediate closing
+      setTimeout(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+      }, 100);
+
       return () => {
         document.removeEventListener('mousedown', handleClickOutside);
       };
@@ -177,7 +194,11 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                 <TouchableOpacity
                   style={styles.notificationBtn}
                   onPress={() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    try {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    } catch (e) {
+                      // Haptics not available on web
+                    }
                   }}
                 >
                   <Text style={styles.notificationIcon}>🔔</Text>
@@ -186,25 +207,34 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                   </View>
                 </TouchableOpacity>
 
-                <View style={{ position: 'relative' }}>
+                <View style={{ position: 'relative', zIndex: 999999, overflow: 'visible' }}>
                   <TouchableOpacity
                   ref={profileButtonRef}
                   style={styles.userProfile}
                   onPress={() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    try {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    } catch (e) {
+                      // Haptics not available on web
+                    }
                     console.log('🔴 PROFILE CLICKED - Current state:', showProfileMenu);
                     setShowProfileMenu(!showProfileMenu);
-                    console.log('🔴 PROFILE CLICKED - New state:', !showProfileMenu);
+                    console.log('🔴 PROFILE CLICKED - New state will be:', !showProfileMenu);
                   }}
                 >
                   <Text style={styles.profileIcon}>👤</Text>
                 </TouchableOpacity>
 
                 {showProfileMenu && (
-                  <View ref={profileMenuRef} style={styles.profileMenu}>
+                  <View
+                    ref={profileMenuRef}
+                    style={styles.profileMenu}
+                    nativeID="profile-dropdown-menu"
+                  >
                     <TouchableOpacity
                       style={styles.menuItem}
                       onPress={() => {
+                        console.log('Profile menu item clicked');
                         setShowProfileMenu(false);
                       }}
                     >
@@ -215,6 +245,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                     <TouchableOpacity
                       style={styles.menuItem}
                       onPress={() => {
+                        console.log('Settings menu item clicked');
                         setShowProfileMenu(false);
                         onSettings?.();
                       }}
@@ -226,6 +257,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                     <TouchableOpacity
                       style={styles.menuItem}
                       onPress={() => {
+                        console.log('Logout menu item clicked');
                         setShowProfileMenu(false);
                         onLogout?.();
                       }}
@@ -898,9 +930,13 @@ const styles = StyleSheet.create({
     elevation: 100,
     zIndex: 9999999,
     minWidth: 200,
-    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25)',
     borderWidth: 1,
     borderColor: '#e2e8f0',
+    ...Platform.select({
+      web: {
+        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25)',
+      },
+    }),
   },
   menuItem: {
     flexDirection: 'row',

@@ -7,6 +7,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
+import { buildApiUrl } from '../config/environment';
 
 // Default Platform Theme - No hardcoded tenant data
 const DEFAULT_THEME = {
@@ -186,7 +187,9 @@ export const TenantThemeProvider: React.FC<TenantThemeProviderProps> = ({ childr
   const fetchTenantTheme = async (tenantCode: string): Promise<TenantTheme | null> => {
     try {
       // API call to fetch tenant theme configuration
-      const response = await fetch(`/api/tenants/theme/${tenantCode}`, {
+      const apiUrl = buildApiUrl(`tenants/theme/${tenantCode}`);
+      console.log(`🔍 Fetching tenant theme from: ${apiUrl}`);
+      const response = await fetch(apiUrl, {
         headers: {
           'Content-Type': 'application/json',
           // Include auth headers if needed
@@ -202,11 +205,22 @@ export const TenantThemeProvider: React.FC<TenantThemeProviderProps> = ({ childr
 
       console.log('🎨 API Theme Data:', themeData);
 
+      // Convert relative logo URL to absolute URL
+      const brandLogo = themeData.brandLogo?.startsWith('/')
+        ? buildApiUrl(themeData.brandLogo.replace(/^\/api\//, ''))
+        : themeData.brandLogo;
+
+      console.log('🔍 Logo URL transformation:', {
+        original: themeData.brandLogo,
+        transformed: brandLogo
+      });
+
       // Merge with DEFAULT_THEME to ensure all required properties exist
       // API colors override default colors, but default colors provide fallback
       const mergedTheme = {
         ...DEFAULT_THEME,
         ...themeData,
+        brandLogo, // Use transformed logo URL
         colors: {
           ...DEFAULT_THEME.colors,
           ...(themeData.colors || {}),
