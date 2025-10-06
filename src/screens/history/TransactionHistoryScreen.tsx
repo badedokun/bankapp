@@ -306,6 +306,8 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       backgroundColor: tenantTheme.colors.surface,
       padding: theme.spacing.lg,
       overflow: 'visible',
+      position: 'relative',
+      zIndex: 100,
       ...Platform.select({
         ios: {
           shadowColor: tenantTheme.colors.text,
@@ -347,12 +349,12 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       flexDirection: 'row',
       gap: theme.spacing.md,
       position: 'relative',
-      zIndex: 10,
+      zIndex: 200,
     },
     filterGroup: {
       flex: 1,
       position: 'relative',
-      zIndex: 1,
+      zIndex: 300,
     },
     filterLabel: {
       fontSize: 14,
