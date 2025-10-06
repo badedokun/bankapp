@@ -15,6 +15,7 @@ import {
   Dimensions,
   RefreshControl,
   TextInput,
+  Platform,
 } from 'react-native';
 import { useTenant, useTenantTheme } from '../../tenants/TenantContext';
 import { useBankingAlert } from '../../services/AlertService';
@@ -64,7 +65,7 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
 }) => {
   const { currentTenant } = useTenant();
   const theme = useTenantTheme();
-  const { theme: tenantTheme } = useTenantTheme();
+  const tenantTheme = useTenantTheme();
   const { showAlert } = useBankingAlert();
   
   // State
@@ -261,23 +262,27 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       gap: 8,
     },
     backButtonText: {
-      color: '#ffffff',
+      color: tenantTheme.colors.textInverse,
       fontSize: 16,
-      fontWeight: '500',
+      fontWeight: '600',
+      letterSpacing: 0.2,
     },
     headerTitle: {
       flex: 1,
       alignItems: 'center',
     },
     headerTitleText: {
-      fontSize: 28,
-      fontWeight: 'bold',
-      color: '#ffffff',
+      fontSize: 30,
+      fontWeight: '700',
+      color: tenantTheme.colors.textInverse,
       marginBottom: 5,
+      letterSpacing: 0.3,
     },
     headerSubtitle: {
       fontSize: 16,
+      fontWeight: '400',
       color: 'rgba(255, 255, 255, 0.9)',
+      letterSpacing: 0.2,
     },
     headerActions: {
       flexDirection: 'row',
@@ -290,18 +295,28 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       borderRadius: 20,
     },
     headerButtonText: {
-      color: '#ffffff',
+      color: tenantTheme.colors.textInverse,
       fontSize: 14,
-      fontWeight: '500',
+      fontWeight: '600',
+      letterSpacing: 0.2,
     },
     filtersSection: {
-      backgroundColor: '#ffffff',
+      backgroundColor: tenantTheme.colors.surface,
       padding: theme.spacing.lg,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.05,
-      shadowRadius: 10,
-      elevation: 4,
+      ...Platform.select({
+        ios: {
+          shadowColor: tenantTheme.colors.text,
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.08,
+          shadowRadius: 12,
+        },
+        android: {
+          elevation: 4,
+        },
+        web: {
+          boxShadow: '0 2px 12px rgba(0, 0, 0, 0.08)',
+        },
+      }),
     },
     filtersHeader: {
       flexDirection: 'row',
@@ -310,14 +325,16 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       marginBottom: theme.spacing.md,
     },
     filtersTitle: {
-      fontSize: 20,
-      fontWeight: 'bold',
-      color: '#333',
+      fontSize: 22,
+      fontWeight: '700',
+      color: tenantTheme.colors.text,
+      letterSpacing: 0.3,
     },
     clearFilters: {
       color: theme.colors.primary,
       fontSize: 14,
-      fontWeight: '500',
+      fontWeight: '600',
+      letterSpacing: 0.2,
     },
     filtersGrid: {
       gap: theme.spacing.md,
@@ -331,22 +348,25 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
     },
     filterLabel: {
       fontSize: 14,
-      fontWeight: '500',
-      color: '#666',
+      fontWeight: '600',
+      color: tenantTheme.colors.textSecondary,
       marginBottom: theme.spacing.xs,
+      letterSpacing: 0.2,
     },
     searchContainer: {
       position: 'relative',
     },
     searchInput: {
       borderWidth: 2,
-      borderColor: '#e1e5e9',
+      borderColor: tenantTheme.colors.border,
       borderRadius: 12,
       paddingLeft: 40,
       paddingRight: theme.spacing.md,
       paddingVertical: theme.spacing.sm,
       fontSize: 16,
-      backgroundColor: '#f8fafc',
+      fontWeight: '400',
+      lineHeight: 24,
+      backgroundColor: tenantTheme.colors.background,
     },
     searchIcon: {
       position: 'absolute',
@@ -356,13 +376,15 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
     },
     filterPicker: {
       borderWidth: 2,
-      borderColor: '#e1e5e9',
+      borderColor: tenantTheme.colors.border,
       borderRadius: 12,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.sm,
       fontSize: 16,
-      backgroundColor: '#f8fafc',
-      color: '#333',
+      fontWeight: '400',
+      lineHeight: 24,
+      backgroundColor: tenantTheme.colors.background,
+      color: tenantTheme.colors.text,
     },
     summaryGrid: {
       flexDirection: 'row',
@@ -371,52 +393,74 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
     },
     summaryCard: {
       flex: 1,
-      backgroundColor: '#ffffff',
+      backgroundColor: tenantTheme.colors.surface,
       borderRadius: 16,
       padding: theme.spacing.md,
       alignItems: 'center',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.05,
-      shadowRadius: 10,
-      elevation: 4,
+      ...Platform.select({
+        ios: {
+          shadowColor: tenantTheme.colors.text,
+          shadowOffset: { width: 0, height: 3 },
+          shadowOpacity: 0.1,
+          shadowRadius: 12,
+        },
+        android: {
+          elevation: 6,
+        },
+        web: {
+          boxShadow: '0 3px 12px rgba(0, 0, 0, 0.1)',
+        },
+      }),
     },
     summaryIcon: {
       fontSize: 24,
       marginBottom: theme.spacing.xs,
     },
     summaryValue: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: '#333',
+      fontSize: 20,
+      fontWeight: '700',
+      color: tenantTheme.colors.text,
       marginBottom: theme.spacing.xs,
+      letterSpacing: -0.3,
     },
     summaryLabel: {
       fontSize: 12,
-      color: '#666',
+      fontWeight: '500',
+      color: tenantTheme.colors.textSecondary,
       textAlign: 'center',
       marginBottom: theme.spacing.xs,
+      letterSpacing: 0.1,
     },
     summaryChange: {
       fontSize: 11,
-      fontWeight: '500',
+      fontWeight: '600',
+      letterSpacing: 0.1,
     },
     positiveChange: {
-      color: '#22c55e',
+      color: tenantTheme.colors.success,
     },
     negativeChange: {
-      color: '#ef4444',
+      color: tenantTheme.colors.danger,
     },
     transactionsSection: {
-      backgroundColor: '#ffffff',
+      backgroundColor: tenantTheme.colors.surface,
       marginHorizontal: theme.spacing.lg,
       borderRadius: 20,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.08,
-      shadowRadius: 20,
-      elevation: 4,
       marginBottom: theme.spacing.lg,
+      ...Platform.select({
+        ios: {
+          shadowColor: tenantTheme.colors.text,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.12,
+          shadowRadius: 20,
+        },
+        android: {
+          elevation: 8,
+        },
+        web: {
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.12)',
+        },
+      }),
     },
     transactionsHeader: {
       flexDirection: 'row',
@@ -426,13 +470,14 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       paddingBottom: theme.spacing.md,
     },
     sectionTitle: {
-      fontSize: 22,
-      fontWeight: 'bold',
-      color: '#333',
+      fontSize: 24,
+      fontWeight: '700',
+      color: tenantTheme.colors.text,
+      letterSpacing: 0.3,
     },
     viewOptions: {
       flexDirection: 'row',
-      backgroundColor: '#f8fafc',
+      backgroundColor: tenantTheme.colors.background,
       borderRadius: 12,
       padding: 4,
     },
@@ -442,23 +487,35 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       borderRadius: 8,
     },
     activeViewToggle: {
-      backgroundColor: '#ffffff',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.1,
-      shadowRadius: 3,
-      elevation: 2,
+      backgroundColor: tenantTheme.colors.surface,
+      ...Platform.select({
+        ios: {
+          shadowColor: tenantTheme.colors.text,
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.15,
+          shadowRadius: 4,
+        },
+        android: {
+          elevation: 3,
+        },
+        web: {
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15)',
+        },
+      }),
     },
     viewToggleText: {
       fontSize: 14,
-      color: '#666',
+      fontWeight: '500',
+      color: tenantTheme.colors.textSecondary,
+      letterSpacing: 0.2,
     },
     activeViewToggleText: {
-      color: '#333',
-      fontWeight: '500',
+      color: tenantTheme.colors.text,
+      fontWeight: '600',
+      letterSpacing: 0.2,
     },
     aiInsights: {
-      backgroundColor: '#f0f9ff',
+      backgroundColor: `${tenantTheme.colors.primary}10`,
       margin: theme.spacing.lg,
       marginTop: 0,
       borderRadius: 16,
@@ -474,14 +531,17 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
     },
     aiInsightsTitle: {
       fontSize: 16,
-      fontWeight: 'bold',
-      color: '#1e40af',
+      fontWeight: '700',
+      color: tenantTheme.colors.primary,
+      letterSpacing: 0.2,
     },
     aiInsightsContent: {
       fontSize: 14,
-      color: '#1e40af',
+      fontWeight: '400',
+      color: tenantTheme.colors.primary,
       lineHeight: 20,
       marginBottom: theme.spacing.md,
+      letterSpacing: 0.1,
     },
     aiSuggestions: {
       flexDirection: 'row',
@@ -497,15 +557,16 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       borderRadius: 20,
     },
     aiSuggestionText: {
-      color: '#1e40af',
+      color: tenantTheme.colors.primary,
       fontSize: 12,
-      fontWeight: '500',
+      fontWeight: '600',
+      letterSpacing: 0.2,
     },
     transactionItem: {
       paddingHorizontal: theme.spacing.lg,
       paddingVertical: theme.spacing.md,
       borderBottomWidth: 1,
-      borderBottomColor: '#f1f5f9',
+      borderBottomColor: tenantTheme.colors.border,
     },
     transactionMain: {
       flexDirection: 'row',
@@ -520,16 +581,16 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       marginRight: theme.spacing.md,
     },
     sentIcon: {
-      backgroundColor: '#fef2f2',
+      backgroundColor: `${tenantTheme.colors.danger}15`,
     },
     receivedIcon: {
-      backgroundColor: '#f0fdf4',
+      backgroundColor: `${tenantTheme.colors.success}15`,
     },
     pendingIcon: {
-      backgroundColor: '#fef3c7',
+      backgroundColor: `${tenantTheme.colors.warning}15`,
     },
     billsIcon: {
-      backgroundColor: '#f0f9ff',
+      backgroundColor: `${tenantTheme.colors.primary}10`,
     },
     transactionDetails: {
       flex: 1,
@@ -541,34 +602,38 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
     },
     transactionTitle: {
       fontSize: 16,
-      fontWeight: '500',
-      color: '#333',
+      fontWeight: '600',
+      color: tenantTheme.colors.text,
       flex: 1,
+      letterSpacing: 0.1,
     },
     transactionStatus: {
       paddingHorizontal: 8,
       paddingVertical: 2,
       borderRadius: 12,
       fontSize: 10,
-      fontWeight: '500',
+      fontWeight: '700',
       textTransform: 'uppercase',
+      letterSpacing: 0.5,
     },
     completedStatus: {
-      backgroundColor: '#f0fdf4',
-      color: '#16a34a',
+      backgroundColor: `${tenantTheme.colors.success}15`,
+      color: tenantTheme.colors.success,
     },
     pendingStatus: {
-      backgroundColor: '#fef3c7',
-      color: '#ca8a04',
+      backgroundColor: `${tenantTheme.colors.warning}15`,
+      color: tenantTheme.colors.warning,
     },
     failedStatus: {
-      backgroundColor: '#fef2f2',
-      color: '#dc2626',
+      backgroundColor: `${tenantTheme.colors.danger}15`,
+      color: tenantTheme.colors.danger,
     },
     transactionSecondary: {
       fontSize: 14,
-      color: '#666',
+      fontWeight: '400',
+      color: tenantTheme.colors.textSecondary,
       marginBottom: 6,
+      letterSpacing: 0.1,
     },
     transactionMeta: {
       flexDirection: 'row',
@@ -577,28 +642,33 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
     },
     metaItem: {
       fontSize: 12,
-      color: '#999',
+      fontWeight: '400',
+      color: tenantTheme.colors.textSecondary,
+      letterSpacing: 0.1,
     },
     transactionAmountContainer: {
       alignItems: 'flex-end',
     },
     transactionAmount: {
-      fontSize: 18,
-      fontWeight: 'bold',
+      fontSize: 20,
+      fontWeight: '700',
       marginBottom: 2,
+      letterSpacing: -0.3,
     },
     amountSent: {
-      color: '#ef4444',
+      color: tenantTheme.colors.danger,
     },
     amountReceived: {
-      color: '#22c55e',
+      color: tenantTheme.colors.success,
     },
     amountPending: {
-      color: '#f59e0b',
+      color: tenantTheme.colors.warning,
     },
     balanceText: {
       fontSize: 12,
-      color: '#666',
+      fontWeight: '400',
+      color: tenantTheme.colors.textSecondary,
+      letterSpacing: 0.1,
     },
     emptyState: {
       alignItems: 'center',
@@ -610,15 +680,18 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       marginBottom: theme.spacing.md,
     },
     emptyStateTitle: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: '#666',
+      fontSize: 20,
+      fontWeight: '700',
+      color: tenantTheme.colors.textSecondary,
       marginBottom: theme.spacing.sm,
+      letterSpacing: 0.2,
     },
     emptyStateText: {
       fontSize: 14,
-      color: '#999',
+      fontWeight: '400',
+      color: tenantTheme.colors.textSecondary,
       textAlign: 'center',
+      letterSpacing: 0.1,
     },
   });
 
@@ -722,7 +795,7 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
                   placeholder="Transaction ID, recipient, description..."
                   value={searchQuery}
                   onChangeText={setSearchQuery}
-                  placeholderTextColor="#999"
+                  placeholderTextColor={tenantTheme.colors.textSecondary}
                 />
               </View>
             </View>
