@@ -7,8 +7,14 @@ import express, { Request, Response } from 'express';
 import { authenticateToken } from '../middleware/auth';
 import RewardService from '../services/RewardService';
 import { z } from 'zod';
+import { AuthenticatedUser } from '../types/index.d';
 
 const router = express.Router();
+
+// Extend Request to include user property for this file
+interface AuthenticatedRequest extends Request {
+  user?: AuthenticatedUser & { role: 'admin' | 'super_agent' | 'agent' | 'merchant' | 'viewer' | 'system' };
+}
 
 // Helper function to get tenant ID from request
 function getTenantId(req: Request): string | null {
@@ -16,14 +22,14 @@ function getTenantId(req: Request): string | null {
 }
 
 // Helper function to create RewardService with tenant ID
-function createRewardService(req: Request, res: Response): RewardService | null {
+function createRewardService(req: Request, res: Response): RewardService | undefined {
   const tenantId = getTenantId(req);
   if (!tenantId) {
     res.status(400).json({
       error: 'Bad Request',
       message: 'Tenant context required',
     });
-    return null;
+    return undefined;
   }
   return new RewardService(tenantId);
 }
@@ -163,8 +169,8 @@ router.post('/user/:userId/points', authenticateToken, async (req: Request, res:
   try {
     const { userId } = req.params;
 
-    // Only admins or the system can award points directly
-    if (req.user?.role !== 'admin' && req.user?.role !== 'system') {
+    // Only admins can award points directly
+    if (req.user?.role !== 'admin') {
       return res.status(403).json({
         error: 'Forbidden',
         message: 'Only admins can award points directly',
@@ -200,7 +206,7 @@ router.post('/user/:userId/points', authenticateToken, async (req: Request, res:
       message: `Awarded ${points} points for ${actionType}`,
       data: {
         userRewards,
-        tierUpgrade: tierUpgrade || null,
+        tierUpgrade: tierUpgrade,
       },
     });
   } catch (error) {
@@ -302,8 +308,8 @@ router.post('/achievements/:userId/unlock/:achievementCode', authenticateToken, 
   try {
     const { userId, achievementCode } = req.params;
 
-    // Only admins or the system can unlock achievements
-    if (req.user?.role !== 'admin' && req.user?.role !== 'system') {
+    // Only admins can unlock achievements
+    if (req.user?.role !== 'admin') {
       return res.status(403).json({
         error: 'Forbidden',
         message: 'Only admins can unlock achievements directly',
@@ -323,11 +329,11 @@ router.post('/achievements/:userId/unlock/:achievementCode', authenticateToken, 
 
     // Get achievement details
     const achievements = await rewardService.getUserAchievements(userId);
-    const achievement = achievements.find(a => a.code === achievementCode);
+    const achievement = achievements.find(a => a.achievementCode === achievementCode);
 
     return res.json({
       success: true,
-      message: `Achievement unlocked: ${achievement?.name}`,
+      message: `Achievement unlocked: ${achievement?.achievementName}`,
       data: { achievement },
     });
   } catch (error) {
@@ -426,11 +432,11 @@ router.post('/challenges/:userId/:challengeCode/progress', authenticateToken, as
   try {
     const { userId, challengeCode } = req.params;
 
-    // Only admins or the system can update challenge progress
-    if (req.user?.role !== 'admin' && req.user?.role !== 'system') {
+    // Only admins can update challenge progress
+    if (req.user?.role !== 'admin') {
       return res.status(403).json({
         error: 'Forbidden',
-        message: 'Only the system can update challenge progress',
+        message: 'Only admins can update challenge progress',
       });
     }
 
@@ -452,11 +458,11 @@ router.post('/challenges/:userId/:challengeCode/progress', authenticateToken, as
 
     // Get updated challenges
     const challenges = await rewardService.getUserChallenges(userId);
-    const challenge = challenges.find(c => c.code === challengeCode);
+    const challenge = challenges.find(c => c.challengeCode === challengeCode);
 
     return res.json({
       success: true,
-      message: `Challenge progress updated: ${challenge?.name}`,
+      message: `Challenge progress updated: ${challenge?.challengeName}`,
       data: { challenge },
     });
   } catch (error) {
@@ -501,14 +507,14 @@ router.post('/challenges/:userId/:challengeCode/claim', authenticateToken, async
       rewardService.checkTierUpgrade(userId),
     ]);
 
-    const challenge = challenges.find(c => c.code === challengeCode);
+    const challenge = challenges.find(c => c.challengeCode === challengeCode);
 
     return res.json({
       success: true,
-      message: `Challenge claimed: ${challenge?.name}`,
+      message: `Challenge claimed: ${challenge?.challengeName}`,
       data: {
         challenge,
-        tierUpgrade: tierUpgrade || null,
+        tierUpgrade: tierUpgrade,
       },
     });
   } catch (error) {
@@ -528,7 +534,7 @@ router.post('/challenges/:userId/:challengeCode/claim', authenticateToken, async
  * GET /api/rewards/streaks/:userId
  * Get all streaks for a user
  */
-router.get('/streaks/:userId', authenticateToken, async (req: Request, res: Response) => {
+router.get('/streaks/:userId', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { userId } = req.params;
 
@@ -561,15 +567,15 @@ router.get('/streaks/:userId', authenticateToken, async (req: Request, res: Resp
  * POST /api/rewards/streaks/:userId/:streakType/update
  * Update a streak (called by system after user action)
  */
-router.post('/streaks/:userId/:streakType/update', authenticateToken, async (req: Request, res: Response) => {
+router.post('/streaks/:userId/:streakType/update', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { userId, streakType } = req.params;
 
-    // Only admins or the system can update streaks
-    if (req.user?.role !== 'admin' && req.user?.role !== 'system') {
+    // Only admins can update streaks
+    if (req.user?.role !== 'admin') {
       return res.status(403).json({
         error: 'Forbidden',
-        message: 'Only the system can update streaks',
+        message: 'Only admins can update streaks',
       });
     }
 

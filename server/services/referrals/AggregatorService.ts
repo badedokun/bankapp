@@ -9,7 +9,7 @@
  */
 
 import { Pool } from 'pg';
-import { getTenantPool } from '../../config/tenantDatabase';
+import { getTenantPool } from '../../config/database';
 
 export interface AggregatorPartner {
   id: string;

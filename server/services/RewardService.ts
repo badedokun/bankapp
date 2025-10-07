@@ -233,7 +233,7 @@ export class RewardService {
   /**
    * Check and handle tier upgrades
    */
-  private async checkTierUpgrade(userId: string): Promise<void> {
+  async checkTierUpgrade(userId: string): Promise<RewardTier | null> {
     const pool = await this.getPool();
 
     const result = await pool.query(
@@ -241,9 +241,13 @@ export class RewardService {
         ur.total_points,
         t_current.tier_level as current_tier_level,
         t_next.id as next_tier_id,
+        t_next.tier_code as next_tier_code,
         t_next.tier_name as next_tier_name,
         t_next.tier_level as next_tier_level,
-        t_next.points_required as next_tier_points
+        t_next.points_required as next_tier_points,
+        t_next.icon as next_tier_icon,
+        t_next.color as next_tier_color,
+        t_next.benefits as next_tier_benefits
       FROM rewards.user_rewards ur
       JOIN rewards.tiers t_current ON ur.current_tier_id = t_current.id
       LEFT JOIN rewards.tiers t_next ON t_next.tier_level = t_current.tier_level + 1
@@ -251,29 +255,43 @@ export class RewardService {
       [userId]
     );
 
-    if (result.rows.length === 0) return;
+    if (result.rows.length === 0) return null;
 
-    const { total_points, next_tier_id, next_tier_points, next_tier_name } = result.rows[0];
+    const row = result.rows[0];
 
     // Check if user qualifies for next tier
-    if (next_tier_id && total_points >= next_tier_points) {
+    if (row.next_tier_id && row.total_points >= row.next_tier_points) {
       await pool.query(
         `UPDATE rewards.user_rewards
          SET current_tier_id = $1
          WHERE user_id = $2`,
-        [next_tier_id, userId]
+        [row.next_tier_id, userId]
       );
 
       // Award tier upgrade bonus
-      const bonusPoints = Math.floor(next_tier_points * 0.1); // 10% bonus
+      const bonusPoints = Math.floor(row.next_tier_points * 0.1); // 10% bonus
       await this.awardPoints(
         userId,
         bonusPoints,
         'tier_upgrade',
-        `Congratulations! You've reached ${next_tier_name} tier! 🎊`,
-        { newTier: next_tier_name }
+        `Congratulations! You've reached ${row.next_tier_name} tier! 🎊`,
+        { newTier: row.next_tier_name }
       );
+
+      // Return the new tier info
+      return {
+        id: row.next_tier_id,
+        tierCode: row.next_tier_code,
+        tierName: row.next_tier_name,
+        tierLevel: row.next_tier_level,
+        pointsRequired: row.next_tier_points,
+        icon: row.next_tier_icon,
+        color: row.next_tier_color,
+        benefits: row.next_tier_benefits
+      };
     }
+
+    return null;
   }
 
   // ==========================================================================

@@ -57,7 +57,7 @@ function createServices(req: Request, res: Response) {
  */
 router.get('/user/:userId', authenticateToken, async (req: Request, res: Response) => {
   const services = createServices(req, res);
-  if (!services) return;
+  if (!services) return undefined;
 
   const { userId } = req.params;
   const { limit, offset } = req.query;
@@ -73,14 +73,14 @@ router.get('/user/:userId', authenticateToken, async (req: Request, res: Respons
       services.referralService.getUserReferralCode(userId),
     ]);
 
-    res.json({
+    return res.json({
       code,
       stats,
       referrals,
     });
   } catch (error: any) {
     console.error('Error getting user referrals:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Internal Server Error',
       message: error.message,
     });
@@ -93,7 +93,7 @@ router.get('/user/:userId', authenticateToken, async (req: Request, res: Respons
  */
 router.post('/create', authenticateToken, async (req: Request, res: Response) => {
   const services = createServices(req, res);
-  if (!services) return;
+  if (!services) return undefined;
 
   const {
     refereeId,
@@ -111,9 +111,17 @@ router.post('/create', authenticateToken, async (req: Request, res: Response) =>
     // Extract device fingerprint from deviceInfo or generate one
     const deviceFingerprint = deviceInfo?.fingerprint || null;
 
+    // Ensure user is authenticated
+    if (!req.user?.id) {
+      return res.status(401).json({
+        error: 'Unauthorized',
+        message: 'User ID required',
+      });
+    }
+
     // Validate referral creation (fraud checks)
     const validation = await services.fraudService.validateReferralCreation(
-      req.user?.id,
+      req.user.id,
       refereeId,
       deviceFingerprint,
       ipAddress
@@ -139,14 +147,14 @@ router.post('/create', authenticateToken, async (req: Request, res: Response) =>
       userAgent,
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       referralId,
       message: 'Referral created successfully',
     });
   } catch (error: any) {
     console.error('Error creating referral:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Internal Server Error',
       message: error.message,
     });
@@ -159,17 +167,17 @@ router.post('/create', authenticateToken, async (req: Request, res: Response) =>
  */
 router.post('/validate-code', async (req: Request, res: Response) => {
   const services = createServices(req, res);
-  if (!services) return;
+  if (!services) return undefined;
 
   const { code } = req.body;
 
   try {
     const result = await services.referralService.validateReferralCode(code);
 
-    res.json(result);
+    return res.json(result);
   } catch (error: any) {
     console.error('Error validating referral code:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Internal Server Error',
       message: error.message,
     });
@@ -182,13 +190,20 @@ router.post('/validate-code', async (req: Request, res: Response) => {
  */
 router.post('/share', authenticateToken, async (req: Request, res: Response) => {
   const services = createServices(req, res);
-  if (!services) return;
+  if (!services) return undefined;
 
   const { shareMethod, shareDestination, deviceType, platform, metadata } = req.body;
 
+  if (!req.user?.id) {
+    return res.status(401).json({
+      error: 'Unauthorized',
+      message: 'User ID required',
+    });
+  }
+
   try {
     const result = await services.referralService.shareReferral({
-      userId: req.user?.id,
+      userId: req.user.id,
       shareMethod,
       shareDestination,
       deviceType,
@@ -196,10 +211,10 @@ router.post('/share', authenticateToken, async (req: Request, res: Response) => 
       metadata,
     });
 
-    res.json(result);
+    return res.json(result);
   } catch (error: any) {
     console.error('Error recording share:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Internal Server Error',
       message: error.message,
     });
@@ -212,7 +227,7 @@ router.post('/share', authenticateToken, async (req: Request, res: Response) => 
  */
 router.post('/track-click', async (req: Request, res: Response) => {
   const services = createServices(req, res);
-  if (!services) return;
+  if (!services) return undefined;
 
   const { trackingUrl } = req.body;
   const ipAddress = req.ip;
@@ -220,10 +235,10 @@ router.post('/track-click', async (req: Request, res: Response) => {
   try {
     const success = await services.referralService.trackClick(trackingUrl, ipAddress);
 
-    res.json({ success });
+    return res.json({ success });
   } catch (error: any) {
     console.error('Error tracking click:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Internal Server Error',
       message: error.message,
     });
@@ -236,17 +251,17 @@ router.post('/track-click', async (req: Request, res: Response) => {
  */
 router.get('/share-analytics/:userId', authenticateToken, async (req: Request, res: Response) => {
   const services = createServices(req, res);
-  if (!services) return;
+  if (!services) return undefined;
 
   const { userId } = req.params;
 
   try {
     const analytics = await services.referralService.getShareAnalytics(userId);
 
-    res.json(analytics);
+    return res.json(analytics);
   } catch (error: any) {
     console.error('Error getting share analytics:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Internal Server Error',
       message: error.message,
     });
@@ -259,15 +274,15 @@ router.get('/share-analytics/:userId', authenticateToken, async (req: Request, r
  */
 router.get('/top-channels', authenticateToken, async (req: Request, res: Response) => {
   const services = createServices(req, res);
-  if (!services) return;
+  if (!services) return undefined;
 
   try {
     const channels = await services.referralService.getTopSharingChannels();
 
-    res.json(channels);
+    return res.json(channels);
   } catch (error: any) {
     console.error('Error getting top channels:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Internal Server Error',
       message: error.message,
     });
@@ -284,15 +299,15 @@ router.get('/top-channels', authenticateToken, async (req: Request, res: Respons
  */
 router.get('/promo-codes/active', async (req: Request, res: Response) => {
   const services = createServices(req, res);
-  if (!services) return;
+  if (!services) return undefined;
 
   try {
     const campaigns = await services.promoCodeService.getActiveCampaigns();
 
-    res.json(campaigns);
+    return res.json(campaigns);
   } catch (error: any) {
     console.error('Error getting active campaigns:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Internal Server Error',
       message: error.message,
     });
@@ -305,17 +320,24 @@ router.get('/promo-codes/active', async (req: Request, res: Response) => {
  */
 router.post('/promo-codes/validate', authenticateToken, async (req: Request, res: Response) => {
   const services = createServices(req, res);
-  if (!services) return;
+  if (!services) return undefined;
 
   const { code } = req.body;
 
-  try {
-    const result = await services.promoCodeService.validatePromoCode(code, req.user?.id);
+  if (!req.user?.id) {
+    return res.status(401).json({
+      error: 'Unauthorized',
+      message: 'User ID required',
+    });
+  }
 
-    res.json(result);
+  try {
+    const result = await services.promoCodeService.validatePromoCode(code, req.user.id);
+
+    return res.json(result);
   } catch (error: any) {
     console.error('Error validating promo code:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Internal Server Error',
       message: error.message,
     });
@@ -328,21 +350,28 @@ router.post('/promo-codes/validate', authenticateToken, async (req: Request, res
  */
 router.post('/promo-codes/redeem', authenticateToken, async (req: Request, res: Response) => {
   const services = createServices(req, res);
-  if (!services) return;
+  if (!services) return undefined;
 
   const { code, depositAmount } = req.body;
 
+  if (!req.user?.id) {
+    return res.status(401).json({
+      error: 'Unauthorized',
+      message: 'User ID required',
+    });
+  }
+
   try {
     const result = await services.promoCodeService.redeemPromoCode(
-      req.user?.id,
+      req.user.id,
       code,
       depositAmount
     );
 
-    res.json(result);
+    return res.json(result);
   } catch (error: any) {
     console.error('Error redeeming promo code:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Internal Server Error',
       message: error.message,
     });
@@ -355,7 +384,7 @@ router.post('/promo-codes/redeem', authenticateToken, async (req: Request, res: 
  */
 router.get('/promo-codes/redemptions/:userId', authenticateToken, async (req: Request, res: Response) => {
   const services = createServices(req, res);
-  if (!services) return;
+  if (!services) return undefined;
 
   const { userId } = req.params;
   const { limit, offset } = req.query;
@@ -367,10 +396,10 @@ router.get('/promo-codes/redemptions/:userId', authenticateToken, async (req: Re
       offset ? parseInt(offset as string) : undefined
     );
 
-    res.json(redemptions);
+    return res.json(redemptions);
   } catch (error: any) {
     console.error('Error getting redemptions:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Internal Server Error',
       message: error.message,
     });
@@ -383,7 +412,7 @@ router.get('/promo-codes/redemptions/:userId', authenticateToken, async (req: Re
  */
 router.post('/promo-codes/campaigns', authenticateToken, async (req: Request, res: Response) => {
   const services = createServices(req, res);
-  if (!services) return;
+  if (!services) return undefined;
 
   // TODO: Add admin authorization check
 
@@ -393,14 +422,14 @@ router.post('/promo-codes/campaigns', authenticateToken, async (req: Request, re
       createdBy: req.user?.id,
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       campaignId,
       message: 'Campaign created successfully',
     });
   } catch (error: any) {
     console.error('Error creating campaign:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Internal Server Error',
       message: error.message,
     });
@@ -413,17 +442,17 @@ router.post('/promo-codes/campaigns', authenticateToken, async (req: Request, re
  */
 router.get('/promo-codes/campaigns/:campaignId/stats', authenticateToken, async (req: Request, res: Response) => {
   const services = createServices(req, res);
-  if (!services) return;
+  if (!services) return undefined;
 
   const { campaignId } = req.params;
 
   try {
     const stats = await services.promoCodeService.getCampaignStats(campaignId);
 
-    res.json(stats);
+    return res.json(stats);
   } catch (error: any) {
     console.error('Error getting campaign stats:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Internal Server Error',
       message: error.message,
     });
@@ -440,21 +469,21 @@ router.get('/promo-codes/campaigns/:campaignId/stats', authenticateToken, async 
  */
 router.post('/aggregators/partners', authenticateToken, async (req: Request, res: Response) => {
   const services = createServices(req, res);
-  if (!services) return;
+  if (!services) return undefined;
 
   // TODO: Add admin authorization check
 
   try {
     const partnerId = await services.aggregatorService.createPartner(req.body);
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       partnerId,
       message: 'Partner created successfully',
     });
   } catch (error: any) {
     console.error('Error creating partner:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Internal Server Error',
       message: error.message,
     });
@@ -467,7 +496,7 @@ router.post('/aggregators/partners', authenticateToken, async (req: Request, res
  */
 router.get('/aggregators/partners', authenticateToken, async (req: Request, res: Response) => {
   const services = createServices(req, res);
-  if (!services) return;
+  if (!services) return undefined;
 
   const { status, limit, offset } = req.query;
 
@@ -478,10 +507,10 @@ router.get('/aggregators/partners', authenticateToken, async (req: Request, res:
       offset: offset ? parseInt(offset as string) : undefined,
     });
 
-    res.json(partners);
+    return res.json(partners);
   } catch (error: any) {
     console.error('Error getting partners:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Internal Server Error',
       message: error.message,
     });
@@ -494,7 +523,7 @@ router.get('/aggregators/partners', authenticateToken, async (req: Request, res:
  */
 router.get('/aggregators/partners/:partnerId', authenticateToken, async (req: Request, res: Response) => {
   const services = createServices(req, res);
-  if (!services) return;
+  if (!services) return undefined;
 
   const { partnerId } = req.params;
 
@@ -508,10 +537,10 @@ router.get('/aggregators/partners/:partnerId', authenticateToken, async (req: Re
       });
     }
 
-    res.json(partner);
+    return res.json(partner);
   } catch (error: any) {
     console.error('Error getting partner:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Internal Server Error',
       message: error.message,
     });
@@ -524,17 +553,17 @@ router.get('/aggregators/partners/:partnerId', authenticateToken, async (req: Re
  */
 router.get('/aggregators/partners/:partnerId/stats', authenticateToken, async (req: Request, res: Response) => {
   const services = createServices(req, res);
-  if (!services) return;
+  if (!services) return undefined;
 
   const { partnerId } = req.params;
 
   try {
     const stats = await services.aggregatorService.getPartnerStats(partnerId);
 
-    res.json(stats);
+    return res.json(stats);
   } catch (error: any) {
     console.error('Error getting partner stats:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Internal Server Error',
       message: error.message,
     });
@@ -547,7 +576,7 @@ router.get('/aggregators/partners/:partnerId/stats', authenticateToken, async (r
  */
 router.post('/aggregators/payouts/generate', authenticateToken, async (req: Request, res: Response) => {
   const services = createServices(req, res);
-  if (!services) return;
+  if (!services) return undefined;
 
   // TODO: Add admin authorization check
 
@@ -556,14 +585,14 @@ router.post('/aggregators/payouts/generate', authenticateToken, async (req: Requ
   try {
     const count = await services.aggregatorService.generateMonthlyPayouts(year, month);
 
-    res.json({
+    return res.json({
       success: true,
       count,
       message: `Generated ${count} payouts for ${year}-${month}`,
     });
   } catch (error: any) {
     console.error('Error generating payouts:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Internal Server Error',
       message: error.message,
     });
@@ -576,25 +605,32 @@ router.post('/aggregators/payouts/generate', authenticateToken, async (req: Requ
  */
 router.post('/aggregators/payouts/:payoutId/approve', authenticateToken, async (req: Request, res: Response) => {
   const services = createServices(req, res);
-  if (!services) return;
+  if (!services) return undefined;
 
   const { payoutId } = req.params;
   const { paymentReference } = req.body;
 
+  if (!req.user?.id) {
+    return res.status(401).json({
+      error: 'Unauthorized',
+      message: 'User ID required',
+    });
+  }
+
   try {
     const success = await services.aggregatorService.approvePayout(
       payoutId,
-      req.user?.id,
+      req.user.id,
       paymentReference
     );
 
-    res.json({
+    return res.json({
       success,
       message: success ? 'Payout approved successfully' : 'Failed to approve payout',
     });
   } catch (error: any) {
     console.error('Error approving payout:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Internal Server Error',
       message: error.message,
     });
@@ -607,15 +643,15 @@ router.post('/aggregators/payouts/:payoutId/approve', authenticateToken, async (
  */
 router.get('/aggregators/tiers', authenticateToken, async (req: Request, res: Response) => {
   const services = createServices(req, res);
-  if (!services) return;
+  if (!services) return undefined;
 
   try {
     const tiers = await services.aggregatorService.getCompensationTiers();
 
-    res.json(tiers);
+    return res.json(tiers);
   } catch (error: any) {
     console.error('Error getting compensation tiers:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Internal Server Error',
       message: error.message,
     });
@@ -632,17 +668,17 @@ router.get('/aggregators/tiers', authenticateToken, async (req: Request, res: Re
  */
 router.get('/fraud/stats', authenticateToken, async (req: Request, res: Response) => {
   const services = createServices(req, res);
-  if (!services) return;
+  if (!services) return undefined;
 
   // TODO: Add admin authorization check
 
   try {
     const stats = await services.fraudService.getFraudStats();
 
-    res.json(stats);
+    return res.json(stats);
   } catch (error: any) {
     console.error('Error getting fraud stats:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Internal Server Error',
       message: error.message,
     });
@@ -655,7 +691,7 @@ router.get('/fraud/stats', authenticateToken, async (req: Request, res: Response
  */
 router.get('/fraud/suspicious', authenticateToken, async (req: Request, res: Response) => {
   const services = createServices(req, res);
-  if (!services) return;
+  if (!services) return undefined;
 
   // TODO: Add admin authorization check
 
@@ -667,10 +703,10 @@ router.get('/fraud/suspicious', authenticateToken, async (req: Request, res: Res
       offset ? parseInt(offset as string) : undefined
     );
 
-    res.json(suspicious);
+    return res.json(suspicious);
   } catch (error: any) {
     console.error('Error getting suspicious referrals:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Internal Server Error',
       message: error.message,
     });
@@ -683,7 +719,7 @@ router.get('/fraud/suspicious', authenticateToken, async (req: Request, res: Res
  */
 router.post('/fraud/flag/:referralId', authenticateToken, async (req: Request, res: Response) => {
   const services = createServices(req, res);
-  if (!services) return;
+  if (!services) return undefined;
 
   // TODO: Add admin authorization check
 
@@ -697,13 +733,13 @@ router.post('/fraud/flag/:referralId', authenticateToken, async (req: Request, r
       req.user?.id
     );
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Referral flagged as fraud successfully',
     });
   } catch (error: any) {
     console.error('Error flagging referral:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Internal Server Error',
       message: error.message,
     });

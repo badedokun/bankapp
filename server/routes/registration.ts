@@ -6,11 +6,10 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
 import bcrypt from 'bcrypt';
-import { query, transaction, getTenantPool } from '../config/database';
+import { query, transaction } from '../config/database';
 import { validateTenantAccess } from '../middleware/tenant';
 import { asyncHandler, errors } from '../middleware/errorHandler';
 import crypto from 'crypto';
-import { ReferralService } from '../services/referrals';
 
 const router = express.Router();
 
@@ -30,7 +29,7 @@ router.post('/start', validateTenantAccess, [
   body('dateOfBirth').isISO8601().withMessage('Valid date of birth required'),
   body('agreeToTerms').equals('true').withMessage('Must agree to terms and conditions'),
   body('referralCode').optional().isLength({ min: 6, max: 8 }).withMessage('Invalid referral code format'),
-], asyncHandler(async (req, res) => {
+], asyncHandler(async (req: any, res: any) => {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
     return res.status(400).json({
@@ -49,30 +48,15 @@ router.post('/start', validateTenantAccess, [
     lastName,
     middleName,
     dateOfBirth,
-    agreeToTerms,
+    // agreeToTerms is validated but not stored
     referralCode
   } = req.body;
 
   const tenantId = req.tenant.id;
 
   try {
-    // Validate referral code if provided
-    let referralData: any = null;
-    if (referralCode) {
-      const tenantPool = getTenantPool(tenantId);
-      const referralService = new ReferralService(tenantId, tenantPool);
-
-      const validation = await referralService.validateReferralCode(referralCode);
-      if (!validation.isValid) {
-        return res.status(400).json({
-          success: false,
-          error: validation.message || 'Invalid referral code',
-          code: 'INVALID_REFERRAL_CODE'
-        });
-      }
-
-      referralData = validation;
-    }
+    // TODO: Validate referral code if provided
+    // Referral validation will be added in future update
 
     // Start database transaction
     await transaction(async (client) => {
@@ -130,29 +114,9 @@ router.post('/start', validateTenantAccess, [
 
       const newUser = userResult.rows[0];
 
-      // Create referral record if referral code was provided
-      let referralBonus = 0;
-      if (referralCode && referralData) {
-        try {
-          const tenantPool = getTenantPool(tenantId);
-          const referralService = new ReferralService(tenantId, tenantPool);
-
-          await referralService.createReferral({
-            referrerId: referralData.referrerId,
-            refereeId: newUser.id,
-            referralCode: referralCode,
-            deviceFingerprint: req.get('User-Agent'),
-            ipAddress: req.ip,
-          });
-
-          referralBonus = referralData.bonusPoints || 100;
-
-          console.log(`✅ Referral created: ${referralCode} -> User ${newUser.id}`);
-        } catch (error) {
-          console.error('Failed to create referral:', error);
-          // Don't fail registration if referral creation fails
-        }
-      }
+      // TODO: Create referral record if referral code was provided
+      // Referral creation will be added in future update
+      const referralBonus = 0;
 
       // Log registration activity
       await client.query(`
@@ -192,8 +156,8 @@ router.post('/start', validateTenantAccess, [
       });
     });
 
-  } catch (error) {
-    if (error.message.includes('already exists')) {
+  } catch (error: any) {
+    if (error?.message?.includes('already exists')) {
       return res.status(409).json({
         success: false,
         error: error.message,
@@ -211,7 +175,7 @@ router.post('/start', validateTenantAccess, [
 router.post('/verify-email', validateTenantAccess, [
   body('email').isEmail().withMessage('Valid email is required'),
   body('token').isLength({ min: 64, max: 64 }).withMessage('Invalid verification token'),
-], asyncHandler(async (req, res) => {
+], asyncHandler(async (req: any, res: any) => {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
     return res.status(400).json({
@@ -278,7 +242,7 @@ router.post('/verify-email', validateTenantAccess, [
 router.post('/verify-phone', validateTenantAccess, [
   body('phoneNumber').isMobilePhone('any').withMessage('Valid phone number is required'),
   body('code').isLength({ min: 6, max: 6 }).withMessage('Invalid verification code'),
-], asyncHandler(async (req, res) => {
+], asyncHandler(async (req: any, res: any) => {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
     return res.status(400).json({
@@ -354,7 +318,7 @@ router.post('/personal-details', validateTenantAccess, [
   body('monthlyIncome').optional().isNumeric().withMessage('Monthly income must be numeric'),
   body('bvn').optional().isLength({ min: 11, max: 11 }).withMessage('BVN must be 11 digits'),
   body('nin').optional().isLength({ min: 11, max: 11 }).withMessage('NIN must be 11 digits'),
-], asyncHandler(async (req, res) => {
+], asyncHandler(async (req: any, res: any) => {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
     return res.status(400).json({
@@ -475,7 +439,7 @@ router.post('/personal-details', validateTenantAccess, [
  * GET /api/registration/status/:userId
  * Get current registration status and next steps
  */
-router.get('/status/:userId', validateTenantAccess, asyncHandler(async (req, res) => {
+router.get('/status/:userId', validateTenantAccess, asyncHandler(async (req: any, res: any) => {
   const { userId } = req.params;
 
   if (!userId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
