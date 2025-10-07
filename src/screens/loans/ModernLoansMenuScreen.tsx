@@ -50,7 +50,7 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
   onBack,
   onSelectProduct,
 }) => {
-  const tenantTheme = useTenantTheme();
+  const { theme: tenantTheme } = useTenantTheme();
   const theme = tenantTheme;
   const notify = useNotification();
   const [isLoading, setIsLoading] = useState(false);
@@ -197,7 +197,11 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
       flex: 1,
     },
     header: {
-      paddingHorizontal: 20,
+      marginLeft: 20,
+      marginRight: 20,
+      marginTop: 0,
+      marginBottom: 0,
+      borderRadius: 12,
       paddingVertical: 16,
       flexDirection: 'row',
       alignItems: 'center',
@@ -220,13 +224,13 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
     },
     backButtonText: {
       fontSize: 20,
-      color: '#FFFFFF',
+      color: theme.colors.textInverse,
       fontWeight: '600',
     },
     headerTitle: {
       fontSize: 20,
       fontWeight: '600',
-      color: '#FFFFFF',
+      color: theme.colors.textInverse,
     },
     headerSpacer: {
       width: 40,
@@ -242,7 +246,7 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
     heroTitle: {
       fontSize: 32,
       fontWeight: '700',
-      color: '#FFFFFF',
+      color: theme.colors.textInverse,
       marginBottom: 8,
     },
     heroSubtitle: {
@@ -282,16 +286,16 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
     eligibilityTitle: {
       fontSize: 16,
       fontWeight: '600',
-      color: theme.colors.text,
+      color: theme?.colors?.text,
     },
     preApprovedBadge: {
-      backgroundColor: theme.colors.success,
+      backgroundColor: theme?.colors?.success,
       paddingHorizontal: 10,
       paddingVertical: 4,
       borderRadius: 12,
     },
     preApprovedText: {
-      color: '#FFFFFF',
+      color: theme.colors.textInverse,
       fontSize: 10,
       fontWeight: '700',
     },
@@ -307,7 +311,7 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
     },
     eligibilityLabel: {
       fontSize: 12,
-      color: theme.colors.textSecondary,
+      color: theme?.colors?.textSecondary,
       marginBottom: 4,
     },
     eligibilityValue: {
@@ -321,7 +325,7 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
     sectionTitle: {
       fontSize: 18,
       fontWeight: '600',
-      color: '#FFFFFF',
+      color: theme.colors.textInverse,
       marginBottom: 16,
     },
     productsGrid: {
@@ -387,7 +391,7 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
       borderRadius: 12,
     },
     productBadgeText: {
-      color: '#FFFFFF',
+      color: theme.colors.textInverse,
       fontSize: 10,
       fontWeight: '700',
     },
@@ -399,7 +403,7 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
     },
     productDescription: {
       fontSize: 13,
-      color: theme.colors.textSecondary,
+      color: theme?.colors?.textSecondary,
       marginBottom: 12,
       minHeight: 36, // Ensure consistent height
     },
@@ -414,7 +418,7 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
     },
     productRateLabel: {
       fontSize: 11,
-      color: theme.colors.textSecondary,
+      color: theme?.colors?.textSecondary,
       marginBottom: 2,
     },
     productRate: {
@@ -427,7 +431,7 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
     },
     productAmountLabel: {
       fontSize: 11,
-      color: theme.colors.textSecondary,
+      color: theme?.colors?.textSecondary,
       marginBottom: 2,
     },
     productAmount: {
@@ -445,7 +449,7 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
       borderRadius: 12,
     },
     recommendedText: {
-      color: '#FFFFFF',
+      color: theme.colors.textInverse,
       fontSize: 10,
       fontWeight: '700',
     },

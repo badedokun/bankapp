@@ -238,7 +238,12 @@ const ModernRBACManagementScreen: React.FC<ModernRBACManagementScreenProps> = ({
       flex: 1,
     },
     header: {
-      paddingHorizontal: 20,
+      
+      marginLeft: 20,
+      marginRight: 20,
+      marginTop: 0,
+      marginBottom: 0,
+      borderRadius: 12,
       paddingVertical: 16,
       flexDirection: 'row',
       alignItems: 'center',
@@ -261,13 +266,13 @@ const ModernRBACManagementScreen: React.FC<ModernRBACManagementScreenProps> = ({
     },
     backButtonText: {
       fontSize: 20,
-      color: '#FFFFFF',
+      color: theme.colors.textInverse,
       fontWeight: '600',
     },
     headerTitle: {
       fontSize: 20,
       fontWeight: '600',
-      color: '#FFFFFF',
+      color: theme.colors.textInverse,
     },
     headerSpacer: {
       width: 40,
@@ -283,7 +288,7 @@ const ModernRBACManagementScreen: React.FC<ModernRBACManagementScreenProps> = ({
     heroTitle: {
       fontSize: 32,
       fontWeight: '700',
-      color: '#FFFFFF',
+      color: theme.colors.textInverse,
       marginBottom: 8,
     },
     heroSubtitle: {
@@ -381,7 +386,7 @@ const ModernRBACManagementScreen: React.FC<ModernRBACManagementScreenProps> = ({
     sectionTitle: {
       fontSize: 18,
       fontWeight: '600',
-      color: '#FFFFFF',
+      color: theme.colors.textInverse,
       marginBottom: 16,
     },
     activityCard: {
@@ -483,7 +488,7 @@ const ModernRBACManagementScreen: React.FC<ModernRBACManagementScreenProps> = ({
       borderRadius: 12,
     },
     featureBadgeText: {
-      color: '#FFFFFF',
+      color: theme.colors.textInverse,
       fontSize: 10,
       fontWeight: '700',
     },

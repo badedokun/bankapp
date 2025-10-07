@@ -643,13 +643,17 @@ const createStyles = (theme: any) => StyleSheet.create({
     paddingBottom: 40,
   },
   header: {
-    alignItems: 'center',
+    marginLeft: 20,
+    marginRight: 20,
+    marginTop: 0,
     marginBottom: theme.layout.spacing * 2,
+    borderRadius: 12,
+    alignItems: 'center',
   },
   headerTitle: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#ffffff',
+    color: theme.colors.textInverse,
     fontFamily: theme.typography.fontFamily?.display || theme.typography.fontFamily?.primary,
     marginBottom: 8,
   },
@@ -670,7 +674,7 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.surface,
     borderRadius: 4,
   },
   progressText: {
@@ -800,7 +804,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     borderColor: theme.colors.primary,
   },
   checkmark: {
-    color: '#ffffff',
+    color: theme.colors.textInverse,
     fontSize: 16,
     fontWeight: '700',
   },
@@ -865,7 +869,7 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   footerLink: {
     fontSize: 14,
-    color: '#ffffff',
+    color: theme.colors.textInverse,
     fontWeight: '700',
     textDecorationLine: 'underline',
     fontFamily: theme.typography.fontFamily?.primary,

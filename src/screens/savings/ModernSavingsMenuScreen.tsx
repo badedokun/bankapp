@@ -51,14 +51,14 @@ const ModernSavingsMenuScreen: React.FC<ModernSavingsMenuScreenProps> = ({
   onBack,
   onSelectProduct,
 }) => {
-  const tenantTheme = useTenantTheme();
+  const { theme: tenantTheme } = useTenantTheme();
   const theme = tenantTheme;
   const notify = useNotification();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
 
   // Use inverse color for text on primary gradient background
-  const inverseColor = theme.colors.textInverse;
+  const inverseColor = theme?.colors?.textInverse || tenantTheme?.colors?.textInverse || '#FFFFFF';
   const [savingsSummary, setSavingsSummary] = useState({
     totalSaved: 750000,
     interestEarned: 37500,
@@ -76,7 +76,7 @@ const ModernSavingsMenuScreen: React.FC<ModernSavingsMenuScreenProps> = ({
       minAmount: 1000,
       icon: '💰',
       features: ['Instant withdrawal', 'No lock period', 'Daily interest'],
-      color: theme.colors.success,
+      color: theme?.colors?.success,
       available: true,
       recommended: true,
     },
@@ -100,7 +100,7 @@ const ModernSavingsMenuScreen: React.FC<ModernSavingsMenuScreenProps> = ({
       icon: '🔒',
       features: ['Highest returns', '3-12 months', 'Guaranteed rate'],
       badge: 'BEST RATE',
-      color: theme.colors.warning,
+      color: theme?.colors?.warning,
       available: true,
     },
     {
@@ -133,7 +133,7 @@ const ModernSavingsMenuScreen: React.FC<ModernSavingsMenuScreenProps> = ({
       icon: '🛡️',
       features: ['1-5 years', 'Premium rates', 'Insurance backed'],
       badge: 'PREMIUM',
-      color: theme.colors.primary,
+      color: theme?.colors?.primary,
       available: true,
     },
   ];
@@ -204,7 +204,12 @@ const ModernSavingsMenuScreen: React.FC<ModernSavingsMenuScreenProps> = ({
       flex: 1,
     },
     header: {
-      paddingHorizontal: 20,
+      
+      marginLeft: 20,
+      marginRight: 20,
+      marginTop: 0,
+      marginBottom: 0,
+      borderRadius: 12,
       paddingVertical: 16,
       flexDirection: 'row',
       alignItems: 'center',
@@ -282,7 +287,7 @@ const ModernSavingsMenuScreen: React.FC<ModernSavingsMenuScreenProps> = ({
     },
     summaryTitle: {
       fontSize: 14,
-      color: theme.colors.textSecondary,
+      color: theme?.colors?.textSecondary,
       marginBottom: 16,
       textTransform: 'uppercase',
       letterSpacing: 0.5,
@@ -299,18 +304,18 @@ const ModernSavingsMenuScreen: React.FC<ModernSavingsMenuScreenProps> = ({
     },
     summaryLabel: {
       fontSize: 12,
-      color: theme.colors.textSecondary,
+      color: theme?.colors?.textSecondary,
       marginBottom: 4,
     },
     summaryValue: {
       fontSize: 20,
       fontWeight: '700',
-      color: theme.colors.text,
+      color: theme?.colors?.text,
     },
     summaryValueSmall: {
       fontSize: 16,
       fontWeight: '600',
-      color: theme.colors.primary,
+      color: theme?.colors?.primary,
     },
     productsSection: {
       paddingHorizontal: 20,
@@ -318,7 +323,7 @@ const ModernSavingsMenuScreen: React.FC<ModernSavingsMenuScreenProps> = ({
     sectionTitle: {
       fontSize: 18,
       fontWeight: '600',
-      color: '#FFFFFF',
+      color: theme.colors.textInverse,
       marginBottom: 16,
     },
     productsGrid: {
@@ -357,7 +362,7 @@ const ModernSavingsMenuScreen: React.FC<ModernSavingsMenuScreenProps> = ({
     },
     productCardSelected: {
       backgroundColor: 'rgba(255, 255, 255, 1)',
-      borderColor: theme.colors.primary,
+      borderColor: theme?.colors?.primary,
       borderWidth: 2,
     },
     productHeader: {
@@ -378,36 +383,36 @@ const ModernSavingsMenuScreen: React.FC<ModernSavingsMenuScreenProps> = ({
       fontSize: 24,
     },
     productBadge: {
-      backgroundColor: theme.colors.primary,
+      backgroundColor: theme?.colors?.primary,
       paddingHorizontal: 10,
       paddingVertical: 4,
       borderRadius: 12,
     },
     productBadgeText: {
-      color: '#FFFFFF',
+      color: theme.colors.textInverse,
       fontSize: 10,
       fontWeight: '700',
     },
     productName: {
       fontSize: 18,
       fontWeight: '600',
-      color: theme.colors.text,
+      color: theme?.colors?.text,
       marginBottom: 4,
     },
     productDescription: {
       fontSize: 13,
-      color: theme.colors.textSecondary,
+      color: theme?.colors?.textSecondary,
       marginBottom: 12,
       minHeight: 36, // Ensure consistent height
     },
     productRate: {
       fontSize: 18,
       fontWeight: '700',
-      color: theme.colors.primary,
+      color: theme?.colors?.primary,
     },
     productRateLabel: {
       fontSize: 11,
-      color: theme.colors.textSecondary,
+      color: theme?.colors?.textSecondary,
       marginBottom: 2,
     },
     productFeatures: {
@@ -426,7 +431,7 @@ const ModernSavingsMenuScreen: React.FC<ModernSavingsMenuScreenProps> = ({
     },
     featureChipText: {
       fontSize: 12,
-      color: theme.colors.text,
+      color: theme?.colors?.text,
     },
     productFooter: {
       flexDirection: 'row',
@@ -439,22 +444,22 @@ const ModernSavingsMenuScreen: React.FC<ModernSavingsMenuScreenProps> = ({
     },
     minAmountLabel: {
       fontSize: 11,
-      color: theme.colors.textSecondary,
+      color: theme?.colors?.textSecondary,
       marginBottom: 2,
     },
     minAmountValue: {
       fontSize: 14,
       fontWeight: '600',
-      color: theme.colors.text,
+      color: theme?.colors?.text,
     },
     selectButton: {
-      backgroundColor: theme.colors.primary,
+      backgroundColor: theme?.colors?.primary,
       paddingHorizontal: 16,
       paddingVertical: 8,
       borderRadius: 16,
     },
     selectButtonText: {
-      color: '#FFFFFF',
+      color: theme.colors.textInverse,
       fontSize: 14,
       fontWeight: '600',
     },
@@ -462,13 +467,13 @@ const ModernSavingsMenuScreen: React.FC<ModernSavingsMenuScreenProps> = ({
       position: 'absolute',
       top: -8,
       right: 16,
-      backgroundColor: theme.colors.success,
+      backgroundColor: theme?.colors?.success,
       paddingHorizontal: 12,
       paddingVertical: 4,
       borderRadius: 12,
     },
     recommendedText: {
-      color: '#FFFFFF',
+      color: theme.colors.textInverse,
       fontSize: 10,
       fontWeight: '700',
     },
@@ -497,14 +502,14 @@ const ModernSavingsMenuScreen: React.FC<ModernSavingsMenuScreenProps> = ({
     loadingText: {
       marginTop: 12,
       fontSize: 16,
-      color: theme.colors.text,
+      color: theme?.colors?.text,
     },
   });
 
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={[theme.colors.primaryGradientStart, theme.colors.primaryGradientEnd]}
+        colors={[theme?.colors?.primaryGradientStart, theme?.colors?.primaryGradientEnd]}
         style={styles.gradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -546,7 +551,7 @@ const ModernSavingsMenuScreen: React.FC<ModernSavingsMenuScreenProps> = ({
                 </View>
                 <View style={styles.summaryItem}>
                   <Text style={styles.summaryLabel}>Interest Earned</Text>
-                  <Text style={[styles.summaryValue, { color: theme.colors.success }]}>
+                  <Text style={[styles.summaryValue, { color: theme?.colors?.success }]}>
                     {formatCurrency(savingsSummary.interestEarned, tenantTheme.currency, { locale: tenantTheme.locale })}
                   </Text>
                 </View>
@@ -626,7 +631,7 @@ const ModernSavingsMenuScreen: React.FC<ModernSavingsMenuScreenProps> = ({
           {isLoading && (
             <View style={styles.loadingOverlay}>
               <View style={styles.loadingContent}>
-                <ActivityIndicator size="large" color={theme.colors.primary} />
+                <ActivityIndicator size="large" color={theme?.colors?.primary} />
                 <Text style={styles.loadingText}>Loading product details...</Text>
               </View>
             </View>

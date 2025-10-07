@@ -590,7 +590,7 @@ const styles = StyleSheet.create({
   },
   heroTitle: {
     fontSize: 16,
-    color: '#FFFFFF',
+    color: theme.colors.textInverse,
     marginBottom: 16,
     opacity: 0.9,
   },
@@ -600,7 +600,7 @@ const styles = StyleSheet.create({
   referralCode: {
     fontSize: 36,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: theme.colors.textInverse,
     textAlign: 'center',
     letterSpacing: 6,
   },
@@ -613,7 +613,7 @@ const styles = StyleSheet.create({
   copyButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: theme.colors.textInverse,
   },
   statsGrid: {
     flexDirection: 'row',
@@ -659,7 +659,7 @@ const styles = StyleSheet.create({
   shareButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: theme.colors.textInverse,
   },
   stepsList: {
     gap: 16,
@@ -700,7 +700,7 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: theme.colors.textInverse,
   },
   referralDetails: {
     gap: 8,

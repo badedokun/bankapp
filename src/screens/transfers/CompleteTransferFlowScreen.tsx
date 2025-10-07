@@ -282,7 +282,7 @@ export const CompleteTransferFlowScreen: React.FC<CompleteTransferFlowScreenProp
     successTitle: {
       fontSize: theme.typography.sizes.xl,
       fontWeight: theme.typography.weights.bold as any,
-      color: theme.colors.success || '#4CAF50',
+      color: theme.colors.success,
       marginBottom: theme.spacing.md,
       textAlign: 'center',
     },
@@ -332,7 +332,7 @@ export const CompleteTransferFlowScreen: React.FC<CompleteTransferFlowScreenProp
       borderRadius: theme.borderRadius.md,
       padding: theme.spacing.md,
       borderWidth: 1,
-      borderColor: '#e1e5e9',
+      borderColor: theme.colors.border,
       alignItems: 'center',
     },
     verificationSuccess: {
@@ -870,7 +870,7 @@ export const CompleteTransferFlowScreen: React.FC<CompleteTransferFlowScreenProp
                 onBack?.();
               }}
               variant="primary"
-              style={{ backgroundColor: '#4CAF50' }}
+              style={{ backgroundColor: theme.colors.success }}
             />
           </View>
         </View>

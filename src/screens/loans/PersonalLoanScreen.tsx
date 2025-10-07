@@ -68,7 +68,7 @@ export const PersonalLoanScreen: React.FC<PersonalLoanScreenProps> = ({
           <Text style={styles.backArrow}>←</Text>
           <Text style={styles.backText}>Back</Text>
         </TouchableOpacity>
-        <Text style={[styles.title, { color: '#fff' }]}>Personal Loan</Text>
+        <Text style={[styles.title, { color: theme.colors.textInverse }]}>Personal Loan</Text>
       </View>
 
       <ScrollView style={styles.content}>
@@ -178,34 +178,34 @@ export const PersonalLoanScreen: React.FC<PersonalLoanScreenProps> = ({
           </View>
 
           {amount && duration && (
-            <View style={[styles.calculationCard, { backgroundColor: '#f0f9ff' }]}>
+            <View style={[styles.calculationCard, { backgroundColor: theme.colors.surface }]}>
               <Text style={[styles.calculationTitle, { color: theme.colors.primary }]}>
                 📊 Loan Summary
               </Text>
               <View style={styles.calculationRow}>
-                <Text style={[styles.calculationLabel, { color: '#0369a1' }]}>
+                <Text style={[styles.calculationLabel, { color: theme.colors.info }]}>
                   Monthly Payment:
                 </Text>
-                <Text style={[styles.calculationValue, { color: '#0369a1' }]}>
+                <Text style={[styles.calculationValue, { color: theme.colors.info }]}>
                   {formatCurrency(calculateMonthlyPayment(), tenantTheme.currency, { locale: tenantTheme.locale })}
                 </Text>
               </View>
               <View style={styles.calculationRow}>
-                <Text style={[styles.calculationLabel, { color: '#0369a1' }]}>
+                <Text style={[styles.calculationLabel, { color: theme.colors.info }]}>
                   Total Repayment:
                 </Text>
-                <Text style={[styles.calculationValue, { color: '#0369a1' }]}>
+                <Text style={[styles.calculationValue, { color: theme.colors.info }]}>
                   {formatCurrency(calculateMonthlyPayment() * parseInt(duration || '12'), tenantTheme.currency, { locale: tenantTheme.locale })}
                 </Text>
               </View>
             </View>
           )}
 
-          <View style={[styles.infoCard, { backgroundColor: '#fef3c7' }]}>
-            <Text style={[styles.infoTitle, { color: '#d97706' }]}>
+          <View style={[styles.infoCard, { backgroundColor: theme.colors.surface }]}>
+            <Text style={[styles.infoTitle, { color: theme.colors.warning }]}>
               📋 Required Documents
             </Text>
-            <Text style={[styles.infoText, { color: '#92400e' }]}>
+            <Text style={[styles.infoText, { color: theme.colors.text }]}>
               • Valid ID (NIN, Driver's License, or Passport){'\n'}
               • Proof of Income (Salary slip or Bank statement){'\n'}
               • Utility Bill (for address verification){'\n'}
@@ -252,6 +252,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
+    marginLeft: 20,
+    marginRight: 20,
+    marginTop: 0,
+    marginBottom: 0,
+    borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
@@ -264,12 +269,12 @@ const styles = StyleSheet.create({
   },
   backArrow: {
     fontSize: 24,
-    color: '#fff',
+    color: theme.colors.textInverse,
     marginRight: 8,
   },
   backText: {
     fontSize: 16,
-    color: '#fff',
+    color: theme.colors.textInverse,
     fontWeight: '500',
   },
   title: {

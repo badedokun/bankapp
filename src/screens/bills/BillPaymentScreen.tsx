@@ -65,7 +65,7 @@ export const BillPaymentScreen: React.FC<BillPaymentScreenProps> = ({
           <Text style={styles.backArrow}>←</Text>
           <Text style={styles.backText}>Back</Text>
         </TouchableOpacity>
-        <Text style={[styles.title, { color: '#fff' }]}>Bill Payments</Text>
+        <Text style={[styles.title, { color: theme.colors.textInverse }]}>Bill Payments</Text>
       </View>
 
       <ScrollView style={styles.content}>
@@ -186,6 +186,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
+    marginLeft: 20,
+    marginRight: 20,
+    marginTop: 0,
+    marginBottom: 0,
+    borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
@@ -198,12 +203,12 @@ const styles = StyleSheet.create({
   },
   backArrow: {
     fontSize: 24,
-    color: '#fff',
+    color: theme.colors.textInverse,
     marginRight: 8,
   },
   backText: {
     fontSize: 16,
-    color: '#fff',
+    color: theme.colors.textInverse,
     fontWeight: '500',
   },
   title: {

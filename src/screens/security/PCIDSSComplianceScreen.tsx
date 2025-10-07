@@ -232,8 +232,13 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
       backgroundColor: theme.colors.background,
     },
     header: {
-      backgroundColor: '#ffffff',
-      paddingHorizontal: theme.spacing.lg,
+      backgroundColor: theme.colors.surface,
+      
+      marginLeft: 20,
+      marginRight: 20,
+      marginTop: 0,
+      marginBottom: 0,
+      borderRadius: 12,
       paddingTop: theme.spacing.lg,
       paddingBottom: theme.spacing.md,
       shadowColor: '#000',
@@ -250,12 +255,12 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
     headerTitle: {
       fontSize: 28,
       fontWeight: 'bold',
-      color: '#333',
+      color: theme.colors.text,
       flex: 1,
     },
     headerSubtitle: {
       fontSize: 14,
-      color: '#666',
+      color: theme.colors.textSecondary,
       marginTop: 4,
     },
     assessButton: {
@@ -265,12 +270,12 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
       borderRadius: 8,
     },
     assessButtonText: {
-      color: '#ffffff',
+      color: theme.colors.textInverse,
       fontSize: 14,
       fontWeight: 'bold',
     },
     statusCard: {
-      backgroundColor: '#ffffff',
+      backgroundColor: theme.colors.surface,
       margin: theme.spacing.lg,
       borderRadius: 20,
       padding: theme.spacing.lg,
@@ -289,7 +294,7 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
     statusTitle: {
       fontSize: 22,
       fontWeight: 'bold',
-      color: '#333',
+      color: theme.colors.text,
     },
     statusBadges: {
       flexDirection: 'row',
@@ -301,7 +306,7 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
       borderRadius: 20,
     },
     statusBadgeText: {
-      color: '#ffffff',
+      color: theme.colors.textInverse,
       fontSize: 12,
       fontWeight: 'bold',
     },
@@ -313,7 +318,7 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
       width: 120,
       height: 120,
       borderRadius: 60,
-      backgroundColor: '#f8fafc',
+      backgroundColor: theme.colors.background,
       alignItems: 'center',
       justifyContent: 'center',
       marginBottom: theme.spacing.md,
@@ -325,7 +330,7 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
     },
     scoreLabel: {
       fontSize: 14,
-      color: '#666',
+      color: theme.colors.textSecondary,
     },
     infoGrid: {
       flexDirection: 'row',
@@ -333,7 +338,7 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
     },
     infoItem: {
       flex: 1,
-      backgroundColor: '#f8fafc',
+      backgroundColor: theme.colors.background,
       padding: theme.spacing.md,
       borderRadius: 12,
       alignItems: 'center',
@@ -341,16 +346,16 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
     infoValue: {
       fontSize: 16,
       fontWeight: 'bold',
-      color: '#333',
+      color: theme.colors.text,
       marginBottom: theme.spacing.xs,
     },
     infoLabel: {
       fontSize: 12,
-      color: '#666',
+      color: theme.colors.textSecondary,
       textAlign: 'center',
     },
     section: {
-      backgroundColor: '#ffffff',
+      backgroundColor: theme.colors.surface,
       marginHorizontal: theme.spacing.lg,
       marginBottom: theme.spacing.lg,
       borderRadius: 20,
@@ -370,7 +375,7 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
     sectionTitle: {
       fontSize: 20,
       fontWeight: 'bold',
-      color: '#333',
+      color: theme.colors.text,
     },
     seeAll: {
       color: theme.colors.primary,
@@ -378,7 +383,7 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
       fontWeight: '500',
     },
     requirementItem: {
-      backgroundColor: '#f8fafc',
+      backgroundColor: theme.colors.background,
       padding: theme.spacing.md,
       borderRadius: 12,
       marginBottom: theme.spacing.sm,
@@ -401,22 +406,22 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
       paddingHorizontal: 8,
       paddingVertical: 2,
       borderRadius: 10,
-      color: '#ffffff',
+      color: theme.colors.textInverse,
     },
     requirementName: {
       fontSize: 16,
       fontWeight: '500',
-      color: '#333',
+      color: theme.colors.text,
       marginBottom: theme.spacing.xs,
     },
     requirementDescription: {
       fontSize: 12,
-      color: '#666',
+      color: theme.colors.textSecondary,
       marginBottom: theme.spacing.xs,
     },
     requirementDate: {
       fontSize: 11,
-      color: '#999',
+      color: theme.colors.textTertiary,
     },
     assessmentItem: {
       flexDirection: 'row',
@@ -431,17 +436,17 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
     assessmentType: {
       fontSize: 16,
       fontWeight: '500',
-      color: '#333',
+      color: theme.colors.text,
       marginBottom: 2,
     },
     assessmentScope: {
       fontSize: 14,
-      color: '#666',
+      color: theme.colors.textSecondary,
       marginBottom: 2,
     },
     assessmentDate: {
       fontSize: 12,
-      color: '#999',
+      color: theme.colors.textTertiary,
     },
     assessmentStatus: {
       fontSize: 12,
@@ -451,7 +456,7 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
       borderRadius: 8,
     },
     scanItem: {
-      backgroundColor: '#f8fafc',
+      backgroundColor: theme.colors.background,
       padding: theme.spacing.md,
       borderRadius: 12,
       marginBottom: theme.spacing.sm,
@@ -465,7 +470,7 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
     scanType: {
       fontSize: 16,
       fontWeight: 'bold',
-      color: '#333',
+      color: theme.colors.text,
     },
     scanStatus: {
       fontSize: 12,
@@ -473,11 +478,11 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
       paddingHorizontal: 8,
       paddingVertical: 2,
       borderRadius: 10,
-      color: '#ffffff',
+      color: theme.colors.textInverse,
     },
     scanDate: {
       fontSize: 12,
-      color: '#666',
+      color: theme.colors.textSecondary,
       marginBottom: theme.spacing.sm,
     },
     findingsSummary: {
@@ -494,7 +499,7 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
     findingCount: {
       fontSize: 12,
       fontWeight: 'bold',
-      color: '#ffffff',
+      color: theme.colors.textInverse,
     },
     modalOverlay: {
       flex: 1,
@@ -503,7 +508,7 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
       alignItems: 'center',
     },
     modalContent: {
-      backgroundColor: '#ffffff',
+      backgroundColor: theme.colors.surface,
       width: screenWidth - 40,
       maxHeight: '80%',
       borderRadius: 20,
@@ -518,14 +523,14 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
     modalTitle: {
       fontSize: 22,
       fontWeight: 'bold',
-      color: '#333',
+      color: theme.colors.text,
     },
     modalCloseButton: {
       padding: theme.spacing.sm,
     },
     modalCloseText: {
       fontSize: 24,
-      color: '#666',
+      color: theme.colors.textSecondary,
     },
     formGroup: {
       marginBottom: theme.spacing.lg,
@@ -533,17 +538,17 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
     formLabel: {
       fontSize: 14,
       fontWeight: '500',
-      color: '#333',
+      color: theme.colors.text,
       marginBottom: theme.spacing.sm,
     },
     formInput: {
       borderWidth: 1,
-      borderColor: '#e1e5e9',
+      borderColor: theme.colors.border,
       borderRadius: 8,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.sm,
       fontSize: 16,
-      backgroundColor: '#f8fafc',
+      backgroundColor: theme.colors.background,
     },
     typeButtons: {
       flexDirection: 'row',
@@ -575,15 +580,15 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
       backgroundColor: theme.colors.primary,
     },
     modalButtonSecondary: {
-      backgroundColor: '#f1f5f9',
+      backgroundColor: theme.colors.background,
     },
     modalButtonTextPrimary: {
-      color: '#ffffff',
+      color: theme.colors.textInverse,
       fontSize: 16,
       fontWeight: 'bold',
     },
     modalButtonTextSecondary: {
-      color: '#333',
+      color: theme.colors.text,
       fontSize: 16,
       fontWeight: '500',
     },
@@ -733,7 +738,7 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
                     dynamicStyles.assessmentStatus,
                     {
                       backgroundColor: getStatusColor(assessment.status),
-                      color: '#ffffff',
+                      color: theme.colors.textInverse,
                     }
                   ]}>
                     {assessment.status.replace('_', ' ').toUpperCase()}
@@ -743,8 +748,8 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
 
               {complianceData.assessments.length === 0 && (
                 <View style={{ alignItems: 'center', paddingVertical: theme.spacing.xl }}>
-                  <Text style={{ color: '#666', fontSize: 16 }}>📝 No recent assessments</Text>
-                  <Text style={{ color: '#999', fontSize: 14, marginTop: 4 }}>
+                  <Text style={{ color: theme.colors.textSecondary, fontSize: 16 }}>📝 No recent assessments</Text>
+                  <Text style={{ color: theme.colors.textTertiary, fontSize: 14, marginTop: 4 }}>
                     Schedule your next assessment
                   </Text>
                 </View>
@@ -797,8 +802,8 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
 
               {complianceData.vulnerabilityScans.length === 0 && (
                 <View style={{ alignItems: 'center', paddingVertical: theme.spacing.xl }}>
-                  <Text style={{ color: '#666', fontSize: 16 }}>🔍 No recent scans</Text>
-                  <Text style={{ color: '#999', fontSize: 14, marginTop: 4 }}>
+                  <Text style={{ color: theme.colors.textSecondary, fontSize: 16 }}>🔍 No recent scans</Text>
+                  <Text style={{ color: theme.colors.textTertiary, fontSize: 14, marginTop: 4 }}>
                     Schedule quarterly vulnerability scans
                   </Text>
                 </View>
@@ -873,7 +878,7 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
                     <Text style={[
                       dynamicStyles.typeButtonText,
                       {
-                        color: newAssessment.assessmentType === type ? '#ffffff' : theme.colors.primary
+                        color: newAssessment.assessmentType === type ? theme.colors.textInverse : theme.colors.primary
                       }
                     ]}>
                       {type === 'self' ? 'Self-Assessment' : 'External Assessment'}

@@ -20,6 +20,7 @@ import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
 import { useTenantTheme } from '../../context/TenantThemeContext';
 import Typography from '../ui/Typography';
 import { TierProgressIndicator } from '../rewards';
+import ReusableHeader from '../ui/ReusableHeader';
 
 const { width: screenWidth } = Dimensions.get('window');
 const isWeb = Platform.OS === 'web';
@@ -136,7 +137,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
         contentContainerStyle={[styles.scrollContent, { overflow: 'visible' }]}
       >
         {/* Header */}
-        <View style={[styles.header, { zIndex: 9999, position: 'relative', overflow: 'visible' }]}>
+        <View style={styles.header}>
           <View style={[styles.headerContent, { overflow: 'visible' }]}>
             {/* First row: Logo + Notification + Profile (always visible) */}
             <View style={[screenWidth < 768 ? styles.headerRow : { flexDirection: 'row', flex: 1, justifyContent: 'space-between', alignItems: 'center' }]}>
@@ -385,7 +386,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                 <Text style={styles.statIconText}>🥈</Text>
               </View>
               <Typography.LabelMedium>Your Tier</Typography.LabelMedium>
-              <Typography.TitleMedium style={{ marginVertical: 4, fontWeight: '700', color: '#C0C0C0' }}>
+              <Typography.TitleMedium style={{ marginVertical: 4, fontWeight: '700', color: theme.colors.textTertiary }}>
                 Silver
               </Typography.TitleMedium>
               <Typography.Caption color={theme?.colors?.primary} style={{ fontWeight: '500' }}>
@@ -416,7 +417,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                 tierName: 'Silver',
                 tierLevel: 2,
                 icon: '🥈',
-                color: '#C0C0C0',
+                color: theme.colors.textTertiary,
               }}
               totalPoints={1500}
               pointsToNextTier={3500}
@@ -541,7 +542,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
           <View style={styles.aiInputSection}>
             <TextInput
               style={[styles.aiInputField, {
-                color: '#1a1a2e',
+                color: theme.colors.text,
                 borderWidth: 2,
                 borderColor: primaryColor
               }]}
@@ -667,7 +668,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
         {/* Recent Activity */}
         <View style={styles.activitySection}>
           <View style={styles.activityHeader}>
-            <Text style={[styles.sectionTitle, { color: '#1a1a2e' }]}>Recent Activity</Text>
+            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Recent Activity</Text>
             <TouchableOpacity onPress={() => onFeatureNavigation('transaction_history')}>
               <Text style={[styles.viewAllText, { color: primaryColor }]}>View All →</Text>
             </TouchableOpacity>
@@ -750,12 +751,18 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    paddingHorizontal: screenWidth >= 768 ? 20 : 12,
+    marginLeft: 20,
+    marginRight: 20,
+    marginTop: 0,
+    marginBottom: 0,
+    borderRadius: 12,
     paddingTop: Platform.OS === 'web' ? 12 : 16,
     paddingBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.2)',
     overflow: 'visible',
+    zIndex: 9999,
+    position: 'relative',
     ...Platform.select({
       web: {
         backdropFilter: 'blur(20px)',
@@ -782,29 +789,29 @@ const styles = StyleSheet.create({
     maxWidth: screenWidth < 768 ? 'auto' : undefined,
   },
   logo: {
-    width: screenWidth >= 768 ? 48 : 48,
-    height: screenWidth >= 768 ? 48 : 48,
-    borderRadius: screenWidth >= 768 ? 12 : 12,
+    width: screenWidth >= 768 ? 72 : 60,
+    height: screenWidth >= 768 ? 72 : 60,
+    borderRadius: screenWidth >= 768 ? 14 : 12,
     justifyContent: 'center',
     alignItems: 'center',
     flexShrink: 0,
   },
   logoImage: {
-    width: screenWidth >= 768 ? 48 : 48,
-    height: screenWidth >= 768 ? 48 : 48,
-    borderRadius: screenWidth >= 768 ? 12 : 12,
+    width: screenWidth >= 768 ? 72 : 60,
+    height: screenWidth >= 768 ? 72 : 60,
+    borderRadius: screenWidth >= 768 ? 14 : 12,
     flexShrink: 0,
   },
   logoText: {
     color: 'white',
-    fontSize: screenWidth >= 768 ? 20 : 18,
+    fontSize: screenWidth >= 768 ? 30 : 27,
     fontWeight: 'bold',
   },
   bankName: {
-    fontSize: screenWidth >= 900 ? 16 : screenWidth >= 540 ? 14 : 12,
+    fontSize: screenWidth >= 900 ? 18 : screenWidth >= 540 ? 16 : 14,
     fontWeight: '700',
     flexWrap: 'nowrap',
-    maxWidth: screenWidth >= 1200 ? 500 : screenWidth >= 768 ? Math.max(screenWidth - 600, 200) : screenWidth >= 540 ? Math.max(screenWidth - 300, 150) : 150,
+    maxWidth: screenWidth >= 1200 ? 550 : screenWidth >= 768 ? Math.max(screenWidth - 550, 220) : screenWidth >= 540 ? Math.max(screenWidth - 280, 160) : 160,
     overflow: 'hidden',
     flexShrink: 1,
     ...Platform.select({
@@ -850,7 +857,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 40,
     fontSize: 14,
-    color: '#1a1a2e',
+    color: theme.colors.text,
     minWidth: 0,
     paddingRight: 5,
   },
@@ -886,7 +893,7 @@ const styles = StyleSheet.create({
         background: 'linear-gradient(135deg, #ef4444, #dc2626)',
       },
       default: {
-        backgroundColor: '#ef4444',
+        backgroundColor: theme.colors.error,
       },
     }),
     justifyContent: 'center',
@@ -920,7 +927,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 50,
     right: 0,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.surface,
     borderRadius: 12,
     padding: 8,
     shadowColor: '#000',
@@ -931,7 +938,7 @@ const styles = StyleSheet.create({
     zIndex: 9999999,
     minWidth: 200,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: theme.colors.border,
     ...Platform.select({
       web: {
         boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25)',
@@ -950,14 +957,14 @@ const styles = StyleSheet.create({
   },
   menuText: {
     fontSize: 15,
-    color: '#1a1a2e',
+    color: theme.colors.text,
   },
   logoutText: {
-    color: '#ef4444',
+    color: theme.colors.error,
   },
   menuDivider: {
     height: 1,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: theme.colors.background,
     marginVertical: 4,
   },
   heroSection: {
@@ -976,7 +983,7 @@ const styles = StyleSheet.create({
   },
   welcomeText: {
     fontSize: 16,
-    color: '#6c757d',
+    color: theme.colors.textSecondary,
     marginBottom: 4,
     fontWeight: '500',
   },
@@ -1029,13 +1036,13 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 12,
-    color: '#6c757d',
+    color: theme.colors.textSecondary,
     marginBottom: 4,
   },
   statValue: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1a1a2e',
+    color: theme.colors.text,
     marginBottom: 4,
   },
   statChange: {
@@ -1043,10 +1050,10 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   positive: {
-    color: '#10b981',
+    color: theme.colors.success,
   },
   negative: {
-    color: '#ef4444',
+    color: theme.colors.error,
   },
   rewardsWidget: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
@@ -1127,11 +1134,11 @@ const styles = StyleSheet.create({
   aiTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#1a1a2e',
+    color: theme.colors.text,
   },
   aiSubtitle: {
     fontSize: 12,
-    color: '#6c757d',
+    color: theme.colors.textSecondary,
     marginTop: 2,
   },
   aiStatus: {
@@ -1146,12 +1153,12 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#10b981',
+    backgroundColor: theme.colors.success,
     marginRight: 6,
   },
   aiStatusText: {
     fontSize: 12,
-    color: '#10b981',
+    color: theme.colors.success,
     fontWeight: '500',
   },
   aiSuggestions: {
@@ -1176,12 +1183,12 @@ const styles = StyleSheet.create({
   aiSuggestionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1a1a2e',
+    color: theme.colors.text,
     marginBottom: 8,
   },
   aiSuggestionDescription: {
     fontSize: 13,
-    color: '#6c757d',
+    color: theme.colors.textSecondary,
     lineHeight: 18,
     marginBottom: 16,
   },
@@ -1219,13 +1226,13 @@ const styles = StyleSheet.create({
   },
   aiMessageBubble: {
     flex: 1,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: theme.colors.background,
     borderRadius: 16,
     padding: 12,
   },
   aiMessageText: {
     fontSize: 14,
-    color: '#1a1a2e',
+    color: theme.colors.text,
     lineHeight: 20,
   },
   aiInputSection: {
@@ -1240,7 +1247,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 14,
-    color: '#1a1a2e',
+    color: theme.colors.text,
   },
   aiSendButton: {
     width: 40,
@@ -1300,17 +1307,17 @@ const styles = StyleSheet.create({
   },
   quickActionArrow: {
     fontSize: 24,
-    color: '#94a3b8',
+    color: theme.colors.textTertiary,
   },
   quickActionTitle: {
     fontSize: screenWidth > 768 ? 18 : 16,
     fontWeight: '600',
-    color: '#1a1a2e',
+    color: theme.colors.text,
     marginBottom: 8,
   },
   quickActionDescription: {
     fontSize: screenWidth > 768 ? 14 : 13,
-    color: '#6c757d',
+    color: theme.colors.textSecondary,
     lineHeight: screenWidth > 768 ? 20 : 18,
   },
   activitySection: {
@@ -1368,22 +1375,22 @@ const styles = StyleSheet.create({
   activityTitle: {
     fontSize: 15,
     fontWeight: '500',
-    color: '#1a1a2e',
+    color: theme.colors.text,
     marginBottom: 4,
   },
   activityTime: {
     fontSize: 12,
-    color: '#94a3b8',
+    color: theme.colors.textTertiary,
   },
   activityAmount: {
     fontSize: 18,
     fontWeight: 'bold',
   },
   creditAmount: {
-    color: '#10b981',
+    color: theme.colors.success,
   },
   debitAmount: {
-    color: '#ef4444',
+    color: theme.colors.error,
   },
   floatingAIButton: {
     position: 'absolute',

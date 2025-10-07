@@ -598,13 +598,18 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   header: {
     paddingTop: 60,
-    paddingHorizontal: theme.layout.spacing * 2,
+    
+      marginLeft: 20,
+      marginRight: 20,
+      marginTop: 0,
+      marginBottom: 0,
+      borderRadius: 12,
     paddingBottom: theme.layout.spacing * 2,
   },
   headerTitle: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#ffffff',
+    color: theme.colors.textInverse,
     fontFamily: theme.typography.fontFamily?.display || theme.typography.fontFamily?.primary,
     marginBottom: 8,
   },
@@ -627,7 +632,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     alignItems: 'center',
   },
   tabActive: {
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.surface,
   },
   tabText: {
     fontSize: 14,

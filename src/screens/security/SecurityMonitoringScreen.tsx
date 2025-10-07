@@ -253,8 +253,13 @@ export const SecurityMonitoringScreen: React.FC<SecurityMonitoringScreenProps> =
       backgroundColor: theme.colors.background,
     },
     header: {
-      backgroundColor: '#ffffff',
-      paddingHorizontal: theme.spacing.lg,
+      backgroundColor: theme.colors.surface,
+      
+      marginLeft: 20,
+      marginRight: 20,
+      marginTop: 0,
+      marginBottom: 0,
+      borderRadius: 12,
       paddingTop: theme.spacing.lg,
       paddingBottom: theme.spacing.md,
       shadowColor: '#000',
@@ -271,12 +276,12 @@ export const SecurityMonitoringScreen: React.FC<SecurityMonitoringScreenProps> =
     headerTitle: {
       fontSize: 28,
       fontWeight: 'bold',
-      color: '#333',
+      color: theme.colors.text,
       flex: 1,
     },
     headerSubtitle: {
       fontSize: 14,
-      color: '#666',
+      color: theme.colors.textSecondary,
       marginTop: 4,
     },
     statusIndicator: {
@@ -301,7 +306,7 @@ export const SecurityMonitoringScreen: React.FC<SecurityMonitoringScreenProps> =
       borderRadius: 8,
     },
     logEventButtonText: {
-      color: '#ffffff',
+      color: theme.colors.textInverse,
       fontSize: 14,
       fontWeight: 'bold',
     },
@@ -314,7 +319,7 @@ export const SecurityMonitoringScreen: React.FC<SecurityMonitoringScreenProps> =
     },
     metricCard: {
       width: (screenWidth - theme.spacing.lg * 2 - theme.spacing.md) / 2,
-      backgroundColor: '#ffffff',
+      backgroundColor: theme.colors.surface,
       padding: theme.spacing.lg,
       borderRadius: 16,
       shadowColor: '#000',
@@ -331,10 +336,10 @@ export const SecurityMonitoringScreen: React.FC<SecurityMonitoringScreenProps> =
     },
     metricLabel: {
       fontSize: 12,
-      color: '#666',
+      color: theme.colors.textSecondary,
     },
     section: {
-      backgroundColor: '#ffffff',
+      backgroundColor: theme.colors.surface,
       marginHorizontal: theme.spacing.lg,
       marginBottom: theme.spacing.lg,
       borderRadius: 20,
@@ -354,7 +359,7 @@ export const SecurityMonitoringScreen: React.FC<SecurityMonitoringScreenProps> =
     sectionTitle: {
       fontSize: 20,
       fontWeight: 'bold',
-      color: '#333',
+      color: theme.colors.text,
     },
     seeAll: {
       color: theme.colors.primary,
@@ -362,7 +367,7 @@ export const SecurityMonitoringScreen: React.FC<SecurityMonitoringScreenProps> =
       fontWeight: '500',
     },
     alertItem: {
-      backgroundColor: '#f8fafc',
+      backgroundColor: theme.colors.background,
       padding: theme.spacing.md,
       borderRadius: 12,
       marginBottom: theme.spacing.sm,
@@ -377,7 +382,7 @@ export const SecurityMonitoringScreen: React.FC<SecurityMonitoringScreenProps> =
     alertTitle: {
       fontSize: 16,
       fontWeight: 'bold',
-      color: '#333',
+      color: theme.colors.text,
       flex: 1,
       marginRight: theme.spacing.sm,
     },
@@ -389,14 +394,14 @@ export const SecurityMonitoringScreen: React.FC<SecurityMonitoringScreenProps> =
     severityText: {
       fontSize: 12,
       fontWeight: 'bold',
-      color: '#ffffff',
+      color: theme.colors.textInverse,
       paddingHorizontal: 8,
       paddingVertical: 2,
       borderRadius: 10,
     },
     alertDescription: {
       fontSize: 14,
-      color: '#666',
+      color: theme.colors.textSecondary,
       marginBottom: theme.spacing.xs,
     },
     alertFooter: {
@@ -406,7 +411,7 @@ export const SecurityMonitoringScreen: React.FC<SecurityMonitoringScreenProps> =
     },
     alertTime: {
       fontSize: 12,
-      color: '#999',
+      color: theme.colors.textTertiary,
     },
     alertStatus: {
       fontSize: 12,
@@ -429,16 +434,16 @@ export const SecurityMonitoringScreen: React.FC<SecurityMonitoringScreenProps> =
     eventType: {
       fontSize: 14,
       fontWeight: '500',
-      color: '#333',
+      color: theme.colors.text,
       marginBottom: 2,
     },
     eventDescription: {
       fontSize: 12,
-      color: '#666',
+      color: theme.colors.textSecondary,
     },
     eventTime: {
       fontSize: 11,
-      color: '#999',
+      color: theme.colors.textTertiary,
       marginLeft: theme.spacing.md,
     },
     threatItem: {
@@ -455,11 +460,11 @@ export const SecurityMonitoringScreen: React.FC<SecurityMonitoringScreenProps> =
     threatType: {
       fontSize: 14,
       fontWeight: '500',
-      color: '#333',
+      color: theme.colors.text,
     },
     threatValue: {
       fontSize: 12,
-      color: '#666',
+      color: theme.colors.textSecondary,
       marginTop: 2,
     },
     threatActions: {
@@ -475,8 +480,8 @@ export const SecurityMonitoringScreen: React.FC<SecurityMonitoringScreenProps> =
     blockedBadge: {
       fontSize: 12,
       fontWeight: 'bold',
-      color: '#ffffff',
-      backgroundColor: '#ef4444',
+      color: theme.colors.textInverse,
+      backgroundColor: theme.colors.error,
       paddingHorizontal: 6,
       paddingVertical: 2,
       borderRadius: 8,
@@ -495,12 +500,12 @@ export const SecurityMonitoringScreen: React.FC<SecurityMonitoringScreenProps> =
     segmentName: {
       fontSize: 16,
       fontWeight: '500',
-      color: '#333',
+      color: theme.colors.text,
       marginBottom: 2,
     },
     segmentInfo: {
       fontSize: 12,
-      color: '#666',
+      color: theme.colors.textSecondary,
     },
     segmentStatus: {
       flexDirection: 'row',
@@ -523,7 +528,7 @@ export const SecurityMonitoringScreen: React.FC<SecurityMonitoringScreenProps> =
       alignItems: 'center',
     },
     modalContent: {
-      backgroundColor: '#ffffff',
+      backgroundColor: theme.colors.surface,
       width: screenWidth - 40,
       maxHeight: '80%',
       borderRadius: 20,
@@ -538,14 +543,14 @@ export const SecurityMonitoringScreen: React.FC<SecurityMonitoringScreenProps> =
     modalTitle: {
       fontSize: 22,
       fontWeight: 'bold',
-      color: '#333',
+      color: theme.colors.text,
     },
     modalCloseButton: {
       padding: theme.spacing.sm,
     },
     modalCloseText: {
       fontSize: 24,
-      color: '#666',
+      color: theme.colors.textSecondary,
     },
     formGroup: {
       marginBottom: theme.spacing.lg,
@@ -553,17 +558,17 @@ export const SecurityMonitoringScreen: React.FC<SecurityMonitoringScreenProps> =
     formLabel: {
       fontSize: 14,
       fontWeight: '500',
-      color: '#333',
+      color: theme.colors.text,
       marginBottom: theme.spacing.sm,
     },
     formInput: {
       borderWidth: 1,
-      borderColor: '#e1e5e9',
+      borderColor: theme.colors.border,
       borderRadius: 8,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.sm,
       fontSize: 16,
-      backgroundColor: '#f8fafc',
+      backgroundColor: theme.colors.background,
     },
     formTextArea: {
       height: 100,
@@ -599,15 +604,15 @@ export const SecurityMonitoringScreen: React.FC<SecurityMonitoringScreenProps> =
       backgroundColor: theme.colors.primary,
     },
     modalButtonSecondary: {
-      backgroundColor: '#f1f5f9',
+      backgroundColor: theme.colors.background,
     },
     modalButtonTextPrimary: {
-      color: '#ffffff',
+      color: theme.colors.textInverse,
       fontSize: 16,
       fontWeight: 'bold',
     },
     modalButtonTextSecondary: {
-      color: '#333',
+      color: theme.colors.text,
       fontSize: 16,
       fontWeight: '500',
     },
@@ -669,7 +674,7 @@ export const SecurityMonitoringScreen: React.FC<SecurityMonitoringScreenProps> =
                 <Text style={dynamicStyles.metricLabel}>Total Alerts</Text>
               </View>
               <View style={dynamicStyles.metricCard}>
-                <Text style={[dynamicStyles.metricValue, { color: '#ef4444' }]}>
+                <Text style={[dynamicStyles.metricValue, { color: theme.colors.error }]}>
                   {monitoringData.metrics.criticalAlerts}
                 </Text>
                 <Text style={dynamicStyles.metricLabel}>Critical Alerts</Text>
@@ -733,8 +738,8 @@ export const SecurityMonitoringScreen: React.FC<SecurityMonitoringScreenProps> =
 
               {monitoringData.recentAlerts.length === 0 && (
                 <View style={{ alignItems: 'center', paddingVertical: theme.spacing.xl }}>
-                  <Text style={{ color: '#666', fontSize: 16 }}>✅ No recent alerts</Text>
-                  <Text style={{ color: '#999', fontSize: 14, marginTop: 4 }}>
+                  <Text style={{ color: theme.colors.textSecondary, fontSize: 16 }}>✅ No recent alerts</Text>
+                  <Text style={{ color: theme.colors.textTertiary, fontSize: 14, marginTop: 4 }}>
                     All systems secure
                   </Text>
                 </View>
@@ -899,7 +904,7 @@ export const SecurityMonitoringScreen: React.FC<SecurityMonitoringScreenProps> =
                       <Text style={[
                         dynamicStyles.severityButtonText,
                         {
-                          color: newEvent.severity === severity ? '#ffffff' : getStatusColor(severity)
+                          color: newEvent.severity === severity ? theme.colors.textInverse : getStatusColor(severity)
                         }
                       ]}>
                         {severity.toUpperCase()}

@@ -187,7 +187,7 @@ export default function TransactionDetailsScreen({
       gap: 8,
     },
     backButtonText: {
-      color: '#ffffff',
+      color: theme.colors.textInverse,
       fontSize: 16,
       fontWeight: '500',
     },
@@ -197,7 +197,7 @@ export default function TransactionDetailsScreen({
       marginLeft: theme.spacing.md,
     },
     pageHeaderTitleText: {
-      color: '#ffffff',
+      color: theme.colors.textInverse,
       fontSize: 18,
       fontWeight: '600',
     },
@@ -217,8 +217,12 @@ export default function TransactionDetailsScreen({
       shadowRadius: 2,
     },
     header: {
-      alignItems: 'center',
+      marginLeft: 20,
+      marginRight: 20,
+      marginTop: 0,
       marginBottom: theme.spacing.lg,
+      borderRadius: 12,
+      alignItems: 'center',
     },
     amount: {
       fontSize: 32,

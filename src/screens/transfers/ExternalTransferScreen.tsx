@@ -269,7 +269,7 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
       alignItems: 'center',
     },
     closeButtonText: {
-      color: '#ffffff',
+      color: theme.colors.textInverse,
       fontSize: theme.typography.sizes.md,
       fontWeight: theme.typography.weights.medium as any,
     },
@@ -288,8 +288,8 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
       color: theme.colors.warning,
     },
     validationSuccess: {
-      backgroundColor: '#4CAF50' + '20',
-      color: '#4CAF50',
+      backgroundColor: theme.colors.success + '20',
+      color: theme.colors.success,
     },
     validationError: {
       backgroundColor: theme.colors.error + '20',
@@ -335,7 +335,7 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
       backgroundColor: theme.colors.primary,
     },
     checkboxText: {
-      color: '#ffffff',
+      color: theme.colors.textInverse,
       fontSize: 12,
       fontWeight: 'bold',
     },

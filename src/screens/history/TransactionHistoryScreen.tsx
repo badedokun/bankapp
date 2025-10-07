@@ -16,11 +16,15 @@ import {
   RefreshControl,
   TextInput,
   Platform,
+  Modal,
 } from 'react-native';
 import { useTenant, useTenantTheme } from '../../tenants/TenantContext';
 import { useBankingAlert } from '../../services/AlertService';
 import APIService from '../../services/api';
 import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
+import TransactionAnalyticsScreen from '../analytics/TransactionAnalyticsScreen';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -80,6 +84,8 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
   const [filteredTransactions, setFilteredTransactions] = useState<DetailedTransaction[]>([]);
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
+  const [showExportDropdown, setShowExportDropdown] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
 
   // Load transaction history
   const loadHistoryData = useCallback(async () => {
@@ -218,15 +224,200 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
     showAlert('AI Assistant', `I'll help you ${suggestion.toLowerCase()}. This feature is coming soon!`);
   }, []);
 
-  // Export transactions
-  const handleExport = useCallback(() => {
-    showAlert('Export', 'Exporting transaction history... This feature is coming soon!');
-  }, []);
+  // Export transactions to CSV
+  const exportToCSV = useCallback(() => {
+    try {
+      // Create CSV header
+      const headers = ['Date', 'Transaction ID', 'Type', 'Description', 'Recipient', 'Amount', 'Status', 'Balance'];
+
+      // Create CSV rows
+      const rows = filteredTransactions.map(transaction => [
+        new Date(transaction.date).toLocaleString(),
+        transaction.id,
+        transaction.type,
+        transaction.description,
+        transaction.recipient || 'N/A',
+        `${getCurrencySymbol(transaction.currency)}${formatCurrency(transaction.amount, transaction.currency)}`,
+        transaction.status,
+        `${getCurrencySymbol(transaction.currency)}${formatCurrency(transaction.balance, transaction.currency)}`
+      ]);
+
+      // Combine header and rows
+      const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+      ].join('\n');
+
+      // For web platform, trigger download
+      if (Platform.OS === 'web') {
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `transactions_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        showAlert('Export Successful', `${filteredTransactions.length} transactions exported to CSV`, [{ text: 'OK' }]);
+      } else {
+        // For mobile, show the content (in real app, would use Share API)
+        console.log('CSV Content:', csvContent);
+        showAlert(
+          'Export Ready',
+          `${filteredTransactions.length} transactions ready for export. In a production app, this would share the CSV file.`,
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      console.error('Export error:', error);
+      showAlert('Export Failed', 'There was an error exporting your transactions. Please try again.', [{ text: 'OK' }]);
+    }
+  }, [filteredTransactions, showAlert]);
+
+  // Export transactions to PDF
+  const exportToPDF = useCallback(() => {
+    try {
+      if (Platform.OS !== 'web') {
+        showAlert(
+          'PDF Export',
+          'PDF export is currently available on web only. Please use CSV export on mobile.',
+          [{ text: 'OK' }]
+        );
+        return;
+      }
+
+      // Create new PDF document
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+
+      // Add header
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Transaction History', pageWidth / 2, 20, { align: 'center' });
+
+      // Add generation date
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      const dateStr = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      doc.text(`Generated on: ${dateStr}`, pageWidth / 2, 28, { align: 'center' });
+
+      // Add summary info
+      doc.setFontSize(9);
+      doc.text(`Total Transactions: ${filteredTransactions.length}`, 14, 38);
+
+      // Prepare table data
+      const tableData = filteredTransactions.map(transaction => {
+        // Safe substring helper
+        const safeTruncate = (str: string | undefined, maxLen: number): string => {
+          if (!str) return 'N/A';
+          return str.length > maxLen ? str.substring(0, maxLen) + '...' : str;
+        };
+
+        return [
+          transaction.date ? new Date(transaction.date).toLocaleDateString() : 'N/A',
+          safeTruncate(transaction.id, 12),
+          transaction.type || 'N/A',
+          safeTruncate(transaction.description, 25),
+          safeTruncate(transaction.recipient, 20),
+          formatCurrency(transaction.amount || 0, transaction.currency || 'NGN'),
+          transaction.status || 'N/A',
+          formatCurrency(transaction.balance || 0, transaction.currency || 'NGN')
+        ];
+      });
+
+      // Add table
+      autoTable(doc, {
+        head: [['Date', 'Transaction ID', 'Type', 'Description', 'Recipient', 'Amount', 'Status', 'Balance']],
+        body: tableData,
+        startY: 45,
+        styles: {
+          fontSize: 8,
+          cellPadding: 2,
+        },
+        headStyles: {
+          fillColor: [30, 58, 138], // FMFB primary color
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+        },
+        alternateRowStyles: {
+          fillColor: [248, 250, 252],
+        },
+        columnStyles: {
+          0: { cellWidth: 20 },  // Date
+          1: { cellWidth: 25 },  // Transaction ID
+          2: { cellWidth: 15 },  // Type
+          3: { cellWidth: 35 },  // Description
+          4: { cellWidth: 30 },  // Recipient
+          5: { cellWidth: 25 },  // Amount
+          6: { cellWidth: 20 },  // Status
+          7: { cellWidth: 25 },  // Balance
+        },
+        margin: { top: 45, left: 7, right: 7 },
+      });
+
+      // Add footer
+      const pageCount = doc.internal.pages.length - 1;
+      doc.setFontSize(8);
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.text(
+          `Page ${i} of ${pageCount}`,
+          pageWidth / 2,
+          doc.internal.pageSize.getHeight() - 10,
+          { align: 'center' }
+        );
+      }
+
+      // Save the PDF
+      doc.save(`transactions_${new Date().toISOString().split('T')[0]}.pdf`);
+
+      showAlert(
+        'Export Successful',
+        `${filteredTransactions.length} transactions exported to PDF`,
+        [{ text: 'OK' }]
+      );
+    } catch (error) {
+      console.error('PDF Export error:', error);
+      showAlert(
+        'Export Failed',
+        'There was an error generating the PDF. Please try again.',
+        [{ text: 'OK' }]
+      );
+    }
+  }, [filteredTransactions, showAlert]);
+
+  // Export handler with format selection
+  const handleExport = useCallback((format: string) => {
+    setShowExportDropdown(false);
+
+    if (format === 'csv') {
+      exportToCSV();
+    } else if (format === 'pdf') {
+      exportToPDF();
+    } else if (format === 'excel') {
+      showAlert(
+        'Coming Soon',
+        'Excel export will be available in the next update. For now, please use CSV or PDF export.',
+        [{ text: 'OK' }]
+      );
+    }
+  }, [exportToCSV, exportToPDF, showAlert]);
 
   // Analytics
   const handleAnalytics = useCallback(() => {
-    showAlert('Analytics', 'Opening transaction analytics... This feature is coming soon!');
+    setShowAnalytics(true);
   }, []);
+
+  // Show Analytics screen if requested
+  if (showAnalytics) {
+    return <TransactionAnalyticsScreen onBack={() => setShowAnalytics(false)} />;
+  }
 
   if (isLoading) {
     return (
@@ -245,7 +436,11 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
     },
     header: {
       backgroundColor: theme.colors.primary,
-      paddingHorizontal: theme.spacing.lg,
+      marginLeft: 20,
+      marginRight: 20,
+      marginTop: 0,
+      marginBottom: 0,
+      borderRadius: 12,
       paddingTop: theme.spacing.lg,
       paddingBottom: theme.spacing.lg,
     },
@@ -775,6 +970,134 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       textAlign: 'center',
       letterSpacing: 0.1,
     },
+    // Export Modal Styles
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.6)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 20,
+    },
+    exportModal: {
+      backgroundColor: tenantTheme.colors.surface,
+      borderRadius: 20,
+      padding: 24,
+      width: Platform.OS === 'web' ? 480 : screenWidth - 40,
+      maxWidth: 480,
+      ...Platform.select({
+        ios: {
+          shadowColor: tenantTheme.colors.text,
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.3,
+          shadowRadius: 24,
+        },
+        android: {
+          elevation: 16,
+        },
+        web: {
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+        },
+      }),
+    },
+    exportModalTitle: {
+      fontSize: 24,
+      fontWeight: '700',
+      color: tenantTheme.colors.text,
+      marginBottom: 8,
+      letterSpacing: 0.3,
+      textAlign: 'center',
+    },
+    exportModalSubtitle: {
+      fontSize: 15,
+      fontWeight: '400',
+      color: tenantTheme.colors.textSecondary,
+      marginBottom: 24,
+      letterSpacing: 0.1,
+      textAlign: 'center',
+      lineHeight: 22,
+    },
+    exportOptions: {
+      gap: 12,
+      marginBottom: 20,
+    },
+    exportOption: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: tenantTheme.colors.background,
+      padding: 16,
+      borderRadius: 12,
+      borderWidth: 2,
+      borderColor: tenantTheme.colors.border,
+      ...Platform.select({
+        ios: {
+          shadowColor: tenantTheme.colors.text,
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.08,
+          shadowRadius: 8,
+        },
+        android: {
+          elevation: 3,
+        },
+        web: {
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+        },
+      }),
+    },
+    exportOptionIcon: {
+      fontSize: 32,
+      marginRight: 16,
+    },
+    exportOptionContent: {
+      flex: 1,
+    },
+    exportOptionTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: tenantTheme.colors.text,
+      marginBottom: 4,
+      letterSpacing: 0.2,
+    },
+    exportOptionDescription: {
+      fontSize: 13,
+      fontWeight: '400',
+      color: tenantTheme.colors.textSecondary,
+      lineHeight: 18,
+      letterSpacing: 0.1,
+    },
+    exportOptionArrow: {
+      fontSize: 20,
+      color: tenantTheme.colors.primary,
+      fontWeight: '700',
+    },
+    exportModalCancel: {
+      backgroundColor: tenantTheme.colors.background,
+      paddingVertical: 14,
+      paddingHorizontal: 24,
+      borderRadius: 12,
+      borderWidth: 2,
+      borderColor: tenantTheme.colors.border,
+      alignItems: 'center',
+      ...Platform.select({
+        ios: {
+          shadowColor: tenantTheme.colors.text,
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 8,
+        },
+        android: {
+          elevation: 2,
+        },
+        web: {
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+        },
+      }),
+    },
+    exportModalCancelText: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: tenantTheme.colors.text,
+      letterSpacing: 0.2,
+    },
   });
 
   const getTransactionIconStyle = (type: string) => {
@@ -839,7 +1162,7 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
             <TouchableOpacity style={dynamicStyles.headerButton} onPress={handleAnalytics}>
               <Text style={dynamicStyles.headerButtonText}>📊 Analytics</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={dynamicStyles.headerButton} onPress={handleExport}>
+            <TouchableOpacity style={dynamicStyles.headerButton} onPress={() => setShowExportDropdown(!showExportDropdown)}>
               <Text style={dynamicStyles.headerButtonText}>📄 Export</Text>
             </TouchableOpacity>
           </View>
@@ -1128,6 +1451,80 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
           )}
         </View>
       </ScrollView>
+
+      {/* Export Format Selection Modal */}
+      <Modal
+        visible={showExportDropdown}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowExportDropdown(false)}
+      >
+        <TouchableOpacity
+          style={dynamicStyles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowExportDropdown(false)}
+        >
+          <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
+            <View style={dynamicStyles.exportModal}>
+              <Text style={dynamicStyles.exportModalTitle}>Export Transactions</Text>
+              <Text style={dynamicStyles.exportModalSubtitle}>
+                Choose your preferred export format
+              </Text>
+
+              <View style={dynamicStyles.exportOptions}>
+                <TouchableOpacity
+                  style={dynamicStyles.exportOption}
+                  onPress={() => handleExport('csv')}
+                >
+                  <Text style={dynamicStyles.exportOptionIcon}>📄</Text>
+                  <View style={dynamicStyles.exportOptionContent}>
+                    <Text style={dynamicStyles.exportOptionTitle}>CSV Format</Text>
+                    <Text style={dynamicStyles.exportOptionDescription}>
+                      Comma-separated values, works with Excel & Google Sheets
+                    </Text>
+                  </View>
+                  <Text style={dynamicStyles.exportOptionArrow}>→</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={dynamicStyles.exportOption}
+                  onPress={() => handleExport('pdf')}
+                >
+                  <Text style={dynamicStyles.exportOptionIcon}>📑</Text>
+                  <View style={dynamicStyles.exportOptionContent}>
+                    <Text style={dynamicStyles.exportOptionTitle}>PDF Document</Text>
+                    <Text style={dynamicStyles.exportOptionDescription}>
+                      Professional format for printing and sharing
+                    </Text>
+                  </View>
+                  <Text style={dynamicStyles.exportOptionArrow}>→</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={dynamicStyles.exportOption}
+                  onPress={() => handleExport('excel')}
+                >
+                  <Text style={dynamicStyles.exportOptionIcon}>📊</Text>
+                  <View style={dynamicStyles.exportOptionContent}>
+                    <Text style={dynamicStyles.exportOptionTitle}>Excel Spreadsheet</Text>
+                    <Text style={dynamicStyles.exportOptionDescription}>
+                      Native Excel format with formulas and formatting
+                    </Text>
+                  </View>
+                  <Text style={dynamicStyles.exportOptionArrow}>→</Text>
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity
+                style={dynamicStyles.exportModalCancel}
+                onPress={() => setShowExportDropdown(false)}
+              >
+                <Text style={dynamicStyles.exportModalCancelText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 };

@@ -212,7 +212,12 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
       flex: 1,
     },
     header: {
-      paddingHorizontal: 20,
+      
+      marginLeft: 20,
+      marginRight: 20,
+      marginTop: 0,
+      marginBottom: 0,
+      borderRadius: 12,
       paddingVertical: 16,
       flexDirection: 'row',
       alignItems: 'center',
@@ -263,7 +268,8 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
       textAlign: 'center',
     },
     optionsContainer: {
-      paddingHorizontal: 20,
+      marginLeft: 20,
+      marginRight: 20,
       paddingTop: 8,
     },
     optionRow: {
@@ -393,18 +399,13 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
       color: theme.colors.text,
     },
     infoCard: {
-      backgroundColor: `${theme.colors.surface}E6`, // 90% opacity
-      borderRadius: 16,
-      padding: 16,
-      marginHorizontal: 20,
+      marginLeft: 20,
+      marginRight: 20,
       marginTop: 24,
+    },
+    infoCardContent: {
       flexDirection: 'row',
       alignItems: 'center',
-      ...Platform.select({
-        web: {
-          backdropFilter: 'blur(10px)',
-        },
-      }),
     },
     infoIcon: {
       fontSize: 24,
@@ -511,13 +512,15 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
             </View>
 
             {/* Info Card */}
-            <Animated.View entering={FadeInUp.delay(600).springify()}>
-              <GlassCard style={styles.infoCard}>
-                <Text style={styles.infoIcon}>💡</Text>
-                <Text style={[styles.infoText, { fontFamily: theme.typography.fontFamily?.primary }]}>
-                  Transfer limits apply based on your account type.
-                  Upgrade to Premium for higher limits and reduced fees.
-                </Text>
+            <Animated.View entering={FadeInUp.delay(600).springify()} style={styles.infoCard}>
+              <GlassCard>
+                <View style={styles.infoCardContent}>
+                  <Text style={styles.infoIcon}>💡</Text>
+                  <Text style={[styles.infoText, { fontFamily: theme.typography.fontFamily?.primary }]}>
+                    Transfer limits apply based on your account type.
+                    Upgrade to Premium for higher limits and reduced fees.
+                  </Text>
+                </View>
               </GlassCard>
             </Animated.View>
           </ScrollView>

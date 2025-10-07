@@ -140,11 +140,11 @@ export const FlexibleSavingsScreen: React.FC<FlexibleSavingsScreenProps> = ({
             />
           </View>
 
-          <View style={[styles.infoCard, { backgroundColor: '#e6fffa' }]}>
-            <RNText style={[styles.infoTitle, { color: '#0d9488' }]}>
+          <View style={[styles.infoCard, { backgroundColor: theme.colors.surface }]}>
+            <RNText style={[styles.infoTitle, { color: theme.colors.info }]}>
               💡 Did you know?
             </RNText>
-            <RNText style={[styles.infoText, { color: '#134e4a' }]}>
+            <RNText style={[styles.infoText, { color: theme.colors.text }]}>
               You can start saving with as little as {formatCurrency(1000, tenantTheme.currency, { locale: tenantTheme.locale })} and add more funds whenever you want!
             </RNText>
           </View>

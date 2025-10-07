@@ -371,7 +371,12 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
       flex: 1,
     },
     header: {
-      paddingHorizontal: 20,
+      
+      marginLeft: 20,
+      marginRight: 20,
+      marginTop: 0,
+      marginBottom: 0,
+      borderRadius: 12,
       paddingVertical: 16,
       flexDirection: 'row',
       alignItems: 'center',
