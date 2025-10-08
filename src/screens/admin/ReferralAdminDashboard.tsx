@@ -607,7 +607,7 @@ const createStyles = (theme: any) => StyleSheet.create({
   headerTitle: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#ffffff',
+    color: theme.colors.textInverse,
     fontFamily: theme.typography.fontFamily?.display || theme.typography.fontFamily?.primary,
     marginBottom: 8,
   },
@@ -631,7 +631,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
   },
   tabActive: {
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.surface,
   },
   tabText: {
     fontSize: 14,

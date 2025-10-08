@@ -5,7 +5,6 @@
 
 // Main transfer screens
 export { default as ModernTransferMenuScreen } from './ModernTransferMenuScreen';
-export { default as InternalTransferScreen } from './InternalTransferScreen';
 export { default as ExternalTransferScreen } from './ExternalTransferScreen';
 export { default as CompleteTransferFlowScreen } from './CompleteTransferFlowScreen';
 

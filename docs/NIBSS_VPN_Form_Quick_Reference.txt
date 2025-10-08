@@ -1,0 +1,209 @@
+================================================================================
+NIBSS VPN PROFILE - SIDE-BY-SIDE COMPARISON
+FirstMidas Microfinance Bank Limited (FMFB) / OrokiiPay Platform
+Date: October 8, 2025
+================================================================================
+
+EXTERNAL BUSINESS PARTNER (EBP) INFORMATION
+================================================================================
+EBP Company Name:           FirstMidas Microfinance Bank Limited / OrokiiPay
+Address:                    [To be provided by FMFB]
+City:                       Lagos
+State:                      Lagos
+Country:                    Nigeria
+
+First Level Contact:        [Name - To be provided]
+Phone:                      [To be provided]
+Pager/Cell:                 [To be provided]
+Email:                      [To be provided]
+
+Technical Contact:          OrokiiPay Development Team
+Phone:                      [To be provided]
+Pager/Cell:                 [To be provided]
+Email:                      support@orokiipay.com
+
+After Hours Contact:        OrokiiPay Technical Support
+Phone:                      [To be provided]
+Pager/Cell:                 [To be provided]
+Email:                      support@orokiipay.com
+
+================================================================================
+VPN PROFILE - IKE PARAMETERS
+================================================================================
+
+Parameter                   | Partner (FMFB/OrokiiPay) | NIBSS
+----------------------------|--------------------------|---------------------------
+VPN Device                  | GCP Cloud VPN Gateway    | Cisco ASR 1000 Router
+VPN Tunnel Endpoint IP      | 34.59.143.25             | 196.6.103.25
+IKE VERSION (1, 2)          | 2                        | 1 or 2
+VPN PEER behind NAT         | No                       | No
+IKE Encryption              | AES-256                  | AES-256
+Authentication Method       | SHA-256                  | SHA
+Diffie-Hellman Group        | Group 5                  | 1, 2, or 5
+Security Association Life   | 28800 sec (8 hours)      | 28800 sec (8 hours)
+Pre-Shared Secret           | Via PHONE/Skype          | Via PHONE/Skype
+
+================================================================================
+VPN PROFILE - IPSEC PARAMETERS
+================================================================================
+
+Parameter                   | Partner (FMFB/OrokiiPay) | NIBSS
+----------------------------|--------------------------|---------------------------
+IPSEC Encryption            | AES-256                  | AES-256
+Authentication Method       | SHA-256                  | SHA
+Diffie-Hellman Group        | Group 5                  | 1 or 2
+Security Association Life   | 1800 sec (30 min)        | 1800 sec (30 min)
+Perfect Forward Secrecy     | Yes                      | Yes
+PFS Diffie-Hellman Group    | Group 5                  | 1, 2, or 5
+
+================================================================================
+HOSTS
+================================================================================
+
+Partner Host Information (FMFB/OrokiiPay):
+    Primary IP:         34.59.143.25
+    Platform:           Google Cloud Platform
+    Purpose:            NIBSS API Client (NIP Mini Service)
+    Operating System:   Linux (Ubuntu/Debian)
+    Internal Network:   GCP VPC (10.x.x.x)
+
+NIBSS Host Information:
+    Host IP:            196.6.103.10
+    Purpose:            NIBSS API Server
+
+================================================================================
+FIREWALL REQUIREMENTS
+================================================================================
+
+Allow from Partner (34.59.143.25) to NIBSS (196.6.103.25):
+    ✓ UDP 500 (IKE)
+    ✓ UDP 4500 (NAT-T)
+    ✓ IP Protocol 50 (ESP)
+    ✓ IP Protocol 51 (AH)
+
+Allow from NIBSS (196.6.103.25) to Partner (34.59.143.25):
+    ✓ UDP 500 (IKE)
+    ✓ UDP 4500 (NAT-T)
+    ✓ IP Protocol 50 (ESP)
+    ✓ IP Protocol 51 (AH)
+
+Application Traffic (After VPN established):
+    ✓ HTTPS (TCP 443) bidirectional to 196.6.103.10
+    ✓ HTTP (TCP 80) bidirectional to 196.6.103.10 (if needed)
+
+================================================================================
+PRE-SHARED SECRET EXCHANGE PROTOCOL
+================================================================================
+
+Method:         Phone call or Skype/Teams with video verification
+Contact:        Eseoghene Charles-Adeoye (NIBSS Network and Security)
+Phone:          +234 802 874 0677
+Email:          eawe@nibss-plc.com.ng
+
+Requirements:   - Minimum 16 characters
+                - Case sensitive
+                - Mix of upper/lower/numbers/special characters
+                - NEVER send via email
+
+Exchange Steps:
+    1. FMFB generates secure random PSK (16+ chars)
+    2. Schedule phone/Skype call with NIBSS contact
+    3. Verbally exchange PSK (spell character by character)
+    4. Both parties configure PSK in VPN devices
+    5. Confirm match before testing
+
+================================================================================
+VPN TUNNEL SUMMARY
+================================================================================
+
+Tunnel Type:            IPsec Site-to-Site VPN
+Local Endpoint:         34.59.143.25 (FMFB/OrokiiPay)
+Remote Endpoint:        196.6.103.25 (NIBSS)
+Local Network:          34.59.143.25/32
+Remote Network:         196.6.103.0/24
+
+Phase 1 (IKE):
+    Version:            IKEv2
+    Encryption:         AES-256
+    Hash:               SHA-256
+    DH Group:           Group 5 (1536-bit MODP)
+    Lifetime:           28800 seconds (8 hours)
+
+Phase 2 (IPSEC):
+    Encryption:         AES-256
+    Hash:               SHA-256
+    DH Group:           Group 5 (with PFS enabled)
+    Lifetime:           1800 seconds (30 minutes)
+    PFS:                Enabled
+
+Dead Peer Detection:    Enabled (30 sec interval, 3 retries)
+Routing:                Static routes or BGP
+
+================================================================================
+TESTING CHECKLIST
+================================================================================
+
+After VPN Setup:
+    [ ] VPN tunnel establishes successfully
+    [ ] Phase 1 (IKE) negotiation completes
+    [ ] Phase 2 (IPSEC) negotiation completes
+    [ ] Can ping 196.6.103.10 from 34.59.143.25
+    [ ] Can reach NIBSS API endpoints via HTTPS
+    [ ] No packet drops in tunnel
+    [ ] DPD working correctly
+    [ ] Tunnel auto-reconnects after failure
+    [ ] Logs show successful SA establishment
+    [ ] Application traffic flows through tunnel
+
+Test Commands:
+    ping 196.6.103.10 -c 5
+    curl -v https://apitest.nibss-plc.com.ng/health
+    gcloud compute vpn-tunnels describe [TUNNEL_NAME]
+
+================================================================================
+CRITICAL INFORMATION NEEDED FROM FMFB
+================================================================================
+
+To complete this form, FMFB must provide:
+    1. Primary contact name and phone number
+    2. Technical contact name and phone number
+    3. After-hours contact name and phone number
+    4. Physical address of FMFB head office
+    5. Confirmation of technical contact for PSK exchange
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+1. FMFB fills in missing contact information above
+2. Submit completed form to NIBSS (eawe@nibss-plc.com.ng)
+3. Schedule PSK exchange call with NIBSS contact
+4. NIBSS configures VPN on their side (Cisco ASR 1000)
+5. FMFB/OrokiiPay configures GCP Cloud VPN
+6. Both parties test tunnel establishment
+7. Verify application traffic flows correctly
+8. Document VPN configuration for future reference
+
+================================================================================
+CONTACTS
+================================================================================
+
+NIBSS Technical Contact:
+    Name:           Eseoghene Charles-Adeoye
+    Department:     Network and Security
+    Email:          eawe@nibss-plc.com.ng
+    Phone:          +234 802 874 0677
+    Location:       Lagos, Lagos State
+
+FMFB/OrokiiPay Contact:
+    Name:           [To be provided]
+    Department:     IT/Network Infrastructure
+    Email:          [To be provided]
+    Phone:          [To be provided]
+    Alternate:      support@orokiipay.com
+
+================================================================================
+Document prepared by: OrokiiPay Development Team
+Date: October 8, 2025
+Status: Pending FMFB contact information
+================================================================================

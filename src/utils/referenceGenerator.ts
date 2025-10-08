@@ -96,8 +96,8 @@ function mod97Check(str: string): string {
   }
 
   // Calculate mod 97 using string arithmetic for large numbers
-  let remainder = BigInt(mapped) % 97n;
-  return String(98n - remainder).padStart(2, '0');
+  let remainder = BigInt(mapped) % BigInt(97);
+  return String(BigInt(98) - remainder).padStart(2, '0');
 }
 
 // --- Config ---

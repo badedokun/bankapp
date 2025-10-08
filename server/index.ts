@@ -3,7 +3,10 @@
  * Backend API Server with Authentication
  */
 
-import 'dotenv/config';
+import dotenv from 'dotenv';
+// Override environment variables with .env file values to ensure correct database configuration
+dotenv.config({ override: true });
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';

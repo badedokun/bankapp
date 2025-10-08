@@ -96,7 +96,7 @@ export const CompleteTransferFlowScreen: React.FC<CompleteTransferFlowScreenProp
       name: 'Jane Smith',
       accountNumber: '1234567890',
       bankCode: 'SAME',
-      bankName: 'FMFB',
+      bankName: '', // Will be populated from tenant context
       nickname: 'Jane',
       isFrequent: true,
       lastUsed: new Date(Date.now() - 86400000),

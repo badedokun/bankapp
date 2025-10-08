@@ -136,6 +136,9 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
                 case 'bill_payments':
                   navigate('BillPayment');
                   break;
+                case 'transaction_history':
+                  navigate('History');
+                  break;
                 case 'operations_management':
                   // TODO: Create OperationsManagementScreen for consolidated operations
                   navigate('Dashboard');
@@ -328,6 +331,9 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
                   break;
                 case 'bill_payments':
                   navigate('BillPayment');
+                  break;
+                case 'transaction_history':
+                  navigate('History');
                   break;
                 case 'operations_management':
                   // TODO: Create OperationsManagementScreen for consolidated operations

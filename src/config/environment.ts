@@ -115,10 +115,11 @@ const createEnvironmentConfig = (): EnvironmentConfig => {
   const environment = detectEnvironment();
   const isCloudDeployment = environment !== 'local';
   const baseUrls = getBaseUrls(environment, isCloudDeployment);
-  
+
   const config: EnvironmentConfig = {
     // API Configuration
-    API_BASE_URL: baseUrls.API_BASE_URL,
+    // Force explicit API URL if set in environment
+    API_BASE_URL: process.env.REACT_APP_API_URL || baseUrls.API_BASE_URL,
     API_TIMEOUT: parseInt(process.env.REACT_APP_API_TIMEOUT || '30000'),
     
     // Frontend URLs
@@ -149,6 +150,9 @@ const createEnvironmentConfig = (): EnvironmentConfig => {
       webUrl: config.WEB_URL,
       enableDevtools: config.ENABLE_DEVTOOLS
     });
+    console.log('🔍 Full ENV_CONFIG object:', config);
+    console.log('🔍 process.env.REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
+    console.log('🔍 baseUrls from getBaseUrls:', baseUrls);
   }
   
   return config;
@@ -165,20 +169,31 @@ export const isCloudDeployment = () => ENV_CONFIG.IS_CLOUD_DEPLOYMENT;
 
 // Export URL builders
 export const buildApiUrl = (endpoint: string): string => {
-  if (!ENV_CONFIG.API_BASE_URL) {
-    // For relative URLs, ensure endpoint starts with /api/
-    const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
-    return `/api/${cleanEndpoint}`;
-  }
-  
-  // Remove leading slash from endpoint if base URL exists
+  // Remove leading slash from endpoint
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
-  
+
+  console.log(`🔍 buildApiUrl called with endpoint: ${endpoint}`);
+  console.log(`🔍 ENV_CONFIG.API_BASE_URL:`, ENV_CONFIG.API_BASE_URL);
+  console.log(`🔍 Checking: !ENV_CONFIG.API_BASE_URL =`, !ENV_CONFIG.API_BASE_URL);
+  console.log(`🔍 Checking: ENV_CONFIG.API_BASE_URL === 'relative' =`, ENV_CONFIG.API_BASE_URL === 'relative');
+
+  // Always use API_BASE_URL if it exists (even if it's a relative URL)
+  if (!ENV_CONFIG.API_BASE_URL || ENV_CONFIG.API_BASE_URL === 'relative') {
+    // For relative URLs, ensure endpoint starts with /api/
+    const result = `/api/${cleanEndpoint}`;
+    console.log(`🔍 Using relative URL: ${result}`);
+    return result;
+  }
+
   // Check if API_BASE_URL already includes /api
   if (ENV_CONFIG.API_BASE_URL.endsWith('/api')) {
-    return `${ENV_CONFIG.API_BASE_URL}/${cleanEndpoint}`;
+    const result = `${ENV_CONFIG.API_BASE_URL}/${cleanEndpoint}`;
+    console.log(`🔍 API_BASE_URL ends with /api, using: ${result}`);
+    return result;
   } else {
-    return `${ENV_CONFIG.API_BASE_URL}/api/${cleanEndpoint}`;
+    const result = `${ENV_CONFIG.API_BASE_URL}/api/${cleanEndpoint}`;
+    console.log(`🔍 API_BASE_URL doesn't end with /api, using: ${result}`);
+    return result;
   }
 };
 

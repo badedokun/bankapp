@@ -5,16 +5,7 @@
  */
 
 import express, { Request, Response, Router } from 'express';
-import { Pool } from 'pg';
-
-// Database connection using existing config
-const pool = new Pool({
-  user: process.env.DB_USER || 'bisiadedokun',
-  host: process.env.DB_HOST || 'localhost',
-  database: process.env.DB_NAME || 'bank_app_platform',
-  password: process.env.DB_PASSWORD || 'orokiipay_secure_banking_2024!@#',
-  port: parseInt(process.env.DB_PORT || '5433'),
-});
+import { pool } from '../config/database';
 
 // Default OrokiiPay Platform Theme (Platform Owner)
 const DEFAULT_THEME = {

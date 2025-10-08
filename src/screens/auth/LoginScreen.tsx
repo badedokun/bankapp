@@ -703,7 +703,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           <View style={styles.tenantHeader}>
             <View style={[
               styles.tenantLogo,
-              theme.brandLogo && { backgroundColor: '#FFFFFF' }
+              theme.brandLogo && { backgroundColor: theme.colors.surface }
             ]}>
               {theme.brandLogo ? (
                 !fmfbLogoError ? (

@@ -18,6 +18,9 @@ export { ExternalTransferScreen } from './transfers/ExternalTransferScreen';
 // History screens
 export { default as TransactionHistoryScreen } from './history/TransactionHistoryScreen';
 
+// Analytics screens
+export { default as TransactionAnalyticsScreen } from './analytics/TransactionAnalyticsScreen';
+
 // Transaction screens
 export { default as TransactionDetailsScreen } from './transactions/TransactionDetailsScreen';
 

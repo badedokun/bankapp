@@ -88,7 +88,7 @@ export default function TransactionDetailsScreen({
           currency: 'NGN',
           description: propTransaction.description || 'Transaction',
           date: propTransaction.createdAt || new Date().toISOString(),
-          status: propTransaction.status === 'successful' ? 'completed' : propTransaction.status,
+          status: propTransaction.status === 'successful' ? 'completed' : (propTransaction.status || 'pending'),
           reference: propTransaction.reference || propTransaction.id || 'N/A',
           fee: propTransaction.fee || 0,
           recipient: propTransaction.direction === 'sent' && propTransaction.recipient ? {
@@ -352,7 +352,7 @@ export default function TransactionDetailsScreen({
                 color: transaction.status === 'completed' ? theme.colors.success :
                        transaction.status === 'pending' ? theme.colors.warning : theme.colors.error
               }]}>
-                {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
+                {transaction.status ? transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1) : 'Unknown'}
               </Text>
             </View>
             <View style={styles.row}>

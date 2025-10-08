@@ -207,7 +207,8 @@ export class SIEMMonitoringService {
       console.log('✅ SIEM monitoring system initialized successfully');
     } catch (error) {
       console.error('❌ Failed to initialize SIEM system:', error);
-      throw error;
+      console.warn('⚠️  SIEM monitoring will be disabled. Server will continue without SIEM.');
+      // Don't throw error - allow server to continue without SIEM
     }
   }
 

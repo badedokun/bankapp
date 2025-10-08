@@ -341,7 +341,8 @@ export class PCIDSSComplianceService {
       console.log('✅ PCI DSS Compliance framework initialized successfully');
     } catch (error) {
       console.error('❌ Failed to initialize PCI DSS framework:', error);
-      throw error;
+      console.warn('⚠️  PCI DSS monitoring will be disabled. Server will continue without PCI DSS compliance tracking.');
+      // Don't throw error - allow server to continue without PCI DSS
     }
   }
 

@@ -47,6 +47,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
   theme,
 }) => {
   const { theme: tenantTheme } = useTenantTheme();
+  const styles = getStyles(tenantTheme);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [aiInput, setAIInput] = useState('');
@@ -737,7 +738,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
   container: {
     flex: 1,
   },

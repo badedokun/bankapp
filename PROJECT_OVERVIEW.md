@@ -4,6 +4,116 @@
 
 > **⚠️ CRITICAL: This section contains the established technology stack and architecture patterns that MUST be followed. Do NOT deviate from these patterns without explicit architectural review and approval.**
 
+---
+
+## 🏛️ **CRITICAL MULTI-TENANT PRINCIPLE - NEVER HARDCODE TENANT DATA**
+
+### ⚠️ **THIS IS A MULTI-TENANT PLATFORM - ALL TENANT DATA MUST BE DYNAMIC**
+
+**❌ NEVER HARDCODE TENANT-SPECIFIC VALUES IN THE CODEBASE ❌**
+
+This platform serves **multiple banks/financial institutions** using a **single codebase**. Hardcoding tenant data breaks the entire multi-tenant architecture and makes the platform unusable for other tenants.
+
+### ✅ **CORRECT: Always Load Tenant Data Dynamically**
+
+**Approved Sources for Tenant Data (in order of preference):**
+
+1. **JWT Token** (Primary Source)
+   ```typescript
+   const userProfile = await APIService.getProfile();
+   const tenantCode = userProfile.tenant.name;        // e.g., 'fmfb', 'gtb', 'access'
+   const tenantName = userProfile.tenant.displayName; // e.g., 'Firstmidas Microfinance Bank Limited'
+   ```
+
+2. **Theme Context** (Loaded from API)
+   ```typescript
+   const { theme } = useTenantTheme();
+   const tenantCode = theme.tenantCode;    // From API
+   const tenantName = theme.brandName;     // From API
+   const tenantColors = theme.colors;      // From API
+   ```
+
+3. **Subdomain** (For initial tenant resolution)
+   ```typescript
+   const subdomain = window.location.hostname.split('.')[0]; // 'fmfb' from 'fmfb.orokii.com'
+   ```
+
+4. **Environment Variables** (For defaults/fallback ONLY)
+   ```typescript
+   const defaultTenant = process.env.REACT_APP_DEFAULT_TENANT || 'platform';
+   ```
+
+### ❌ **WRONG: Examples of What NOT to Do**
+
+```typescript
+// ❌ WRONG - Hardcoded tenant bank code
+const bank = 'FMFB';
+const bankCode = 'fmfb';
+
+// ❌ WRONG - Hardcoded tenant bank name
+const bankName = 'Firstmidas Microfinance Bank Limited';
+
+// ❌ WRONG - Hardcoded tenant colors
+const primaryColor = '#010080'; // FMFB's color
+
+// ❌ WRONG - Hardcoded tenant logo
+const logo = '/assets/fmfb-logo.png';
+
+// ❌ WRONG - Tenant-specific business logic
+if (tenantCode === 'fmfb') {
+  // Special FMFB logic - THIS BREAKS OTHER TENANTS
+}
+```
+
+### ✅ **CORRECT: Examples of Multi-Tenant Code**
+
+```typescript
+// ✅ CORRECT - Dynamic tenant from JWT
+const userProfile = await APIService.getProfile();
+const bank = userProfile.tenant.name;
+const bankName = userProfile.tenant.displayName;
+
+// ✅ CORRECT - Dynamic tenant from theme context
+const { theme } = useTenantTheme();
+const primaryColor = theme.colors.primary;
+const logo = theme.brandLogo;
+const bankName = theme.brandName;
+
+// ✅ CORRECT - Tenant-agnostic business logic
+const transferFee = calculateFee(amount, transferType); // Same logic for all tenants
+```
+
+### 📋 **Examples of Tenant-Specific Data (NEVER HARDCODE)**
+
+- ✘ Tenant/Bank codes: `'fmfb'`, `'gtb'`, `'access'`, `'zenith'`, etc.
+- ✘ Bank names: `'Firstmidas Microfinance Bank'`, `'Guaranty Trust Bank'`, etc.
+- ✘ Bank logos, colors, typography, branding
+- ✘ Tenant-specific URLs, endpoints, or configurations
+- ✘ Tenant-specific business rules or workflows
+
+### 🎯 **Why This Matters**
+
+1. **Platform Scalability**: Enables onboarding new banks without code changes
+2. **Maintenance**: Single codebase serves all tenants
+3. **White-Label**: Each bank gets their own branded experience
+4. **Cost Efficiency**: One deployment serves multiple institutions
+5. **Security**: Proper tenant isolation prevents data leakage
+
+### 🔍 **How to Check Your Code**
+
+Before committing, search for hardcoded tenant references:
+```bash
+# Search for hardcoded tenant names
+grep -r "FMFB\|'fmfb'\|GTB\|'gtb'" src/ --include="*.tsx" --include="*.ts"
+
+# Ensure theme colors are used instead of hex codes
+grep -r "#010080\|#FFD700" src/ --include="*.tsx" --include="*.ts"
+```
+
+**If you find hardcoded tenant data in your code, REFACTOR IMMEDIATELY before committing.**
+
+---
+
 ### **🎨 MANDATORY UI DESIGN SYSTEM**
 > **ALL UI DEVELOPMENT MUST FOLLOW THE MODERN DESIGN SYSTEM**
 >
@@ -833,12 +943,15 @@ npm run design-system:showcase # Start showcase server locally
 ### **Key Environment Variables**
 ```bash
 # Database
-DATABASE_URL=postgresql://user:password@localhost:5432/bank_app_platform
+DATABASE_URL=postgresql://bisiadedokun:orokiipay_secure_banking_2024!@#@localhost:5432/bank_app_platform
 DB_HOST=localhost
-DB_PORT=5432  
+DB_PORT=5432
 DB_NAME=bank_app_platform
-DB_USER=postgres
-DB_PASSWORD=yourpassword
+DB_USER=bisiadedokun
+DB_PASSWORD=orokiipay_secure_banking_2024!@#
+
+# NOTE: Using Homebrew PostgreSQL 14 (not PostgreSQL 17)
+# The postgres user doesn't exist - use 'bisiadedokun' (Mac username) as superuser
 
 # JWT Configuration
 JWT_SECRET=your-super-secret-jwt-key-change-in-production

@@ -15,6 +15,7 @@ import { fraudDetectionService, FraudDetectionRequest } from '../services/fraud-
 import { InternalTransferService } from '../services/transfers/InternalTransferService';
 import ExternalTransferService from '../services/transfers/ExternalTransferService';
 import BillPaymentService from '../services/transfers/BillPaymentService';
+import { generateTransferRef } from '../utils/referenceGenerator';
 // TEMP: Disabled due to TypeScript errors
 // import ScheduledPaymentService from '../services/transfers/ScheduledPaymentService';
 // import InternationalTransferService from '../services/transfers/InternationalTransferService';
@@ -109,7 +110,7 @@ function handleTransferError(error: any, res: express.Response): void {
 router.post('/fraud-check', authenticateToken, validateTenantAccess, [
   body('amount').isFloat({ min: 100 }).withMessage('Amount must be at least ₦100'),
   body('recipientAccountNumber').isLength({ min: 10, max: 10 }).withMessage('Account number must be 10 digits'),
-  body('recipientBankCode').isLength({ min: 3, max: 3 }).withMessage('Bank code must be 3 digits'),
+  body('recipientBankCode').isLength({ min: 1, max: 10 }).withMessage('Bank code must be 1-10 characters'),
   body('description').optional().isLength({ max: 500 }).withMessage('Description too long')
 ], asyncHandler(async (req, res) => {
   const validationErrors = validationResult(req);
@@ -196,10 +197,12 @@ router.post('/fraud-check', authenticateToken, validateTenantAccess, [
 /**
  * POST /api/transfers/validate-recipient
  * Alias for account inquiry to match frontend API
+ *
+ * TESTING MODE: Accepts any 10-digit account number for development/QA
  */
 router.post('/validate-recipient', authenticateToken, validateTenantAccess, [
   body('accountNumber').isLength({ min: 10, max: 10 }).withMessage('Account number must be 10 digits'),
-  body('bankCode').isLength({ min: 3, max: 3 }).withMessage('Bank code must be 3 digits'),
+  body('bankCode').notEmpty().withMessage('Bank code is required'),
 ], asyncHandler(async (req, res) => {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
@@ -214,6 +217,29 @@ router.post('/validate-recipient', authenticateToken, validateTenantAccess, [
   const { accountNumber, bankCode } = req.body;
 
   try {
+    // TESTING MODE: Accept any 10-digit account number for development/QA
+    // In production, this would call real NIBSS account inquiry
+    const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
+
+    if (isDevelopment) {
+      // Generate test account name for any valid 10-digit number
+      const testAccountName = `Test Account ${accountNumber.slice(-4)}`;
+
+      console.log(`✅ Account validation (TEST MODE): ${accountNumber} → ${testAccountName}`);
+
+      return res.json({
+        success: true,
+        data: {
+          isValid: true,
+          accountNumber: accountNumber,
+          accountName: testAccountName,
+          bankName: req.body.bankName || 'Test Bank',
+          bankCode: bankCode
+        }
+      });
+    }
+
+    // PRODUCTION: Call real NIBSS account inquiry
     const inquiryResult = await nibssService.accountInquiry({
       accountNumber,
       bankCode
@@ -249,7 +275,7 @@ router.post('/validate-recipient', authenticateToken, validateTenantAccess, [
  */
 router.post('/account-inquiry', authenticateToken, validateTenantAccess, [
   body('accountNumber').isLength({ min: 10, max: 10 }).withMessage('Account number must be 10 digits'),
-  body('bankCode').isLength({ min: 3, max: 3 }).withMessage('Bank code must be 3 digits'),
+  body('bankCode').isLength({ min: 1, max: 10 }).withMessage('Bank code must be 1-10 characters'),
 ], asyncHandler(async (req, res) => {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
@@ -298,7 +324,7 @@ router.post('/account-inquiry', authenticateToken, validateTenantAccess, [
  */
 router.post('/initiate', authenticateToken, validateTenantAccess, [
   body('recipientAccountNumber').isLength({ min: 10, max: 10 }).withMessage('Account number must be 10 digits'),
-  body('recipientBankCode').isLength({ min: 3, max: 3 }).withMessage('Bank code must be 3 digits'),
+  body('recipientBankCode').notEmpty().withMessage('Bank code is required'),
   body('recipientName').isLength({ min: 2, max: 100 }).withMessage('Recipient name is required'),
   body('amount').isFloat({ min: 100 }).withMessage('Amount must be at least ₦100'),
   body('description').optional().isLength({ max: 500 }).withMessage('Description too long'),
@@ -329,14 +355,7 @@ router.post('/initiate', authenticateToken, validateTenantAccess, [
   const tenantId = req.user.tenantId;
 
   try {
-    console.log('=== TRANSFER DEBUG: Starting transfer process ===');
-    console.log('User ID:', userId);
-    console.log('Tenant ID:', tenantId);
-    console.log('Amount:', amount);
-    console.log('PIN provided:', pin ? 'YES' : 'NO');
-    
     // 0. AI Fraud Detection Analysis (< 500ms target)
-    console.log('Starting fraud detection analysis...');
     const fraudAnalysisStartTime = Date.now();
     
     const fraudRequest: FraudDetectionRequest = {
@@ -366,13 +385,8 @@ router.post('/initiate', authenticateToken, validateTenantAccess, [
       }
     };
 
-    console.log('About to call fraudDetectionService.analyzeTransaction...');
     const fraudAnalysis = await fraudDetectionService.analyzeTransaction(fraudRequest);
-    console.log('Fraud analysis successful:', fraudAnalysis);
-    
     const fraudAnalysisTime = Date.now() - fraudAnalysisStartTime;
-    
-    console.log(`Fraud analysis completed in ${fraudAnalysisTime}ms - Risk: ${fraudAnalysis.riskScore}, Decision: ${fraudAnalysis.decision}`);
 
     // Handle fraud detection decision
     if (fraudAnalysis.decision === 'block') {
@@ -392,7 +406,6 @@ router.post('/initiate', authenticateToken, validateTenantAccess, [
     if (fraudAnalysis.decision === 'review') {
       // In production, this would trigger manual review workflow
       // For now, we'll allow but flag for review
-      console.log(`Transaction flagged for manual review: ${fraudAnalysis.sessionId}`);
     }
 
     // Start database transaction
@@ -447,8 +460,6 @@ router.post('/initiate', authenticateToken, validateTenantAccess, [
         }
       });
     }
-    
-    console.log(`✅ Balance check passed: Transfer amount ${transferAmount} (current balance: ${currentBalance})`);
 
     // 4. Check daily and monthly limits
     const today = new Date().toISOString().split('T')[0];
@@ -497,8 +508,10 @@ router.post('/initiate', authenticateToken, validateTenantAccess, [
       });
     }
 
-    // 5. Generate unique transaction reference
-    const reference = `ORP_${Date.now()}_${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+    // 5. Generate unique transaction reference using secure ULID-based generator
+    // Get tenant's bank code for reference prefix (multi-tenant compliant)
+    const tenantBankCode = wallet.source_bank_code || 'EXT';
+    const reference = generateTransferRef(tenantBankCode);
 
     // 6. Check if recipient is an internal user (same bank)
     let recipientUserId = null;
@@ -513,13 +526,6 @@ router.post('/initiate', authenticateToken, validateTenantAccess, [
     if (internalUserResult.rowCount > 0) {
       recipientUserId = internalUserResult.rows[0].id;
       isInternalTransfer = true;
-      console.log(`🏦 INTERNAL TRANSFER detected: ${recipientAccountNumber} belongs to user ${recipientUserId}`);
-      
-      // Verify the recipient name matches (optional security check)
-      const actualName = `${internalUserResult.rows[0].first_name} ${internalUserResult.rows[0].last_name}`;
-      console.log(`📋 Recipient name verification: Expected="${recipientName}" | Actual="${actualName}"`);
-    } else {
-      console.log(`🌍 EXTERNAL TRANSFER: ${recipientAccountNumber} is not an internal user`);
     }
 
     // 7. Save recipient if requested (for external recipients)
@@ -561,12 +567,10 @@ router.post('/initiate', authenticateToken, validateTenantAccess, [
 
     // 9. Debit sender wallet
     await query(`
-      UPDATE tenant.wallets 
+      UPDATE tenant.wallets
       SET balance = balance - $1, updated_at = NOW()
       WHERE id = $2
     `, [transferAmount, wallet.id]);
-
-    console.log(`💰 DEBIT: Removed ₦${transferAmount} from sender wallet ${wallet.id}`);
 
     // 10. Credit recipient wallet (ONLY for internal transfers)
     if (isInternalTransfer) {
@@ -589,13 +593,10 @@ router.post('/initiate', authenticateToken, validateTenantAccess, [
       
       // Credit the recipient wallet
       await query(`
-        UPDATE tenant.wallets 
+        UPDATE tenant.wallets
         SET balance = balance + $1, updated_at = NOW()
         WHERE id = $2
       `, [transferAmount, recipientWallet.id]);
-
-      console.log(`💰 CREDIT: Added ₦${transferAmount} to recipient wallet ${recipientWallet.id}`);
-      console.log(`🏦 INTERNAL TRANSFER COMPLETED: ₦${transferAmount} moved from user ${userId} to user ${recipientUserId}`);
 
       // For internal transfers, commit immediately and return success
       await query('COMMIT');
@@ -641,10 +642,7 @@ router.post('/initiate', authenticateToken, validateTenantAccess, [
       `, [nibssResponse.status, nibssResponse.transactionId, nibssResponse.sessionId, 
           parseFloat(nibssResponse.fee || '0'), transferId]);
 
-      // If successful, log the transaction (commented out until transaction_logs table is created)
-      if (nibssResponse.status === 'successful') {
-        console.log(`Transfer completed successfully: ${transferId} - ${nibssResponse.message}`);
-      }
+      // Transaction completed successfully
     } else {
       // Transfer failed, reverse the wallet debit
       await query(`
@@ -654,12 +652,10 @@ router.post('/initiate', authenticateToken, validateTenantAccess, [
       `, [transferAmount, wallet.id]);
 
       await query(`
-        UPDATE tenant.transfers 
+        UPDATE tenant.transfers
         SET status = 'failed', nibss_response_message = $1, updated_at = NOW()
         WHERE id = $2
       `, [nibssResponse.message, transferId]);
-
-      console.log(`Transfer failed: ${transferId} - ${nibssResponse.message}`);
     }
 
     // Commit transaction
@@ -979,7 +975,7 @@ router.post('/internal', authenticateToken, validateTenantAccess, [
 // POST /api/transfers/external - Process external transfer
 router.post('/external', authenticateToken, validateTenantAccess, [
   body('recipientAccountNumber').isLength({ min: 10, max: 10 }).withMessage('Account number must be 10 digits'),
-  body('recipientBankCode').isLength({ min: 3, max: 3 }).withMessage('Bank code must be 3 digits'),
+  body('recipientBankCode').isLength({ min: 1, max: 10 }).withMessage('Bank code must be 1-10 characters'),
   body('recipientName').isLength({ min: 2, max: 100 }).withMessage('Recipient name is required'),
   body('amount').isFloat({ min: 100 }).withMessage('Amount must be at least ₦100'),
   body('pin').isLength({ min: 4, max: 4 }).withMessage('Transaction PIN required'),

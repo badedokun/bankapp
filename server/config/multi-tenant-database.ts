@@ -16,7 +16,7 @@ class MultiTenantDatabaseManager {
     // Platform database pool (for tenant registry and shared data)
     this.platformPool = new Pool({
       host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '5433'),
+      port: parseInt(process.env.DB_PORT || '5432'),
       user: process.env.DB_USER || 'bisiadedokun',
       password: process.env.DB_PASSWORD || '',
       database: 'bank_app_platform',
