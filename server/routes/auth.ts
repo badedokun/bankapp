@@ -6,12 +6,12 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import { body, validationResult } from 'express-validator';
-import { query, transaction } from '../config/database';
-import { 
-  generateToken, 
-  generateRefreshToken, 
+import dbManager from '../config/multi-tenant-database';
+import {
+  generateToken,
+  generateRefreshToken,
   verifyRefreshToken,
-  authenticateToken 
+  authenticateToken
 } from '../middleware/auth';
 import { validateTenantAccess } from '../middleware/tenant';
 import { asyncHandler, errors } from '../middleware/errorHandler';
@@ -50,7 +50,7 @@ router.post('/login', [
   // If tenantId is not a UUID, look it up by name
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (!uuidRegex.test(tenantId)) {
-    const tenantResult = await query(`
+    const tenantResult = await dbManager.queryPlatform(`
       SELECT id FROM platform.tenants WHERE name = $1 OR subdomain = $1
     `, [tenantId]);
     
@@ -67,30 +67,40 @@ router.post('/login', [
 
   // Find user by email and tenant
   console.log('🔍 Looking for user:', { email, tenantId });
-  const userResult = await query(`
-    SELECT u.*, tm.tenant_name, t.display_name as tenant_display_name,
-           t.branding, t.security_settings
-    FROM tenant.users u
-    JOIN tenant.tenant_metadata tm ON u.tenant_id = tm.tenant_id
-    JOIN platform.tenants t ON u.tenant_id = t.id
+  const userResult = await dbManager.queryTenant(tenantId, `
+    SELECT u.* FROM tenant.users u
     WHERE u.email = $1 AND u.tenant_id = $2
   `, [email, tenantId]);
 
   console.log('👤 User query result:', { found: userResult.rows.length, email });
 
   if (userResult.rows.length === 0) {
-    // Check if user exists in any tenant
-    const anyUserResult = await query(`
-      SELECT u.email, u.tenant_id, t.name as tenant_name
-      FROM tenant.users u
-      JOIN platform.tenants t ON u.tenant_id = t.id
+    // Check if user exists in any tenant (for better error messages)
+    const anyUserResult = await dbManager.queryTenant(tenantId, `
+      SELECT u.email, u.tenant_id FROM tenant.users u
       WHERE u.email = $1
     `, [email]);
-    console.log('🔍 User exists in other tenants:', anyUserResult.rows);
+    console.log('🔍 User exists in current tenant database:', anyUserResult.rows);
     throw errors.unauthorized('Invalid credentials', 'INVALID_CREDENTIALS');
   }
 
   const user = userResult.rows[0];
+
+  // Get tenant information from platform database
+  const tenantResult = await dbManager.queryPlatform(`
+    SELECT name as tenant_name, display_name as tenant_display_name, branding, security_settings, bank_code
+    FROM platform.tenants
+    WHERE id = $1
+  `, [tenantId]);
+
+  if (tenantResult.rows.length > 0) {
+    const tenantInfo = tenantResult.rows[0];
+    user.tenant_name = tenantInfo.tenant_name;
+    user.tenant_display_name = tenantInfo.tenant_display_name;
+    user.branding = tenantInfo.branding;
+    user.security_settings = tenantInfo.security_settings;
+    user.bank_code = tenantInfo.bank_code;
+  }
 
   // Check user status
   if (user.status !== 'active') {
@@ -109,8 +119,8 @@ router.post('/login', [
   
   if (!isValidPassword) {
     // Increment failed login attempts
-    await query(`
-      UPDATE tenant.users 
+    await dbManager.queryTenant(tenantId, `
+      UPDATE tenant.users
       SET failed_login_attempts = failed_login_attempts + 1,
           updated_at = CURRENT_TIMESTAMP
       WHERE id = $1
@@ -131,11 +141,16 @@ router.post('/login', [
     throw errors.forbidden('Account locked due to too many failed login attempts', 'ACCOUNT_LOCKED');
   }
 
-  // Create user session
-  const sessionResult = await transaction(async (client) => {
+  // Create user session using tenant database transaction
+  const tenantPool = await dbManager.getTenantPool(tenantId);
+  const client = await tenantPool.connect();
+
+  try {
+    await client.query('BEGIN');
+
     // Reset failed login attempts and update last login
     await client.query(`
-      UPDATE tenant.users 
+      UPDATE tenant.users
       SET failed_login_attempts = 0,
           last_login_at = CURRENT_TIMESTAMP,
           last_login_ip = $1,
@@ -150,7 +165,7 @@ router.post('/login', [
       tenantId: user.tenant_id,
       sessionId: require('crypto').randomUUID()
     });
-    
+
     const sessionResult = await client.query(`
       INSERT INTO tenant.user_sessions (
         user_id, session_token, refresh_token, device_info, ip_address, user_agent,
@@ -167,8 +182,17 @@ router.post('/login', [
       new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
     ]);
 
-    return sessionResult.rows[0];
-  });
+    await client.query('COMMIT');
+
+    var finalSessionResult = sessionResult.rows[0];
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+
+  const sessionResult = finalSessionResult;
 
   // Generate JWT tokens
   const tokenPayload = {
@@ -244,14 +268,13 @@ router.post('/refresh', asyncHandler(async (req, res) => {
     throw errors.unauthorized('Invalid refresh token', 'INVALID_REFRESH_TOKEN');
   }
 
-  // Find session and user
-  const sessionResult = await query(`
-    SELECT s.*, u.email, u.role, u.status, u.tenant_id,
-           tm.tenant_name, t.display_name as tenant_display_name
+  const tenantId = decoded.tenantId;
+
+  // Find session and user in tenant database
+  const sessionResult = await dbManager.queryTenant(tenantId, `
+    SELECT s.*, u.email, u.role, u.status, u.tenant_id
     FROM tenant.user_sessions s
     JOIN tenant.users u ON s.user_id = u.id
-    JOIN tenant.tenant_metadata tm ON u.tenant_id = tm.tenant_id
-    JOIN platform.tenants t ON u.tenant_id = t.id
     WHERE s.session_token = $1 AND s.expires_at > CURRENT_TIMESTAMP
   `, [refreshToken]);
 
@@ -260,6 +283,18 @@ router.post('/refresh', asyncHandler(async (req, res) => {
   }
 
   const session = sessionResult.rows[0];
+
+  // Get tenant information from platform database
+  const tenantResult = await dbManager.queryPlatform(`
+    SELECT name as tenant_name, display_name as tenant_display_name
+    FROM platform.tenants
+    WHERE id = $1
+  `, [tenantId]);
+
+  if (tenantResult.rows.length > 0) {
+    session.tenant_name = tenantResult.rows[0].tenant_name;
+    session.tenant_display_name = tenantResult.rows[0].tenant_display_name;
+  }
 
   // Check user status
   if (session.status !== 'active') {
@@ -279,8 +314,8 @@ router.post('/refresh', asyncHandler(async (req, res) => {
   const accessToken = generateToken(tokenPayload);
 
   // Update session activity
-  await query(`
-    UPDATE tenant.user_sessions 
+  await dbManager.queryTenant(tenantId, `
+    UPDATE tenant.user_sessions
     SET last_activity_at = CURRENT_TIMESTAMP
     WHERE id = $1
   `, [session.id]);
@@ -304,10 +339,11 @@ router.post('/refresh', asyncHandler(async (req, res) => {
  */
 router.post('/logout', authenticateToken, asyncHandler(async (req, res) => {
   const sessionId = req.token.payload.sessionId;
+  const tenantId = req.user.tenantId;
 
   // Delete session
-  await query(`
-    DELETE FROM tenant.user_sessions 
+  await dbManager.queryTenant(tenantId, `
+    DELETE FROM tenant.user_sessions
     WHERE id = $1 AND user_id = $2
   `, [sessionId, req.user.id]);
 
@@ -322,9 +358,11 @@ router.post('/logout', authenticateToken, asyncHandler(async (req, res) => {
  * Logout user from all devices
  */
 router.post('/logout-all', authenticateToken, asyncHandler(async (req, res) => {
+  const tenantId = req.user.tenantId;
+
   // Delete all user sessions
-  const result = await query(`
-    DELETE FROM tenant.user_sessions 
+  const result = await dbManager.queryTenant(tenantId, `
+    DELETE FROM tenant.user_sessions
     WHERE user_id = $1
   `, [req.user.id]);
 
@@ -339,14 +377,13 @@ router.post('/logout-all', authenticateToken, asyncHandler(async (req, res) => {
  * Get current user profile
  */
 router.get('/profile', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
-  // Get detailed user information
-  const userResult = await query(`
-    SELECT u.*, w.wallet_number, w.balance, w.available_balance,
-           tm.tenant_name, t.display_name as tenant_display_name, t.branding, t.bank_code
+  const tenantId = req.user.tenantId;
+
+  // Get detailed user information from tenant database
+  const userResult = await dbManager.queryTenant(tenantId, `
+    SELECT u.*, w.wallet_number, w.balance, w.available_balance
     FROM tenant.users u
     LEFT JOIN tenant.wallets w ON u.id = w.user_id AND w.wallet_type = 'main'
-    JOIN tenant.tenant_metadata tm ON u.tenant_id = tm.tenant_id
-    JOIN platform.tenants t ON u.tenant_id = t.id
     WHERE u.id = $1
   `, [req.user.id]);
 
@@ -355,6 +392,21 @@ router.get('/profile', authenticateToken, validateTenantAccess, asyncHandler(asy
   }
 
   const user = userResult.rows[0];
+
+  // Get tenant information from platform database
+  const tenantResult = await dbManager.queryPlatform(`
+    SELECT name as tenant_name, display_name as tenant_display_name, branding, bank_code
+    FROM platform.tenants
+    WHERE id = $1
+  `, [tenantId]);
+
+  if (tenantResult.rows.length > 0) {
+    const tenantInfo = tenantResult.rows[0];
+    user.tenant_name = tenantInfo.tenant_name;
+    user.tenant_display_name = tenantInfo.tenant_display_name;
+    user.branding = tenantInfo.branding;
+    user.bank_code = tenantInfo.bank_code;
+  }
 
   const profile = {
     id: user.id,
@@ -440,13 +492,14 @@ router.put('/profile', authenticateToken, validateTenantAccess, [
   updateValues.push(req.user.id);
 
   const updateQuery = `
-    UPDATE tenant.users 
+    UPDATE tenant.users
     SET ${updateFields.join(', ')}
     WHERE id = $${updateValues.length}
     RETURNING first_name, last_name, phone_number, profile_data, ai_preferences, updated_at
   `;
 
-  const result = await query(updateQuery, updateValues);
+  const tenantId = req.user.tenantId;
+  const result = await dbManager.queryTenant(tenantId, updateQuery, updateValues);
 
   res.json({
     success: true,
@@ -471,9 +524,10 @@ router.post('/change-password', authenticateToken, validateTenantAccess, [
   }
 
   const { currentPassword, newPassword } = req.body;
+  const tenantId = req.user.tenantId;
 
   // Get current password hash
-  const userResult = await query(`
+  const userResult = await dbManager.queryTenant(tenantId, `
     SELECT password_hash FROM tenant.users WHERE id = $1
   `, [req.user.id]);
 
@@ -490,8 +544,8 @@ router.post('/change-password', authenticateToken, validateTenantAccess, [
   const newPasswordHash = await bcrypt.hash(newPassword, saltRounds);
 
   // Update password
-  await query(`
-    UPDATE tenant.users 
+  await dbManager.queryTenant(tenantId, `
+    UPDATE tenant.users
     SET password_hash = $1,
         password_changed_at = CURRENT_TIMESTAMP,
         updated_at = CURRENT_TIMESTAMP
@@ -509,7 +563,9 @@ router.post('/change-password', authenticateToken, validateTenantAccess, [
  * Get user active sessions
  */
 router.get('/sessions', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
-  const sessionsResult = await query(`
+  const tenantId = req.user.tenantId;
+
+  const sessionsResult = await dbManager.queryTenant(tenantId, `
     SELECT id, device_info, ip_address, user_agent, created_at, last_activity_at, expires_at
     FROM tenant.user_sessions
     WHERE user_id = $1 AND expires_at > CURRENT_TIMESTAMP
