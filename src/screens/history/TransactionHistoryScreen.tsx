@@ -450,19 +450,22 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       justifyContent: 'space-between',
     },
     backButton: {
-      backgroundColor: 'rgba(255, 255, 255, 0.2)',
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.sm,
-      borderRadius: 12,
-      flexDirection: 'row',
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: tenantTheme.colors.textInverse + '33', // 20% opacity
+      justifyContent: 'center',
       alignItems: 'center',
-      gap: 8,
+      ...Platform.select({
+        web: {
+          backdropFilter: 'blur(10px)',
+          cursor: 'pointer',
+        },
+      }),
     },
     backButtonText: {
+      fontSize: 20,
       color: tenantTheme.colors.textInverse,
-      fontSize: 16,
-      fontWeight: '600',
-      letterSpacing: 0.2,
     },
     headerTitle: {
       flex: 1,

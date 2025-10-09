@@ -837,6 +837,10 @@ router.get('/history', authenticateToken, validateTenantAccess, asyncHandler(asy
 }));
 
 /**
+ * GET /api/transfers/:idOrReference
+ * Get transfer details by ID or reference number (for receipt generation)
+ */
+/**
  * GET /api/transfers/banks
  * Get list of supported banks
  */
@@ -1587,6 +1591,78 @@ router.get('/fees/calculate', authenticateToken, validateTenantAccess, asyncHand
   } catch (error) {
     handleTransferError(error, res);
   }
+}));
+
+/**
+ * GET /api/transfers/:idOrReference
+ * Get transfer details by ID or reference number (for receipt generation)
+ * IMPORTANT: This route must be LAST to avoid catching specific routes like /banks, /recipients, etc.
+ */
+router.get('/:idOrReference', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
+  const { idOrReference } = req.params;
+  const userId = req.user.id;
+
+  // Query transfer by ID or reference
+  const transferResult = await query(`
+    SELECT t.*,
+           u.first_name as sender_first_name,
+           u.last_name as sender_last_name,
+           u.account_number as sender_account_number,
+           pt.bank_code as sender_bank_code,
+           pt.display_name as sender_bank_name
+    FROM tenant.transfers t
+    LEFT JOIN tenant.users u ON t.sender_id = u.id
+    LEFT JOIN platform.tenants pt ON u.tenant_id = pt.id
+    WHERE (
+      t.id::text = $1
+      OR COALESCE(t.reference, '') = $1
+    )
+    AND (t.sender_id = $2 OR t.recipient_user_id = $2)
+    LIMIT 1
+  `, [idOrReference, userId]);
+
+  if (transferResult.rowCount === 0) {
+    return res.status(404).json({
+      success: false,
+      error: 'Transfer not found',
+      code: 'TRANSFER_NOT_FOUND'
+    });
+  }
+
+  const transfer = transferResult.rows[0];
+
+  // Generate a reference if none exists
+  const generatedReference = transfer.reference || `TXN-${transfer.id.substring(0, 8).toUpperCase()}`;
+
+  res.json({
+    success: true,
+    data: {
+      id: transfer.id,
+      reference: generatedReference,
+      type: transfer.sender_id === userId ? 'debit' : 'credit',
+      status: transfer.status,
+      amount: parseFloat(transfer.amount),
+      currency: 'NGN',
+      fees: parseFloat(transfer.fee || transfer.fees || '0'),
+      totalAmount: parseFloat(transfer.amount) + parseFloat(transfer.fee || transfer.fees || '0'),
+      sender: {
+        name: transfer.sender_first_name ? `${transfer.sender_first_name} ${transfer.sender_last_name}` : 'Unknown',
+        accountNumber: transfer.sender_account_number || transfer.source_account_number || '',
+        bankName: transfer.sender_bank_name || 'Your Bank',
+        bankCode: transfer.sender_bank_code || transfer.source_bank_code || ''
+      },
+      recipient: {
+        name: transfer.recipient_name || '',
+        accountNumber: transfer.recipient_account_number || '',
+        bankName: transfer.recipient_bank_name || '',
+        bankCode: transfer.recipient_bank_code || ''
+      },
+      description: transfer.description || 'Money transfer',
+      transactionHash: transfer.nibss_transaction_id || generatedReference,
+      initiatedAt: transfer.created_at,
+      completedAt: transfer.processed_at || transfer.updated_at
+    }
+  });
 }));
 
 export default router;

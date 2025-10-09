@@ -26,6 +26,7 @@ import { useNotification } from '../../services/ModernNotificationService';
 import APIService from '../../services/api';
 import BankSelectorPicker, { Bank } from '../../components/transfers/BankSelectorPicker';
 import { formatCurrency as formatCurrencyUtil, getCurrencySymbol, getCurrencyName } from '../../utils/currency';
+import { ReceiptGenerator } from '../../utils/receiptGenerator';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -399,12 +400,89 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
     }
   };
 
-  const handleShareReceipt = () => {
-    notify.info('Share functionality coming soon', 'Share Receipt');
+  const handleShareReceipt = async () => {
+    try {
+      const amount = parseFloat(transferData.amount);
+      const fees = calculateFees(amount);
+
+      const transactionData = {
+        id: transactionReference,
+        reference: transactionReference,
+        type: 'debit' as const,
+        status: 'Completed',
+        amount: amount,
+        currency: theme.currency || 'NGN',
+        fees: fees.totalFees,
+        totalAmount: fees.totalDebit,
+        sender: {
+          name: 'Your Account',
+          accountNumber: limits.availableBalance > 0 ? '0987654321' : 'N/A',
+          bankName: theme.brandName || 'Bank',
+          bankCode: '51333'
+        },
+        recipient: {
+          name: transferData.accountName,
+          accountNumber: transferData.accountNumber,
+          bankName: transferData.bankName?.split('(')[0].trim() || '',
+          bankCode: transferData.bank
+        },
+        description: transferData.narration || `Transfer to ${transferData.accountName}`,
+        transactionHash: transactionReference,
+        initiatedAt: new Date().toISOString(),
+        completedAt: new Date().toISOString()
+      };
+
+      const success = await ReceiptGenerator.shareReceipt(
+        transactionData,
+        theme.brandName || 'Bank',
+        theme.currency || 'NGN'
+      );
+
+      if (success) {
+        notify.success('Receipt has been copied to clipboard and is ready to share', 'Success');
+      } else {
+        notify.error('Failed to share receipt. Please try again.', 'Error');
+      }
+    } catch (error) {
+      console.error('Error sharing receipt:', error);
+      notify.error('Failed to share receipt. Please try again.', 'Error');
+    }
   };
 
-  const handleDownloadReceipt = () => {
-    notify.info('Download functionality coming soon', 'Download Receipt');
+  const handleDownloadReceipt = async () => {
+    try {
+      if (!transactionReference) {
+        notify.error('Transaction reference not found. Please try again.', 'Error');
+        return;
+      }
+
+      // Fetch the actual transaction from database
+      const transactionData = await APIService.getTransferByReference(transactionReference);
+
+      if (!transactionData) {
+        notify.error('Transaction not found in database.', 'Error');
+        return;
+      }
+
+      // Generate PDF with actual database data and tenant configuration
+      const success = await ReceiptGenerator.downloadPDFReceipt(
+        transactionData,
+        theme.brandName || 'Bank',
+        theme.currency || 'NGN',
+        theme.locale || 'en-NG',
+        theme.timezone || 'Africa/Lagos',
+        'MOBILE APP'
+      );
+
+      if (success) {
+        notify.success('Receipt PDF has been downloaded successfully', 'Success');
+      } else {
+        notify.error('Failed to download PDF receipt. Please try again.', 'Error');
+      }
+    } catch (error) {
+      console.error('Error downloading receipt:', error);
+      notify.error('Failed to download PDF receipt. Please try again.', 'Error');
+    }
   };
 
   const handleNewTransfer = () => {

@@ -123,12 +123,25 @@ const ModernDashboardScreen: React.FC<ModernDashboardScreenProps> = ({
         accountNumber: accountNumber,
         currency: walletData.currency || 'NGN',
         recentTransactions: transactions.slice(0, 5).map((t: any) => ({
+          // Basic transaction info
           id: t.id,
           amount: parseFloat(t.amount),
           description: t.description || t.narration || 'Transaction',
           date: t.transaction_date || t.createdAt || t.created_at,
           type: t.direction === 'sent' ? 'withdrawal' : 'deposit',
-          created_at: t.createdAt || t.created_at
+          created_at: t.createdAt || t.created_at,
+
+          // Complete transaction data for details screen
+          reference: t.reference,
+          direction: t.direction,
+          status: t.status,
+          fee: t.fee,
+          recipient: t.recipient,
+          senderName: t.senderName,
+          createdAt: t.createdAt,
+
+          // Store the original transaction object for complete data access
+          originalTransaction: t
         })),
         availableFeatures: ['transfers', 'bill_payments', 'savings', 'loans'],
         monthlySpending: 0, // Calculate from real data

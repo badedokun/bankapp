@@ -544,7 +544,7 @@ class APIService {
   }
 
   /**
-   * Get transfer details by ID
+   * Get transfer details by ID or reference number
    */
   async getTransferDetails(transactionId: string): Promise<any> {
     const response = await this.makeRequest<any>(`transfers/${transactionId}`);
@@ -554,6 +554,45 @@ class APIService {
     }
 
     throw new Error(response.error || 'Failed to fetch transfer details');
+  }
+
+  /**
+   * Get transfer by reference number (for receipt generation)
+   * Returns transaction data formatted for PDF receipt
+   */
+  async getTransferByReference(reference: string): Promise<{
+    id: string;
+    reference: string;
+    type: 'debit' | 'credit';
+    status: string;
+    amount: number;
+    currency: string;
+    fees: number;
+    totalAmount: number;
+    sender: {
+      name: string;
+      accountNumber: string;
+      bankName: string;
+      bankCode: string;
+    };
+    recipient: {
+      name: string;
+      accountNumber: string;
+      bankName: string;
+      bankCode: string;
+    };
+    description: string;
+    transactionHash: string;
+    initiatedAt: string;
+    completedAt?: string;
+  }> {
+    const response = await this.makeRequest<any>(`transfers/${reference}`);
+
+    if (response.success && response.data) {
+      return response.data;
+    }
+
+    throw new Error(response.error || 'Transfer not found');
   }
 
   /**
@@ -1446,6 +1485,87 @@ class APIService {
       return response.data;
     }
     throw new Error(response.error || 'Failed to get enhanced dashboard data');
+  }
+
+  // ============================================================================
+  // Dispute Management
+  // ============================================================================
+
+  /**
+   * Submit a transaction dispute
+   */
+  async submitDispute(disputeData: {
+    transactionId: string;
+    transactionReference: string;
+    transactionType: string;
+    transactionDetails: any;
+    disputeReason: string;
+    disputeCategory?: string;
+    additionalNotes?: string;
+  }): Promise<{
+    success: boolean;
+    dispute: {
+      id: string;
+      disputeNumber: string;
+      status: string;
+      createdAt: string;
+    };
+    message: string;
+  }> {
+    const response = await this.makeRequest<any>('disputes', {
+      method: 'POST',
+      body: JSON.stringify(disputeData),
+    });
+
+    if (response.success) {
+      return response;
+    }
+    throw new Error(response.error || 'Failed to submit dispute');
+  }
+
+  /**
+   * Get user's disputes
+   */
+  async getDisputes(params?: {
+    status?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<{
+    disputes: any[];
+    pagination: {
+      total: number;
+      limit: number;
+      offset: number;
+      hasMore: boolean;
+    };
+  }> {
+    const queryParams = new URLSearchParams();
+    if (params?.status) queryParams.append('status', params.status);
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.offset) queryParams.append('offset', params.offset.toString());
+
+    const endpoint = `disputes${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+    const response = await this.makeRequest<any>(endpoint);
+
+    if (response.success || response.disputes) {
+      return response;
+    }
+    throw new Error(response.error || 'Failed to fetch disputes');
+  }
+
+  /**
+   * Get dispute details
+   */
+  async getDisputeDetails(disputeId: string): Promise<{
+    dispute: any;
+    activityLog: any[];
+  }> {
+    const response = await this.makeRequest<any>(`disputes/${disputeId}`);
+
+    if (response.success || response.dispute) {
+      return response;
+    }
+    throw new Error(response.error || 'Failed to fetch dispute details');
   }
 }
 

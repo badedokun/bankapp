@@ -1,0 +1,26 @@
+Partial Feature ID,Feature Name,Current Status,Priority,Week Start,Week End,Duration (Weeks),Owner,Dependencies,Roadmap Integration,Deliverables,Budget (₦)
+PF-001,Loan Lifecycle Management,Partial (40%),CRITICAL,11,13,3,Backend Dev 1,"COMP-001, COMP-003",Enables PHASE 2D (P2D-001 to P2D-011),"Loan restructuring API/UI, Loan write-off workflow, IFRS 9 provisioning",3300000
+PF-002,Regulatory Reports,Partial (20%),CRITICAL,11,13,3,Backend Dev 2,"COMP-001, COMP-003",Required before PHASE 2 revenue features,"CBN/NDIC/NFIU/IFRS reports, Admin dashboard",2688000
+PF-003,Approval Workflows,Partial (50%),HIGH,11,13,3,Backend Dev 1,COMP-002,Supports PHASE 1 (P1-003) & PHASE 2A (P2A-002),"Multi-level approval engine, Conditional routing, Escalation",2750000
+PF-004,GL Posting & Batch Ops,Partial (30%),HIGH,12,13,2,Backend Dev 2,COMP-001,Foundation for P1-010 (Platform Analytics),"GL account management, Batch GL posting, Chart of accounts",2100000
+PF-005,Account Lien Management,Not Implemented,CRITICAL,12,13,2,Backend Dev 1,COMP-001,Critical for P2D (Loan System) - loan securitization,"Account lien schema, Lien placement APIs, Admin UI",1750000
+PF-006,Treasury Operations,Partial (25%),MEDIUM,14,15,2,Backend Dev 2,PF-004,Enhances P1-010 (Platform Analytics),"Treasury account mgmt, Liquidity tracking, Settlement tracking",1400000
+PF-007,Batch Customer Upload,Partial (30%),MEDIUM,14,15,2,Backend Dev 2,COMP-002,Enables corporate client onboarding,"CSV bulk upload, Validation engine, Admin UI",1400000
+PF-008,Financial Reports,Partial (40%),HIGH,14,15,2,Backend Dev 2 + Frontend Dev,PF-004,Works with GL Posting (PF-004),"Balance sheet generator, Trial balance, P&L enhancement",1800000
+PF-009,Loan Analytics (PAR),Partial (35%),HIGH,15,15,1,Backend Dev 1 + Frontend Dev,PF-001,Supports P2D-011 (Loan Analytics Dashboard),"PAR 30/60/90, Total Risk Asset, Analytics dashboard",1200000
+PF-010,NPL Workflow System,Partial (30%),HIGH,15,15,1,Backend Dev 1 + Frontend Dev,PF-001,Works with Loan Lifecycle (PF-001),"Automated NPL classification, Recovery workflow, NPL dashboard",1200000
+PF-011,Data Migration Reconciliation,Partial (60%),MEDIUM,16,16,1,Backend Dev 2,COMP-001,General platform enhancement,Automated reconciliation reporting,700000
+PF-012,Penalty Waiver Workflow,Partial (70%),MEDIUM,16,16,1,Backend Dev 1 + Frontend Dev,PF-003,Uses Approval Workflows (PF-003),Penalty waiver approval with audit trail,700000
+PF-013,AML Report Enhancement,Partial (50%),MEDIUM,16,16,1,Backend Dev 2 + Frontend Dev,PF-002,Extends Regulatory Reports (PF-002),Enhanced AML transaction monitoring,700000
+PF-014,Card Dispute Enhancement,Partial (80%),LOW,16,16,1,Frontend Dev,COMP-005,Future: Supports PHASE 4 Card Management,Improved dispute resolution UI,500000
+PF-015,Amortization Schedules,Not Implemented,LOW,16,16,1,Backend Dev 1,PF-001,Works with Loan Lifecycle (PF-001),Amortization schedule generator,500000
+PF-016,Business Management Enhancement,Partial (60%),MEDIUM,14,14,1,Backend Dev 2,COMP-001,General platform enhancement,EOD automation improvements,600000
+PF-017,Group Lending Support,Not Implemented,MEDIUM,15,15,1,Backend Dev 2,PF-007,Extends Batch Customer Upload (PF-007),Basic group account structure,600000
+PF-018,Posting Management Enhancement,Partial (50%),MEDIUM,13,13,1,Backend Dev 2,PF-004,Part of GL Posting (PF-004),Enhanced posting workflows,800000
+PF-019,Loan Repayment Automation,Partial (60%),MEDIUM,15,15,1,Backend Dev 1,PF-001,Part of Loan Lifecycle (PF-001),Automated repayment batch processing,600000
+PF-020,Credit Risk Exposure Tracking,Partial (40%),MEDIUM,15,15,1,Backend Dev 1,PF-009,Part of Loan Analytics (PF-009),Credit risk exposure dashboard,600000
+
+SUMMARY,,,,,,,,,Total Features: 20,Total Budget,₦25,888,000
+SUMMARY,,,,,,,,,CRITICAL: 5 features,Allocated (with contingency),₦11,693,200
+SUMMARY,,,,,,,,,HIGH: 7 features,Contingency (15%),₦1,525,200
+SUMMARY,,,,,,,,,MEDIUM: 8 features,Core Budget,₦10,168,000

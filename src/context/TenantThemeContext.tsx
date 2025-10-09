@@ -188,7 +188,6 @@ export const TenantThemeProvider: React.FC<TenantThemeProviderProps> = ({ childr
     try {
       // API call to fetch tenant theme configuration
       const apiUrl = buildApiUrl(`tenants/theme/${tenantCode}`);
-      console.log(`🔍 Fetching tenant theme from: ${apiUrl}`);
       const response = await fetch(apiUrl, {
         headers: {
           'Content-Type': 'application/json',
@@ -203,17 +202,10 @@ export const TenantThemeProvider: React.FC<TenantThemeProviderProps> = ({ childr
 
       const themeData = await response.json();
 
-      console.log('🎨 API Theme Data:', themeData);
-
       // Convert relative logo URL to absolute URL
       const brandLogo = themeData.brandLogo?.startsWith('/')
         ? buildApiUrl(themeData.brandLogo.replace(/^\/api\//, ''))
         : themeData.brandLogo;
-
-      console.log('🔍 Logo URL transformation:', {
-        original: themeData.brandLogo,
-        transformed: brandLogo
-      });
 
       // Merge with DEFAULT_THEME to ensure all required properties exist
       // API colors override default colors, but default colors provide fallback
@@ -242,14 +234,6 @@ export const TenantThemeProvider: React.FC<TenantThemeProviderProps> = ({ childr
           ...(themeData.layout || {}),
         },
       };
-
-      console.log('🎨 Merged Theme Colors:', {
-        primary: mergedTheme.colors.primary,
-        secondary: mergedTheme.colors.secondary,
-        primaryGradientStart: mergedTheme.colors.primaryGradientStart,
-        primaryGradientEnd: mergedTheme.colors.primaryGradientEnd,
-        textInverse: mergedTheme.colors.textInverse,
-      });
 
       return mergedTheme;
     } catch (error) {

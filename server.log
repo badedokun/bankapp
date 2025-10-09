@@ -2,7 +2,7 @@
 > OrokiiPayApp@0.0.1 server
 > ts-node server/index.ts
 
-[dotenv@17.2.2] injecting env (36) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.2.2] injecting env (36) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
 🔒 Rate Limiting: RELAXED (Development/QA)
    - General: 1000 requests per 15min
    - Auth: 100 attempts per 15min
@@ -16,262 +16,52 @@ Notification processor started
 ============================
 Hi, looks like you are running TensorFlow.js in Node.js. To speed things up dramatically, install our node backend, visit https://github.com/tensorflow/tfjs-node for more details. 
 ============================
-🔗 New database connection established (PID: 18530)
-📦 Database client acquired (PID: 18530)
-🔗 New database connection established (PID: 18531)
-📦 Database client acquired (PID: 18531)
-🔗 New database connection established (PID: 18532)
-📦 Database client acquired (PID: 18532)
-🔗 New database connection established (PID: 18533)
-📦 Database client acquired (PID: 18533)
-🔗 New database connection established (PID: 18534)
-📦 Database client acquired (PID: 18534)
+🔗 New database connection established (PID: 73775)
+📦 Database client acquired (PID: 73775)
+🔗 New database connection established (PID: 73776)
+📦 Database client acquired (PID: 73776)
+🔗 New database connection established (PID: 73777)
+📦 Database client acquired (PID: 73777)
+🔗 New database connection established (PID: 73778)
+📦 Database client acquired (PID: 73778)
+🔗 New database connection established (PID: 73779)
+📦 Database client acquired (PID: 73779)
+✅ Database connection test successful: { time: 2025-10-09T00:09:57.940Z, version: 'PostgreSQL' }
+📦 Database client acquired (PID: 73776)
+📦 Database client acquired (PID: 73777)
+📦 Database client acquired (PID: 73778)
+📦 Database client acquired (PID: 73779)
 Intent Classification Service initialized successfully
-✅ Database connection test successful: { time: 2025-10-08T14:49:36.258Z, version: 'PostgreSQL' }
-📦 Database client acquired (PID: 18531)
-📦 Database client acquired (PID: 18532)
-📦 Database client acquired (PID: 18533)
-📦 Database client acquired (PID: 18534)
-📦 Database client acquired (PID: 18531)
-📦 Database client acquired (PID: 18532)
-📦 Database client acquired (PID: 18531)
-📦 Database client acquired (PID: 18533)
-📦 Database client acquired (PID: 18534)
+📦 Database client acquired (PID: 73776)
+📦 Database client acquired (PID: 73777)
+📦 Database client acquired (PID: 73778)
+📦 Database client acquired (PID: 73779)
+📦 Database client acquired (PID: 73777)
+📦 Database client acquired (PID: 73776)
+📦 Database client acquired (PID: 73778)
+📦 Database client acquired (PID: 73779)
+✅ PCI DSS Compliance framework initialized successfully
 ✅ CBN Compliance Framework initialized successfully
-📦 Database client acquired (PID: 18532)
-📦 Database client acquired (PID: 18533)
-📦 Database client acquired (PID: 18534)
-✅ PCI DSS Compliance framework initialized successfully
-✅ PCI DSS Compliance framework initialized successfully
 📋 Initialized 3 default SIEM rules
 ✅ SIEM monitoring system initialized successfully
-🗑️ Database client removed (PID: 18530)
-🗑️ Database client removed (PID: 18531)
-🗑️ Database client removed (PID: 18532)
-🗑️ Database client removed (PID: 18533)
-🗑️ Database client removed (PID: 18534)
-API Error: {
-  message: 'Route not found: /api/rbac/permissions',
-  status: 404,
-  code: 'ROUTE_NOT_FOUND',
-  stack: undefined,
-  url: '/api/rbac/permissions',
-  method: 'GET',
-  ip: '::1',
-  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
-  tenantId: undefined,
-  userId: undefined,
-  timestamp: '2025-10-08T16:00:55.501Z'
-}
-::1 - - [08/Oct/2025:16:00:55 +0000] "GET /api/rbac/permissions HTTP/1.1" 404 270 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-🔗 New database connection established (PID: 24099)
-📦 Database client acquired (PID: 24099)
-🔗 New database connection established (PID: 24098)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-::1 - - [08/Oct/2025:16:00:55 +0000] "GET /api/transfers/history?page=1&limit=5 HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 24098)
-💰 WALLET BALANCE CALCULATION: User 19769e1e-b7c7-437a-b0c4-c242d82e8e3f | Wallet: 4990000 | Debited: 668050 | Real-time: 4321950 | Account: 0907934845
-::1 - - [08/Oct/2025:16:00:55 +0000] "GET /api/wallets/balance HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-API Error: {
-  message: 'Route not found: /api/rbac/permissions',
-  status: 404,
-  code: 'ROUTE_NOT_FOUND',
-  stack: undefined,
-  url: '/api/rbac/permissions',
-  method: 'GET',
-  ip: '::1',
-  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
-  tenantId: undefined,
-  userId: undefined,
-  timestamp: '2025-10-08T16:01:56.386Z'
-}
-::1 - - [08/Oct/2025:16:01:56 +0000] "GET /api/rbac/permissions HTTP/1.1" 404 270 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24099)
-::1 - - [08/Oct/2025:16:01:56 +0000] "GET /api/transfers/history?page=1&limit=5 HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-💰 WALLET BALANCE CALCULATION: User 19769e1e-b7c7-437a-b0c4-c242d82e8e3f | Wallet: 4990000 | Debited: 668050 | Real-time: 4321950 | Account: 0907934845
-::1 - - [08/Oct/2025:16:01:56 +0000] "GET /api/wallets/balance HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-API Error: {
-  message: 'Route not found: /api/rbac/permissions',
-  status: 404,
-  code: 'ROUTE_NOT_FOUND',
-  stack: undefined,
-  url: '/api/rbac/permissions',
-  method: 'GET',
-  ip: '::1',
-  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
-  tenantId: undefined,
-  userId: undefined,
-  timestamp: '2025-10-08T16:01:59.439Z'
-}
-::1 - - [08/Oct/2025:16:01:59 +0000] "GET /api/rbac/permissions HTTP/1.1" 404 270 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-API Error: {
-  message: 'Route not found: /api/rbac/permissions',
-  status: 404,
-  code: 'ROUTE_NOT_FOUND',
-  stack: undefined,
-  url: '/api/rbac/permissions',
-  method: 'GET',
-  ip: '::1',
-  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
-  tenantId: undefined,
-  userId: undefined,
-  timestamp: '2025-10-08T16:02:03.590Z'
-}
-::1 - - [08/Oct/2025:16:02:03 +0000] "GET /api/rbac/permissions HTTP/1.1" 404 270 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-::1 - - [08/Oct/2025:16:02:03 +0000] "GET /api/transfers/history?page=1&limit=5 HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 24099)
-💰 WALLET BALANCE CALCULATION: User 19769e1e-b7c7-437a-b0c4-c242d82e8e3f | Wallet: 4990000 | Debited: 668050 | Real-time: 4321950 | Account: 0907934845
-::1 - - [08/Oct/2025:16:02:03 +0000] "GET /api/wallets/balance HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 24099)
-API Error: {
-  message: 'Route not found: /api/rbac/permissions',
-  status: 404,
-  code: 'ROUTE_NOT_FOUND',
-  stack: undefined,
-  url: '/api/rbac/permissions',
-  method: 'GET',
-  ip: '::1',
-  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
-  tenantId: undefined,
-  userId: undefined,
-  timestamp: '2025-10-08T16:02:40.339Z'
-}
-::1 - - [08/Oct/2025:16:02:40 +0000] "GET /api/rbac/permissions HTTP/1.1" 404 270 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24098)
-💰 WALLET BALANCE CALCULATION: User 19769e1e-b7c7-437a-b0c4-c242d82e8e3f | Wallet: 4990000 | Debited: 668050 | Real-time: 4321950 | Account: 0907934845
-::1 - - [08/Oct/2025:16:02:40 +0000] "GET /api/wallets/balance HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-::1 - - [08/Oct/2025:16:02:40 +0000] "GET /api/transfers/history?page=1&limit=5 HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-API Error: {
-  message: 'Route not found: /api/rbac/permissions',
-  status: 404,
-  code: 'ROUTE_NOT_FOUND',
-  stack: undefined,
-  url: '/api/rbac/permissions',
-  method: 'GET',
-  ip: '::1',
-  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
-  tenantId: undefined,
-  userId: undefined,
-  timestamp: '2025-10-08T16:03:15.138Z'
-}
-::1 - - [08/Oct/2025:16:03:15 +0000] "GET /api/rbac/permissions HTTP/1.1" 404 270 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-💰 WALLET BALANCE CALCULATION: User 19769e1e-b7c7-437a-b0c4-c242d82e8e3f | Wallet: 4990000 | Debited: 668050 | Real-time: 4321950 | Account: 0907934845
-::1 - - [08/Oct/2025:16:03:15 +0000] "GET /api/wallets/balance HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-::1 - - [08/Oct/2025:16:03:15 +0000] "GET /api/transfers/history?page=1&limit=5 HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-API Error: {
-  message: 'Route not found: /api/rbac/permissions',
-  status: 404,
-  code: 'ROUTE_NOT_FOUND',
-  stack: undefined,
-  url: '/api/rbac/permissions',
-  method: 'GET',
-  ip: '::1',
-  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
-  tenantId: undefined,
-  userId: undefined,
-  timestamp: '2025-10-08T16:03:21.597Z'
-}
-::1 - - [08/Oct/2025:16:03:21 +0000] "GET /api/rbac/permissions HTTP/1.1" 404 270 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-API Error: {
-  message: 'Route not found: /api/rbac/permissions',
-  status: 404,
-  code: 'ROUTE_NOT_FOUND',
-  stack: undefined,
-  url: '/api/rbac/permissions',
-  method: 'GET',
-  ip: '::1',
-  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
-  tenantId: undefined,
-  userId: undefined,
-  timestamp: '2025-10-08T16:03:39.368Z'
-}
-::1 - - [08/Oct/2025:16:03:39 +0000] "GET /api/rbac/permissions HTTP/1.1" 404 270 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24098)
-💰 WALLET BALANCE CALCULATION: User 19769e1e-b7c7-437a-b0c4-c242d82e8e3f | Wallet: 4990000 | Debited: 668050 | Real-time: 4321950 | Account: 0907934845
-::1 - - [08/Oct/2025:16:03:39 +0000] "GET /api/wallets/balance HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24099)
-::1 - - [08/Oct/2025:16:03:39 +0000] "GET /api/transfers/history?page=1&limit=5 HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24099)
-::1 - - [08/Oct/2025:16:38:01 +0000] "POST /api/auth/logout HTTP/1.1" 200 52 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 24099)
-::1 - - [08/Oct/2025:16:38:01 +0000] "GET /api/tenants/theme/fmfb HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 24099)
-::1 - - [08/Oct/2025:16:38:04 +0000] "GET /api/tenants/theme/fmfb HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 24099)
+✅ PCI DSS Compliance framework initialized successfully
+🗑️ Database client removed (PID: 73775)
+🗑️ Database client removed (PID: 73777)
+🗑️ Database client removed (PID: 73779)
+🗑️ Database client removed (PID: 73778)
+🗑️ Database client removed (PID: 🛑 Received SIGTERM. Shutting down gracefully...
+D: 73883)
+📦 Database client acquired (PID: 73883)
+::1 - - [09/Oct/2025:00:11:56 +0000] "GET /api/tenants/theme/fmfb HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 73883)
+::1 - - [09/Oct/2025:00:11:59 +0000] "GET /api/tenants/theme/fmfb HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 73883)
+::1 - - [09/Oct/2025:00:12:00 +0000] "GET /api/tenants/theme/fmfb HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 73883)
+::1 - - [09/Oct/2025:00:12:00 +0000] "GET /api/tenants/by-name/fmfb/assets/logo/default HTTP/1.1" 200 11186 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 73883)
 🔐 Login attempt: { email: 'admin@fmfb.com', tenantId: 'fmfb', hasPassword: true }
-📦 Database client acquired (PID: 24099)
+📦 Database client acquired (PID: 73883)
 🏢 Tenant lookup successful: {
   originalTenant: 'fmfb',
   resolvedTenantId: '7ea1fe0a-6f7d-4838-bcca-4dfdb61ffca3'
@@ -280,7 +70,7 @@ API Error: {
   email: 'admin@fmfb.com',
   tenantId: '7ea1fe0a-6f7d-4838-bcca-4dfdb61ffca3'
 }
-📦 Database client acquired (PID: 24099)
+📦 Database client acquired (PID: 73883)
 👤 User query result: { found: 1, email: 'admin@fmfb.com' }
 🔑 Password verification: {
   providedPassword: 'Admin-7-super',
@@ -288,14 +78,14 @@ API Error: {
   storedHashLength: 60
 }
 🔓 Password verification result: { isValidPassword: true }
-📦 Database client acquired (PID: 24099)
-::1 - - [08/Oct/2025:16:38:18 +0000] "POST /api/auth/login HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24099)
-::1 - - [08/Oct/2025:16:38:18 +0000] "GET /api/auth/profile HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 24099)
+📦 Database client acquired (PID: 73883)
+::1 - - [09/Oct/2025:00:12:34 +0000] "POST /api/auth/login HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 73883)
+📦 Database client acquired (PID: 73883)
+📦 Database client acquired (PID: 73883)
+📦 Database client acquired (PID: 73883)
+::1 - - [09/Oct/2025:00:12:34 +0000] "GET /api/auth/profile HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 73883)
 API Error: {
   message: 'Route not found: /api/rbac/permissions',
   status: 404,
@@ -307,24 +97,103 @@ API Error: {
   userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
   tenantId: undefined,
   userId: undefined,
-  timestamp: '2025-10-08T16:38:18.264Z'
+  timestamp: '2025-10-09T00:12:34.369Z'
 }
-::1 - - [08/Oct/2025:16:38:18 +0000] "GET /api/rbac/permissions HTTP/1.1" 404 270 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-::1 - - [08/Oct/2025:16:38:18 +0000] "GET /api/transfers/history?page=1&limit=5 HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24098)
-💰 WALLET BALANCE CALCULATION: User 19769e1e-b7c7-437a-b0c4-c242d82e8e3f | Wallet: 4990000 | Debited: 668050 | Real-time: 4321950 | Account: 0907934845
-::1 - - [08/Oct/2025:16:38:18 +0000] "GET /api/wallets/balance HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+::1 - - [09/Oct/2025:00:12:34 +0000] "GET /api/rbac/permissions HTTP/1.1" 404 270 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 73883)
+📦 Database client acquired (PID: 73883)
+📦 Database client acquired (PID: 73883)
+📦 Database client acquired (PID: 73883)
+🔗 New database connection established (PID: 73908)
+📦 Database client acquired (PID: 73908)
+📦 Database client acquired (PID: 73883)
+::1 - - [09/Oct/2025:00:12:34 +0000] "GET /api/transfers/history?page=1&limit=5 HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 73908)
+📦 Database client acquired (PID: 73908)
+📦 Database client acquired (PID: 73908)
+📦 Database client acquired (PID: 73908)
+📦 Database client acquired (PID: 73908)
+📦 Database client acquired (PID: 73908)
+💰 WALLET BALANCE CALCULATION: User 19769e1e-b7c7-437a-b0c4-c242d82e8e3f | Wallet: 4925000 | Debited: 733200 | Real-time: 4191800 | Account: 0907934845
+::1 - - [09/Oct/2025:00:12:34 +0000] "GET /api/wallets/balance HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 73908)
+📦 Database client acquired (PID: 73908)
+📦 Database client acquired (PID: 73908)
+📦 Database client acquired (PID: 73908)
+📥 Dispute submission request body: {
+  hasBody: true,
+  bodyKeys: [
+    'transactionId',
+    'transactionReference',
+    'transactionType',
+    'transactionDetails',
+    'disputeReason',
+    'disputeCategory',
+    'additionalNotes'
+  ],
+  transactionDetailsType: 'object'
+}
+📦 Database client acquired (PID: 73908)
+📦 Database client acquired (PID: 73908)
+❌ Database query error: {
+  query: 'SELECT tenant.generate_dispute_number($1, $2) as dispute_number',
+  params: 2,
+  error: 'function tenant.generate_dispute_number(unknown, unknown) does not exist'
+}
+❌ Error submitting dispute: error: function tenant.generate_dispute_number(unknown, unknown) does not exist
+    at /Users/bisiadedokun/bankapp/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async query (/Users/bisiadedokun/bankapp/server/config/database.ts:69:20)
+    at async /Users/bisiadedokun/bankapp/server/routes/disputes.ts:80:33 {
+  length: 240,
+  severity: 'ERROR',
+  code: '42883',
+  detail: undefined,
+  hint: 'No function matches the given name and argument types. You might need to add explicit type casts.',
+  position: '8',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_func.c',
+  line: '636',
+  routine: 'ParseFuncOrColumn'
+}
+::1 - - [09/Oct/2025:00:12:42 +0000] "POST /api/disputes HTTP/1.1" 500 121 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 73908)
+::1 - - [09/Oct/2025:00:30:58 +0000] "GET /api/tenants/theme/fmfb HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 73908)
+🔐 Login attempt: { email: 'admin@fmfb.com', tenantId: 'fmfb', hasPassword: true }
+📦 Database client acquired (PID: 73908)
+🏢 Tenant lookup successful: {
+  originalTenant: 'fmfb',
+  resolvedTenantId: '7ea1fe0a-6f7d-4838-bcca-4dfdb61ffca3'
+}
+🔍 Looking for user: {
+  email: 'admin@fmfb.com',
+  tenantId: '7ea1fe0a-6f7d-4838-bcca-4dfdb61ffca3'
+}
+📦 Database client acquired (PID: 73908)
+👤 User query result: { found: 1, email: 'admin@fmfb.com' }
+🔑 Password verification: {
+  providedPassword: 'Admin-7-super',
+  hasStoredHash: true,
+  storedHashLength: 60
+}
+🔓 Password verification result: { isValidPassword: true }
+📦 Database client acquired (PID: 73908)
+::1 - - [09/Oct/2025:00:31:38 +0000] "POST /api/auth/login HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 73908)
+📦 Database client acquired (PID: 73908)
+📦 Database client acquired (PID: 73908)
+📦 Database client acquired (PID: 73908)
+::1 - - [09/Oct/2025:00:31:38 +0000] "GET /api/auth/profile HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 73908)
+📦 Database client acquired (PID: 73883)
 API Error: {
   message: 'Route not found: /api/rbac/permissions',
   status: 404,
@@ -336,101 +205,445 @@ API Error: {
   userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
   tenantId: undefined,
   userId: undefined,
-  timestamp: '2025-10-08T16:38:21.536Z'
+  timestamp: '2025-10-09T00:31:38.417Z'
 }
-::1 - - [08/Oct/2025:16:38:21 +0000] "GET /api/rbac/permissions HTTP/1.1" 404 270 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
-📦 Database client acquired (PID: 24099)
-📦 Database client acquired (PID: 24098)
+::1 - - [09/Oct/2025:00:31:38 +0000] "GET /api/rbac/permissions HTTP/1.1" 404 270 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 73908)
+📦 Database client acquired (PID: 73908)
+📦 Database client acquired (PID: 73883)
+📦 Database client acquired (PID: 73908)
+📦 Database client acquired (PID: 73883)
+📦 Database client acquired (PID: 73908)
+📦 Database client acquired (PID: 73883)
+📦 Database client acquired (PID: 73908)
+📦 Database client acquired (PID: 73883)
+📦 Database client acquired (PID: 73908)
+💰 WALLET BALANCE CALCULATION: User 19769e1e-b7c7-437a-b0c4-c242d82e8e3f | Wallet: 4925000 | Debited: 733200 | Real-time: 4191800 | Account: 0907934845
+::1 - - [09/Oct/2025:00:31:38 +0000] "GET /api/wallets/balance HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 73883)
+::1 - - [09/Oct/2025:00:31:38 +0000] "GET /api/transfers/history?page=1&limit=5 HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 73883)
+📦 Database client acquired (PID: 73883)
+📦 Database client acquired (PID: 73883)
+📦 Database client acquired (PID: 73883)
+📥 Dispute submission request body: {
+  hasBody: true,
+  bodyKeys: [
+    'transactionId',
+    'transactionReference',
+    'transactionType',
+    'transactionDetails',
+    'disputeReason',
+    'disputeCategory',
+    'additionalNotes'
+  ],
+  transactionDetailsType: 'object'
+}
+📦 Database client acquired (PID: 73883)
+📦 Database client acquired (PID: 73883)
+❌ Database query error: {
+  query: 'SELECT tenant.generate_dispute_number($1, $2) as dispute_number',
+  params: 2,
+  error: 'function tenant.generate_dispute_number(unknown, unknown) does not exist'
+}
+❌ Error submitting dispute: error: function tenant.generate_dispute_number(unknown, unknown) does not exist
+    at /Users/bisiadedokun/bankapp/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async query (/Users/bisiadedokun/bankapp/server/config/database.ts:69:20)
+    at async /Users/bisiadedokun/bankapp/server/routes/disputes.ts:80:33 {
+  length: 240,
+  severity: 'ERROR',
+  code: '42883',
+  detail: undefined,
+  hint: 'No function matches the given name and argument types. You might need to add explicit type casts.',
+  position: '8',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_func.c',
+  line: '636',
+  routine: 'ParseFuncOrColumn'
+}
+::1 - - [09/Oct/2025:00:31:45 +0000] "POST /api/disputes HTTP/1.1" 500 121 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 73883)
+::1 - - [09/Oct/2025:00:32:16 +0000] "GET /api/tenants/theme/fmfb HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 73883)
+::1 - - [09/Oct/2025:00:32:17 +0000] "GET /api/tenants/theme/fmfb HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 73883)
+::1 - - [09/Oct/2025:00:32:17 +0000] "GET /api/tenants/by-name/fmfb/assets/logo/default HTTP/1.1" 200 11186 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 73883)
+::1 - - [09/Oct/2025:00:32:18 +0000] "GET /api/tenants/theme/fmfb HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 73883)
+::1 - - [09/Oct/2025:00:32:19 +0000] "GET /api/tenants/by-name/fmfb/assets/logo/default HTTP/1.1" 200 11186 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 73883)
+🔐 Login attempt: { email: 'admin@fmfb.com', tenantId: 'fmfb', hasPassword: true }
+📦 Database client acquired (PID: 73883)
+🏢 Tenant lookup successful: {
+  originalTenant: 'fmfb',
+  resolvedTenantId: '7ea1fe0a-6f7d-4838-bcca-4dfdb61ffca3'
+}
+🔍 Looking for user: {
+  email: 'admin@fmfb.com',
+  tenantId: '7ea1fe0a-6f7d-4838-bcca-4dfdb61ffca3'
+}
+📦 Database client acquired (PID: 73883)
+👤 User query result: { found: 1, email: 'admin@fmfb.com' }
+🔑 Password verification: {
+  providedPassword: 'Admin-7-super',
+  hasStoredHash: true,
+  storedHashLength: 60
+}
+🔓 Password verification result: { isValidPassword: true }
+📦 Database client acquired (PID: 73883)
+::1 - - [09/Oct/2025:00:32:54 +0000] "POST /api/auth/login HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 73883)
+📦 Database client acquired (PID: 73883)
+📦 Database client acquired (PID: 73883)
+📦 Database client acquired (PID: 73908)
+API Error: {
+  message: 'Route not found: /api/rbac/permissions',
+  status: 404,
+  code: 'ROUTE_NOT_FOUND',
+  stack: undefined,
+  url: '/api/rbac/permissions',
+  method: 'GET',
+  ip: '::1',
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
+  tenantId: undefined,
+  userId: undefined,
+  timestamp: '2025-10-09T00:32:54.356Z'
+}
+::1 - - [09/Oct/2025:00:32:54 +0000] "GET /api/rbac/permissions HTTP/1.1" 404 270 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 73883)
+📦 Database client acquired (PID: 73908)
+📦 Database client acquired (PID: 73908)
+::1 - - [09/Oct/2025:00:32:54 +0000] "GET /api/auth/profile HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 73908)
+📦 Database client acquired (PID: 73908)
+🔗 New database connection established (PID: 74464)
+📦 Database client acquired (PID: 74464)
+📦 Database client acquired (PID: 73908)
+📦 Database client acquired (PID: 73908)
+📦 Database client acquired (PID: 74464)
+💰 WALLET BALANCE CALCULATION: User 19769e1e-b7c7-437a-b0c4-c242d82e8e3f | Wallet: 4925000 | Debited: 733200 | Real-time: 4191800 | Account: 0907934845
+::1 - - [09/Oct/2025:00:32:54 +0000] "GET /api/wallets/balance HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 74464)
+📦 Database client acquired (PID: 74464)
+📦 Database client acquired (PID: 74464)
+📦 Database client acquired (PID: 74464)
+::1 - - [09/Oct/2025:00:32:54 +0000] "GET /api/transfers/history?page=1&limit=5 HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 74464)
+📦 Database client acquired (PID: 74464)
+📦 Database client acquired (PID: 74464)
+📦 Database client acquired (PID: 74464)
+📥 Dispute submission request body: {
+  hasBody: true,
+  bodyKeys: [
+    'transactionId',
+    'transactionReference',
+    'transactionType',
+    'transactionDetails',
+    'disputeReason',
+    'disputeCategory',
+    'additionalNotes'
+  ],
+  transactionDetailsType: 'object'
+}
+📦 Database client acquired (PID: 74464)
+📦 Database client acquired (PID: 74464)
+❌ Database query error: {
+  query: 'SELECT tenant.generate_dispute_number($1, $2) as dispute_number',
+  params: 2,
+  error: 'function tenant.generate_dispute_number(unknown, unknown) does not exist'
+}
+❌ Error submitting dispute: error: function tenant.generate_dispute_number(unknown, unknown) does not exist
+    at /Users/bisiadedokun/bankapp/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async query (/Users/bisiadedokun/bankapp/server/config/database.ts:69:20)
+    at async /Users/bisiadedokun/bankapp/server/routes/disputes.ts:80:33 {
+  length: 240,
+  severity: 'ERROR',
+  code: '42883',
+  detail: undefined,
+  hint: 'No function matches the given name and argument types. You might need to add explicit type casts.',
+  position: '8',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_func.c',
+  line: '636',
+  routine: 'ParseFuncOrColumn'
+}
+::1 - - [09/Oct/2025:00:33:09 +0000] "POST /api/disputes HTTP/1.1" 500 121 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+🗑️ Database client removed (PID: 73883)
+🗑️ Database client removed (PID: 73908)
+🗑️ Database client removed (PID: 74464)
+🔗 New database connection established (PID: 75428)
+📦 Database client acquired (PID: 75428)
+🔗 New database connection established (PID: 75429)
+📦 Database client acquired (PID: 75429)
+📦 Database client acquired (PID: 75428)
+📦 Database client acquired (PID: 75429)
+📦 Database client acquired (PID: 75428)
+📦 Database client acquired (PID: 75429)
+📦 Database client acquired (PID: 75428)
+📦 Database client acquired (PID: 75429)
+📦 Database client acquired (PID: 75428)
+📦 Database client acquired (PID: 75429)
+📦 Database client acquired (PID: 75428)
+📦 Database client acquired (PID: 75429)
+::1 - - [09/Oct/2025:00:45:59 +0000] "GET /api/transfers/history?page=1&limit=50 HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 75429)
+💰 WALLET BALANCE CALCULATION: User 19769e1e-b7c7-437a-b0c4-c242d82e8e3f | Wallet: 4925000 | Debited: 733200 | Real-time: 4191800 | Account: 0907934845
+::1 - - [09/Oct/2025:00:45:59 +0000] "GET /api/wallets/balance HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 75429)
+::1 - - [09/Oct/2025:00:46:01 +0000] "GET /api/tenants/theme/fmfb HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 75429)
+🔐 Login attempt: { email: 'admin@fmfb.com', tenantId: 'fmfb', hasPassword: true }
+📦 Database client acquired (PID: 75429)
+🏢 Tenant lookup successful: {
+  originalTenant: 'fmfb',
+  resolvedTenantId: '7ea1fe0a-6f7d-4838-bcca-4dfdb61ffca3'
+}
+🔍 Looking for user: {
+  email: 'admin@fmfb.com',
+  tenantId: '7ea1fe0a-6f7d-4838-bcca-4dfdb61ffca3'
+}
+📦 Database client acquired (PID: 75429)
+👤 User query result: { found: 1, email: 'admin@fmfb.com' }
+🔑 Password verification: {
+  providedPassword: 'Admin-7-super',
+  hasStoredHash: true,
+  storedHashLength: 60
+}
+🔓 Password verification result: { isValidPassword: true }
+📦 Database client acquired (PID: 75429)
+::1 - - [09/Oct/2025:00:46:22 +0000] "POST /api/auth/login HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 75429)
+📦 Database client acquired (PID: 75429)
+📦 Database client acquired (PID: 75429)
+📦 Database client acquired (PID: 75429)
+📦 Database client acquired (PID: 75429)
+API Error: {
+  message: 'Route not found: /api/rbac/permissions',
+  status: 404,
+  code: 'ROUTE_NOT_FOUND',
+  stack: undefined,
+  url: '/api/rbac/permissions',
+  method: 'GET',
+  ip: '::1',
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
+  tenantId: undefined,
+  userId: undefined,
+  timestamp: '2025-10-09T00:46:22.572Z'
+}
+::1 - - [09/Oct/2025:00:46:22 +0000] "GET /api/rbac/permissions HTTP/1.1" 404 270 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 75428)
+::1 - - [09/Oct/2025:00:46:22 +0000] "GET /api/auth/profile HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 75429)
+📦 Database client acquired (PID: 75429)
+📦 Database client acquired (PID: 75428)
+📦 Database client acquired (PID: 75429)
+📦 Database client acquired (PID: 75428)
+📦 Database client acquired (PID: 75429)
+📦 Database client acquired (PID: 75428)
+📦 Database client acquired (PID: 75429)
+📦 Database client acquired (PID: 75428)
+::1 - - [09/Oct/2025:00:46:22 +0000] "GET /api/transfers/history?page=1&limit=5 HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 75428)
+📦 Database client acquired (PID: 75428)
+💰 WALLET BALANCE CALCULATION: User 19769e1e-b7c7-437a-b0c4-c242d82e8e3f | Wallet: 4925000 | Debited: 733200 | Real-time: 4191800 | Account: 0907934845
+::1 - - [09/Oct/2025:00:46:22 +0000] "GET /api/wallets/balance HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 75428)
+📦 Database client acquired (PID: 75428)
+📦 Database client acquired (PID: 75428)
+📦 Database client acquired (PID: 75428)
+📥 Dispute submission request body: {
+  hasBody: true,
+  bodyKeys: [
+    'transactionId',
+    'transactionReference',
+    'transactionType',
+    'transactionDetails',
+    'disputeReason',
+    'disputeCategory',
+    'additionalNotes'
+  ],
+  transactionDetailsType: 'object'
+}
+📦 Database client acquired (PID: 75428)
+📦 Database client acquired (PID: 75428)
+❌ Database query error: {
+  query: 'SELECT tenant.generate_dispute_number($1, $2) as dispute_number',
+  params: 2,
+  error: 'function tenant.generate_dispute_number(unknown, unknown) does not exist'
+}
+❌ Error submitting dispute: error: function tenant.generate_dispute_number(unknown, unknown) does not exist
+    at /Users/bisiadedokun/bankapp/node_modules/pg/lib/client.js:545:17
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async query (/Users/bisiadedokun/bankapp/server/config/database.ts:69:20)
+    at async /Users/bisiadedokun/bankapp/server/routes/disputes.ts:80:33 {
+  length: 240,
+  severity: 'ERROR',
+  code: '42883',
+  detail: undefined,
+  hint: 'No function matches the given name and argument types. You might need to add explicit type casts.',
+  position: '8',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_func.c',
+  line: '636',
+  routine: 'ParseFuncOrColumn'
+}
+::1 - - [09/Oct/2025:00:46:31 +0000] "POST /api/disputes HTTP/1.1" 500 121 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 75428)
+::1 - - [09/Oct/2025:02:00:00 +0000] "GET /api/tenants/theme/fmfb HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 75428)
+🔐 Login attempt: { email: 'admin@fmfb.com', tenantId: 'fmfb', hasPassword: true }
+📦 Database client acquired (PID: 75428)
+🏢 Tenant lookup successful: {
+  originalTenant: 'fmfb',
+  resolvedTenantId: '7ea1fe0a-6f7d-4838-bcca-4dfdb61ffca3'
+}
+🔍 Looking for user: {
+  email: 'admin@fmfb.com',
+  tenantId: '7ea1fe0a-6f7d-4838-bcca-4dfdb61ffca3'
+}
+📦 Database client acquired (PID: 75428)
+👤 User query result: { found: 1, email: 'admin@fmfb.com' }
+🔑 Password verification: {
+  providedPassword: 'Admin-7-super',
+  hasStoredHash: true,
+  storedHashLength: 60
+}
+🔓 Password verification result: { isValidPassword: true }
+📦 Database client acquired (PID: 75428)
+::1 - - [09/Oct/2025:02:00:16 +0000] "POST /api/auth/login HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 75428)
+📦 Database client acquired (PID: 75428)
+📦 Database client acquired (PID: 75428)
+📦 Database client acquired (PID: 75428)
+📦 Database client acquired (PID: 75429)
+API Error: {
+  message: 'Route not found: /api/rbac/permissions',
+  status: 404,
+  code: 'ROUTE_NOT_FOUND',
+  stack: undefined,
+  url: '/api/rbac/permissions',
+  method: 'GET',
+  ip: '::1',
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
+  tenantId: undefined,
+  userId: undefined,
+  timestamp: '2025-10-09T02:00:16.421Z'
+}
+::1 - - [09/Oct/2025:02:00:16 +0000] "GET /api/rbac/permissions HTTP/1.1" 404 270 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 75429)
+::1 - - [09/Oct/2025:02:00:16 +0000] "GET /api/auth/profile HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 75429)
+📦 Database client acquired (PID: 75429)
+🔗 New database connection established (PID: 86766)
+📦 Database client acquired (PID: 86766)
+📦 Database client acquired (PID: 75429)
+📦 Database client acquired (PID: 75429)
+::1 - - [09/Oct/2025:02:00:16 +0000] "GET /api/transfers/history?page=1&limit=5 HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 86766)
+📦 Database client acquired (PID: 86766)
+📦 Database client acquired (PID: 86766)
+📦 Database client acquired (PID: 86766)
+📦 Database client acquired (PID: 86766)
+📦 Database client acquired (PID: 86766)
+💰 WALLET BALANCE CALCULATION: User 19769e1e-b7c7-437a-b0c4-c242d82e8e3f | Wallet: 4925000 | Debited: 733200 | Real-time: 4191800 | Account: 0907934845
+::1 - - [09/Oct/2025:02:00:16 +0000] "GET /api/wallets/balance HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+API Error: {
+  message: 'Route not found: /api/rbac/permissions',
+  status: 404,
+  code: 'ROUTE_NOT_FOUND',
+  stack: undefined,
+  url: '/api/rbac/permissions',
+  method: 'GET',
+  ip: '::1',
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
+  tenantId: undefined,
+  userId: undefined,
+  timestamp: '2025-10-09T02:00:21.584Z'
+}
+::1 - - [09/Oct/2025:02:00:21 +0000] "GET /api/rbac/permissions HTTP/1.1" 404 270 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 86766)
+📦 Database client acquired (PID: 86766)
+📦 Database client acquired (PID: 75429)
+📦 Database client acquired (PID: 86766)
+📦 Database client acquired (PID: 86766)
+📦 Database client acquired (PID: 75429)
+📦 Database client acquired (PID: 75429)
 🏛️ NIBSS Get Bank List
-::1 - - [08/Oct/2025:16:38:23 +0000] "GET /api/transfers/banks HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 24098)
-🔗 New database connection established (PID: 25327)
-📦 Database client acquired (PID: 25327)
-📦 Database client acquired (PID: 24098)
-💰 WALLET BALANCE CALCULATION: User 19769e1e-b7c7-437a-b0c4-c242d82e8e3f | Wallet: 4990000 | Debited: 668050 | Real-time: 4321950 | Account: 0907934845
-::1 - - [08/Oct/2025:16:38:23 +0000] "GET /api/wallets/balance HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 25327)
-📦 Database client acquired (PID: 25327)
-📦 Database client acquired (PID: 25327)
-::1 - - [08/Oct/2025:16:38:23 +0000] "GET /api/auth/profile HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 25327)
-📦 Database client acquired (PID: 25327)
-📦 Database client acquired (PID: 25327)
-📦 Database client acquired (PID: 25327)
-✅ Account validation (TEST MODE): 1234567890 → Test Account 7890
-::1 - - [08/Oct/2025:16:38:28 +0000] "POST /api/transfers/validate-recipient HTTP/1.1" 200 145 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-🗑️ Database client removed (PID: 24099)
-🗑️ Database client removed (PID: 24098)
-🗑️ Database client removed (PID: 25327)
-🔗 New database connection established (PID: 25358)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25358)
-=== TRANSFER INITIATE REQUEST ===
-Body: {
-  "recipientAccountNumber": "1234567890",
-  "recipientBankCode": "51333",
-  "recipientName": "Test Account 7890",
-  "amount": 5000,
-  "description": "Money to Jane Smith",
-  "pin": "2348"
-}
-=== TRANSFER DEBUG: Starting transfer process ===
-User ID: 19769e1e-b7c7-437a-b0c4-c242d82e8e3f
-Tenant ID: 7ea1fe0a-6f7d-4838-bcca-4dfdb61ffca3
-Amount: 5000
-PIN provided: YES
-Starting fraud detection analysis...
-About to call fraudDetectionService.analyzeTransaction...
+::1 - - [09/Oct/2025:02:00:25 +0000] "GET /api/transfers/banks HTTP/1.1" 200 802 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 75429)
+📦 Database client acquired (PID: 86766)
+📦 Database client acquired (PID: 75429)
+📦 Database client acquired (PID: 86766)
+📦 Database client acquired (PID: 75429)
+📦 Database client acquired (PID: 86766)
+📦 Database client acquired (PID: 75429)
+📦 Database client acquired (PID: 86766)
+💰 WALLET BALANCE CALCULATION: User 19769e1e-b7c7-437a-b0c4-c242d82e8e3f | Wallet: 4925000 | Debited: 733200 | Real-time: 4191800 | Account: 0907934845
+::1 - - [09/Oct/2025:02:00:25 +0000] "GET /api/wallets/balance HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+🏛️ NIBSS Get Bank List
+::1 - - [09/Oct/2025:02:00:25 +0000] "GET /api/transfers/banks HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 86766)
+📦 Database client acquired (PID: 86766)
+📦 Database client acquired (PID: 86766)
+📦 Database client acquired (PID: 86766)
+✅ Account validation (TEST MODE): 0987654321 → Test Account 4321
+::1 - - [09/Oct/2025:02:00:37 +0000] "POST /api/transfers/validate-recipient HTTP/1.1" 200 143 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+🗑️ Database client removed (PID: 75428)
+🗑️ Database client removed (PID: 75429)
+🗑️ Database client removed (PID: 86766)
+🔗 New database connection established (PID: 86817)
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 86817)
 Nigerian fraud detection model loaded successfully
 AI Fraud Detection Service initialized successfully
 Network analysis completed in 1ms
-Fraud analysis completed: Score=0.38, Decision=approve, Time=6ms
-Fraud analysis successful: {
-  riskScore: 0.38,
-  riskLevel: 'medium',
-  decision: 'approve',
-  confidence: 0.33,
-  flags: [ 'ml_high_risk', 'ml_critical_risk' ],
-  recommendations: [
-    'Transaction appears legitimate - proceed with standard processing'
-  ],
-  processingTime: 6,
-  sessionId: 'fraud_1759941548286_1jre3hvld'
-}
-Fraud analysis completed in 8ms - Risk: 0.38, Decision: approve
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25358)
-✅ Balance check passed: Transfer amount 5000 (current balance: 4990000)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25358)
-🌍 EXTERNAL TRANSFER: 1234567890 is not an internal user
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25358)
-💰 DEBIT: Removed ₦5000 from sender wallet df6759b9-079c-45c2-9a26-208f5fc8fbfb
+Fraud analysis completed: Score=0.12, Decision=approve, Time=8ms
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 86817)
 🏦 NIBSS Transfer Request: {
   amount: 5000,
   sourceAccountNumber: '0907934845',
   sourceBankCode: '51333',
-  destinationAccountNumber: '1234567890',
-  destinationBankCode: '51333',
-  narration: 'Money to Jane Smith',
-  reference: '5133301K72B1PAXHJ46DE6509',
-  beneficiaryName: 'Test Account 7890'
+  destinationAccountNumber: '0987654321',
+  destinationBankCode: '014',
+  narration: 'Sending money to Dotun',
+  reference: '5133301K73B73VXJJDC118C67',
+  beneficiaryName: 'Test Account 4321'
 }
-📦 Database client acquired (PID: 25358)
-Transfer completed successfully: a1b93c50-cf99-414e-ba9b-63a0df599af6 - Transfer completed successfully
-📦 Database client acquired (PID: 25358)
-::1 - - [08/Oct/2025:16:39:08 +0000] "POST /api/transfers/initiate HTTP/1.1" 200 532 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 25358)
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 86817)
+::1 - - [09/Oct/2025:02:01:20 +0000] "POST /api/transfers/initiate HTTP/1.1" 200 484 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 86817)
 API Error: {
   message: 'Route not found: /api/rbac/permissions',
   status: 404,
@@ -442,25 +655,43 @@ API Error: {
   userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
   tenantId: undefined,
   userId: undefined,
-  timestamp: '2025-10-08T16:43:32.995Z'
+  timestamp: '2025-10-09T02:21:05.859Z'
 }
-::1 - - [08/Oct/2025:16:43:32 +0000] "GET /api/rbac/permissions HTTP/1.1" 404 270 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25358)
-🔗 New database connection established (PID: 25550)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-💰 WALLET BALANCE CALCULATION: User 19769e1e-b7c7-437a-b0c4-c242d82e8e3f | Wallet: 4985000 | Debited: 673100 | Real-time: 4311900 | Account: 0907934845
-::1 - - [08/Oct/2025:16:43:33 +0000] "GET /api/wallets/balance HTTP/1.1" 200 421 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25550)
-::1 - - [08/Oct/2025:16:43:33 +0000] "GET /api/transfers/history?page=1&limit=5 HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+::1 - - [09/Oct/2025:02:21:05 +0000] "GET /api/rbac/permissions HTTP/1.1" 404 270 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 86817)
+🔗 New database connection established (PID: 88716)
+📦 Database client acquired (PID: 88716)
+📦 Database client acquired (PID: 86817)
+💰 WALLET BALANCE CALCULATION: User 19769e1e-b7c7-437a-b0c4-c242d82e8e3f | Wallet: 4920000 | Debited: 738250 | Real-time: 4181750 | Account: 0907934845
+::1 - - [09/Oct/2025:02:21:05 +0000] "GET /api/wallets/balance HTTP/1.1" 200 418 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 88716)
+📦 Database client acquired (PID: 88716)
+📦 Database client acquired (PID: 88716)
+📦 Database client acquired (PID: 88716)
+📦 Database client acquired (PID: 88716)
+::1 - - [09/Oct/2025:02:21:05 +0000] "GET /api/transfers/history?page=1&limit=5 HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 88716)
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 88716)
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 88716)
+📦 Database client acquired (PID: 88716)
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 88716)
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 88716)
+📦 Database client acquired (PID: 86817)
+💰 WALLET BALANCE CALCULATION: User 19769e1e-b7c7-437a-b0c4-c242d82e8e3f | Wallet: 4920000 | Debited: 738250 | Real-time: 4181750 | Account: 0907934845
+::1 - - [09/Oct/2025:02:21:32 +0000] "GET /api/wallets/balance HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+::1 - - [09/Oct/2025:02:21:32 +0000] "GET /api/transfers/history?page=1&limit=50 HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 88716)
 API Error: {
   message: 'Route not found: /api/rbac/permissions',
   status: 404,
@@ -472,247 +703,26 @@ API Error: {
   userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
   tenantId: undefined,
   userId: undefined,
-  timestamp: '2025-10-08T16:43:36.338Z'
+  timestamp: '2025-10-09T16:26:54.606Z'
 }
-::1 - - [08/Oct/2025:16:43:36 +0000] "GET /api/rbac/permissions HTTP/1.1" 404 270 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-🏛️ NIBSS Get Bank List
-::1 - - [08/Oct/2025:16:43:38 +0000] "GET /api/transfers/banks HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25550)
-💰 WALLET BALANCE CALCULATION: User 19769e1e-b7c7-437a-b0c4-c242d82e8e3f | Wallet: 4985000 | Debited: 673100 | Real-time: 4311900 | Account: 0907934845
-::1 - - [08/Oct/2025:16:43:38 +0000] "GET /api/wallets/balance HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25550)
-🏛️ NIBSS Get Bank List
-::1 - - [08/Oct/2025:16:43:38 +0000] "GET /api/transfers/banks HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25550)
-✅ Account validation (TEST MODE): 0123456789 → Test Account 6789
-::1 - - [08/Oct/2025:16:44:01 +0000] "POST /api/transfers/validate-recipient HTTP/1.1" 200 143 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25550)
-=== TRANSFER INITIATE REQUEST ===
-Body: {
-  "recipientAccountNumber": "0123456789",
-  "recipientBankCode": "023",
-  "recipientName": "Test Account 6789",
-  "amount": 50000,
-  "description": "Money to John Smith",
-  "pin": "2348"
-}
-=== TRANSFER DEBUG: Starting transfer process ===
-User ID: 19769e1e-b7c7-437a-b0c4-c242d82e8e3f
-Tenant ID: 7ea1fe0a-6f7d-4838-bcca-4dfdb61ffca3
-Amount: 50000
-PIN provided: YES
-Starting fraud detection analysis...
-About to call fraudDetectionService.analyzeTransaction...
-Network analysis completed in 0ms
-Fraud analysis completed: Score=0.38, Decision=approve, Time=1ms
-Fraud analysis successful: {
-  riskScore: 0.38,
-  riskLevel: 'medium',
-  decision: 'approve',
-  confidence: 0.33,
-  flags: [ 'ml_high_risk', 'ml_critical_risk' ],
-  recommendations: [
-    'Transaction appears legitimate - proceed with standard processing'
-  ],
-  processingTime: 1,
-  sessionId: 'fraud_1759941915530_w79i9tthw'
-}
-Fraud analysis completed in 1ms - Risk: 0.38, Decision: approve
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25550)
-✅ Balance check passed: Transfer amount 50000 (current balance: 4985000)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25550)
-🌍 EXTERNAL TRANSFER: 0123456789 is not an internal user
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25550)
-💰 DEBIT: Removed ₦50000 from sender wallet df6759b9-079c-45c2-9a26-208f5fc8fbfb
-🏦 NIBSS Transfer Request: {
-  amount: 50000,
-  sourceAccountNumber: '0907934845',
-  sourceBankCode: '51333',
-  destinationAccountNumber: '0123456789',
-  destinationBankCode: '023',
-  narration: 'Money to John Smith',
-  reference: '5133301K72BCWZATS9F892E72',
-  beneficiaryName: 'Test Account 6789'
-}
-📦 Database client acquired (PID: 25550)
-Transfer completed successfully: 4e729de3-0a8f-46d3-b8ed-df733bd725a5 - Transfer completed successfully
-📦 Database client acquired (PID: 25550)
-::1 - - [08/Oct/2025:16:45:15 +0000] "POST /api/transfers/initiate HTTP/1.1" 200 531 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25550)
-🏛️ NIBSS Get Bank List
-::1 - - [08/Oct/2025:16:45:26 +0000] "GET /api/transfers/banks HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-API Error: {
-  message: 'Route not found: /api/rbac/permissions',
-  status: 404,
-  code: 'ROUTE_NOT_FOUND',
-  stack: undefined,
-  url: '/api/rbac/permissions',
-  method: 'GET',
-  ip: '::1',
-  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
-  tenantId: undefined,
-  userId: undefined,
-  timestamp: '2025-10-08T16:45:33.081Z'
-}
-::1 - - [08/Oct/2025:16:45:33 +0000] "GET /api/rbac/permissions HTTP/1.1" 404 270 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-API Error: {
-  message: 'Route not found: /api/rbac/permissions',
-  status: 404,
-  code: 'ROUTE_NOT_FOUND',
-  stack: undefined,
-  url: '/api/rbac/permissions',
-  method: 'GET',
-  ip: '::1',
-  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
-  tenantId: undefined,
-  userId: undefined,
-  timestamp: '2025-10-08T16:45:39.282Z'
-}
-::1 - - [08/Oct/2025:16:45:39 +0000] "GET /api/rbac/permissions HTTP/1.1" 404 270 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25550)
-💰 WALLET BALANCE CALCULATION: User 19769e1e-b7c7-437a-b0c4-c242d82e8e3f | Wallet: 4935000 | Debited: 723150 | Real-time: 4211850 | Account: 0907934845
-::1 - - [08/Oct/2025:16:45:39 +0000] "GET /api/wallets/balance HTTP/1.1" 200 421 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 25358)
-::1 - - [08/Oct/2025:16:45:39 +0000] "GET /api/transfers/history?page=1&limit=5 HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 25358)
-::1 - - [08/Oct/2025:16:48:32 +0000] "GET /api/tenants/theme/fmfb HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 25358)
-🔐 Login attempt: { email: 'admin@fmfb.com', tenantId: 'fmfb', hasPassword: true }
-📦 Database client acquired (PID: 25358)
-🏢 Tenant lookup successful: {
-  originalTenant: 'fmfb',
-  resolvedTenantId: '7ea1fe0a-6f7d-4838-bcca-4dfdb61ffca3'
-}
-🔍 Looking for user: {
-  email: 'admin@fmfb.com',
-  tenantId: '7ea1fe0a-6f7d-4838-bcca-4dfdb61ffca3'
-}
-📦 Database client acquired (PID: 25358)
-👤 User query result: { found: 1, email: 'admin@fmfb.com' }
-🔑 Password verification: {
-  providedPassword: 'Admin-7-super',
-  hasStoredHash: true,
-  storedHashLength: 60
-}
-🔓 Password verification result: { isValidPassword: true }
-📦 Database client acquired (PID: 25358)
-::1 - - [08/Oct/2025:16:49:56 +0000] "POST /api/auth/login HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25358)
-::1 - - [08/Oct/2025:16:49:56 +0000] "GET /api/auth/profile HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25550)
-API Error: {
-  message: 'Route not found: /api/rbac/permissions',
-  status: 404,
-  code: 'ROUTE_NOT_FOUND',
-  stack: undefined,
-  url: '/api/rbac/permissions',
-  method: 'GET',
-  ip: '::1',
-  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
-  tenantId: undefined,
-  userId: undefined,
-  timestamp: '2025-10-08T16:49:56.348Z'
-}
-::1 - - [08/Oct/2025:16:49:56 +0000] "GET /api/rbac/permissions HTTP/1.1" 404 270 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25550)
-💰 WALLET BALANCE CALCULATION: User 19769e1e-b7c7-437a-b0c4-c242d82e8e3f | Wallet: 4935000 | Debited: 723150 | Real-time: 4211850 | Account: 0907934845
-::1 - - [08/Oct/2025:16:49:56 +0000] "GET /api/wallets/balance HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-::1 - - [08/Oct/2025:16:49:56 +0000] "GET /api/transfers/history?page=1&limit=5 HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25358)
-💰 WALLET BALANCE CALCULATION: User 19769e1e-b7c7-437a-b0c4-c242d82e8e3f | Wallet: 4935000 | Debited: 723150 | Real-time: 4211850 | Account: 0907934845
-::1 - - [08/Oct/2025:16:50:13 +0000] "GET /api/wallets/balance HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25550)
-::1 - - [08/Oct/2025:16:50:13 +0000] "GET /api/transfers/history?page=1&limit=50 HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25358)
-💰 WALLET BALANCE CALCULATION: User 19769e1e-b7c7-437a-b0c4-c242d82e8e3f | Wallet: 4935000 | Debited: 723150 | Real-time: 4211850 | Account: 0907934845
-::1 - - [08/Oct/2025:16:50:25 +0000] "GET /api/wallets/balance HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-::1 - - [08/Oct/2025:16:50:25 +0000] "GET /api/transfers/history?page=1&limit=50 HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25358)
-📦 Database client acquired (PID: 25550)
-📦 Database client acquired (PID: 25550)
-💰 WALLET BALANCE CALCULATION: User 19769e1e-b7c7-437a-b0c4-c242d82e8e3f | Wallet: 4935000 | Debited: 723150 | Real-time: 4211850 | Account: 0907934845
-::1 - - [08/Oct/2025:16:50:34 +0000] "GET /api/wallets/balance HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-📦 Database client acquired (PID: 25358)
-::1 - - [08/Oct/2025:16:50:34 +0000] "GET /api/transfers/history?page=1&limit=50 HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+::1 - - [09/Oct/2025:16:26:54 +0000] "GET /api/rbac/permissions HTTP/1.1" 404 270 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 88716)
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 88716)
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 88716)
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 88716)
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 88716)
+📦 Database client acquired (PID: 86817)
+::1 - - [09/Oct/2025:16:26:54 +0000] "GET /api/transfers/history?page=1&limit=5 HTTP/1.1" 200 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 86817)
+💰 WALLET BALANCE CALCULATION: User 19769e1e-b7c7-437a-b0c4-c242d82e8e3f | Wallet: 4920000 | Debited: 738250 | Real-time: 4181750 | Account: 0907934845
+::1 - - [09/Oct/2025:16:26:54 +0000] "GET /api/wallets/balance HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 86817)
+📦 Database client acquired (PID: 86817)
+::1 - - [09/Oct/2025:16:27:02 +0000] "POST /api/auth/logout HTTP/1.1" 200 52 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+🛑 Received SIGTERM. Shutting down gracefully...

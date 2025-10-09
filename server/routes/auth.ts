@@ -697,11 +697,13 @@ router.post('/kyc/submit', authenticateToken, validateTenantAccess, [
 
   const { documentType, documentNumber, documentImage, selfieImage } = req.body;
   const userId = req.user.id;
+  const tenantId = req.user.tenantId;
 
   try {
     const { userService } = await import('../services/users');
-    
+
     const kycResult = await userService.submitKYCDocuments({
+      tenantId,
       userId,
       documentType,
       documentNumber,
@@ -722,83 +724,6 @@ router.post('/kyc/submit', authenticateToken, validateTenantAccess, [
   } catch (error) {
     console.error('KYC submission error:', error);
     throw errors.internalError('KYC submission failed');
-  }
-}));
-
-/**
- * GET /api/auth/profile
- * Get complete user profile
- */
-router.get('/profile', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
-  try {
-    const { userService } = await import('../services/users');
-    
-    const profile = await userService.getUserProfile(req.user.id);
-
-    if (!profile) {
-      return res.status(404).json({
-        success: false,
-        error: 'Profile not found',
-        code: 'PROFILE_NOT_FOUND'
-      });
-    }
-
-    res.json({
-      success: true,
-      data: { user: profile }
-    });
-
-  } catch (error) {
-    console.error('Get profile error:', error);
-    throw errors.internalError('Failed to fetch profile');
-  }
-}));
-
-/**
- * PUT /api/auth/profile
- * Update user profile information
- */
-router.put('/profile', authenticateToken, validateTenantAccess, [
-  body('firstName').optional().isLength({ min: 2, max: 50 }).withMessage('First name must be 2-50 characters'),
-  body('lastName').optional().isLength({ min: 2, max: 50 }).withMessage('Last name must be 2-50 characters'),
-  body('phone').optional().isMobilePhone('any').withMessage('Valid phone number required'),
-  body('address.street').optional().isLength({ min: 5, max: 100 }).withMessage('Street address must be 5-100 characters'),
-  body('address.city').optional().isLength({ min: 2, max: 50 }).withMessage('City must be 2-50 characters'),
-  body('address.state').optional().isLength({ min: 2, max: 50 }).withMessage('State must be 2-50 characters'),
-  body('address.country').optional().isLength({ min: 2, max: 50 }).withMessage('Country must be 2-50 characters'),
-], asyncHandler(async (req, res) => {
-  const validationErrors = validationResult(req);
-  if (!validationErrors.isEmpty()) {
-    return res.status(400).json({
-      success: false,
-      error: 'Validation failed',
-      code: 'VALIDATION_ERROR',
-      details: validationErrors.array()
-    });
-  }
-
-  const { firstName, lastName, phone, address, profileImage } = req.body;
-  const userId = req.user.id;
-
-  try {
-    const { userService } = await import('../services/users');
-    
-    const updateResult = await userService.updateUserProfile(userId, {
-      firstName,
-      lastName,
-      phone,
-      address,
-      profileImage
-    });
-
-    res.json({
-      success: updateResult.success,
-      message: updateResult.message
-    });
-
-  } catch (error) {
-    console.error('Profile update error:', error);
-    throw errors.internalError('Profile update failed');
   }
 }));
 
