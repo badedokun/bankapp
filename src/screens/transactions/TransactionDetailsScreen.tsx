@@ -23,8 +23,6 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Platform,
-  TextInput,
-  Modal,
 } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useTenant, useTenantTheme } from '../../tenants/TenantContext';
@@ -37,6 +35,7 @@ import { ReceiptGenerator } from '../../utils/receiptGenerator';
 // World-Class UI Components
 import GlassCard from '../../components/ui/GlassCard';
 import LinearGradient from '../../components/common/LinearGradient';
+import ShareReceiptModal from '../../components/common/ShareReceiptModal';
 import {
   TitleMedium,
   TitleSmall,
@@ -104,8 +103,6 @@ export default function TransactionDetailsScreen({
   const [loading, setLoading] = useState(true);
   const [downloadingReceipt, setDownloadingReceipt] = useState(false);
   const [shareModalVisible, setShareModalVisible] = useState(false);
-  const [shareMethod, setShareMethod] = useState<'email' | 'phone'>('email');
-  const [shareInput, setShareInput] = useState('');
 
   const transactionId = propTransactionId || route?.params?.transactionId;
   const initialTransaction = propTransaction || route?.params?.transaction;
@@ -199,41 +196,16 @@ export default function TransactionDetailsScreen({
     setShareModalVisible(true);
   };
 
-  const handleShareSubmit = () => {
-    if (!shareInput.trim()) {
-      showAlert('Error', `Please enter a valid ${shareMethod === 'email' ? 'email address' : 'phone number'}`);
-      return;
-    }
-
-    // Validate email or phone
-    if (shareMethod === 'email') {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(shareInput)) {
-        showAlert('Error', 'Please enter a valid email address');
-        return;
-      }
-    } else {
-      const phoneRegex = /^[0-9]{10,15}$/;
-      if (!phoneRegex.test(shareInput.replace(/[\s\-\(\)]/g, ''))) {
-        showAlert('Error', 'Please enter a valid phone number');
-        return;
-      }
-    }
-
-    triggerHaptic('notificationSuccess');
+  const handleShareSubmit = (method: 'email' | 'phone', value: string) => {
     setShareModalVisible(false);
-    setShareInput('');
-
     showAlert(
       'Receipt Shared',
-      `Transaction receipt has been sent to ${shareInput}. They should receive it within a few minutes.`
+      `Transaction receipt has been sent to ${value}. They should receive it within a few minutes.`
     );
   };
 
   const handleCloseShareModal = () => {
-    triggerHaptic('selection');
     setShareModalVisible(false);
-    setShareInput('');
   };
 
   const handleDispute = async () => {
@@ -273,8 +245,6 @@ export default function TransactionDetailsScreen({
             disputeCategory: 'other', // Default category, can be enhanced with a modal to let user select
             additionalNotes: `Dispute submitted from transaction details screen on ${new Date().toISOString()}`
           });
-
-          console.log('✅ Dispute submitted successfully:', disputeResponse);
 
           triggerHaptic('notificationSuccess');
           showAlert(
@@ -551,72 +521,6 @@ export default function TransactionDetailsScreen({
       backgroundColor: 'transparent',
       borderWidth: 2,
       borderColor: theme.colors.primary,
-    },
-    // Share Modal Styles
-    modalOverlay: {
-      flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: theme.spacing.lg,
-    },
-    modalContent: {
-      width: '100%',
-      maxWidth: 400,
-    },
-    modalHeader: {
-      marginBottom: theme.spacing.lg,
-    },
-    methodToggle: {
-      flexDirection: 'row',
-      gap: theme.spacing.sm,
-      marginBottom: theme.spacing.lg,
-    },
-    methodButton: {
-      flex: 1,
-      paddingVertical: theme.spacing.sm,
-      paddingHorizontal: theme.spacing.md,
-      borderRadius: theme.borderRadius.md,
-      borderWidth: 2,
-      borderColor: theme.colors.border,
-      alignItems: 'center',
-    },
-    methodButtonActive: {
-      backgroundColor: theme.colors.primary + '20',
-      borderColor: theme.colors.primary,
-    },
-    input: {
-      backgroundColor: theme.colors.surface,
-      borderWidth: 2,
-      borderColor: theme.colors.border,
-      borderRadius: theme.borderRadius.md,
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.md,
-      fontSize: 16,
-      color: theme.colors.text,
-      marginBottom: theme.spacing.lg,
-    },
-    inputFocused: {
-      borderColor: theme.colors.primary,
-    },
-    modalActions: {
-      flexDirection: 'row',
-      gap: theme.spacing.sm,
-    },
-    modalButton: {
-      flex: 1,
-      paddingVertical: theme.spacing.md,
-      borderRadius: theme.borderRadius.md,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    modalButtonPrimary: {
-      backgroundColor: theme.colors.primary,
-    },
-    modalButtonSecondary: {
-      backgroundColor: 'transparent',
-      borderWidth: 2,
-      borderColor: theme.colors.border,
     },
   });
 
@@ -926,100 +830,11 @@ export default function TransactionDetailsScreen({
         </Animated.View>
 
         {/* Share Receipt Modal */}
-        <Modal
+        <ShareReceiptModal
           visible={shareModalVisible}
-          transparent
-          animationType="fade"
-          onRequestClose={handleCloseShareModal}
-        >
-          <TouchableOpacity
-            style={styles.modalOverlay}
-            activeOpacity={1}
-            onPress={handleCloseShareModal}
-          >
-            <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
-              <Animated.View entering={FadeInDown.springify()}>
-                <GlassCard blur="strong" shadow="large" padding="lg" style={styles.modalContent}>
-                  <View style={styles.modalHeader}>
-                    <TitleMedium color={theme.colors.text}>Share Receipt</TitleMedium>
-                    <BodySmall color={theme.colors.textSecondary} style={{ marginTop: theme.spacing.xs }}>
-                      Choose how you want to share this transaction receipt
-                    </BodySmall>
-                  </View>
-
-                  {/* Method Toggle */}
-                  <View style={styles.methodToggle}>
-                    <TouchableOpacity
-                      style={[
-                        styles.methodButton,
-                        shareMethod === 'email' && styles.methodButtonActive
-                      ]}
-                      onPress={() => {
-                        triggerHaptic('selection');
-                        setShareMethod('email');
-                        setShareInput('');
-                      }}
-                    >
-                      <LabelMedium
-                        color={shareMethod === 'email' ? theme.colors.primary : theme.colors.textSecondary}
-                      >
-                        📧 Email
-                      </LabelMedium>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={[
-                        styles.methodButton,
-                        shareMethod === 'phone' && styles.methodButtonActive
-                      ]}
-                      onPress={() => {
-                        triggerHaptic('selection');
-                        setShareMethod('phone');
-                        setShareInput('');
-                      }}
-                    >
-                      <LabelMedium
-                        color={shareMethod === 'phone' ? theme.colors.primary : theme.colors.textSecondary}
-                      >
-                        📱 Phone
-                      </LabelMedium>
-                    </TouchableOpacity>
-                  </View>
-
-                  {/* Input Field */}
-                  <TextInput
-                    style={styles.input}
-                    placeholder={shareMethod === 'email' ? 'Enter email address' : 'Enter phone number'}
-                    placeholderTextColor={theme.colors.textLight}
-                    value={shareInput}
-                    onChangeText={setShareInput}
-                    keyboardType={shareMethod === 'email' ? 'email-address' : 'phone-pad'}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    autoFocus
-                  />
-
-                  {/* Action Buttons */}
-                  <View style={styles.modalActions}>
-                    <TouchableOpacity
-                      style={[styles.modalButton, styles.modalButtonSecondary]}
-                      onPress={handleCloseShareModal}
-                    >
-                      <BodyMedium color={theme.colors.textSecondary}>Cancel</BodyMedium>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={[styles.modalButton, styles.modalButtonPrimary]}
-                      onPress={handleShareSubmit}
-                    >
-                      <BodyMedium color={theme.colors.textInverse}>Send Receipt</BodyMedium>
-                    </TouchableOpacity>
-                  </View>
-                </GlassCard>
-              </Animated.View>
-            </TouchableOpacity>
-          </TouchableOpacity>
-        </Modal>
+          onClose={handleCloseShareModal}
+          onSubmit={handleShareSubmit}
+        />
       </SafeAreaView>
     </LinearGradient>
   );

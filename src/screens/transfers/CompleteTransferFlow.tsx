@@ -19,6 +19,7 @@ import {
   Dimensions,
   Platform,
   ActivityIndicator,
+  Modal,
 } from 'react-native';
 import LinearGradient from '../../components/common/LinearGradient';
 import { useTenantTheme } from '../../context/TenantThemeContext';
@@ -29,6 +30,52 @@ import { formatCurrency as formatCurrencyUtil, getCurrencySymbol, getCurrencyNam
 import { ReceiptGenerator } from '../../utils/receiptGenerator';
 
 const { width: screenWidth } = Dimensions.get('window');
+
+/**
+ * Get phone validation rules based on tenant locale
+ * Supports international phone number formats
+ */
+const getPhoneValidation = (locale: string = 'en-NG') => {
+  const validationRules: Record<string, { regex: RegExp; format: string; example: string }> = {
+    'en-NG': {
+      regex: /^0[789][01]\d{8}$/,
+      format: '11 digits starting with 070, 080, 081, 090, or 091',
+      example: '08012345678'
+    },
+    'en-US': {
+      regex: /^[2-9]\d{9}$/,
+      format: '10 digits',
+      example: '5551234567'
+    },
+    'en-GB': {
+      regex: /^(?:0[17]\d{8,9}|0[23]\d{9})$/,
+      format: '10-11 digits starting with 0',
+      example: '07700900123'
+    },
+    'en-KE': {
+      regex: /^(?:0[17]\d{8}|254[17]\d{8})$/,
+      format: '10 digits starting with 0 or 254',
+      example: '0712345678'
+    },
+    'en-GH': {
+      regex: /^0[235]\d{8}$/,
+      format: '10 digits starting with 02, 03, or 05',
+      example: '0201234567'
+    },
+    'en-ZA': {
+      regex: /^0[1-8]\d{8}$/,
+      format: '10 digits starting with 0',
+      example: '0821234567'
+    },
+    'default': {
+      regex: /^[0-9]{10,15}$/,
+      format: '10-15 digits',
+      example: '1234567890'
+    }
+  };
+
+  return validationRules[locale] || validationRules['default'];
+};
 
 interface CompleteTransferFlowProps {
   navigation?: any;
@@ -78,6 +125,12 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [isValidatingAccount, setIsValidatingAccount] = useState(false);
   const [transactionReference, setTransactionReference] = useState('');
+
+  // Share Receipt Modal State
+  const [shareModalVisible, setShareModalVisible] = useState(false);
+  const [shareMethod, setShareMethod] = useState<'email' | 'phone'>('email');
+  const [shareInput, setShareInput] = useState('');
+  const [shareError, setShareError] = useState('');
 
   const [transferData, setTransferData] = useState<TransferData>({
     bank: '',
@@ -400,10 +453,70 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
     }
   };
 
-  const handleShareReceipt = async () => {
+  const handleShareReceipt = () => {
+    setShareModalVisible(true);
+    setShareError('');
+    setShareInput('');
+  };
+
+  const handleCloseShareModal = () => {
+    setShareModalVisible(false);
+    setShareInput('');
+    setShareError('');
+  };
+
+  const handleInputChange = (text: string) => {
+    setShareInput(text);
+
+    // Clear error when user starts typing
+    if (shareError) {
+      setShareError('');
+    }
+
+    // Instant validation
+    if (text.trim()) {
+      if (shareMethod === 'email') {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(text)) {
+          setShareError('Invalid email format');
+        }
+      } else {
+        // Locale-aware phone validation
+        const phoneValidation = getPhoneValidation(theme.locale);
+        const cleanedPhone = text.replace(/[\s\-\(\)]/g, '');
+        if (!phoneValidation.regex.test(cleanedPhone)) {
+          setShareError(`Invalid phone number. Expected format: ${phoneValidation.format} (e.g., ${phoneValidation.example})`);
+        }
+      }
+    }
+  };
+
+  const handleShareSubmit = async () => {
+    if (!shareInput.trim()) {
+      setShareError(`Please enter a valid ${shareMethod === 'email' ? 'email address' : 'phone number'}`);
+      return;
+    }
+
+    // Final validation
+    if (shareMethod === 'email') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(shareInput)) {
+        setShareError('Please enter a valid email address');
+        return;
+      }
+    } else {
+      // Locale-aware phone validation
+      const phoneValidation = getPhoneValidation(theme.locale);
+      const cleanedPhone = shareInput.replace(/[\s\-\(\)]/g, '');
+      if (!phoneValidation.regex.test(cleanedPhone)) {
+        setShareError(`Invalid phone number. Expected format: ${phoneValidation.format} (e.g., ${phoneValidation.example})`);
+        return;
+      }
+    }
+
     try {
-      const amount = parseFloat(transferData.amount);
-      const fees = calculateFees(amount);
+      const amount = parseFloat(transferData.amount.replace(/,/g, ''));
+      const fees = calculateFees();
 
       const transactionData = {
         id: transactionReference,
@@ -439,13 +552,17 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
       );
 
       if (success) {
-        notify.success('Receipt has been copied to clipboard and is ready to share', 'Success');
+        handleCloseShareModal();
+        notify.success(
+          `Receipt has been sent to ${shareInput}`,
+          'Receipt Shared Successfully'
+        );
       } else {
-        notify.error('Failed to share receipt. Please try again.', 'Error');
+        setShareError('Failed to share receipt. Please try again.');
       }
     } catch (error) {
       console.error('Error sharing receipt:', error);
-      notify.error('Failed to share receipt. Please try again.', 'Error');
+      setShareError('Failed to share receipt. Please try again.');
     }
   };
 
@@ -1125,6 +1242,145 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
       marginTop: 12,
       fontSize: 16,
       color: theme.colors.text,
+    },
+    // Share Receipt Modal Styles
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 20,
+    },
+    modalContent: {
+      width: '100%',
+      maxWidth: 400,
+      backgroundColor: theme.colors.surface,
+      borderRadius: 16,
+      padding: 24,
+      ...Platform.select({
+        web: {
+          boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
+        },
+        ios: {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 10 },
+          shadowOpacity: 0.3,
+          shadowRadius: 20,
+        },
+        android: {
+          elevation: 10,
+        },
+      }),
+    },
+    modalHeader: {
+      marginBottom: 20,
+    },
+    modalTitle: {
+      fontSize: 20,
+      fontWeight: '700',
+      color: theme.colors.text,
+      marginBottom: 8,
+    },
+    modalSubtitle: {
+      fontSize: 14,
+      color: theme.colors.textSecondary,
+      lineHeight: 20,
+    },
+    methodToggle: {
+      flexDirection: 'row',
+      backgroundColor: theme.colors.background,
+      borderRadius: 10,
+      padding: 4,
+      marginBottom: 20,
+    },
+    methodButton: {
+      flex: 1,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      borderRadius: 8,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    methodButtonActive: {
+      backgroundColor: theme.colors.surface,
+      ...Platform.select({
+        web: {
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+        },
+        ios: {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+        },
+        android: {
+          elevation: 2,
+        },
+      }),
+    },
+    methodButtonText: {
+      fontSize: 14,
+      fontWeight: '600',
+    },
+    inputContainer: {
+      marginBottom: 16,
+    },
+    input: {
+      backgroundColor: theme.colors.background,
+      borderWidth: 2,
+      borderColor: theme.colors.border,
+      borderRadius: 10,
+      padding: 14,
+      fontSize: 16,
+      color: theme.colors.text,
+    },
+    inputError: {
+      borderColor: theme.colors.danger,
+      backgroundColor: 'rgba(220, 38, 38, 0.05)',
+    },
+    errorText: {
+      fontSize: 12,
+      color: theme.colors.danger,
+      marginTop: 6,
+      marginLeft: 4,
+    },
+    modalActions: {
+      flexDirection: 'row',
+      gap: 12,
+      marginTop: 8,
+    },
+    modalButton: {
+      flex: 1,
+      paddingVertical: 14,
+      borderRadius: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    modalButtonSecondary: {
+      backgroundColor: theme.colors.background,
+      borderWidth: 2,
+      borderColor: theme.colors.border,
+    },
+    modalButtonPrimary: {
+      backgroundColor: theme.colors.primary,
+      ...Platform.select({
+        web: {
+          boxShadow: `0 4px 12px ${theme.colors.primary}40`,
+        },
+        ios: {
+          shadowColor: theme.colors.primary,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+        },
+        android: {
+          elevation: 6,
+        },
+      }),
+    },
+    modalButtonText: {
+      fontSize: 16,
+      fontWeight: '600',
     },
   });
 
@@ -1869,6 +2125,119 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
               </View>
             </View>
           )}
+
+          {/* Share Receipt Modal */}
+          <Modal
+            visible={shareModalVisible}
+            transparent
+            animationType="fade"
+            onRequestClose={handleCloseShareModal}
+          >
+            <TouchableOpacity
+              style={styles.modalOverlay}
+              activeOpacity={1}
+              onPress={handleCloseShareModal}
+            >
+              <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
+                <View style={styles.modalContent}>
+                  {/* Modal Header */}
+                  <View style={styles.modalHeader}>
+                    <RNText style={styles.modalTitle}>Share Receipt</RNText>
+                    <RNText style={styles.modalSubtitle}>
+                      Choose how you want to share this transaction receipt
+                    </RNText>
+                  </View>
+
+                  {/* Method Toggle */}
+                  <View style={styles.methodToggle}>
+                    <TouchableOpacity
+                      style={[
+                        styles.methodButton,
+                        shareMethod === 'email' && styles.methodButtonActive
+                      ]}
+                      onPress={() => {
+                        setShareMethod('email');
+                        setShareInput('');
+                        setShareError('');
+                      }}
+                    >
+                      <RNText
+                        style={[
+                          styles.methodButtonText,
+                          { color: shareMethod === 'email' ? theme.colors.primary : theme.colors.textSecondary }
+                        ]}
+                      >
+                        📧 Email
+                      </RNText>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[
+                        styles.methodButton,
+                        shareMethod === 'phone' && styles.methodButtonActive
+                      ]}
+                      onPress={() => {
+                        setShareMethod('phone');
+                        setShareInput('');
+                        setShareError('');
+                      }}
+                    >
+                      <RNText
+                        style={[
+                          styles.methodButtonText,
+                          { color: shareMethod === 'phone' ? theme.colors.primary : theme.colors.textSecondary }
+                        ]}
+                      >
+                        📱 Phone
+                      </RNText>
+                    </TouchableOpacity>
+                  </View>
+
+                  {/* Input Field */}
+                  <View style={styles.inputContainer}>
+                    <RNTextInput
+                      style={[
+                        styles.input,
+                        shareError && styles.inputError
+                      ]}
+                      placeholder={shareMethod === 'email' ? 'Enter email address' : 'Enter phone number'}
+                      placeholderTextColor={theme.colors.textSecondary}
+                      value={shareInput}
+                      onChangeText={handleInputChange}
+                      keyboardType={shareMethod === 'email' ? 'email-address' : 'phone-pad'}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      autoFocus
+                    />
+                    {shareError && (
+                      <RNText style={styles.errorText}>{shareError}</RNText>
+                    )}
+                  </View>
+
+                  {/* Action Buttons */}
+                  <View style={styles.modalActions}>
+                    <TouchableOpacity
+                      style={[styles.modalButton, styles.modalButtonSecondary]}
+                      onPress={handleCloseShareModal}
+                    >
+                      <RNText style={[styles.modalButtonText, { color: theme.colors.textSecondary }]}>
+                        Cancel
+                      </RNText>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[styles.modalButton, styles.modalButtonPrimary]}
+                      onPress={handleShareSubmit}
+                    >
+                      <RNText style={[styles.modalButtonText, { color: theme.colors.textInverse }]}>
+                        Send Receipt
+                      </RNText>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            </TouchableOpacity>
+          </Modal>
         </SafeAreaView>
       </LinearGradient>
     </View>

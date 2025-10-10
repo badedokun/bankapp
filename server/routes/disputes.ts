@@ -18,20 +18,6 @@ router.post('/', async (req: Request, res: Response) => {
   const tenant = (req as any).tenant;
 
   try {
-    console.log('🔍 Dispute route - Auth context:', {
-      userId,
-      tenantId: tenant?.id,
-      tenantName: tenant?.name,
-      hasUser: !!(req as any).user,
-      hasTenant: !!tenant
-    });
-
-    console.log('📥 Dispute submission request body:', {
-      hasBody: !!req.body,
-      bodyKeys: Object.keys(req.body || {}),
-      transactionDetailsType: typeof req.body?.transactionDetails
-    });
-
     const {
       transactionId,
       transactionReference,
@@ -42,12 +28,21 @@ router.post('/', async (req: Request, res: Response) => {
       additionalNotes
     } = req.body;
 
-    // Validation
-    if (!transactionId || !transactionReference || !disputeReason) {
+    // Validation - only transactionReference and disputeReason are required
+    // transactionId is optional since it might not be a valid integer ID
+    if (!transactionReference || !disputeReason) {
       return res.status(400).json({
         error: 'Missing required fields',
-        required: ['transactionId', 'transactionReference', 'disputeReason']
+        required: ['transactionReference', 'disputeReason']
       });
+    }
+
+    // Validate transactionId as UUID
+    // If it's not a valid UUID, set it to null
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    let validTransactionId: string | null = null;
+    if (transactionId && uuidRegex.test(transactionId)) {
+      validTransactionId = transactionId;
     }
 
     // Ensure transactionDetails is properly formatted
@@ -93,8 +88,6 @@ router.post('/', async (req: Request, res: Response) => {
     );
     const disputeNumber = disputeNumberResult.rows[0].dispute_number;
 
-    console.log(`📋 Generated dispute number: ${disputeNumber} (tenant: ${tenantCode}, locale: ${tenantLocale})`);
-
     // Insert dispute
     const insertResult = await dbManager.queryTenant(
       tenant.id,
@@ -116,7 +109,7 @@ router.post('/', async (req: Request, res: Response) => {
       RETURNING *`,
       [
         disputeNumber,
-        transactionId,
+        validTransactionId, // Use the validated UUID or null
         transactionReference,
         transactionType || 'transfer',
         userId,
@@ -153,8 +146,6 @@ router.post('/', async (req: Request, res: Response) => {
         'Dispute created by customer'
       ]
     );
-
-    console.log(`✅ Dispute created: ${disputeNumber} for transaction ${transactionReference}`);
 
     res.status(201).json({
       success: true,
@@ -435,8 +426,6 @@ router.patch('/:disputeId/status', async (req: Request, res: Response) => {
     if (updateResult.rows.length === 0) {
       return res.status(404).json({ error: 'Dispute not found' });
     }
-
-    console.log(`✅ Dispute ${disputeId} status updated to ${status}`);
 
     res.json({
       success: true,
