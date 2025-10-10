@@ -409,291 +409,312 @@ router.post('/initiate', authenticateToken, validateTenantAccess, [
     }
 
     // Start database transaction
-    await query('BEGIN');
+    const tenantPool = await dbManager.getTenantPool(tenantId);
+    const client = await tenantPool.connect();
 
-    // 1. Get user's primary wallet and verify PIN
-    const walletResult = await query(`
-      SELECT w.*, u.transaction_pin_hash, u.daily_limit, u.monthly_limit,
-             u.first_name, u.last_name, u.account_number as source_account,
-             t.bank_code as source_bank_code
-      FROM tenant.wallets w
-      JOIN tenant.users u ON w.user_id = u.id
-      JOIN platform.tenants t ON u.tenant_id = t.id
-      WHERE w.user_id = $1 AND w.tenant_id = $2 AND w.is_primary = true
-    `, [userId, tenantId]);
+    try {
+      await client.query('BEGIN');
 
-    if (walletResult.rowCount === 0) {
-      await query('ROLLBACK');
-      return res.status(404).json({
-        success: false,
-        error: 'Wallet not found',
-        code: 'WALLET_NOT_FOUND'
-      });
-    }
+      // 1. Get user's primary wallet and verify PIN
+      const walletResult = await client.query(`
+        SELECT w.*, u.transaction_pin_hash, u.daily_limit, u.monthly_limit,
+               u.first_name, u.last_name, u.account_number as source_account
+        FROM tenant.wallets w
+        JOIN tenant.users u ON w.user_id = u.id
+        WHERE w.user_id = $1 AND w.tenant_id = $2 AND w.is_primary = true
+      `, [userId, tenantId]);
 
-    const wallet = walletResult.rows[0];
+      // Get bank code from platform database (cross-database join not supported)
+      const platformResult = await dbManager.queryPlatform(`
+        SELECT bank_code FROM platform.tenants WHERE id = $1
+      `, [tenantId]);
 
-    // 2. Verify transaction PIN
-    const isPinValid = await bcrypt.compare(pin, wallet.transaction_pin_hash);
-    if (!isPinValid) {
-      await query('ROLLBACK');
-      return res.status(401).json({
-        success: false,
-        error: 'Invalid transaction PIN',
-        code: 'INVALID_PIN'
-      });
-    }
+      const sourceBankCode = platformResult.rows[0]?.bank_code || 'EXT';
 
-    // 3. Check wallet balance
-    const transferAmount = parseFloat(amount);
-    const currentBalance = parseFloat(wallet.balance);
-
-    if (currentBalance < transferAmount) {
-      await query('ROLLBACK');
-      return res.status(400).json({
-        success: false,
-        error: 'Insufficient balance',
-        code: 'INSUFFICIENT_BALANCE',
-        data: {
-          balance: currentBalance,
-          required: transferAmount
-        }
-      });
-    }
-
-    // 4. Check daily and monthly limits
-    const today = new Date().toISOString().split('T')[0];
-    const currentMonth = new Date().toISOString().substring(0, 7);
-
-    const limitsResult = await query(`
-      SELECT 
-        COALESCE(SUM(CASE WHEN DATE(created_at) = $1 THEN amount ELSE 0 END), 0) as daily_spent,
-        COALESCE(SUM(CASE WHEN DATE(created_at) >= $2 THEN amount ELSE 0 END), 0) as monthly_spent
-      FROM tenant.transfers 
-      WHERE sender_id = $3 AND status IN ('pending', 'successful')
-    `, [today, currentMonth + '-01', userId]);
-
-    const limits = limitsResult.rows[0];
-    const dailyLimit = parseFloat(wallet.daily_limit || '500000');
-    const monthlyLimit = parseFloat(wallet.monthly_limit || '2000000');
-
-    // Skip daily limit check for Demo User (testing purposes)
-    const isDemoUser = wallet.first_name === 'Demo' && wallet.last_name === 'User';
-    if (!isDemoUser && (limits.daily_spent + transferAmount) > dailyLimit) {
-      await query('ROLLBACK');
-      return res.status(400).json({
-        success: false,
-        error: 'Daily transfer limit exceeded',
-        code: 'DAILY_LIMIT_EXCEEDED',
-        data: {
-          dailyLimit,
-          dailySpent: limits.daily_spent,
-          requestedAmount: transferAmount
-        }
-      });
-    }
-
-    // Skip monthly limit check for Demo User (testing purposes)
-    if (!isDemoUser && (limits.monthly_spent + transferAmount) > monthlyLimit) {
-      await query('ROLLBACK');
-      return res.status(400).json({
-        success: false,
-        error: 'Monthly transfer limit exceeded',
-        code: 'MONTHLY_LIMIT_EXCEEDED',
-        data: {
-          monthlyLimit,
-          monthlySpent: limits.monthly_spent,
-          requestedAmount: transferAmount
-        }
-      });
-    }
-
-    // 5. Generate unique transaction reference using secure ULID-based generator
-    // Get tenant's bank code for reference prefix (multi-tenant compliant)
-    const tenantBankCode = wallet.source_bank_code || 'EXT';
-    const reference = generateTransferRef(tenantBankCode);
-
-    // 6. Check if recipient is an internal user (same bank)
-    let recipientUserId = null;
-    let isInternalTransfer = false;
-    
-    // Check if recipient account belongs to an internal user
-    const internalUserResult = await query(`
-      SELECT id, first_name, last_name FROM tenant.users 
-      WHERE account_number = $1 AND tenant_id = $2
-    `, [recipientAccountNumber, tenantId]);
-    
-    if (internalUserResult.rowCount > 0) {
-      recipientUserId = internalUserResult.rows[0].id;
-      isInternalTransfer = true;
-    }
-
-    // 7. Save recipient if requested (for external recipients)
-    let recipientId = null;
-    if (saveRecipient && !isInternalTransfer) {
-      const existingRecipient = await query(`
-        SELECT id FROM recipients 
-        WHERE user_id = $1 AND account_number = $2 AND bank_code = $3
-      `, [userId, recipientAccountNumber, recipientBankCode]);
-
-      if (existingRecipient.rowCount === 0) {
-        const recipientResult = await query(`
-          INSERT INTO recipients (user_id, tenant_id, account_number, account_name, bank_code, bank_name, created_at)
-          VALUES ($1, $2, $3, $4, $5, $6, NOW())
-          RETURNING id
-        `, [userId, tenantId, recipientAccountNumber, recipientName, recipientBankCode, 'Unknown Bank']);
-        
-        recipientId = recipientResult.rows[0].id;
-      } else {
-        recipientId = existingRecipient.rows[0].id;
-      }
-    }
-
-    // 8. Create transfer record
-    const transferResult = await query(`
-      INSERT INTO tenant.transfers (
-        sender_id, tenant_id, recipient_id, recipient_user_id, reference, amount, fee, description,
-        recipient_account_number, recipient_bank_code, recipient_name,
-        source_account_number, source_bank_code, status, created_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW())
-      RETURNING id
-    `, [
-      userId, tenantId, isInternalTransfer ? null : recipientId, isInternalTransfer ? recipientUserId : null,
-      reference, transferAmount, 0, description, recipientAccountNumber, recipientBankCode, recipientName,
-      wallet.source_account, wallet.source_bank_code, isInternalTransfer ? 'successful' : 'pending'
-    ]);
-
-    const transferId = transferResult.rows[0].id;
-
-    // 9. Debit sender wallet
-    await query(`
-      UPDATE tenant.wallets
-      SET balance = balance - $1, updated_at = NOW()
-      WHERE id = $2
-    `, [transferAmount, wallet.id]);
-
-    // 10. Credit recipient wallet (ONLY for internal transfers)
-    if (isInternalTransfer) {
-      // Get recipient's primary wallet
-      const recipientWalletResult = await query(`
-        SELECT id, balance FROM tenant.wallets 
-        WHERE user_id = $1 AND tenant_id = $2 AND is_primary = true
-      `, [recipientUserId, tenantId]);
-
-      if (recipientWalletResult.rowCount === 0) {
-        await query('ROLLBACK');
-        return res.status(500).json({
+      if (walletResult.rowCount === 0) {
+        await client.query('ROLLBACK');
+        client.release();
+        return res.status(404).json({
           success: false,
-          error: 'Recipient wallet not found',
-          code: 'RECIPIENT_WALLET_NOT_FOUND'
+          error: 'Wallet not found',
+          code: 'WALLET_NOT_FOUND'
         });
       }
 
-      const recipientWallet = recipientWalletResult.rows[0];
-      
-      // Credit the recipient wallet
-      await query(`
-        UPDATE tenant.wallets
-        SET balance = balance + $1, updated_at = NOW()
-        WHERE id = $2
-      `, [transferAmount, recipientWallet.id]);
+      const wallet = walletResult.rows[0];
 
-      // For internal transfers, commit immediately and return success
-      await query('COMMIT');
-      
-      return res.json({
-        success: true,
-        message: 'Internal transfer completed successfully',
-        data: {
-          transferId,
-          reference,
-          amount: transferAmount,
-          recipient: {
-            accountNumber: recipientAccountNumber,
-            accountName: recipientName
-          },
-          status: 'successful',
-          type: 'internal_transfer',
-          createdAt: new Date().toISOString()
+      // 2. Verify transaction PIN
+      const isPinValid = await bcrypt.compare(pin, wallet.transaction_pin_hash);
+      if (!isPinValid) {
+        await client.query('ROLLBACK');
+        client.release();
+        return res.status(401).json({
+          success: false,
+          error: 'Invalid transaction PIN',
+          code: 'INVALID_PIN'
+        });
+      }
+
+      // 3. Check wallet balance
+      const transferAmount = parseFloat(amount);
+      const currentBalance = parseFloat(wallet.balance);
+
+      if (currentBalance < transferAmount) {
+        await client.query('ROLLBACK');
+        client.release();
+        return res.status(400).json({
+          success: false,
+          error: 'Insufficient balance',
+          code: 'INSUFFICIENT_BALANCE',
+          data: {
+            balance: currentBalance,
+            required: transferAmount
+          }
+        });
+      }
+
+      // 4. Check daily and monthly limits
+      const today = new Date().toISOString().split('T')[0];
+      const currentMonth = new Date().toISOString().substring(0, 7);
+
+      const limitsResult = await client.query(`
+        SELECT
+          COALESCE(SUM(CASE WHEN DATE(created_at) = $1 THEN amount ELSE 0 END), 0) as daily_spent,
+          COALESCE(SUM(CASE WHEN DATE(created_at) >= $2 THEN amount ELSE 0 END), 0) as monthly_spent
+        FROM tenant.transfers
+        WHERE sender_id = $3 AND status IN ('pending', 'successful')
+      `, [today, currentMonth + '-01', userId]);
+
+      const limits = limitsResult.rows[0];
+      const dailyLimit = parseFloat(wallet.daily_limit || '500000');
+      const monthlyLimit = parseFloat(wallet.monthly_limit || '2000000');
+
+      // Skip daily limit check for Demo User (testing purposes)
+      const isDemoUser = wallet.first_name === 'Demo' && wallet.last_name === 'User';
+      if (!isDemoUser && (limits.daily_spent + transferAmount) > dailyLimit) {
+        await client.query('ROLLBACK');
+        client.release();
+        return res.status(400).json({
+          success: false,
+          error: 'Daily transfer limit exceeded',
+          code: 'DAILY_LIMIT_EXCEEDED',
+          data: {
+            dailyLimit,
+            dailySpent: limits.daily_spent,
+            requestedAmount: transferAmount
+          }
+        });
+      }
+
+      // Skip monthly limit check for Demo User (testing purposes)
+      if (!isDemoUser && (limits.monthly_spent + transferAmount) > monthlyLimit) {
+        await client.query('ROLLBACK');
+        client.release();
+        return res.status(400).json({
+          success: false,
+          error: 'Monthly transfer limit exceeded',
+          code: 'MONTHLY_LIMIT_EXCEEDED',
+          data: {
+            monthlyLimit,
+            monthlySpent: limits.monthly_spent,
+            requestedAmount: transferAmount
+          }
+        });
+      }
+
+      // 5. Generate unique transaction reference using secure ULID-based generator
+      // Get tenant's bank code for reference prefix (multi-tenant compliant)
+      const reference = generateTransferRef(sourceBankCode);
+
+      // 6. Check if recipient is an internal user (same bank)
+      let recipientUserId = null;
+      let isInternalTransfer = false;
+
+      // Check if recipient account belongs to an internal user
+      const internalUserResult = await client.query(`
+        SELECT id, first_name, last_name FROM tenant.users
+        WHERE account_number = $1 AND tenant_id = $2
+      `, [recipientAccountNumber, tenantId]);
+
+      if (internalUserResult.rowCount > 0) {
+        recipientUserId = internalUserResult.rows[0].id;
+        isInternalTransfer = true;
+      }
+
+      // 7. Save recipient if requested (for external recipients)
+      let recipientId = null;
+      if (saveRecipient && !isInternalTransfer) {
+        const existingRecipient = await client.query(`
+          SELECT id FROM recipients
+          WHERE user_id = $1 AND account_number = $2 AND bank_code = $3
+        `, [userId, recipientAccountNumber, recipientBankCode]);
+
+        if (existingRecipient.rowCount === 0) {
+          const recipientResult = await client.query(`
+            INSERT INTO recipients (user_id, tenant_id, account_number, account_name, bank_code, bank_name, created_at)
+            VALUES ($1, $2, $3, $4, $5, $6, NOW())
+            RETURNING id
+          `, [userId, tenantId, recipientAccountNumber, recipientName, recipientBankCode, 'Unknown Bank']);
+
+          recipientId = recipientResult.rows[0].id;
+        } else {
+          recipientId = existingRecipient.rows[0].id;
         }
-      });
-    }
+      }
 
-    // 9. Initiate NIBSS transfer
-    const nibssRequest: NIBSSTransferRequest = {
-      amount: amount,
-      sourceAccountNumber: wallet.source_account,
-      sourceBankCode: wallet.source_bank_code,
-      destinationAccountNumber: recipientAccountNumber,
-      destinationBankCode: recipientBankCode,
-      narration: description.substring(0, 100), // NIBSS has character limit
-      reference: reference,
-      beneficiaryName: recipientName
-    };
+      // 8. Create transfer record
+      const transferResult = await client.query(`
+        INSERT INTO tenant.transfers (
+          sender_id, tenant_id, recipient_id, recipient_user_id, reference, amount, fee, description,
+          recipient_account_number, recipient_bank_code, recipient_name,
+          source_account_number, source_bank_code, status, created_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW())
+        RETURNING id
+      `, [
+        userId, tenantId, isInternalTransfer ? null : recipientId, isInternalTransfer ? recipientUserId : null,
+        reference, transferAmount, 0, description, recipientAccountNumber, recipientBankCode, recipientName,
+        wallet.source_account, sourceBankCode, isInternalTransfer ? 'successful' : 'pending'
+      ]);
 
-    const nibssResponse = await nibssService.initiateTransfer(nibssRequest);
+      const transferId = transferResult.rows[0].id;
 
-    // 10. Update transfer with NIBSS response
-    if (nibssResponse.success) {
-      await query(`
-        UPDATE tenant.transfers 
-        SET status = $1, nibss_transaction_id = $2, nibss_session_id = $3, fee = $4, updated_at = NOW()
-        WHERE id = $5
-      `, [nibssResponse.status, nibssResponse.transactionId, nibssResponse.sessionId, 
-          parseFloat(nibssResponse.fee || '0'), transferId]);
-
-      // Transaction completed successfully
-    } else {
-      // Transfer failed, reverse the wallet debit
-      await query(`
-        UPDATE tenant.wallets 
-        SET balance = balance + $1, updated_at = NOW()
+      // 9. Debit sender wallet
+      await client.query(`
+        UPDATE tenant.wallets
+        SET balance = balance - $1, updated_at = NOW()
         WHERE id = $2
       `, [transferAmount, wallet.id]);
 
-      await query(`
-        UPDATE tenant.transfers
-        SET status = 'failed', nibss_response_message = $1, updated_at = NOW()
-        WHERE id = $2
-      `, [nibssResponse.message, transferId]);
-    }
+      // 10. Credit recipient wallet (ONLY for internal transfers)
+      if (isInternalTransfer) {
+        // Get recipient's primary wallet
+        const recipientWalletResult = await client.query(`
+          SELECT id, balance FROM tenant.wallets
+          WHERE user_id = $1 AND tenant_id = $2 AND is_primary = true
+        `, [recipientUserId, tenantId]);
 
-    // Commit transaction
-    await query('COMMIT');
-
-    res.json({
-      success: nibssResponse.success,
-      data: {
-        transferId,
-        reference,
-        status: nibssResponse.status,
-        message: nibssResponse.message,
-        amount: transferAmount,
-        recipient: {
-          accountNumber: recipientAccountNumber,
-          accountName: recipientName,
-          bankCode: recipientBankCode
-        },
-        fee: parseFloat(nibssResponse.fee || '0'),
-        transactionId: nibssResponse.transactionId,
-        fraudAnalysis: {
-          riskScore: fraudAnalysis.riskScore,
-          riskLevel: fraudAnalysis.riskLevel,
-          decision: fraudAnalysis.decision,
-          processingTime: fraudAnalysisTime,
-          sessionId: fraudAnalysis.sessionId,
-          flags: fraudAnalysis.flags.length > 0 ? fraudAnalysis.flags : undefined
+        if (recipientWalletResult.rowCount === 0) {
+          await client.query('ROLLBACK');
+          client.release();
+          return res.status(500).json({
+            success: false,
+            error: 'Recipient wallet not found',
+            code: 'RECIPIENT_WALLET_NOT_FOUND'
+          });
         }
-      }
-    });
 
+        const recipientWallet = recipientWalletResult.rows[0];
+
+        // Credit the recipient wallet
+        await client.query(`
+          UPDATE tenant.wallets
+          SET balance = balance + $1, updated_at = NOW()
+          WHERE id = $2
+        `, [transferAmount, recipientWallet.id]);
+
+        // For internal transfers, commit immediately and return success
+        await client.query('COMMIT');
+        client.release();
+
+        return res.json({
+          success: true,
+          message: 'Internal transfer completed successfully',
+          data: {
+            transferId,
+            reference,
+            amount: transferAmount,
+            recipient: {
+              accountNumber: recipientAccountNumber,
+              accountName: recipientName
+            },
+            status: 'successful',
+            type: 'internal_transfer',
+            createdAt: new Date().toISOString()
+          }
+        });
+      }
+
+      // 9. Initiate NIBSS transfer
+      const nibssRequest: NIBSSTransferRequest = {
+        amount: amount,
+        sourceAccountNumber: wallet.source_account,
+        sourceBankCode: sourceBankCode,
+        destinationAccountNumber: recipientAccountNumber,
+        destinationBankCode: recipientBankCode,
+        narration: description.substring(0, 100), // NIBSS has character limit
+        reference: reference,
+        beneficiaryName: recipientName
+      };
+
+      const nibssResponse = await nibssService.initiateTransfer(nibssRequest);
+
+      // 10. Update transfer with NIBSS response
+      if (nibssResponse.success) {
+        await client.query(`
+          UPDATE tenant.transfers
+          SET status = $1, nibss_transaction_id = $2, nibss_session_id = $3, fee = $4, updated_at = NOW()
+          WHERE id = $5
+        `, [nibssResponse.status, nibssResponse.transactionId, nibssResponse.sessionId,
+            parseFloat(nibssResponse.fee || '0'), transferId]);
+
+        // Transaction completed successfully
+      } else {
+        // Transfer failed, reverse the wallet debit
+        await client.query(`
+          UPDATE tenant.wallets
+          SET balance = balance + $1, updated_at = NOW()
+          WHERE id = $2
+        `, [transferAmount, wallet.id]);
+
+        await client.query(`
+          UPDATE tenant.transfers
+          SET status = 'failed', nibss_response_message = $1, updated_at = NOW()
+          WHERE id = $2
+        `, [nibssResponse.message, transferId]);
+      }
+
+      // Commit transaction
+      await client.query('COMMIT');
+
+      res.json({
+        success: nibssResponse.success,
+        data: {
+          transferId,
+          reference,
+          status: nibssResponse.status,
+          message: nibssResponse.message,
+          amount: transferAmount,
+          recipient: {
+            accountNumber: recipientAccountNumber,
+            accountName: recipientName,
+            bankCode: recipientBankCode
+          },
+          fee: parseFloat(nibssResponse.fee || '0'),
+          transactionId: nibssResponse.transactionId,
+          fraudAnalysis: {
+            riskScore: fraudAnalysis.riskScore,
+            riskLevel: fraudAnalysis.riskLevel,
+            decision: fraudAnalysis.decision,
+            processingTime: fraudAnalysisTime,
+            sessionId: fraudAnalysis.sessionId,
+            flags: fraudAnalysis.flags.length > 0 ? fraudAnalysis.flags : undefined
+          }
+        }
+      });
+
+    } catch (error) {
+      await client.query('ROLLBACK');
+      console.error('===== ACTUAL TRANSFER ERROR =====');
+      console.error('Error name:', error?.name);
+      console.error('Error message:', error?.message);
+      console.error('Error stack:', error?.stack);
+      console.error('===================================');
+      throw errors.internalError('Transfer failed');
+    } finally {
+      client.release();
+    }
   } catch (error) {
-    await query('ROLLBACK');
-    console.error('===== ACTUAL TRANSFER ERROR =====');
-    console.error('Error name:', error?.name);
-    console.error('Error message:', error?.message);
-    console.error('Error stack:', error?.stack);
-    console.error('===================================');
+    console.error('Transfer initiation error:', error);
     throw errors.internalError('Transfer failed');
   }
 }));
@@ -705,9 +726,10 @@ router.post('/initiate', authenticateToken, validateTenantAccess, [
 router.get('/status/:reference', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
   const { reference } = req.params;
   const userId = req.user.id;
+  const tenantId = req.user.tenantId;
 
-  const transferResult = await query(`
-    SELECT t.*, 
+  const transferResult = await dbManager.queryTenant(tenantId, `
+    SELECT t.*,
            CASE WHEN t.sender_id = $1 THEN 'sent' ELSE 'received' END as direction
     FROM tenant.transfers t
     WHERE t.reference = $2 AND (t.sender_id = $1 OR t.recipient_user_id = $1)
@@ -733,8 +755,8 @@ router.get('/status/:reference', authenticateToken, validateTenantAccess, asyncH
 
       // Update transfer status if changed
       if (statusResponse.status !== transfer.status) {
-        await query(`
-          UPDATE tenant.transfers 
+        await dbManager.queryTenant(tenantId, `
+          UPDATE tenant.transfers
           SET status = $1, nibss_response_message = $2, updated_at = NOW()
           WHERE id = $3
         `, [statusResponse.status, statusResponse.message, transfer.id]);
@@ -775,11 +797,12 @@ router.get('/status/:reference', authenticateToken, validateTenantAccess, asyncH
  */
 router.get('/history', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
   const userId = req.user.id;
+  const tenantId = req.user.tenantId;
   const page = parseInt(req.query.page as string) || 1;
   const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
   const offset = (page - 1) * limit;
 
-  const transfers = await query(`
+  const transfers = await dbManager.queryTenant(tenantId, `
     SELECT t.*,
            CASE WHEN t.sender_id = $1 THEN 'sent' ELSE 'received' END as direction,
            u.first_name as sender_first_name, u.last_name as sender_last_name
@@ -790,7 +813,7 @@ router.get('/history', authenticateToken, validateTenantAccess, asyncHandler(asy
     LIMIT $2 OFFSET $3
   `, [userId, limit, offset]);
 
-  const countResult = await query(`
+  const countResult = await dbManager.queryTenant(tenantId, `
     SELECT COUNT(*) as total
     FROM tenant.transfers
     WHERE sender_id = $1 OR recipient_user_id = $1
@@ -918,13 +941,15 @@ router.post('/internal', authenticateToken, validateTenantAccess, [
   }
 
   try {
+    const tenantId = req.user.tenantId;
+
     // Get user's primary wallet ID
-    const walletQuery = await query(`
+    const walletQuery = await dbManager.queryTenant(tenantId, `
       SELECT id FROM tenant.wallets
       WHERE user_id = $1 AND tenant_id = $2 AND status = 'active'
       ORDER BY is_primary DESC, created_at ASC
       LIMIT 1
-    `, [req.user.id, req.user.tenantId]);
+    `, [req.user.id, tenantId]);
 
     if (walletQuery.rows.length === 0) {
       return res.status(404).json({
@@ -937,13 +962,13 @@ router.post('/internal', authenticateToken, validateTenantAccess, [
     const fromWalletId = walletQuery.rows[0].id;
 
     // For toWalletId, we need to find the recipient's wallet by account number
-    const recipientQuery = await query(`
+    const recipientQuery = await dbManager.queryTenant(tenantId, `
       SELECT w.id FROM tenant.wallets w
       JOIN tenant.users u ON w.user_id = u.id
       WHERE w.wallet_number = $1 AND w.tenant_id = $2 AND w.status = 'active'
       ORDER BY w.is_primary DESC
       LIMIT 1
-    `, [req.body.recipientAccountNumber, req.user.tenantId]);
+    `, [req.body.recipientAccountNumber, tenantId]);
 
     if (recipientQuery.rows.length === 0) {
       return res.status(404).json({
@@ -985,13 +1010,15 @@ router.post('/external', authenticateToken, validateTenantAccess, [
   body('pin').isLength({ min: 4, max: 4 }).withMessage('Transaction PIN required'),
 ], asyncHandler(async (req, res) => {
   try {
+    const tenantId = req.user.tenantId;
+
     // Get user's primary wallet ID for external transfer
-    const walletQuery = await query(`
+    const walletQuery = await dbManager.queryTenant(tenantId, `
       SELECT id FROM tenant.wallets
       WHERE user_id = $1 AND tenant_id = $2 AND status = 'active'
       ORDER BY is_primary DESC, created_at ASC
       LIMIT 1
-    `, [req.user.id, req.user.tenantId]);
+    `, [req.user.id, tenantId]);
 
     if (walletQuery.rows.length === 0) {
       return res.status(404).json({
@@ -1034,13 +1061,15 @@ router.post('/bills', authenticateToken, validateTenantAccess, [
   body('pin').isLength({ min: 4, max: 4 }).withMessage('Transaction PIN required'),
 ], asyncHandler(async (req, res) => {
   try {
+    const tenantId = req.user.tenantId;
+
     // Get user's primary wallet ID for bill payment
-    const walletQuery = await query(`
+    const walletQuery = await dbManager.queryTenant(tenantId, `
       SELECT id FROM tenant.wallets
       WHERE user_id = $1 AND tenant_id = $2 AND status = 'active'
       ORDER BY is_primary DESC, created_at ASC
       LIMIT 1
-    `, [req.user.id, req.user.tenantId]);
+    `, [req.user.id, tenantId]);
 
     if (walletQuery.rows.length === 0) {
       return res.status(404).json({
@@ -1086,12 +1115,14 @@ router.post('/international', authenticateToken, validateTenantAccess, [
   body('pin').isLength({ min: 4, max: 4 }).withMessage('Transaction PIN required'),
 ], asyncHandler(async (req, res) => {
   try {
-    const walletQuery = await query(`
+    const tenantId = req.user.tenantId;
+
+    const walletQuery = await dbManager.queryTenant(tenantId, `
       SELECT id FROM tenant.wallets
       WHERE user_id = $1 AND tenant_id = $2 AND status = 'active'
       ORDER BY is_primary DESC, created_at ASC
       LIMIT 1
-    `, [req.user.id, req.user.tenantId]);
+    `, [req.user.id, tenantId]);
 
     if (walletQuery.rows.length === 0) {
       return res.status(404).json({
@@ -1601,18 +1632,16 @@ router.get('/fees/calculate', authenticateToken, validateTenantAccess, asyncHand
 router.get('/:idOrReference', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
   const { idOrReference } = req.params;
   const userId = req.user.id;
+  const tenantId = req.user.tenantId;
 
   // Query transfer by ID or reference
-  const transferResult = await query(`
+  const transferResult = await dbManager.queryTenant(tenantId, `
     SELECT t.*,
            u.first_name as sender_first_name,
            u.last_name as sender_last_name,
-           u.account_number as sender_account_number,
-           pt.bank_code as sender_bank_code,
-           pt.display_name as sender_bank_name
+           u.account_number as sender_account_number
     FROM tenant.transfers t
     LEFT JOIN tenant.users u ON t.sender_id = u.id
-    LEFT JOIN platform.tenants pt ON u.tenant_id = pt.id
     WHERE (
       t.id::text = $1
       OR COALESCE(t.reference, '') = $1
@@ -1631,6 +1660,14 @@ router.get('/:idOrReference', authenticateToken, validateTenantAccess, asyncHand
 
   const transfer = transferResult.rows[0];
 
+  // Get tenant bank info from platform database (cross-database join not supported)
+  const platformResult = await dbManager.queryPlatform(`
+    SELECT bank_code, display_name FROM platform.tenants WHERE id = $1
+  `, [tenantId]);
+
+  const senderBankCode = platformResult.rows[0]?.bank_code || 'EXT';
+  const senderBankName = platformResult.rows[0]?.display_name || 'Unknown Bank';
+
   // Generate a reference if none exists
   const generatedReference = transfer.reference || `TXN-${transfer.id.substring(0, 8).toUpperCase()}`;
 
@@ -1648,8 +1685,8 @@ router.get('/:idOrReference', authenticateToken, validateTenantAccess, asyncHand
       sender: {
         name: transfer.sender_first_name ? `${transfer.sender_first_name} ${transfer.sender_last_name}` : 'Unknown',
         accountNumber: transfer.sender_account_number || transfer.source_account_number || '',
-        bankName: transfer.sender_bank_name || 'Your Bank',
-        bankCode: transfer.sender_bank_code || transfer.source_bank_code || ''
+        bankName: senderBankName,
+        bankCode: senderBankCode
       },
       recipient: {
         name: transfer.recipient_name || '',
