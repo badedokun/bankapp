@@ -421,7 +421,7 @@ router.post('/initiate', authenticateToken, validateTenantAccess, [
                u.first_name, u.last_name, u.account_number as source_account
         FROM tenant.wallets w
         JOIN tenant.users u ON w.user_id = u.id
-        WHERE w.user_id = $1 AND w.tenant_id = $2 AND w.is_primary = true
+        WHERE w.user_id = $1 AND w.tenant_id = $2 AND w.wallet_type = 'main'
       `, [userId, tenantId]);
 
       // Get bank code from platform database (cross-database join not supported)
@@ -590,7 +590,7 @@ router.post('/initiate', authenticateToken, validateTenantAccess, [
         // Get recipient's primary wallet
         const recipientWalletResult = await client.query(`
           SELECT id, balance FROM tenant.wallets
-          WHERE user_id = $1 AND tenant_id = $2 AND is_primary = true
+          WHERE user_id = $1 AND tenant_id = $2 AND wallet_type = 'main'
         `, [recipientUserId, tenantId]);
 
         if (recipientWalletResult.rowCount === 0) {
@@ -947,7 +947,7 @@ router.post('/internal', authenticateToken, validateTenantAccess, [
     const walletQuery = await dbManager.queryTenant(tenantId, `
       SELECT id FROM tenant.wallets
       WHERE user_id = $1 AND tenant_id = $2 AND status = 'active'
-      ORDER BY is_primary DESC, created_at ASC
+      ORDER BY CASE WHEN wallet_type = 'main' THEN 0 ELSE 1 END, created_at ASC
       LIMIT 1
     `, [req.user.id, tenantId]);
 
@@ -966,7 +966,7 @@ router.post('/internal', authenticateToken, validateTenantAccess, [
       SELECT w.id FROM tenant.wallets w
       JOIN tenant.users u ON w.user_id = u.id
       WHERE w.wallet_number = $1 AND w.tenant_id = $2 AND w.status = 'active'
-      ORDER BY w.is_primary DESC
+      ORDER BY CASE WHEN w.wallet_type = 'main' THEN 0 ELSE 1 END
       LIMIT 1
     `, [req.body.recipientAccountNumber, tenantId]);
 
@@ -1016,7 +1016,7 @@ router.post('/external', authenticateToken, validateTenantAccess, [
     const walletQuery = await dbManager.queryTenant(tenantId, `
       SELECT id FROM tenant.wallets
       WHERE user_id = $1 AND tenant_id = $2 AND status = 'active'
-      ORDER BY is_primary DESC, created_at ASC
+      ORDER BY CASE WHEN wallet_type = 'main' THEN 0 ELSE 1 END, created_at ASC
       LIMIT 1
     `, [req.user.id, tenantId]);
 
@@ -1067,7 +1067,7 @@ router.post('/bills', authenticateToken, validateTenantAccess, [
     const walletQuery = await dbManager.queryTenant(tenantId, `
       SELECT id FROM tenant.wallets
       WHERE user_id = $1 AND tenant_id = $2 AND status = 'active'
-      ORDER BY is_primary DESC, created_at ASC
+      ORDER BY CASE WHEN wallet_type = 'main' THEN 0 ELSE 1 END, created_at ASC
       LIMIT 1
     `, [req.user.id, tenantId]);
 
@@ -1120,7 +1120,7 @@ router.post('/international', authenticateToken, validateTenantAccess, [
     const walletQuery = await dbManager.queryTenant(tenantId, `
       SELECT id FROM tenant.wallets
       WHERE user_id = $1 AND tenant_id = $2 AND status = 'active'
-      ORDER BY is_primary DESC, created_at ASC
+      ORDER BY CASE WHEN wallet_type = 'main' THEN 0 ELSE 1 END, created_at ASC
       LIMIT 1
     `, [req.user.id, tenantId]);
 
