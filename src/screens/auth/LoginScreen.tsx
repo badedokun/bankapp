@@ -130,7 +130,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             text: 'Contact Support',
             onPress: () => {
               // Log security event for support contact
-              console.log('User requested support for locked account:', formData.email);
             }
           },
           {
@@ -303,7 +302,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           {
             text: 'Contact Support',
             onPress: () => {
-              console.log('User requested support for password reset');
             }
           },
           {
@@ -747,7 +745,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
             <TouchableOpacity
               onPress={() => {
-                console.log('🚀 Sign In button pressed');
                 triggerHaptic('impactMedium');
                 handleSubmit();
               }}

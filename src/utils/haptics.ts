@@ -66,7 +66,6 @@ export const triggerHaptic = async (type: HapticFeedbackType = 'impactMedium'): 
     }
   } catch (error) {
     // Silently fail if haptics not supported
-    console.debug('Haptic feedback not available:', error);
   }
 };
 

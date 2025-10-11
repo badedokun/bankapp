@@ -88,7 +88,9 @@ export const LinearGradient: React.FC<LinearGradientProps> = ({
     const baseStyle = convertStyleToWeb(style || {});
     const gradientStyle: React.CSSProperties = {
       ...baseStyle,
-      background: `linear-gradient(${angle}deg, ${colors.join(', ')})`,
+      backgroundImage: `linear-gradient(${angle}deg, ${colors.join(', ')})`,
+      display: 'flex',
+      flexDirection: 'column',
     };
 
     return (

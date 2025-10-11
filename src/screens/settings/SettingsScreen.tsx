@@ -188,10 +188,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
   // Update user limits (admin only)
   const handleUpdateUserLimits = useCallback(async () => {
-    console.log('🔧 Update User Limits clicked', adminLimitsForm);
     
     if (!adminLimitsForm.userEmail || !adminLimitsForm.dailyLimit || !adminLimitsForm.monthlyLimit) {
-      console.log('❌ Missing fields validation failed');
       showAlert('Error', 'Please fill in all fields');
       return;
     }
@@ -199,25 +197,20 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     const daily = parseFloat(adminLimitsForm.dailyLimit);
     const monthly = parseFloat(adminLimitsForm.monthlyLimit);
     
-    console.log('🔍 Parsed values:', { daily, monthly, dailyString: adminLimitsForm.dailyLimit, monthlyString: adminLimitsForm.monthlyLimit });
 
     if (isNaN(daily) || isNaN(monthly)) {
-      console.log('❌ Invalid number format');
       showAlert('Error', 'Please enter valid numbers for limits');
       return;
     }
 
     if (daily > monthly) {
-      console.log('❌ Daily > Monthly validation failed:', { daily, monthly });
       showAlert('Error', 'Daily limit cannot exceed monthly limit');
       return;
     }
 
-    console.log('🚀 Starting API call...', { userEmail: adminLimitsForm.userEmail, daily, monthly });
     setIsUpdatingLimits(true);
     try {
       const result = await APIService.updateUserLimits(adminLimitsForm.userEmail, daily, monthly);
-      console.log('✅ API call successful:', result);
       
       showAlert('Success', `Transaction limits updated successfully for ${adminLimitsForm.userEmail}`);
       setAdminLimitsForm({ userEmail: '', dailyLimit: '', monthlyLimit: '' });

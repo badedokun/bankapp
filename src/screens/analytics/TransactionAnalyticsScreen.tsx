@@ -81,24 +81,6 @@ const TransactionAnalyticsScreen: React.FC<TransactionAnalyticsScreenProps> = ({
 
       const transactions = response.transactions || [];
 
-      console.log('📊 Analytics Debug:', {
-        totalTransactions: transactions.length,
-        sampleTransaction: transactions[0],
-        allStatuses: [...new Set(transactions.map((t: any) => t.status))],
-        allDirections: [...new Set(transactions.map((t: any) => t.direction))],
-        transactionDates: transactions.slice(0, 5).map((t: any) => {
-          const dateStr = t.createdAt || t.created_at || t.date;
-          const date = new Date(dateStr);
-          return {
-            dateField: dateStr,
-            isValid: !isNaN(date.getTime()),
-            parsed: date,
-            month: !isNaN(date.getTime()) ? date.getMonth() : 'invalid',
-            year: !isNaN(date.getTime()) ? date.getFullYear() : 'invalid'
-          };
-        })
-      });
-
       // Get the actual year from the most recent transaction (handle test data with old dates)
       let latestTxnDate = new Date();
       if (transactions.length > 0) {
@@ -115,13 +97,6 @@ const TransactionAnalyticsScreen: React.FC<TransactionAnalyticsScreenProps> = ({
       const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
       const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
 
-      console.log('📅 Using transaction date:', {
-        latestTxnDate: latestTxnDate.toISOString(),
-        currentYear,
-        currentMonth,
-        monthName: latestTxnDate.toLocaleDateString('en-US', { month: 'short' })
-      });
-
       // Filter transactions by month
       const currentMonthTxns = transactions.filter((t: any) => {
         const dateStr = t.createdAt || t.created_at || t.date;
@@ -135,13 +110,6 @@ const TransactionAnalyticsScreen: React.FC<TransactionAnalyticsScreenProps> = ({
         return txDate.getMonth() === lastMonth && txDate.getFullYear() === lastMonthYear;
       });
 
-      console.log('📅 Month Debug:', {
-        currentMonth,
-        currentYear,
-        currentMonthTxnsCount: currentMonthTxns.length,
-        sampleCurrentMonthTxn: currentMonthTxns[0]
-      });
-
       // Calculate money sent vs money received (successful transactions only)
       const currentMonthSentTxns = currentMonthTxns
         .filter((t: any) => (t.status === 'completed' || t.status === 'successful') && t.direction === 'sent');
@@ -152,15 +120,6 @@ const TransactionAnalyticsScreen: React.FC<TransactionAnalyticsScreenProps> = ({
         .filter((t: any) => (t.status === 'completed' || t.status === 'successful') && t.direction === 'received');
       const currentMonthReceived = currentMonthReceivedTxns
         .reduce((sum: number, t: any) => sum + (parseFloat(t.amount) || 0), 0);
-
-      console.log('💰 Money Flow Debug:', {
-        currentMonthSentCount: currentMonthSentTxns.length,
-        currentMonthSent,
-        currentMonthReceivedCount: currentMonthReceivedTxns.length,
-        currentMonthReceived,
-        sampleSentTxn: currentMonthSentTxns[0],
-        sampleReceivedTxn: currentMonthReceivedTxns[0]
-      });
 
       const lastMonthSent = lastMonthTxns
         .filter((t: any) => (t.status === 'completed' || t.status === 'successful') && t.direction === 'sent')

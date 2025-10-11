@@ -152,11 +152,13 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Public theme endpoint - completely separate path to avoid auth middleware
+app.use('/api/theme', tenantThemesRoutes);
+
 // API routes
 app.use('/api/auth', authLimiter, tenantMiddleware, authRoutes);
 app.use('/api/registration', authLimiter, tenantMiddleware, registrationRoutes); // Public registration - no auth required
 app.use('/api/tenants', assetRoutes); // Public asset serving - no auth required
-app.use('/api/tenants/theme', tenantThemesRoutes); // Public tenant theme API - no auth required (moved up to avoid auth)
 app.use('/api/tenants', authenticateToken, tenantRoutes);
 app.use('/api/users', authenticateToken, tenantMiddleware, userRoutes);
 app.use('/api/transfers', authenticateToken, tenantMiddleware, transferRoutes);

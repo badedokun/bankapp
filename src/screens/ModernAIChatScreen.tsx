@@ -246,7 +246,6 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
       try {
         userProfile = await APIService.getProfile();
       } catch (error) {
-        console.log('Could not fetch user profile for AI context');
       }
 
       try {
@@ -255,7 +254,6 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
           recentTransactions = transactionsData.transactions.slice(0, 3);
         }
       } catch (error) {
-        console.log('Could not fetch transactions for AI context');
       }
 
       const baseURL = Platform.OS === 'web' ? 'http://localhost:3001' : 'http://localhost:3001';
@@ -284,7 +282,6 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
       }
 
       const data = await response.json();
-      console.log('🔥 Fresh AI Response:', data.response);
 
       return {
         message: data.response || data.message || data.text || 'I understand. How can I help you further?',

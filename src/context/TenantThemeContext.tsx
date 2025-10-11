@@ -186,8 +186,8 @@ export const TenantThemeProvider: React.FC<TenantThemeProviderProps> = ({ childr
 
   const fetchTenantTheme = async (tenantCode: string): Promise<TenantTheme | null> => {
     try {
-      // API call to fetch tenant theme configuration
-      const apiUrl = buildApiUrl(`tenants/theme/${tenantCode}`);
+      // API call to fetch tenant theme configuration (public endpoint, no auth required)
+      const apiUrl = buildApiUrl(`theme/${tenantCode}`);
       const response = await fetch(apiUrl, {
         headers: {
           'Content-Type': 'application/json',
@@ -249,8 +249,21 @@ export const TenantThemeProvider: React.FC<TenantThemeProviderProps> = ({ childr
       // Try multiple sources to detect tenant
       let tenantCode: string | null = null;
 
-      // 1. Check JWT token (from AsyncStorage for React Native)
-      if (Platform.OS !== 'web') {
+      // 1. Check deployment config first (from webpack build-time injection)
+      if (Platform.OS === 'web' && typeof window !== 'undefined') {
+        try {
+          // Use the tenant set by HTML template's deployment config
+          const storedTenant = localStorage.getItem('currentTenant');
+          if (storedTenant) {
+            tenantCode = storedTenant;
+          }
+        } catch (error) {
+          console.warn('Failed to read tenant from localStorage:', error);
+        }
+      }
+
+      // 2. Check JWT token (from AsyncStorage for React Native)
+      if (!tenantCode && Platform.OS !== 'web') {
         try {
           const token = await AsyncStorage.getItem('authToken');
           if (token) {
@@ -260,16 +273,16 @@ export const TenantThemeProvider: React.FC<TenantThemeProviderProps> = ({ childr
         } catch (error) {
           console.warn('Failed to read JWT from AsyncStorage:', error);
         }
-      } else {
+      } else if (!tenantCode) {
         tenantCode = getTenantFromJWT();
       }
 
-      // 2. Check subdomain (Web only)
+      // 3. Check subdomain (Web only) - ONLY if deployment config didn't work
       if (!tenantCode) {
         tenantCode = getTenantFromSubdomain();
       }
 
-      // 3. Check environment variables (Development)
+      // 4. Check environment variables (Development)
       if (!tenantCode) {
         tenantCode = getTenantFromEnvironment();
       }

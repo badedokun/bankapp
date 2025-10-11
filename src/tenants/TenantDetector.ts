@@ -49,44 +49,36 @@ class TenantDetector {
       // Try multiple detection methods in order of priority
       let tenantId: string | null = null;
 
-      console.log('🔍 Starting tenant detection...');
 
       // 1. FIRST PRIORITY: Deployment configuration (most important)
       const deploymentConfig = DeploymentManager.getConfig();
-      console.log('🚀 Checking deployment config:', deploymentConfig);
       if (deploymentConfig.defaultTenant && this.isValidTenantId(deploymentConfig.defaultTenant)) {
         tenantId = deploymentConfig.defaultTenant;
-        console.log(`✅ Using deployment default tenant: ${tenantId}`);
 
         // Save this tenant and return immediately - deployment config is the source of truth
         this.currentTenantId = tenantId as TenantID;
         await this.saveTenantToStorage(this.currentTenantId);
-        console.log(`🎯 Deployment config selected tenant: ${this.currentTenantId}`);
         return this.currentTenantId;
       }
 
       // 2. Second priority: JWT token (for authenticated sessions)
       if (!tenantId) {
         tenantId = await this.detectFromJWT();
-        if (tenantId) console.log(`🔐 Detected tenant from JWT: ${tenantId}`);
       }
 
       // 3. Third priority: Web environment detection (subdomain, query params)
       if (!tenantId && Platform.OS === 'web') {
         tenantId = this.detectFromWeb();
-        if (tenantId) console.log(`🌐 Detected tenant from web: ${tenantId}`);
       }
 
       // 4. Fourth priority: Stored tenant (for offline scenarios)
       if (!tenantId) {
         tenantId = await this.detectFromStorage();
-        if (tenantId) console.log(`💾 Detected tenant from storage: ${tenantId}`);
       }
 
       // 5. Fifth priority: Configuration/environment
       if (!tenantId) {
         tenantId = await this.detectFromConfig();
-        if (tenantId) console.log(`⚙️ Detected tenant from config: ${tenantId}`);
       }
 
       // If no tenant detected, throw error instead of defaulting
@@ -104,7 +96,6 @@ class TenantDetector {
       this.currentTenantId = tenantId as TenantID;
       await this.saveTenantToStorage(this.currentTenantId);
 
-      console.log(`🎯 Final selected tenant: ${this.currentTenantId}`);
       return this.currentTenantId;
     } catch (error) {
       console.error('Error detecting tenant:', error);

@@ -13,7 +13,7 @@ import {
   TouchableOpacityProps,
   View,
 } from 'react-native';
-import { useTenantTheme } from '../../context/TenantThemeContext';
+import { useTenantTheme } from '../../tenants/TenantContext';
 
 export interface ModernBackButtonProps extends Omit<TouchableOpacityProps, 'style'> {
   onPress: () => void;

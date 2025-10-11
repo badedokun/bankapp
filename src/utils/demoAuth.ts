@@ -83,7 +83,6 @@ class DemoAuthManager {
     await Storage.setItem('access_token', token);
     await Storage.setItem('demo_mode', 'true');
 
-    console.log('Demo auth set for tenant:', tenantId);
     return token;
   }
 
@@ -153,7 +152,6 @@ class DemoAuthManager {
   async clearDemoAuth(): Promise<void> {
     await Storage.removeItem('access_token');
     await Storage.removeItem('demo_mode');
-    console.log('Demo auth cleared');
   }
 
   /**

@@ -423,7 +423,6 @@ export const CompleteTransferFlowScreen: React.FC<CompleteTransferFlowScreenProp
         error: null,
       });
 
-      console.log('🔍 Verifying account:', { accountNumber, bankCode });
 
       const response = await APIService.validateRecipient({
         accountNumber,

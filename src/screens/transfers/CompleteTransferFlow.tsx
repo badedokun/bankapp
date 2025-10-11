@@ -344,7 +344,6 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
       // Generate a test account name
       const testName = `Test Account ${transferData.accountNumber.slice(-4)}`;
       setTransferData(prev => ({ ...prev, accountName: testName }));
-      console.log('🧪 Testing Mode: Auto-populated account name:', testName);
     }
 
     if (!transferData.amount) errors.push('Enter transfer amount');
@@ -389,7 +388,6 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
     setIsProcessing(true);
 
     try {
-      console.log('💰 Initiating transfer via API...');
 
       // Call real transfer API
       const transferResult = await APIService.initiateTransfer({
@@ -401,7 +399,6 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
         pin: transferData.pin,
       });
 
-      console.log('✅ Transfer API response:', transferResult);
 
       // Set transaction reference from API response
       // API returns: { reference, transferId, transactionId, status, message, amount, recipient, fee }
@@ -417,7 +414,6 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
         transferResult.status === 'completed' ||
         transferResult.status === 'success'
       ) {
-        console.log('🎉 Transfer completed successfully!');
 
         // Move to success page
         setCurrentStep('complete');
@@ -429,7 +425,6 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
         );
       } else if (transferResult.status === 'pending' || transferResult.status === 'processing') {
         // Transfer is pending/processing (external NIBSS transfers)
-        console.log('⏳ Transfer is being processed via NIBSS...');
         setCurrentStep('complete');
         notify.warning(
           'Your transfer is being processed. You will receive a notification when completed.',

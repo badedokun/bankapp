@@ -159,7 +159,7 @@ class APIService {
     if (!isReactNative() && typeof window !== 'undefined') {
       const hostname = window.location.hostname;
       const subdomain = hostname.split('.')[0];
-      
+
       // Map subdomains to tenant names - no hardcoded defaults
       const subdomainMap: Record<string, string> = {
         'fmfb': 'fmfb',
@@ -171,7 +171,20 @@ class APIService {
         return process.env.REACT_APP_TENANT_CODE || 'platform';
       }
 
-      return subdomainMap[subdomain] || 'platform';
+      // Check for exact match first
+      if (subdomainMap[subdomain]) {
+        return subdomainMap[subdomain];
+      }
+
+      // For nip.io and other deployment domains (e.g., fmfb-34-59-143-25.nip.io)
+      // Check if subdomain starts with a known tenant prefix
+      for (const [prefix, tenantId] of Object.entries(subdomainMap)) {
+        if (subdomain.startsWith(prefix + '-') || subdomain === prefix) {
+          return tenantId;
+        }
+      }
+
+      return 'platform';
     }
 
     // Check for environment variable (React Native and fallback)

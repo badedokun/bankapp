@@ -141,19 +141,7 @@ const createEnvironmentConfig = (): EnvironmentConfig => {
     IS_CLOUD_DEPLOYMENT: isCloudDeployment
   };
   
-  // Log configuration in development
-  if (config.ENABLE_LOGGER) {
-    console.log('🔧 Environment Configuration:', {
-      environment: config.ENVIRONMENT,
-      isCloudDeployment: config.IS_CLOUD_DEPLOYMENT,
-      apiBaseUrl: config.API_BASE_URL || 'relative',
-      webUrl: config.WEB_URL,
-      enableDevtools: config.ENABLE_DEVTOOLS
-    });
-    console.log('🔍 Full ENV_CONFIG object:', config);
-    console.log('🔍 process.env.REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
-    console.log('🔍 baseUrls from getBaseUrls:', baseUrls);
-  }
+  // Configuration loaded silently in production
   
   return config;
 };
