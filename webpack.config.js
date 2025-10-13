@@ -122,6 +122,11 @@ module.exports = {
       template: path.join(__dirname, 'public', 'index.html'),
       filename: 'index.html',
       inject: 'body',
+      templateParameters: {
+        DEPLOYMENT_TYPE: process.env.DEPLOYMENT_TYPE || 'development',
+        NODE_ENV: process.env.NODE_ENV || 'development',
+        REACT_APP_API_URL: process.env.REACT_APP_API_URL || '/api',
+      },
     }),
     // TEMP: Disabled TypeScript checking to allow build with type errors
     // new ForkTsCheckerWebpackPlugin({
