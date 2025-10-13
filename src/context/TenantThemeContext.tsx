@@ -9,13 +9,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 import { buildApiUrl } from '../config/environment';
 
-// Default Platform Theme - No hardcoded tenant data
-const DEFAULT_THEME = {
-  tenantId: 'platform',
-  tenantCode: 'orokiipay',
-  brandName: 'OrokiiPay',
-  brandTagline: 'AI-Enhanced Banking Platform',
-  brandLogo: '',
+// Generic Theme Defaults - NO tenant-specific data
+// Only styling defaults, tenant info comes from dynamic sources (JWT, .env, subdomain, API)
+const DEFAULT_STYLING = {
   currency: 'NGN',
   locale: 'en-NG',
   timezone: 'Africa/Lagos',
@@ -175,11 +171,19 @@ const getTenantFromEnvironment = (): string | null => {
 };
 
 export const TenantThemeProvider: React.FC<TenantThemeProviderProps> = ({ children }) => {
-  const [theme, setTheme] = useState<TenantTheme>(DEFAULT_THEME);
+  // Initialize with generic styling only, tenant info will be loaded dynamically
+  const [theme, setTheme] = useState<TenantTheme>({
+    tenantId: '',
+    tenantCode: '',
+    brandName: 'Banking Platform',
+    brandTagline: 'Secure Banking',
+    brandLogo: '',
+    ...DEFAULT_STYLING,
+  });
   const [tenantInfo, setTenantInfo] = useState({
-    id: 'platform',
-    code: 'orokiipay',
-    name: 'OrokiiPay',
+    id: '',
+    code: '',
+    name: 'Banking Platform',
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -215,30 +219,30 @@ export const TenantThemeProvider: React.FC<TenantThemeProviderProps> = ({ childr
         transformed: brandLogo
       });
 
-      // Merge with DEFAULT_THEME to ensure all required properties exist
-      // API colors override default colors, but default colors provide fallback
+      // Merge with DEFAULT_STYLING to ensure all required properties exist
+      // API data overrides default styling
       const mergedTheme = {
-        ...DEFAULT_THEME,
+        ...DEFAULT_STYLING,
         ...themeData,
         brandLogo, // Use transformed logo URL
         colors: {
-          ...DEFAULT_THEME.colors,
+          ...DEFAULT_STYLING.colors,
           ...(themeData.colors || {}),
           // Ensure critical colors always exist - these MUST come from API or fallback to default
-          textInverse: themeData.colors?.textInverse || DEFAULT_THEME.colors.textInverse,
-          primaryGradientStart: themeData.colors?.primaryGradientStart || themeData.colors?.primary || DEFAULT_THEME.colors.primaryGradientStart,
-          primaryGradientEnd: themeData.colors?.primaryGradientEnd || themeData.colors?.secondary || DEFAULT_THEME.colors.primaryGradientEnd,
+          textInverse: themeData.colors?.textInverse || DEFAULT_STYLING.colors.textInverse,
+          primaryGradientStart: themeData.colors?.primaryGradientStart || themeData.colors?.primary || DEFAULT_STYLING.colors.primaryGradientStart,
+          primaryGradientEnd: themeData.colors?.primaryGradientEnd || themeData.colors?.secondary || DEFAULT_STYLING.colors.primaryGradientEnd,
         },
         typography: {
-          ...DEFAULT_THEME.typography,
+          ...DEFAULT_STYLING.typography,
           ...(themeData.typography || {}),
         },
         numberFormat: {
-          ...DEFAULT_THEME.numberFormat,
+          ...DEFAULT_STYLING.numberFormat,
           ...(themeData.numberFormat || {}),
         },
         layout: {
-          ...DEFAULT_THEME.layout,
+          ...DEFAULT_STYLING.layout,
           ...(themeData.layout || {}),
         },
       };
@@ -290,14 +294,9 @@ export const TenantThemeProvider: React.FC<TenantThemeProviderProps> = ({ childr
         tenantCode = getTenantFromEnvironment();
       }
 
-      // 4. If no tenant detected, use platform default
+      // 4. If no tenant detected, show error - all deployments must have tenant configured
       if (!tenantCode) {
-        setTheme(DEFAULT_THEME);
-        setTenantInfo({
-          id: 'platform',
-          code: 'orokiipay',
-          name: 'OrokiiPay',
-        });
+        setError('No tenant configuration found. Please check deployment settings.');
         setIsLoading(false);
         return;
       }
@@ -306,6 +305,7 @@ export const TenantThemeProvider: React.FC<TenantThemeProviderProps> = ({ childr
       const tenantTheme = await fetchTenantTheme(tenantCode);
 
       if (tenantTheme) {
+        // API succeeded - use tenant data from API
         setTheme(tenantTheme);
         setTenantInfo({
           id: tenantTheme.tenantId,
@@ -314,24 +314,46 @@ export const TenantThemeProvider: React.FC<TenantThemeProviderProps> = ({ childr
           subdomain: getTenantFromSubdomain() || undefined,
         });
       } else {
-        // Fallback to default theme if tenant theme not found
-        setTheme(DEFAULT_THEME);
-        setTenantInfo({
-          id: 'platform',
-          code: 'orokiipay',
-          name: 'OrokiiPay',
+        // API failed - use generic styling with dynamically detected tenant code
+        // Tenant branding will be loaded when API becomes available
+        setTheme({
+          tenantId: tenantCode,
+          tenantCode: tenantCode,
+          brandName: 'Banking Platform',
+          brandTagline: 'Secure Banking',
+          brandLogo: '',
+          ...DEFAULT_STYLING,
         });
-        setError(`Theme not found for tenant: ${tenantCode}`);
+        setTenantInfo({
+          id: tenantCode,
+          code: tenantCode,
+          name: 'Banking Platform',
+        });
+        console.warn(`Theme API unavailable for tenant: ${tenantCode}. Using generic styling.`);
       }
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Unknown error');
-      // Fallback to default theme on error
-      setTheme(DEFAULT_THEME);
-      setTenantInfo({
-        id: 'platform',
-        code: 'orokiipay',
-        name: 'OrokiiPay',
-      });
+      // On error, use generic styling with dynamically detected tenant code if available
+      const storedTenant = Platform.OS === 'web' && typeof localStorage !== 'undefined'
+        ? localStorage.getItem('currentTenant')
+        : null;
+
+      if (storedTenant) {
+        setTheme({
+          tenantId: storedTenant,
+          tenantCode: storedTenant,
+          brandName: 'Banking Platform',
+          brandTagline: 'Secure Banking',
+          brandLogo: '',
+          ...DEFAULT_STYLING,
+        });
+        setTenantInfo({
+          id: storedTenant,
+          code: storedTenant,
+          name: 'Banking Platform',
+        });
+        console.warn(`Error loading theme for tenant: ${storedTenant}. Using generic styling.`);
+      }
     } finally {
       setIsLoading(false);
     }

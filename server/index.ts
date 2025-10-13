@@ -27,8 +27,7 @@ import pciDssComplianceRoutes from './routes/pci-dss-compliance';
 import securityMonitoringRoutes from './routes/security-monitoring';
 import transactionLimitsRoutes from './routes/transaction-limits';
 import aiChatRoutes from './routes/ai-chat';
-// TEMP: Disabled due to TypeScript errors
-// import { createRBACRouter } from './routes/rbac';
+import { createRBACRouter } from './routes/rbac';
 import accountRoutes from './routes/accounts';
 import billRoutes from './routes/bills';
 import analyticsRoutes from './routes/analytics';
@@ -164,8 +163,7 @@ app.use('/api/pci-dss-compliance', authenticateToken, tenantMiddleware, pciDssCo
 app.use('/api/security-monitoring', authenticateToken, tenantMiddleware, securityMonitoringRoutes);
 app.use('/api/transaction-limits', authenticateToken, tenantMiddleware, transactionLimitsRoutes);
 app.use('/api/ai', authenticateToken, tenantMiddleware, aiChatRoutes);
-// TEMP: Disabled due to TypeScript errors
-// app.use('/api/rbac', tenantMiddleware, createRBACRouter(pool));
+app.use('/api/rbac', tenantMiddleware, createRBACRouter(pool));
 app.use('/api/accounts', authenticateToken, tenantMiddleware, accountRoutes);
 app.use('/api/bills', authenticateToken, tenantMiddleware, billRoutes);
 app.use('/api/analytics', authenticateToken, tenantMiddleware, analyticsRoutes);
