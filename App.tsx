@@ -21,8 +21,13 @@ const AppContent: React.FC = () => {
   const { theme } = useTenantTheme();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Check authentication status on app start
+  // Initialize tenant context and check authentication status on app start
   useEffect(() => {
+    // Initialize tenant context from subdomain/domain (async)
+    APIService.initializeTenantContext().catch(error => {
+      console.error('Failed to initialize tenant context:', error);
+    });
+
     // SECURITY: Clear all authentication on app launch to prevent bypass
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');

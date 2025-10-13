@@ -15,7 +15,7 @@ import path from 'path';
 // Import routes
 import authRoutes from './routes/auth';
 import registrationRoutes from './routes/registration';
-import tenantRoutes from './routes/tenants';
+import tenantRoutes, { publicRouter as publicTenantRoutes } from './routes/tenants';
 import userRoutes from './routes/users';
 import transferRoutes, { initializeTransferServices } from './routes/transfers';
 import transactionRoutes from './routes/transactions';
@@ -152,6 +152,7 @@ app.use('/api/auth', authLimiter, tenantMiddleware, authRoutes);
 app.use('/api/registration', authLimiter, tenantMiddleware, registrationRoutes); // Public registration - no auth required
 app.use('/api/tenants', assetRoutes); // Public asset serving - no auth required
 app.use('/api/tenants/theme', tenantThemesRoutes); // Public tenant theme API - no auth required (moved up to avoid auth)
+app.use('/api/tenants', publicTenantRoutes); // Public tenant lookup - no auth required (must be before authenticated routes)
 app.use('/api/tenants', authenticateToken, tenantRoutes);
 app.use('/api/users', authenticateToken, tenantMiddleware, userRoutes);
 app.use('/api/transfers', authenticateToken, tenantMiddleware, transferRoutes);

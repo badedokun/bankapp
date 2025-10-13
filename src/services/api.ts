@@ -86,6 +86,11 @@ class APIService {
   private refreshToken: string | null = null;
   private currentUser: LoginResponse['user'] | null = null;
 
+  // Tenant lookup cache (client-side)
+  private tenantCache: Map<string, { tenantId: string; timestamp: number }> = new Map();
+  private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+  private resolvedTenantId: string | null = null;
+
   private constructor() {
     this.baseURL = API_BASE_URL;
     // Don't load tokens in constructor as it's async
@@ -140,10 +145,49 @@ class APIService {
   }
 
   /**
-   * Get current tenant ID from JWT token or domain
+   * Lookup tenant ID from subdomain using backend API
+   * Includes client-side caching for performance
+   */
+  private async lookupTenantBySubdomain(subdomain: string): Promise<string | null> {
+    // Check cache first
+    const cached = this.tenantCache.get(subdomain);
+    if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
+      return cached.tenantId;
+    }
+
+    try {
+      // Call backend tenant lookup API (no auth required)
+      const response = await fetch(`${this.baseURL}/tenants/lookup?subdomain=${encodeURIComponent(subdomain)}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) {
+        return null;
+      }
+
+      const data = await response.json();
+      if (data.success && data.data?.tenantId) {
+        // Cache the result
+        this.tenantCache.set(subdomain, {
+          tenantId: data.data.tenantId,
+          timestamp: Date.now()
+        });
+        return data.data.tenantId;
+      }
+    } catch (error) {
+      console.error('Failed to lookup tenant:', error);
+    }
+
+    return null;
+  }
+
+  /**
+   * Get current tenant ID from JWT token, resolved tenant, or domain
+   * Uses dynamic database lookup instead of hardcoded mapping
    */
   private getTenantId(): string {
-    // Try to get from current access token
+    // 1. Try to get from current access token (most authoritative)
     if (this.accessToken) {
       try {
         const payload = JWTManager.parseToken(this.accessToken);
@@ -155,32 +199,73 @@ class APIService {
       }
     }
 
-    // Try to get from current domain (only if not React Native)
+    // 2. Try to get from previously resolved tenant ID (from async lookup)
+    if (this.resolvedTenantId) {
+      return this.resolvedTenantId;
+    }
+
+    // 3. Try to get from current domain (only if not React Native)
     if (!isReactNative() && typeof window !== 'undefined') {
       const hostname = window.location.hostname;
       const subdomain = hostname.split('.')[0];
-      
-      // Map subdomains to tenant names - no hardcoded defaults
-      const subdomainMap: Record<string, string> = {
-        'fmfb': 'fmfb',
-        'dev': 'development'
-      };
 
-      // Check for environment variable for localhost development
-      if (subdomain === 'localhost') {
+      // Check for localhost development - use environment variable
+      if (subdomain === 'localhost' || hostname === 'localhost') {
         return process.env.REACT_APP_TENANT_CODE || 'platform';
       }
 
-      return subdomainMap[subdomain] || 'platform';
+      // For non-localhost, check if we have a cached lookup
+      const cached = this.tenantCache.get(subdomain);
+      if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
+        return cached.tenantId;
+      }
+
+      // If no cache, we'll need to wait for initialization
+      // Return subdomain as temporary fallback (will be resolved to tenant ID by backend)
+      return subdomain;
     }
 
-    // Check for environment variable (React Native and fallback)
+    // 4. Check for environment variable (React Native and fallback)
     if (typeof process !== 'undefined' && process.env) {
       return process.env.REACT_APP_TENANT_CODE || 'platform';
     }
 
     // Final fallback to platform
     return 'platform';
+  }
+
+  /**
+   * Initialize tenant context (call this early in app lifecycle)
+   * Performs async tenant lookup and caches result
+   */
+  async initializeTenantContext(): Promise<string | null> {
+    if (!isReactNative() && typeof window !== 'undefined') {
+      const hostname = window.location.hostname;
+      const subdomain = hostname.split('.')[0];
+
+      // Skip localhost
+      if (subdomain === 'localhost' || hostname === 'localhost') {
+        const tenantId = process.env.REACT_APP_TENANT_CODE || 'platform';
+        this.resolvedTenantId = tenantId;
+        return tenantId;
+      }
+
+      // Perform async tenant lookup
+      const tenantId = await this.lookupTenantBySubdomain(subdomain);
+      if (tenantId) {
+        this.resolvedTenantId = tenantId;
+      }
+      return tenantId;
+    }
+
+    // For React Native, use environment variable
+    if (typeof process !== 'undefined' && process.env) {
+      const tenantId = process.env.REACT_APP_TENANT_CODE || 'platform';
+      this.resolvedTenantId = tenantId;
+      return tenantId;
+    }
+
+    return null;
   }
 
   /**
@@ -1484,6 +1569,39 @@ class APIService {
       return response.data;
     }
     throw new Error(response.error || 'Failed to get enhanced dashboard data');
+  }
+
+  /**
+   * Submit a transaction dispute
+   */
+  async submitDispute(disputeData: {
+    transactionId: string;
+    transactionReference: string;
+    transactionType: string;
+    transactionDetails: any;
+    disputeReason: string;
+    disputeCategory?: string;
+    additionalNotes?: string;
+  }): Promise<{
+    dispute: {
+      id: string;
+      disputeNumber: string;
+      transactionReference: string;
+      status: string;
+      priority: string;
+      createdAt: string;
+    };
+  }> {
+    const response = await this.makeRequest<any>('transactions/disputes', {
+      method: 'POST',
+      body: JSON.stringify(disputeData)
+    });
+
+    if (response.success && response.data) {
+      return response.data;
+    }
+
+    throw new Error(response.error || 'Failed to submit dispute');
   }
 }
 
