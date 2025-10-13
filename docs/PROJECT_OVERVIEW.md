@@ -130,6 +130,31 @@ DEPLOYMENT_TYPE=development
 - Common anti-patterns and their fixes
 - **Based on real experience achieving 14/14 test pass rate**
 
+### For Mobile Development (Android & iOS) ⭐ **NEW**
+**📱 [Android Development Guide](./ANDROID_DEVELOPMENT_GUIDE.md)**
+- Complete Android APK build process with JDK 21
+- StatusBar overlap patterns and fixes
+- Common Android build issues and solutions
+- Testing checklist for Android builds
+
+**🍎 [iOS Development Guide](./IOS_DEVELOPMENT_GUIDE.md)**
+- Complete iOS build process with Xcode and CocoaPods
+- SafeArea patterns for iOS devices
+- App Store submission guidelines
+- TestFlight beta testing setup
+
+**🎨 [Mobile UI System Compatibility Analysis](./ANDROID_UI_SYSTEM_COMPATIBILITY_ANALYSIS.md)**
+- Platform-specific UI component compatibility
+- Gradient and blur effects on mobile
+- Custom fonts configuration for both platforms
+- Performance optimization recommendations
+
+**📋 [iOS Build Requirements Checklist](./IOS_BUILD_REQUIREMENTS_CHECKLIST.md)**
+- Current system assessment for iOS development
+- Required software and setup time estimates
+- Cost breakdown ($0 for development, $99/year for production)
+- Step-by-step installation guide
+
 ### Why These Guides Exist
 We achieved **100% test pass rate (14/14 transfer tests)** after resolving critical issues that cost significant debugging time:
 - Missing database tables (`transaction_logs`, `recipients`)
@@ -174,6 +199,38 @@ sdk use java 21.0.4-tem
 - ✅ **JDK 21**: Works perfectly (recommended)
 - ✅ **JDK 17**: Also compatible
 - ❌ **JDK 24**: CMake "restricted method" error with react-native-screens
+
+### iOS Build ⭐ **NEW**
+```bash
+# Prerequisites: macOS with Xcode 15+ and CocoaPods installed
+# First-time setup:
+npm install expo-linear-gradient @react-native-community/blur
+cd ios && pod install && cd ..
+
+# Development Build (Simulator) - FREE, no Apple account needed
+npx react-native run-ios --simulator="iPhone 15 Pro"
+
+# List available simulators
+xcrun simctl list devices available | grep iPhone
+
+# Production Build (TestFlight / App Store) - Requires Apple Developer ($99/year)
+# 1. Open Xcode workspace (NOT .xcodeproj!)
+open ios/OrokiiPayApp.xcworkspace
+
+# 2. In Xcode:
+#    - Select "OrokiiPayApp" target
+#    - Go to Signing & Capabilities
+#    - Enable "Automatically manage signing"
+#    - Select your Team (Apple ID)
+#    - Product → Archive
+#    - Upload to App Store Connect
+```
+
+**Testing Options**:
+- **iOS Simulator** (FREE): Instant testing, no device needed
+- **Physical Device** (FREE with Apple ID): 7-day app expiry, rebuild weekly
+- **TestFlight** ($99/year): Beta testing with up to 10,000 users
+- **App Store** ($99/year): Public distribution
 
 ### Banking-Specific Validation
 ```bash
@@ -299,17 +356,30 @@ Following these patterns achieved **100% test pass rate** with minimal debugging
 - [ ] Implement additional auth routes testing
 - [ ] Add KYC workflow endpoints
 
+### Mobile Development (High Priority) 📱🍎 ⭐ **NEW**
+- [ ] Install `expo-linear-gradient` for gradient background support (both platforms)
+- [ ] Install `@react-native-community/blur` for iOS native blur effects
+- [ ] Create universal `TenantGradientBackground` wrapper component
+- [ ] Test all UI components on physical iOS device
+- [ ] Configure iOS permissions in Info.plist (Camera, Photo Library, Face ID)
+- [ ] Setup iOS code signing and certificates (when ready for production)
+- [ ] Create TestFlight build for iOS beta testing
+- [ ] Test Android APK on multiple device sizes and Android versions
+
 ### Medium Term
 - [ ] Performance optimization (< 2s transfer response time)
 - [ ] Enhanced fraud detection rules
-- [ ] Mobile app UI/UX improvements  
+- [ ] Mobile app UI/UX improvements (StatusBar, SafeArea, animations)
 - [ ] Compliance reporting features
+- [ ] iOS App Store submission preparation
+- [ ] Android Play Store submission preparation
 
 ### Long Term
 - [ ] Multi-currency support
 - [ ] Advanced analytics dashboard
 - [ ] Third-party integrations (other banks)
 - [ ] Microservices architecture migration
+- [ ] Cross-platform push notifications (iOS APNS + Android FCM)
 
 ---
 
@@ -335,5 +405,6 @@ Following these patterns achieved **100% test pass rate** with minimal debugging
 
 ---
 
-*Last updated: After achieving 100% transfer route test coverage*
+*Last updated: After completing Android APK build and iOS development setup*
 *Documentation reflects real lessons learned during development*
+*Mobile platforms: Android APK ✅ | iOS Simulator ready for testing*
