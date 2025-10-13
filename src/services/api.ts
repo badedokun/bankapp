@@ -622,6 +622,44 @@ class APIService {
     throw new Error(response.error || 'Failed to fetch banks');
   }
 
+  /**
+   * Get transfer by reference number
+   */
+  async getTransferByReference(reference: string): Promise<{
+    id: string;
+    reference: string;
+    type: 'debit' | 'credit';
+    status: string;
+    amount: number;
+    currency: string;
+    fees: number;
+    totalAmount: number;
+    sender: {
+      name: string;
+      accountNumber: string;
+      bankName: string;
+      bankCode: string;
+    };
+    recipient: {
+      name: string;
+      accountNumber: string;
+      bankName: string;
+      bankCode: string;
+    };
+    description: string;
+    transactionHash: string;
+    initiatedAt: string;
+    completedAt?: string;
+  }> {
+    const response = await this.makeRequest<any>(`transfers/${reference}`);
+
+    if (response.success && response.data) {
+      return response.data;
+    }
+
+    throw new Error(response.error || 'Transfer not found');
+  }
+
   // Wallet Methods
 
   /**

@@ -33,6 +33,8 @@ import {
   Bank,
   TransferLimits,
 } from '../../types/transfers';
+import { ReceiptGenerator } from '../../utils/receiptGenerator';
+import { useTenantContext } from '../../tenants/TenantContext';
 
 export interface CompleteTransferFlowScreenProps {
   onBack?: () => void;
@@ -45,6 +47,7 @@ export const CompleteTransferFlowScreen: React.FC<CompleteTransferFlowScreenProp
 }) => {
   const theme = useTenantTheme();
   const { showAlert } = useBankingAlert();
+  const { currentTenant } = useTenantContext();
 
   const [progress, setProgress] = useState<TransferProgress>({
     currentStep: 'select',
@@ -53,6 +56,9 @@ export const CompleteTransferFlowScreen: React.FC<CompleteTransferFlowScreenProp
     isValid: false,
     errors: {},
   });
+
+  // Loading state for async operations
+  const [isLoading, setIsLoading] = useState(false);
 
   // External transfer verification state
   const [selectedBank, setSelectedBank] = useState<Bank | null>(null);
@@ -96,7 +102,7 @@ export const CompleteTransferFlowScreen: React.FC<CompleteTransferFlowScreenProp
       name: 'Jane Smith',
       accountNumber: '1234567890',
       bankCode: 'SAME',
-      bankName: 'FMFB',
+      bankName: '', // Will be populated from tenant context
       nickname: 'Jane',
       isFrequent: true,
       lastUsed: new Date(Date.now() - 86400000),
@@ -420,7 +426,6 @@ export const CompleteTransferFlowScreen: React.FC<CompleteTransferFlowScreenProp
         error: null,
       });
 
-      console.log('🔍 Verifying account:', { accountNumber, bankCode });
 
       const response = await APIService.validateRecipient({
         accountNumber,
@@ -788,12 +793,98 @@ export const CompleteTransferFlowScreen: React.FC<CompleteTransferFlowScreenProp
     );
   };
 
+  const handleShareReceipt = useCallback(async () => {
+    try {
+      // Get the actual reference from backend
+      const actualReference = progress.transferData.actualReference;
+
+      if (!actualReference) {
+        showAlert('Error', 'Transaction reference not found. Please try again.');
+        return;
+      }
+
+      setIsLoading(true);
+
+      // Fetch the actual transaction from database
+      const transaction = await APIService.getTransferByReference(actualReference);
+
+      if (!transaction) {
+        showAlert('Error', 'Transaction not found in database.');
+        setIsLoading(false);
+        return;
+      }
+
+      // Share receipt with actual database data
+      const success = await ReceiptGenerator.shareReceipt(
+        transaction,
+        currentTenant?.displayName || 'Bank',
+        currentTenant?.configuration?.currency || 'NGN'
+      );
+
+      setIsLoading(false);
+
+      if (success) {
+        showAlert('Success', 'Receipt has been copied to clipboard and is ready to share');
+      } else {
+        showAlert('Error', 'Failed to share receipt. Please try again.');
+      }
+    } catch (error: any) {
+      setIsLoading(false);
+      showAlert('Error', error.message || 'Failed to share receipt. Please try again.');
+    }
+  }, [progress.transferData, currentTenant, showAlert]);
+
+  const handleDownloadPDF = useCallback(async () => {
+    try {
+      // Get the actual reference from backend
+      const actualReference = progress.transferData.actualReference;
+
+      if (!actualReference) {
+        showAlert('Error', 'Transaction reference not found. Please try again.');
+        return;
+      }
+
+      setIsLoading(true);
+
+      // Fetch the actual transaction from database
+      const transaction = await APIService.getTransferByReference(actualReference);
+
+      if (!transaction) {
+        showAlert('Error', 'Transaction not found in database.');
+        setIsLoading(false);
+        return;
+      }
+
+      // Generate PDF with actual database data and tenant configuration
+      const success = await ReceiptGenerator.downloadPDFReceipt(
+        transaction,
+        currentTenant?.displayName || 'Bank',
+        currentTenant?.configuration?.currency || 'NGN',
+        currentTenant?.configuration?.locale || 'en-NG',
+        currentTenant?.configuration?.timezone || 'Africa/Lagos',
+        'MOBILE APP'
+      );
+
+      setIsLoading(false);
+
+      if (success) {
+        showAlert('Success', 'Receipt PDF has been downloaded successfully');
+      } else {
+        showAlert('Error', 'Failed to download PDF receipt. Please try again.');
+      }
+    } catch (error: any) {
+      setIsLoading(false);
+      showAlert('Error', error.message || 'Failed to generate receipt. Please try again.');
+    }
+  }, [progress.transferData, currentTenant, showAlert]);
+
   const renderCompleteStep = () => {
     const transferType = transferTypes.find(t => t.id === progress.transferData.type);
     const amount = progress.transferData.amount || 0;
     const fee = transferType?.fee || 0;
     const total = amount + fee;
-    const reference = `TXN${Date.now().toString().slice(-8)}`;
+    // Use actual reference from backend, or fallback to temp reference
+    const reference = progress.transferData.actualReference || `TXN${Date.now().toString().slice(-8)}`;
 
     return (
       <View style={styles.stepContainer}>
@@ -847,11 +938,16 @@ export const CompleteTransferFlowScreen: React.FC<CompleteTransferFlowScreenProp
           <View style={styles.actionButtons}>
             <Button
               title="Share Receipt"
-              onPress={() => showAlert('Share', 'Receipt sharing functionality would be implemented here')}
+              onPress={handleShareReceipt}
               variant="outline"
             />
             <Button
-              title="Make Another Transfer"
+              title="Download PDF"
+              onPress={handleDownloadPDF}
+              variant="outline"
+            />
+            <Button
+              title="Send Another"
               onPress={() => {
                 setProgress({
                   currentStep: 'select',
@@ -864,7 +960,7 @@ export const CompleteTransferFlowScreen: React.FC<CompleteTransferFlowScreenProp
               variant="primary"
             />
             <Button
-              title="Done"
+              title="Back to Home"
               onPress={() => {
                 onTransferComplete?.(progress.transferData as TransferRequest);
                 onBack?.();
@@ -949,9 +1045,36 @@ export const CompleteTransferFlowScreen: React.FC<CompleteTransferFlowScreenProp
   };
 
   const handleProcessTransfer = async () => {
-    // Simulate transfer processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    handleNext();
+    try {
+      // Show processing state
+      setIsLoading(true);
+
+      // Actually initiate the transfer
+      const result = await APIService.initiateTransfer({
+        recipientAccountNumber: progress.transferData.recipientAccountNumber || '',
+        recipientBankCode: progress.transferData.recipientBankCode || '',
+        recipientName: progress.transferData.recipientName,
+        amount: progress.transferData.amount || 0,
+        description: progress.transferData.description,
+        pin: progress.transferData.pin || ''
+      });
+
+      // Store the actual reference number from the backend
+      updateProgress({
+        transferData: {
+          ...progress.transferData,
+          actualReference: result.referenceNumber,
+          transactionId: result.transactionId,
+          completedAt: result.createdAt
+        }
+      });
+
+      setIsLoading(false);
+      handleNext();
+    } catch (error: any) {
+      setIsLoading(false);
+      showAlert('Transfer Failed', error.message || 'Failed to process transfer. Please try again.');
+    }
   };
 
   const isStepValid = () => {
