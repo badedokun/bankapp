@@ -249,7 +249,7 @@ router.post('/chat', authenticateToken, async (req, res) => {
 
     // First, try to answer using real customer data (no mock mode)
     console.log('🔍 Checking if query can be answered with customer data...');
-    const customerDataResponse = await CustomerDataService.processQuery(message, userId);
+    const customerDataResponse = await CustomerDataService.processQuery(message, userId, tenantId);
 
     if (!customerDataResponse.requiresOpenAI) {
       // Check if this is an actionable intent (transfer, bill payment, etc.)
