@@ -160,8 +160,9 @@ export class CustomerDataService {
       }
 
       const transactions = result.rows;
+
       const totalSpent = transactions
-        .filter(t => ['money_transfer', 'bill_payment', 'cash_withdrawal', 'airtime_purchase'].includes(t.type) && ['completed', 'successful', 'settled'].includes(t.status))
+        .filter(t => ['money_transfer', 'bill_payment', 'cash_withdrawal', 'airtime_purchase'].includes(t.type))
         .reduce((sum, t) => sum + parseFloat(t.amount), 0);
 
       const formattedTotal = new Intl.NumberFormat('en-NG', {
@@ -227,7 +228,6 @@ export class CustomerDataService {
         WHERE user_id = $1
           AND created_at >= NOW() - INTERVAL '${days} days'
           AND type IN ('cash_withdrawal', 'money_transfer', 'bill_payment', 'airtime_purchase', 'loan_payment', 'pos_payment', 'qr_payment')
-          AND status IN ('completed', 'successful', 'settled')
         GROUP BY LOWER(description)
         ORDER BY total_amount DESC
         LIMIT 10`,
@@ -246,8 +246,7 @@ export class CustomerDataService {
               THEN amount ELSE NULL END) as avg_transaction
         FROM tenant.transactions
         WHERE user_id = $1
-          AND created_at >= NOW() - INTERVAL '${days} days'
-          AND status IN ('completed', 'successful', 'settled')`,
+          AND created_at >= NOW() - INTERVAL '${days} days'`,
         [userId]
       );
 
