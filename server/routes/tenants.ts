@@ -4,6 +4,7 @@
  */
 
 import express from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { query } from '../config/database';
 import { requireRole } from '../middleware/auth';
 import { asyncHandler, errors } from '../middleware/errorHandler';
@@ -20,7 +21,7 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
  * Public endpoint to get tenant ID from subdomain or custom domain
  * No authentication required - needed before login
  */
-publicRouter.get('/lookup', asyncHandler(async (req, res) => {
+publicRouter.get('/lookup', asyncHandler(async (req: Request, res: Response)=> {
   const { subdomain, domain } = req.query;
 
   if (!subdomain && !domain) {
@@ -84,7 +85,7 @@ publicRouter.get('/lookup', asyncHandler(async (req, res) => {
  * GET /api/tenants
  * Get list of all tenants (admin only)
  */
-router.get('/', requireRole(['admin']), asyncHandler(async (req, res) => {
+router.get('/', requireRole(['admin']), asyncHandler(async (_req, res) => {
   const result = await query(`
     SELECT id, name, display_name, subdomain, custom_domain, status, tier,
            created_at, updated_at
@@ -102,7 +103,7 @@ router.get('/', requireRole(['admin']), asyncHandler(async (req, res) => {
  * GET /api/tenants/:id
  * Get specific tenant information
  */
-router.get('/:id', asyncHandler(async (req, res) => {
+router.get('/:id', asyncHandler(async (req: Request, res: Response)=> {
   const { id } = req.params;
 
   const result = await query(`

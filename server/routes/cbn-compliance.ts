@@ -6,7 +6,8 @@
  */
 
 import express from 'express';
-import { body, param, query, validationResult } from 'express-validator';
+import { Request, Response } from 'express';
+import { body, param, query } from 'express-validator';
 import { authenticateToken, requireRole } from '../middleware/auth';
 import { validateRequest } from '../middleware/validation';
 import CBNComplianceService from '../services/cbn-compliance';
@@ -56,7 +57,7 @@ router.post('/incidents',
   authenticateToken,
   requireRole(['admin', 'compliance_officer', 'security_officer']),
   validateIncidentReport,
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
       const { tenantId } = (req as any).user;
       const incident = req.body;
@@ -125,7 +126,7 @@ router.get('/incidents',
       .withMessage('Limit must be between 1 and 100'),
     validateRequest
   ],
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
       const { tenantId } = (req as any).user;
       const { status, category, severity, limit = 20 } = req.query;
@@ -195,7 +196,7 @@ router.get('/incidents/:incidentId',
     param('incidentId').isUUID().withMessage('Invalid incident ID format'),
     validateRequest
   ],
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
       const { tenantId } = (req as any).user;
       const { incidentId } = req.params;
@@ -239,7 +240,7 @@ router.get('/incidents/:incidentId',
 router.post('/data-localization/check',
   authenticateToken,
   requireRole(['admin', 'compliance_officer', 'data_protection_officer']),
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
       const { tenantId } = (req as any).user;
 
@@ -285,7 +286,7 @@ router.post('/data-localization/check',
 router.get('/data-localization/status',
   authenticateToken,
   requireRole(['admin', 'compliance_officer', 'data_protection_officer', 'auditor']),
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
       const { tenantId } = (req as any).user;
 
@@ -332,7 +333,7 @@ router.post('/audits',
   authenticateToken,
   requireRole(['admin', 'compliance_officer', 'security_officer']),
   validateAuditRequest,
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
       const { tenantId } = (req as any).user;
       const { auditType } = req.body;
@@ -386,7 +387,7 @@ router.get('/audits',
       .withMessage('Invalid audit type filter'),
     validateRequest
   ],
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
       const { tenantId } = (req as any).user;
       const { status, auditType } = req.query;
@@ -443,7 +444,7 @@ router.get('/audits',
 router.get('/status',
   authenticateToken,
   requireRole(['admin', 'compliance_officer', 'security_officer', 'auditor']),
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
       const { tenantId } = (req as any).user;
 
@@ -495,7 +496,7 @@ router.get('/status',
 router.get('/dashboard',
   authenticateToken,
   requireRole(['admin', 'compliance_officer', 'security_officer', 'auditor']),
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
       const { tenantId } = (req as any).user;
 
@@ -549,7 +550,7 @@ router.post('/reports/submit/:reportId',
     param('reportId').isUUID().withMessage('Invalid report ID format'),
     validateRequest
   ],
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
       const { tenantId } = (req as any).user;
       const { reportId } = req.params;

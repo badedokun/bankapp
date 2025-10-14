@@ -4,7 +4,7 @@ import { ConversationalAIService } from '../services/ai-intelligence-service/cor
 import IntentClassificationService from '../services/ai-intelligence-service/nlp/IntentClassificationService';
 import EntityExtractionService from '../services/ai-intelligence-service/nlp/EntityExtractionService';
 import { AIIntelligenceManager } from '../services/ai-intelligence-service/AIIntelligenceManager';
-import { query } from '../config/database';
+import { query as _query } from '../config/database';
 import dbManager from '../config/multi-tenant-database';
 import { DevelopmentControls } from '../services/ai-intelligence-service/utils/DevelopmentControls';
 import { CustomerDataService } from '../services/ai-intelligence-service/CustomerDataService';
@@ -98,7 +98,6 @@ async function enrichContextWithUserData(context: any, userId: string, tenantId:
 
     const currentBalance = balanceResult.rows[0]?.balance || 0;
     const totalSpent = spendingAnalyticsResult.rows.reduce((sum, row) => sum + parseFloat(row.total_spent || 0), 0);
-    const avgMonthlySpend = totalSpent;
 
     // Enrich the context with comprehensive real data
     const enrichedContext = {
@@ -155,7 +154,7 @@ async function enrichContextWithUserData(context: any, userId: string, tenantId:
 // Enhanced chat endpoint with full AI Intelligence features
 router.post('/chat', authenticateToken, async (req, res) => {
   try {
-    const { message, context, options = {} } = req.body;
+    const { message, context, options: _options = {} } = req.body;
     const userId = (req as any).user?.id || 'anonymous';
     const tenantId = (req as any).user?.tenantId || 'default';
 
@@ -360,11 +359,11 @@ router.post('/chat', authenticateToken, async (req, res) => {
     devControls.recordRequest(userId);
     devControls.logUsageInfo(userId, 'chat', message.length + (response.response?.length || 0));
 
-    res.json(response);
+    return res.json(response);
 
   } catch (error) {
     console.error('AI Chat Error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Failed to process AI chat request',
       message: "I'm sorry, I'm having trouble understanding your request right now. Please try again."
     });
@@ -384,11 +383,11 @@ router.post('/chat/basic', authenticateToken, async (req, res) => {
 
     const response = await aiService.processMessage(message, context);
 
-    res.json(response);
+    return res.json(response);
 
   } catch (error) {
     console.error('AI Chat Error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Failed to process AI chat request',
       message: "I'm sorry, I'm having trouble understanding your request right now. Please try again."
     });
@@ -407,12 +406,12 @@ router.post('/voice', authenticateToken, async (req, res) => {
 
     const audioBuffer = Buffer.from(audioData, 'base64');
     const response = await aiService.processVoiceCommand(audioBuffer, context);
-    
-    res.json(response);
+
+    return res.json(response);
 
   } catch (error) {
     console.error('AI Voice Error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Failed to process voice command',
       message: "I couldn't understand the voice command. Please try speaking again."
     });
@@ -430,12 +429,12 @@ router.post('/intent', authenticateToken, async (req, res) => {
     }
 
     const intent = await intentService.classifyIntent(text, context);
-    
-    res.json(intent);
+
+    return res.json(intent);
 
   } catch (error) {
     console.error('Intent Classification Error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Failed to classify intent'
     });
   }
@@ -452,12 +451,12 @@ router.post('/entities', authenticateToken, async (req, res) => {
     }
 
     const result = await entityService.extractEntities(text, context);
-    
-    res.json(result);
+
+    return res.json(result);
 
   } catch (error) {
     console.error('Entity Extraction Error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Failed to extract entities'
     });
   }
@@ -476,12 +475,12 @@ router.get('/suggestions', authenticateToken, async (req, res) => {
     };
 
     const suggestions = await aiService.generateSuggestions(contextObj);
-    
-    res.json({ suggestions });
+
+    return res.json({ suggestions });
 
   } catch (error) {
     console.error('AI Suggestions Error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Failed to generate suggestions',
       suggestions: [
         "Check my account balance",
@@ -528,7 +527,7 @@ router.post('/suggestions/personalized', authenticateToken, async (req, res) => 
     const { SmartSuggestionsEngine } = await import('../services/ai-intelligence-service/engines/SmartSuggestionsEngine');
     const suggestions = await SmartSuggestionsEngine.getPersonalizedSuggestions(suggestionRequest);
 
-    res.json({
+    return res.json({
       suggestions,
       metadata: {
         personalized: true,
@@ -541,7 +540,7 @@ router.post('/suggestions/personalized', authenticateToken, async (req, res) => 
 
   } catch (error) {
     console.error('Personalized Suggestions Error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Failed to generate personalized suggestions',
       suggestions: [
         { text: "Check your account balance", confidence: 0.8, relevanceScore: 0.7 },
@@ -569,27 +568,27 @@ router.get('/intent-suggestions', authenticateToken, async (req, res) => {
     }
 
     const suggestions = await intentService.getIntentSuggestions(partialText as string);
-    
-    res.json({ suggestions });
+
+    return res.json({ suggestions });
 
   } catch (error) {
     console.error('Intent Suggestions Error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Failed to get intent suggestions',
       suggestions: []
     });
   }
 });
 
-router.get('/entity-types', authenticateToken, async (req, res) => {
+router.get('/entity-types', authenticateToken, async (_req, res) => {
   try {
     const entityTypes = entityService.getEntityTypes();
-    
-    res.json({ entityTypes });
+
+    return res.json({ entityTypes });
 
   } catch (error) {
     console.error('Entity Types Error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Failed to get entity types',
       entityTypes: []
     });
@@ -607,12 +606,12 @@ router.post('/validate-entities', authenticateToken, async (req, res) => {
     }
 
     const validatedEntities = await entityService.validateExtractedEntities(entities, context);
-    
-    res.json({ entities: validatedEntities });
+
+    return res.json({ entities: validatedEntities });
 
   } catch (error) {
     console.error('Entity Validation Error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Failed to validate entities'
     });
   }
@@ -651,11 +650,11 @@ router.get('/suggestions/smart', authenticateToken, async (req, res) => {
     devControls.recordRequest(userId);
     devControls.logUsageInfo(userId, 'smart-suggestions', JSON.stringify(suggestions).length);
 
-    res.json({ suggestions });
+    return res.json({ suggestions });
 
   } catch (error) {
     console.error('Smart Suggestions Error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Failed to generate smart suggestions',
       suggestions: []
     });
@@ -688,11 +687,11 @@ router.get('/analytics/insights', authenticateToken, async (req, res) => {
       timeframe as any
     );
 
-    res.json({ insights });
+    return res.json({ insights });
 
   } catch (error) {
     console.error('Analytics Insights Error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Failed to generate analytics insights',
       insights: []
     });
@@ -711,11 +710,11 @@ router.post('/translate', authenticateToken, async (req, res) => {
 
     const result = await aiManager.translateMessage(text, sourceLanguage, targetLanguage, context);
 
-    res.json(result);
+    return res.json(result);
 
   } catch (error) {
     console.error('Translation Error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Failed to translate text',
       translatedText: req.body.text,
       confidence: 0.1
@@ -729,24 +728,24 @@ router.get('/suggestions/localized', authenticateToken, async (req, res) => {
 
     const suggestions = await aiManager.getLocalizedSuggestions(language as string, type as any);
 
-    res.json({ suggestions });
+    return res.json({ suggestions });
 
   } catch (error) {
     console.error('Localized Suggestions Error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Failed to get localized suggestions',
       suggestions: []
     });
   }
 });
 
-router.get('/languages', (req, res) => {
+router.get('/languages', (_req, res) => {
   try {
     const languages = aiManager.getSupportedLanguages();
-    res.json({ languages });
+    return res.json({ languages });
   } catch (error) {
     console.error('Languages Error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Failed to get supported languages',
       languages: []
     });
@@ -766,11 +765,11 @@ router.post('/suggestions/mark-used', authenticateToken, async (req, res) => {
 
     await aiManager.markSuggestionAsUsed(suggestionId, userId);
 
-    res.json({ success: true });
+    return res.json({ success: true });
 
   } catch (error) {
     console.error('Mark Suggestion Used Error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Failed to mark suggestion as used'
     });
   }
@@ -789,11 +788,11 @@ router.post('/suggestions/mark-dismissed', authenticateToken, async (req, res) =
 
     await aiManager.markSuggestionAsDismissed(suggestionId, userId);
 
-    res.json({ success: true });
+    return res.json({ success: true });
 
   } catch (error) {
     console.error('Mark Suggestion Dismissed Error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Failed to mark suggestion as dismissed'
     });
   }
@@ -813,22 +812,22 @@ router.get('/analytics/export', authenticateToken, async (req, res) => {
     const report = await aiManager.exportAnalyticsReport(userId, format as any);
 
     res.setHeader('Content-Disposition', `attachment; filename="${report.filename}"`);
-    res.json(report.data);
+    return res.json(report.data);
 
   } catch (error) {
     console.error('Analytics Export Error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Failed to export analytics report'
     });
   }
 });
 
-router.get('/health', async (req, res) => {
+router.get('/health', async (_req, res) => {
   try {
     const serviceHealth = await aiManager.performHealthCheck();
     const performanceMetrics = aiManager.getPerformanceMetrics();
 
-    res.json({
+    return res.json({
       status: serviceHealth.overall,
       services: serviceHealth.services,
       performance: performanceMetrics,
@@ -838,7 +837,7 @@ router.get('/health', async (req, res) => {
 
   } catch (error) {
     console.error('Health Check Error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       status: 'down',
       error: 'Health check failed',
       timestamp: new Date().toISOString()
@@ -846,13 +845,13 @@ router.get('/health', async (req, res) => {
   }
 });
 
-router.get('/config', authenticateToken, async (req, res) => {
+router.get('/config', authenticateToken, async (_req, res) => {
   try {
     const configuration = aiManager.getConfiguration();
-    res.json({ configuration });
+    return res.json({ configuration });
   } catch (error) {
     console.error('Configuration Error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Failed to get AI configuration'
     });
   }
@@ -864,7 +863,7 @@ router.get('/dev/usage', authenticateToken, async (req, res) => {
     const userId = (req as any).user?.id || 'anonymous';
     const usageStats = devControls.getUsageStats(userId);
 
-    res.json({
+    return res.json({
       developmentMode: devControls.isDevelopmentMode(),
       useMockResponses: devControls.shouldUseMockResponses(),
       usageStats,
@@ -876,7 +875,7 @@ router.get('/dev/usage', authenticateToken, async (req, res) => {
     });
   } catch (error) {
     console.error('Development Usage Stats Error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Failed to get development usage stats'
     });
   }
@@ -890,14 +889,14 @@ router.post('/dev/reset-usage', authenticateToken, async (req, res) => {
 
     if (resetAll && devControls.isDevelopmentMode()) {
       devControls.resetUsageStats();
-      res.json({ message: 'All usage stats reset', resetAll: true });
+      return res.json({ message: 'All usage stats reset', resetAll: true });
     } else {
       devControls.resetUsageStats(userId);
-      res.json({ message: `Usage stats reset for user ${userId}`, userId });
+      return res.json({ message: `Usage stats reset for user ${userId}`, userId });
     }
   } catch (error) {
     console.error('Reset Usage Stats Error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Failed to reset usage stats'
     });
   }

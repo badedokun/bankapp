@@ -4,10 +4,11 @@
  */
 
 import express from 'express';
+import { Request, Response } from 'express';
 import { query } from '../config/database';
 import { authenticateToken } from '../middleware/auth';
 import { validateTenantAccess } from '../middleware/tenant';
-import { asyncHandler, errors } from '../middleware/errorHandler';
+import { asyncHandler } from '../middleware/errorHandler';
 
 const router = express.Router();
 
@@ -15,9 +16,9 @@ const router = express.Router();
  * GET /api/analytics/dashboard
  * Get user dashboard analytics data
  */
-router.get('/dashboard', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
-  const userId = req.user.id;
-  const tenantId = req.user.tenantId;
+router.get('/dashboard', authenticateToken, validateTenantAccess, asyncHandler(async (req: Request, res: Response)=> {
+  const userId = req.user?.id;
+  const tenantId = req.user?.tenantId;
 
   // Get current balance
   const balanceResult = await query(`
@@ -235,10 +236,10 @@ router.get('/dashboard', authenticateToken, validateTenantAccess, asyncHandler(a
  * GET /api/analytics/spending-trends
  * Get detailed spending trends and patterns
  */
-router.get('/spending-trends', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
+router.get('/spending-trends', authenticateToken, validateTenantAccess, asyncHandler(async (req: Request, res: Response)=> {
   const { period = '3months' } = req.query;
-  const userId = req.user.id;
-  const tenantId = req.user.tenantId;
+  const userId = req.user?.id;
+  const tenantId = req.user?.tenantId;
 
   let intervalDays;
   switch (period) {

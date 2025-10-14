@@ -4,6 +4,7 @@
  */
 
 import { query } from '../config/database';
+import { Request, Response, NextFunction } from 'express';
 
 /**
  * Extract tenant information from various sources
@@ -11,7 +12,7 @@ import { query } from '../config/database';
  * @param {Object} req - Express request object
  * @returns {string|null} Tenant identifier
  */
-function extractTenantId(req) {
+function extractTenantId(req: any): string {
   // 1. From JWT token (highest priority)
   if (req.user && req.user.tenantId) {
     return req.user.tenantId;
@@ -26,14 +27,14 @@ function extractTenantId(req) {
   // 3. From subdomain (e.g., fmfb.orokii.com)
   const host = req.get('host') || '';
   const subdomain = host.split('.')[0];
-  
+
   // Map common subdomains to tenant names
-  const subdomainToTenant = {
+  const subdomainToTenant: Record<string, string> = {
     'fmfb': 'fmfb',
     'localhost': process.env.DEFAULT_TENANT || 'fmfb', // Use env default
     'dev': process.env.DEFAULT_TENANT || 'fmfb',
     'bank-a': 'bank-a',
-    'bank-b': 'bank-b', 
+    'bank-b': 'bank-b',
     'bank-c': 'bank-c',
     'admin': 'system-admin'
   };
@@ -45,7 +46,7 @@ function extractTenantId(req) {
   // 4. From query parameter
   const queryTenant = req.query.tenant;
   if (queryTenant) {
-    return queryTenant;
+    return queryTenant as string;
   }
 
   // 5. Default tenant from environment
@@ -57,13 +58,13 @@ function extractTenantId(req) {
  * @param {string} tenantIdentifier - Tenant name or UUID
  * @returns {Promise<Object|null>} Tenant information
  */
-async function resolveTenant(tenantIdentifier) {
+async function resolveTenant(tenantIdentifier: string): Promise<any> {
   try {
     // First try to find by name
     let result = await query(`
       SELECT id, name, display_name, status, tier, subdomain, custom_domain,
              configuration, branding, ai_configuration, security_settings
-      FROM platform.tenants 
+      FROM platform.tenants
       WHERE name = $1 AND status = 'active'
     `, [tenantIdentifier]);
 
@@ -72,14 +73,14 @@ async function resolveTenant(tenantIdentifier) {
       result = await query(`
         SELECT id, name, display_name, status, tier, subdomain, custom_domain,
                configuration, branding, ai_configuration, security_settings
-        FROM platform.tenants 
+        FROM platform.tenants
         WHERE id = $1 AND status = 'active'
       `, [tenantIdentifier]);
     }
 
     return result.rows.length > 0 ? result.rows[0] : null;
   } catch (error) {
-    console.error('Error resolving tenant:', error.message);
+    console.error('Error resolving tenant:', (error as Error).message);
     return null;
   }
 }
@@ -88,10 +89,10 @@ async function resolveTenant(tenantIdentifier) {
  * Multi-tenant middleware
  * Detects tenant context and adds tenant information to request
  */
-async function tenantMiddleware(req, res, next) {
+async function tenantMiddleware(req: any, res: any, next: any) {
   try {
     const tenantIdentifier = extractTenantId(req);
-    
+
     if (!tenantIdentifier) {
       return res.status(400).json({
         error: 'Tenant identifier required',
@@ -102,7 +103,7 @@ async function tenantMiddleware(req, res, next) {
 
     // Resolve tenant information
     const tenant = await resolveTenant(tenantIdentifier);
-    
+
     if (!tenant) {
       return res.status(404).json({
         error: 'Tenant not found or inactive',
@@ -131,7 +132,7 @@ async function tenantMiddleware(req, res, next) {
 
     next();
   } catch (error) {
-    console.error('Tenant middleware error:', error.message);
+    console.error('Tenant middleware error:', (error as Error).message);
     return res.status(500).json({
       error: 'Tenant resolution failed',
       code: 'TENANT_SERVICE_ERROR'
@@ -143,7 +144,7 @@ async function tenantMiddleware(req, res, next) {
  * Tenant validation middleware
  * Ensures user belongs to the current tenant context
  */
-function validateTenantAccess(req, res, next) {
+function validateTenantAccess(req: any, res: any, next: any) {
   if (!req.user || !req.tenant) {
     return res.status(401).json({
       error: 'Authentication and tenant context required',
@@ -169,10 +170,10 @@ function validateTenantAccess(req, res, next) {
  * @param {Array|string} requiredTiers - Required tenant tiers
  * @returns {Function} Middleware function
  */
-function requireTenantTier(requiredTiers) {
+function requireTenantTier(requiredTiers: string | string[]) {
   const tiers = Array.isArray(requiredTiers) ? requiredTiers : [requiredTiers];
-  
-  return (req, res, next) => {
+
+  return (req: Request, res: Response, next: NextFunction) => {
     if (!req.tenant) {
       return res.status(400).json({
         error: 'Tenant context required',
@@ -189,7 +190,7 @@ function requireTenantTier(requiredTiers) {
       });
     }
 
-    next();
+    return next();
   };
 }
 
@@ -198,8 +199,8 @@ function requireTenantTier(requiredTiers) {
  * @param {string} featureName - Feature flag name to check
  * @returns {Function} Middleware function
  */
-function requireFeature(featureName) {
-  return (req, res, next) => {
+function requireFeature(featureName: string) {
+  return (req: Request, res: Response, next: NextFunction) => {
     if (!req.tenant) {
       return res.status(400).json({
         error: 'Tenant context required',
@@ -208,7 +209,7 @@ function requireFeature(featureName) {
     }
 
     const featureFlags = req.tenant.configuration?.featureFlags || {};
-    
+
     if (!featureFlags[featureName]) {
       return res.status(403).json({
         error: `Feature '${featureName}' is not enabled for your tenant`,
@@ -218,7 +219,7 @@ function requireFeature(featureName) {
       });
     }
 
-    next();
+    return next();
   };
 }
 
@@ -229,13 +230,13 @@ function requireFeature(featureName) {
  * @param {any} defaultValue - Default value if not found
  * @returns {any} Configuration value
  */
-function getTenantConfig(req, configPath, defaultValue = null) {
+function getTenantConfig(req: any, configPath: string, defaultValue: any = null): any {
   if (!req.tenant) {
     return defaultValue;
   }
 
   const paths = configPath.split('.');
-  let current = req.tenant;
+  let current: any = req.tenant;
 
   for (const path of paths) {
     if (current && typeof current === 'object' && path in current) {

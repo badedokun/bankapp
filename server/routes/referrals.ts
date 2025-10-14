@@ -121,7 +121,7 @@ router.post('/create', authenticateToken, async (req: Request, res: Response) =>
 
     // Validate referral creation (fraud checks)
     const validation = await services.fraudService.validateReferralCreation(
-      req.user.id,
+      req.user?.id,
       refereeId,
       deviceFingerprint,
       ipAddress
@@ -203,7 +203,7 @@ router.post('/share', authenticateToken, async (req: Request, res: Response) => 
 
   try {
     const result = await services.referralService.shareReferral({
-      userId: req.user.id,
+      userId: req.user?.id,
       shareMethod,
       shareDestination,
       deviceType,
@@ -332,7 +332,7 @@ router.post('/promo-codes/validate', authenticateToken, async (req: Request, res
   }
 
   try {
-    const result = await services.promoCodeService.validatePromoCode(code, req.user.id);
+    const result = await services.promoCodeService.validatePromoCode(code, req.user?.id);
 
     return res.json(result);
   } catch (error: any) {
@@ -363,7 +363,7 @@ router.post('/promo-codes/redeem', authenticateToken, async (req: Request, res: 
 
   try {
     const result = await services.promoCodeService.redeemPromoCode(
-      req.user.id,
+      req.user?.id,
       code,
       depositAmount
     );
@@ -620,7 +620,7 @@ router.post('/aggregators/payouts/:payoutId/approve', authenticateToken, async (
   try {
     const success = await services.aggregatorService.approvePayout(
       payoutId,
-      req.user.id,
+      req.user?.id,
       paymentReference
     );
 

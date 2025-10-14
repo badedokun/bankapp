@@ -47,7 +47,7 @@ const NIGERIAN_BANKS = [
  * GET /api/banks
  * Get list of available banks for transfers
  */
-router.get('/', async (req, res) => {
+router.get('/', async (_req, res) => {
   try {
     res.json({
       success: true,
@@ -68,7 +68,7 @@ router.get('/', async (req, res) => {
  * GET /api/banks/:code
  * Get specific bank by code
  */
-router.get('/:code', async (req, res) => {
+router.get('/:code', async (req, res): Promise<void> => {
   try {
     const { code } = req.params;
     const bank = NIGERIAN_BANKS.find(b => b.code === code.toUpperCase());

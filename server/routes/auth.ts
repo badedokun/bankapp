@@ -4,14 +4,15 @@
  */
 
 import express from 'express';
+import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import { body, validationResult } from 'express-validator';
 import { query, transaction } from '../config/database';
-import { 
-  generateToken, 
-  generateRefreshToken, 
+import {
+  generateToken,
+  generateRefreshToken,
   verifyRefreshToken,
-  authenticateToken 
+  authenticateToken
 } from '../middleware/auth';
 import { validateTenantAccess } from '../middleware/tenant';
 import { asyncHandler, errors } from '../middleware/errorHandler';
@@ -26,16 +27,17 @@ router.post('/login', [
   body('email').isEmail().normalizeEmail().withMessage('Valid email required'),
   body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
   body('tenantId').optional() // Remove UUID validation to accept tenant names
-], asyncHandler(async (req, res) => {
+], asyncHandler(async (req: Request, res: Response): Promise<void> => {
   // Check validation errors
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       error: 'Validation failed',
       code: 'VALIDATION_ERROR',
       details: validationErrors.array()
     });
+    return;
   }
 
   const { email, password, deviceInfo = {} } = req.body;
@@ -228,7 +230,7 @@ router.post('/login', [
  * POST /api/auth/refresh
  * Refresh access token using refresh token
  */
-router.post('/refresh', asyncHandler(async (req, res) => {
+router.post('/refresh', asyncHandler(async (req: Request, res: Response)=> {
   const { refreshToken } = req.body;
 
   if (!refreshToken) {
@@ -301,14 +303,14 @@ router.post('/refresh', asyncHandler(async (req, res) => {
  * POST /api/auth/logout
  * Logout user and invalidate session
  */
-router.post('/logout', authenticateToken, asyncHandler(async (req, res) => {
-  const sessionId = req.token.payload.sessionId;
+router.post('/logout', authenticateToken, asyncHandler(async (req: Request, res: Response)=> {
+  const sessionId = req.token?.payload?.sessionId;
 
   // Delete session
   await query(`
-    DELETE FROM tenant.user_sessions 
+    DELETE FROM tenant.user_sessions
     WHERE id = $1 AND user_id = $2
-  `, [sessionId, req.user.id]);
+  `, [sessionId, req.user?.id]);
 
   res.json({
     success: true,
@@ -320,12 +322,12 @@ router.post('/logout', authenticateToken, asyncHandler(async (req, res) => {
  * POST /api/auth/logout-all
  * Logout user from all devices
  */
-router.post('/logout-all', authenticateToken, asyncHandler(async (req, res) => {
+router.post('/logout-all', authenticateToken, asyncHandler(async (req: Request, res: Response)=> {
   // Delete all user sessions
   const result = await query(`
-    DELETE FROM tenant.user_sessions 
+    DELETE FROM tenant.user_sessions
     WHERE user_id = $1
-  `, [req.user.id]);
+  `, [req.user?.id]);
 
   res.json({
     success: true,
@@ -337,7 +339,7 @@ router.post('/logout-all', authenticateToken, asyncHandler(async (req, res) => {
  * GET /api/auth/profile
  * Get current user profile
  */
-router.get('/profile', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
+router.get('/profile', authenticateToken, validateTenantAccess, asyncHandler(async (req: Request, res: Response)=> {
   // Get detailed user information
   const userResult = await query(`
     SELECT u.*, w.wallet_number, w.balance, w.available_balance,
@@ -347,7 +349,7 @@ router.get('/profile', authenticateToken, validateTenantAccess, asyncHandler(asy
     JOIN tenant.tenant_metadata tm ON u.tenant_id = tm.tenant_id
     JOIN platform.tenants t ON u.tenant_id = t.id
     WHERE u.id = $1
-  `, [req.user.id]);
+  `, [req.user?.id]);
 
   if (userResult.rows.length === 0) {
     throw errors.notFound('User not found', 'USER_NOT_FOUND');
@@ -405,14 +407,13 @@ router.put('/profile', authenticateToken, validateTenantAccess, [
   body('phoneNumber').optional().isMobilePhone('any').withMessage('Invalid phone number'),
   body('profileData').optional().isObject().withMessage('Profile data must be an object'),
   body('aiPreferences').optional().isObject().withMessage('AI preferences must be an object')
-], asyncHandler(async (req, res) => {
+], asyncHandler(async (req: Request, res: Response)=> {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
-    throw errors.badRequest('Validation failed', 'VALIDATION_ERROR', validationErrors.array());
+    throw errors.badRequest('Validation failed', 'VALIDATION_ERROR');
   }
 
   const allowedFields = ['firstName', 'lastName', 'phoneNumber', 'profileData', 'aiPreferences'];
-  const updateData = {};
   const updateFields = [];
   const updateValues = [];
 
@@ -435,7 +436,7 @@ router.put('/profile', authenticateToken, validateTenantAccess, [
   }
 
   updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
-  updateValues.push(req.user.id);
+  updateValues.push(req.user?.id);
 
   const updateQuery = `
     UPDATE tenant.users 
@@ -462,10 +463,10 @@ router.post('/change-password', authenticateToken, validateTenantAccess, [
   body('newPassword').isLength({ min: 8 }).withMessage('New password must be at least 8 characters')
     .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
     .withMessage('New password must contain uppercase, lowercase, number and special character')
-], asyncHandler(async (req, res) => {
+], asyncHandler(async (req: Request, res: Response)=> {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
-    throw errors.badRequest('Validation failed', 'VALIDATION_ERROR', validationErrors.array());
+    throw errors.badRequest('Validation failed', 'VALIDATION_ERROR');
   }
 
   const { currentPassword, newPassword } = req.body;
@@ -473,7 +474,7 @@ router.post('/change-password', authenticateToken, validateTenantAccess, [
   // Get current password hash
   const userResult = await query(`
     SELECT password_hash FROM tenant.users WHERE id = $1
-  `, [req.user.id]);
+  `, [req.user?.id]);
 
   const user = userResult.rows[0];
 
@@ -489,12 +490,12 @@ router.post('/change-password', authenticateToken, validateTenantAccess, [
 
   // Update password
   await query(`
-    UPDATE tenant.users 
+    UPDATE tenant.users
     SET password_hash = $1,
         password_changed_at = CURRENT_TIMESTAMP,
         updated_at = CURRENT_TIMESTAMP
     WHERE id = $2
-  `, [newPasswordHash, req.user.id]);
+  `, [newPasswordHash, req.user?.id]);
 
   res.json({
     success: true,
@@ -506,13 +507,13 @@ router.post('/change-password', authenticateToken, validateTenantAccess, [
  * GET /api/auth/sessions
  * Get user active sessions
  */
-router.get('/sessions', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
+router.get('/sessions', authenticateToken, validateTenantAccess, asyncHandler(async (req: Request, res: Response)=> {
   const sessionsResult = await query(`
     SELECT id, device_info, ip_address, user_agent, created_at, last_activity_at, expires_at
     FROM tenant.user_sessions
     WHERE user_id = $1 AND expires_at > CURRENT_TIMESTAMP
     ORDER BY last_activity_at DESC
-  `, [req.user.id]);
+  `, [req.user?.id]);
 
   const sessions = sessionsResult.rows.map(session => ({
     id: session.id,
@@ -522,7 +523,7 @@ router.get('/sessions', authenticateToken, validateTenantAccess, asyncHandler(as
     createdAt: session.created_at,
     lastActivityAt: session.last_activity_at,
     expiresAt: session.expires_at,
-    isCurrent: session.id === req.token.payload.sessionId
+    isCurrent: session.id === req.token?.payload?.sessionId
   }));
 
   res.json({
@@ -547,15 +548,16 @@ router.post('/register', [
   body('acceptTerms').equals('true').withMessage('You must accept the terms and conditions'),
   body('tenantId').optional().isUUID().withMessage('Invalid tenant ID format'),
   body('referralCode').optional().isLength({ min: 6, max: 10 }).withMessage('Invalid referral code')
-], asyncHandler(async (req, res) => {
+], asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       error: 'Validation failed',
       code: 'VALIDATION_ERROR',
       details: validationErrors.array()
     });
+    return;
   }
 
   const {
@@ -566,11 +568,12 @@ router.post('/register', [
   const tenantId = req.body.tenantId || req.tenant?.id;
 
   if (!tenantId) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       error: 'Tenant context required',
       code: 'TENANT_REQUIRED'
     });
+    return;
   }
 
   try {
@@ -626,19 +629,20 @@ router.post('/kyc/submit', authenticateToken, validateTenantAccess, [
   body('documentNumber').isLength({ min: 5, max: 20 }).withMessage('Valid document number required'),
   body('documentImage').isLength({ min: 10 }).withMessage('Document image is required'),
   body('selfieImage').isLength({ min: 10 }).withMessage('Selfie image is required')
-], asyncHandler(async (req, res) => {
+], asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       error: 'Validation failed',
       code: 'VALIDATION_ERROR',
       details: validationErrors.array()
     });
+    return;
   }
 
   const { documentType, documentNumber, documentImage, selfieImage } = req.body;
-  const userId = req.user.id;
+  const userId = req.user?.id;
 
   try {
     const { userService } = await import('../services/users');
@@ -671,18 +675,19 @@ router.post('/kyc/submit', authenticateToken, validateTenantAccess, [
  * GET /api/auth/profile
  * Get complete user profile
  */
-router.get('/profile', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
+router.get('/profile', authenticateToken, validateTenantAccess, asyncHandler(async (req: Request, res: Response): Promise<void> => {
   try {
     const { userService } = await import('../services/users');
-    
-    const profile = await userService.getUserProfile(req.user.id);
+
+    const profile = await userService.getUserProfile(req.user?.id);
 
     if (!profile) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         error: 'Profile not found',
         code: 'PROFILE_NOT_FOUND'
       });
+      return;
     }
 
     res.json({
@@ -708,19 +713,20 @@ router.put('/profile', authenticateToken, validateTenantAccess, [
   body('address.city').optional().isLength({ min: 2, max: 50 }).withMessage('City must be 2-50 characters'),
   body('address.state').optional().isLength({ min: 2, max: 50 }).withMessage('State must be 2-50 characters'),
   body('address.country').optional().isLength({ min: 2, max: 50 }).withMessage('Country must be 2-50 characters'),
-], asyncHandler(async (req, res) => {
+], asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       error: 'Validation failed',
       code: 'VALIDATION_ERROR',
       details: validationErrors.array()
     });
+    return;
   }
 
   const { firstName, lastName, phone, address, profileImage } = req.body;
-  const userId = req.user.id;
+  const userId = req.user?.id;
 
   try {
     const { userService } = await import('../services/users');

@@ -15,7 +15,7 @@ function getTenantId(req: Request): string | null {
 /**
  * Award points and check achievements after transfer
  */
-export async function afterTransferHook(req: Request, res: Response, transferData: any) {
+export async function afterTransferHook(req: Request, _res: Response, transferData: any) {
   try {
     const userId = req.user?.id;
     const tenantId = getTenantId(req);
@@ -54,7 +54,7 @@ export async function afterTransferHook(req: Request, res: Response, transferDat
 /**
  * Award points and check achievements after savings deposit
  */
-export async function afterSavingsDepositHook(req: Request, res: Response, savingsData: any) {
+export async function afterSavingsDepositHook(req: Request, _res: Response, savingsData: any) {
   try {
     const userId = req.user?.id;
     const tenantId = getTenantId(req);
@@ -131,7 +131,7 @@ export async function afterLoginHook(userId: string, tenantId: string) {
 /**
  * Award points and check achievements after bill payment
  */
-export async function afterBillPaymentHook(req: Request, res: Response, billData: any) {
+export async function afterBillPaymentHook(req: Request, _res: Response, billData: any) {
   try {
     const userId = req.user?.id;
     const tenantId = getTenantId(req);
@@ -206,7 +206,7 @@ export async function updateChallengeProgress(userId: string, challengeCode: str
     const rewardService = new RewardService(tenantId);
 
     const challenges = await rewardService.getUserChallenges(userId);
-    const challenge = challenges.find(c => c.code === challengeCode && c.status === 'active');
+    const challenge = challenges.find((c: any) => c.code === challengeCode && c.status === 'active');
 
     if (challenge) {
       const newProgress = (challenge.progress || 0) + increment;
@@ -215,7 +215,7 @@ export async function updateChallengeProgress(userId: string, challengeCode: str
       return {
         challengeCode,
         progress: newProgress,
-        isCompleted: newProgress >= challenge.maxProgress,
+        isCompleted: newProgress >= (challenge.progress || 100),
       };
     }
 

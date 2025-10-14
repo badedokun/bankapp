@@ -4,11 +4,11 @@
  */
 
 import express from 'express';
-import { body, validationResult } from 'express-validator';
+import { body } from 'express-validator';
 import { query as dbQuery, transaction } from '../config/database';
 import { authenticateToken } from '../middleware/auth';
 import { validateTenantAccess } from '../middleware/tenant';
-import { asyncHandler, errors } from '../middleware/errorHandler';
+import { asyncHandler } from '../middleware/errorHandler';
 
 const router = express.Router();
 
@@ -145,7 +145,7 @@ router.post('/personal/apply',
 
     const { amount, tenure, purpose, employmentStatus, monthlyIncome } = req.body;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
 
     // Check eligibility
     const eligibility = await calculateEligibility(userId, tenantId, 'personal');
@@ -212,7 +212,7 @@ router.get('/personal/eligibility',
   validateTenantAccess,
   asyncHandler(async (req: any, res: any) => {
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
 
     const eligibility = await calculateEligibility(userId, tenantId, 'personal');
 
@@ -241,7 +241,7 @@ router.get('/personal/offers',
   validateTenantAccess,
   asyncHandler(async (req: any, res: any) => {
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
 
     const eligibility = await calculateEligibility(userId, tenantId, 'personal');
 
@@ -320,7 +320,7 @@ router.post('/business/apply',
       yearsInBusiness, monthlyRevenue
     } = req.body;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
 
     // Check eligibility
     const eligibility = await calculateEligibility(userId, tenantId, 'business');
@@ -388,7 +388,7 @@ router.post('/business/documents',
   asyncHandler(async (req: any, res: any) => {
     const { loanId, documentType, documentData } = req.body;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
 
     // Verify loan ownership
     const loanCheck = await dbQuery(
@@ -429,7 +429,7 @@ router.get('/business/status/:loanId',
   asyncHandler(async (req: any, res: any) => {
     const { loanId } = req.params;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
 
     const loan = await dbQuery(`
       SELECT
@@ -480,7 +480,7 @@ router.post('/quick/instant',
   asyncHandler(async (req: any, res: any) => {
     const { amount, pin } = req.body;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
 
     // Verify PIN (simplified - should check against hashed PIN)
     const userPin = await dbQuery(
@@ -589,7 +589,7 @@ router.get('/quick/limit',
   validateTenantAccess,
   asyncHandler(async (req: any, res: any) => {
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
 
     const eligibility = await calculateEligibility(userId, tenantId, 'quick');
 
@@ -635,7 +635,7 @@ router.post('/quick/repay',
   asyncHandler(async (req: any, res: any) => {
     const { loanId, amount } = req.body;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
 
     await transaction(async (client: any) => {
       // Get loan details

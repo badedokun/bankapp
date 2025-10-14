@@ -4,6 +4,7 @@
  */
 
 import express from 'express';
+import { Request, Response } from 'express';
 import { query } from '../config/database';
 import { authenticateToken } from '../middleware/auth';
 import { validateTenantAccess } from '../middleware/tenant';
@@ -15,7 +16,7 @@ const router = express.Router();
  * GET /api/accounts
  * Get user's accounts/wallets information
  */
-router.get('/', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
+router.get('/', authenticateToken, validateTenantAccess, asyncHandler(async (req: Request, res: Response)=> {
   const walletsResult = await query(`
     SELECT
       w.id,
@@ -34,7 +35,7 @@ router.get('/', authenticateToken, validateTenantAccess, asyncHandler(async (req
     JOIN tenant.users u ON w.user_id = u.id
     WHERE w.user_id = $1 AND w.tenant_id = $2
     ORDER BY w.is_primary DESC, w.created_at DESC
-  `, [req.user.id, req.user.tenantId]);
+  `, [req.user?.id, req.user?.tenantId]);
 
   const accounts = walletsResult.rows.map(row => ({
     id: row.id,
@@ -60,7 +61,7 @@ router.get('/', authenticateToken, validateTenantAccess, asyncHandler(async (req
  * GET /api/accounts/:id
  * Get specific account details
  */
-router.get('/:id', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
+router.get('/:id', authenticateToken, validateTenantAccess, asyncHandler(async (req: Request, res: Response)=> {
   const { id } = req.params;
 
   const accountResult = await query(`
@@ -82,7 +83,7 @@ router.get('/:id', authenticateToken, validateTenantAccess, asyncHandler(async (
     FROM tenant.wallets w
     JOIN tenant.users u ON w.user_id = u.id
     WHERE w.id = $1 AND w.user_id = $2 AND w.tenant_id = $3
-  `, [id, req.user.id, req.user.tenantId]);
+  `, [id, req.user?.id, req.user?.tenantId]);
 
   if (accountResult.rows.length === 0) {
     throw errors.notFound('Account not found', 'ACCOUNT_NOT_FOUND');

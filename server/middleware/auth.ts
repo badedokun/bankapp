@@ -4,6 +4,7 @@
  */
 
 import jwt, { SignOptions, JwtPayload } from 'jsonwebtoken';
+import { Request, Response, NextFunction } from 'express';
 import { query } from '../config/database';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production';
@@ -157,23 +158,23 @@ async function authenticateToken(req: any, res: any, next: any) {
 
     next();
   } catch (error) {
-    console.error('Authentication error:', error.message);
+    console.error('Authentication error:', (error as Error).message);
     
-    if (error.name === 'JsonWebTokenError') {
+    if ((error as Error).name === 'JsonWebTokenError') {
       return res.status(401).json({
         error: 'Invalid token',
         code: 'INVALID_TOKEN'
       });
     }
     
-    if (error.name === 'TokenExpiredError') {
+    if ((error as Error).name === 'TokenExpiredError') {
       return res.status(401).json({
         error: 'Token expired',
         code: 'TOKEN_EXPIRED',
-        expiredAt: error.expiredAt
+        expiredAt: (error as any).expiredAt
       });
     }
-    
+
     return res.status(500).json({
       error: 'Authentication service error',
       code: 'AUTH_SERVICE_ERROR'
@@ -208,8 +209,8 @@ async function optionalAuth(req: any, res: any, next: any) {
  */
 function requireRole(allowedRoles: string | string[]) {
   const roles = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
-  
-  return (req, res, next) => {
+
+  return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
       return res.status(401).json({
         error: 'Authentication required',
@@ -226,7 +227,7 @@ function requireRole(allowedRoles: string | string[]) {
       });
     }
 
-    next();
+    return next();
   };
 }
 
@@ -237,8 +238,8 @@ function requireRole(allowedRoles: string | string[]) {
  */
 function requirePermission(requiredPermissions: string | string[]) {
   const permissions = Array.isArray(requiredPermissions) ? requiredPermissions : [requiredPermissions];
-  
-  return (req, res, next) => {
+
+  return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
       return res.status(401).json({
         error: 'Authentication required',
@@ -247,8 +248,8 @@ function requirePermission(requiredPermissions: string | string[]) {
     }
 
     const userPermissions = req.user.permissions || [];
-    const hasPermission = permissions.every(permission => 
-      userPermissions.includes(permission) || req.user.role === 'admin'
+    const hasPermission = permissions.every(permission =>
+      userPermissions.includes(permission) || req.user?.role === 'admin'
     );
 
     if (!hasPermission) {
@@ -260,7 +261,7 @@ function requirePermission(requiredPermissions: string | string[]) {
       });
     }
 
-    next();
+    return next();
   };
 }
 

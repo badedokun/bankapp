@@ -6,7 +6,8 @@
  */
 
 import express from 'express';
-import { body, param, query, validationResult } from 'express-validator';
+import { Request, Response } from 'express';
+import { body, param, query } from 'express-validator';
 import { authenticateToken, requireRole } from '../middleware/auth';
 import { validateRequest } from '../middleware/validation';
 import PCIDSSComplianceService from '../services/pci-dss-compliance';
@@ -42,7 +43,7 @@ const validateVulnerabilityReport = [
 router.get('/status',
   authenticateToken,
   requireRole(['admin', 'compliance_officer', 'security_officer', 'auditor']),
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
       const { tenantId } = (req as any).user;
 
@@ -73,7 +74,7 @@ router.get('/status',
 router.get('/dashboard',
   authenticateToken,
   requireRole(['admin', 'compliance_officer', 'security_officer', 'auditor']),
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
       const { tenantId } = (req as any).user;
 
@@ -128,7 +129,7 @@ router.post('/assessments',
   authenticateToken,
   requireRole(['admin', 'compliance_officer', 'security_officer']),
   validateAssessmentRequest,
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
       const { tenantId } = (req as any).user;
       const { assessmentType, scope } = req.body;
@@ -185,9 +186,9 @@ router.get('/assessments',
       .withMessage('Invalid assessment type filter'),
     validateRequest
   ],
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
-      const { tenantId } = (req as any).user;
+      const { _tenantId } = (req as any).user;
       const { status, assessmentType } = req.query;
 
       // Mock response for assessments list
@@ -221,9 +222,9 @@ router.post('/vulnerability-scans',
   authenticateToken,
   requireRole(['admin', 'compliance_officer', 'security_officer']),
   validateVulnerabilityReport,
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
-      const { tenantId } = (req as any).user;
+      const { _tenantId } = (req as any).user;
       const { scanType, findings } = req.body;
 
       // Mock response for vulnerability scan submission
@@ -279,9 +280,9 @@ router.get('/vulnerability-scans',
       .withMessage('Invalid severity filter'),
     validateRequest
   ],
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
-      const { tenantId } = (req as any).user;
+      const { _tenantId } = (req as any).user;
       const { scanType, severity } = req.query;
 
       // Mock response for vulnerability scans list
@@ -320,7 +321,7 @@ router.get('/requirements/:requirementId',
       .withMessage('Invalid requirement ID - must be between 1 and 12'),
     validateRequest
   ],
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
       const { tenantId } = (req as any).user;
       const { requirementId } = req.params;

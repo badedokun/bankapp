@@ -4,6 +4,7 @@
  */
 
 import express from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { body, validationResult } from 'express-validator';
 import bcrypt from 'bcrypt';
 import { query } from '../config/database';
@@ -18,10 +19,10 @@ const router = express.Router();
  * GET /api/wallets/balance
  * Get user's primary wallet balance and details
  */
-router.get('/balance', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
+router.get('/balance', authenticateToken, validateTenantAccess, asyncHandler(async (req: Request, res: Response)=> {
   try {
-    const tenantId = req.user.tenantId;
-    const userId = req.user.id;
+    const tenantId = req.user?.tenantId;
+    const userId = req.user?.id;
 
     // Get wallet from tenant database
     const walletResult = await dbManager.queryTenant(tenantId, `
@@ -109,14 +110,14 @@ router.get('/balance', authenticateToken, validateTenantAccess, asyncHandler(asy
  * GET /api/wallets/all
  * Get all user wallets (primary, savings, etc.)
  */
-router.get('/all', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
+router.get('/all', authenticateToken, validateTenantAccess, asyncHandler(async (req: Request, res: Response)=> {
   const walletsResult = await query(`
     SELECT w.*, u.first_name, u.last_name
     FROM tenant.wallets w
     JOIN tenant.users u ON w.user_id = u.id
     WHERE w.user_id = $1 AND w.tenant_id = $2
     ORDER BY w.is_primary DESC, w.created_at ASC
-  `, [req.user.id, req.user.tenantId]);
+  `, [req.user?.id, req.user?.tenantId]);
 
   const wallets = walletsResult.rows.map(wallet => ({
     id: wallet.id,
@@ -144,7 +145,7 @@ router.post('/create', authenticateToken, validateTenantAccess, [
   body('name').optional().isLength({ min: 3, max: 50 }).withMessage('Wallet name must be 3-50 characters'),
   body('description').optional().isLength({ max: 200 }).withMessage('Description too long'),
   body('targetAmount').optional().isFloat({ min: 1000 }).withMessage('Target amount must be at least ₦1,000')
-], asyncHandler(async (req, res) => {
+], asyncHandler(async (req: Request, res: Response)=> {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
     return res.status(400).json({
@@ -156,8 +157,8 @@ router.post('/create', authenticateToken, validateTenantAccess, [
   }
 
   const { walletType, name, description, targetAmount } = req.body;
-  const userId = req.user.id;
-  const tenantId = req.user.tenantId;
+  const userId = req.user?.id;
+  const tenantId = req.user?.tenantId;
 
   try {
     // Check wallet limit (max 5 wallets per user)
@@ -214,7 +215,7 @@ router.post('/transfer-between', authenticateToken, validateTenantAccess, [
   body('amount').isFloat({ min: 100 }).withMessage('Amount must be at least ₦100'),
   body('pin').isLength({ min: 4, max: 4 }).withMessage('Transaction PIN required'),
   body('description').optional().isLength({ max: 200 }).withMessage('Description too long')
-], asyncHandler(async (req, res) => {
+], asyncHandler(async (req: Request, res: Response)=> {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
     return res.status(400).json({
@@ -226,8 +227,8 @@ router.post('/transfer-between', authenticateToken, validateTenantAccess, [
   }
 
   const { fromWalletId, toWalletId, amount, pin, description = 'Internal transfer' } = req.body;
-  const userId = req.user.id;
-  const tenantId = req.user.tenantId;
+  const userId = req.user?.id;
+  const tenantId = req.user?.tenantId;
 
   if (fromWalletId === toWalletId) {
     return res.status(400).json({
@@ -353,7 +354,7 @@ router.post('/fund', authenticateToken, validateTenantAccess, [
   body('amount').isFloat({ min: 100 }).withMessage('Amount must be at least ₦100'),
   body('method').isIn(['bank_transfer', 'card', 'ussd']).withMessage('Valid funding method required'),
   body('reference').optional().isLength({ min: 5, max: 50 }).withMessage('Reference must be 5-50 characters')
-], asyncHandler(async (req, res) => {
+], asyncHandler(async (req: Request, res: Response)=> {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
     return res.status(400).json({
@@ -365,8 +366,8 @@ router.post('/fund', authenticateToken, validateTenantAccess, [
   }
 
   const { walletId, amount, method, reference } = req.body;
-  const userId = req.user.id;
-  const tenantId = req.user.tenantId;
+  const userId = req.user?.id;
+  const tenantId = req.user?.tenantId;
 
   try {
     await query('BEGIN');
@@ -455,8 +456,8 @@ router.post('/fund', authenticateToken, validateTenantAccess, [
  * GET /api/wallets/transactions
  * Get wallet transaction history with pagination
  */
-router.get('/transactions', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
-  const userId = req.user.id;
+router.get('/transactions', authenticateToken, validateTenantAccess, asyncHandler(async (req: Request, res: Response)=> {
+  const userId = req.user?.id;
   const page = parseInt(req.query.page as string) || 1;
   const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
   const offset = (page - 1) * limit;
@@ -543,9 +544,9 @@ router.get('/transactions', authenticateToken, validateTenantAccess, asyncHandle
  * GET /api/wallets/statement
  * Get wallet statement with transactions for a date range
  */
-router.get('/statement', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
-  const userId = req.user.id;
-  const tenantId = req.user.tenantId;
+router.get('/statement', authenticateToken, validateTenantAccess, asyncHandler(async (req: Request, res: Response)=> {
+  const userId = req.user?.id;
+  const tenantId = req.user?.tenantId;
   const startDate = req.query.startDate as string;
   const endDate = req.query.endDate as string;
 
@@ -681,7 +682,7 @@ router.put('/set-pin', authenticateToken, validateTenantAccess, [
   body('pin').isLength({ min: 4, max: 4 }).withMessage('PIN must be exactly 4 digits'),
   body('confirmPin').isLength({ min: 4, max: 4 }).withMessage('Confirm PIN must be exactly 4 digits'),
   body('currentPin').optional().isLength({ min: 4, max: 4 }).withMessage('Current PIN must be exactly 4 digits')
-], asyncHandler(async (req, res) => {
+], asyncHandler(async (req: Request, res: Response)=> {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
     return res.status(400).json({
@@ -693,7 +694,7 @@ router.put('/set-pin', authenticateToken, validateTenantAccess, [
   }
 
   const { pin, confirmPin, currentPin } = req.body;
-  const userId = req.user.id;
+  const userId = req.user?.id;
 
   // Validate PIN confirmation
   if (pin !== confirmPin) {
@@ -758,7 +759,7 @@ router.put('/set-pin', authenticateToken, validateTenantAccess, [
  */
 router.post('/verify-pin', authenticateToken, validateTenantAccess, [
   body('pin').isLength({ min: 4, max: 4 }).withMessage('PIN must be exactly 4 digits')
-], asyncHandler(async (req, res) => {
+], asyncHandler(async (req: Request, res: Response)=> {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
     return res.status(400).json({
@@ -770,7 +771,7 @@ router.post('/verify-pin', authenticateToken, validateTenantAccess, [
   }
 
   const { pin } = req.body;
-  const userId = req.user.id;
+  const userId = req.user?.id;
 
   try {
     // Get PIN hash
@@ -814,9 +815,9 @@ router.post('/verify-pin', authenticateToken, validateTenantAccess, [
  * GET /api/wallets/limits
  * Get user transaction limits
  */
-router.get('/limits', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
-  const userId = req.user.id;
-  const tenantId = req.user.tenantId;
+router.get('/limits', authenticateToken, validateTenantAccess, asyncHandler(async (req: Request, res: Response)=> {
+  const userId = req.user?.id;
+  const tenantId = req.user?.tenantId;
 
   try {
     // Get user limits
@@ -875,7 +876,7 @@ router.get('/limits', authenticateToken, validateTenantAccess, asyncHandler(asyn
 }));
 
 // Private method for funding simulation
-async function simulateFunding(method: string, amount: number, reference: string): Promise<{
+async function simulateFunding(method: string, _amount: number, _reference: string): Promise<{
   success: boolean;
   message: string;
   externalReference?: string;
