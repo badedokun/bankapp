@@ -165,9 +165,6 @@ router.post('/chat', authenticateToken, async (req, res) => {
       });
     }
 
-    // Debug logging
-    console.log(`🔍 Query: "${message}"`);
-
     // Generate conversation ID (use session ID or generate one)
     const conversationId = context.conversationId || context.sessionId || `conv_${Date.now()}`;
 
@@ -176,7 +173,6 @@ router.post('/chat', authenticateToken, async (req, res) => {
 
     if (conversationState.currentFlow === 'transfer') {
       // User is in middle of transfer flow - continue it
-      console.log('💬 Continuing transfer conversation flow');
       const transferResponse = await ConversationalTransferService.processTransferConversation(
         message,
         userId,
@@ -208,7 +204,6 @@ router.post('/chat', authenticateToken, async (req, res) => {
 
     if (isTransferIntent && userId !== 'anonymous') {
       // Start new conversational transfer flow
-      console.log('💬 Starting new transfer conversation flow');
       const transferResponse = await ConversationalTransferService.processTransferConversation(
         message,
         userId,
@@ -239,7 +234,6 @@ router.post('/chat', authenticateToken, async (req, res) => {
     let response;
 
     // First, try to answer using real customer data (no mock mode)
-    console.log('🔍 Checking if query can be answered with customer data...');
     const customerDataResponse = await CustomerDataService.processQuery(message, userId, tenantId);
 
     if (!customerDataResponse.requiresOpenAI) {
@@ -248,7 +242,6 @@ router.post('/chat', authenticateToken, async (req, res) => {
 
       if (queryType === 'transfers' || queryType === 'bills') {
         // Handle actionable intents with AIActionsService
-        console.log(`🎯 Actionable intent detected: ${queryType}`);
         const intentMap: Record<string, string> = {
           'transfers': 'transfer_money',
           'bills': 'bill_payment'
@@ -282,7 +275,6 @@ router.post('/chat', authenticateToken, async (req, res) => {
         };
       } else {
         // Query answered with real customer data - no OpenAI needed
-        console.log('✅ Query answered using real customer banking data');
         response = {
           response: customerDataResponse.answer,
           confidence: 0.95,
@@ -299,11 +291,8 @@ router.post('/chat', authenticateToken, async (req, res) => {
       }
     } else {
       // General banking question - use OpenAI
-      console.log('🤖 General banking question detected - using OpenAI');
-
       if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'placeholder') {
         // No OpenAI configured
-        console.log('❌ OpenAI API key not configured for general banking questions');
         return res.status(503).json({
           error: 'AI service not available',
           message: 'General banking questions require OpenAI configuration. Please contact support.',
@@ -312,7 +301,6 @@ router.post('/chat', authenticateToken, async (req, res) => {
       }
       try {
         // Use real OpenAI with real database data
-        console.log('🤖 Using real OpenAI with enriched banking data and Smart Suggestions');
         response = await aiManager.processEnhancedMessage(message, enrichedContext, {
           includeSuggestions: true,
           includeAnalytics: false
@@ -328,8 +316,6 @@ router.post('/chat', authenticateToken, async (req, res) => {
           transactionCount: enrichedContext?.bankingContext?.recentTransactions?.length || 0
         };
       } catch (error) {
-        console.log('❌ OpenAI failed, using Smart Suggestions Engine only:', error.message);
-
         // Fallback: Use Smart Suggestions Engine directly without OpenAI
         const smartSuggestions = await aiManager.getPersonalizedSuggestions(enrichedContext);
         const analyticsInsights = await aiManager.getAnalyticsInsights(enrichedContext);
@@ -655,7 +641,6 @@ router.get('/suggestions/smart', authenticateToken, async (req, res) => {
     }
 
     // Always use real customer data from AIIntelligenceManager
-    console.log('🤖 Generating smart suggestions with real banking data');
     const suggestions = await aiManager.getPersonalizedSuggestions(
       contextObj,
       category as any,
@@ -697,7 +682,6 @@ router.get('/analytics/insights', authenticateToken, async (req, res) => {
     }
 
     // Always use real customer data from AIIntelligenceManager
-    console.log('🤖 Generating analytics insights with real banking data');
     const insights = await aiManager.getAnalyticsInsights(
       contextObj,
       type as any,

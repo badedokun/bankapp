@@ -431,8 +431,6 @@ export class ConversationalTransferService {
         throw new Error(`Insufficient balance: ${currentBalance} < ${data.amount}`);
       }
 
-      console.error(`💰 Debiting wallet ${wallet.id}: Balance ${currentBalance} -> ${currentBalance - data.amount}`);
-
       // Debit wallet FIRST (before creating transfer record)
       const updateResult = await client.query(
         `UPDATE tenant.wallets
@@ -445,9 +443,6 @@ export class ConversationalTransferService {
       if (updateResult.rowCount === 0) {
         throw new Error('Failed to debit wallet - no rows updated');
       }
-
-      const newBalance = parseFloat(updateResult.rows[0].balance);
-      console.error(`✅ Wallet debited successfully. New balance: ${newBalance}`);
 
       // Now insert transfer record using wallet information
       const sourceAccountNumber = wallet.wallet_number || '0000000000';
@@ -477,8 +472,6 @@ export class ConversationalTransferService {
 
       // Commit transaction
       await client.query('COMMIT');
-
-      console.error(`✅ Transfer created successfully: ${reference}`);
 
       return {
         success: true,
