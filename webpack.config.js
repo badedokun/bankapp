@@ -100,6 +100,13 @@ module.exports = {
       imageLoaderConfiguration,
       svgLoaderConfiguration,
       fontLoaderConfiguration,
+      // Fix for canvg/jspdf ES module imports
+      {
+        test: /\.m?js$/,
+        resolve: {
+          fullySpecified: false,
+        },
+      },
     ],
   },
   plugins: [
