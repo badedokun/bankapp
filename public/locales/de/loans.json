@@ -1,0 +1,71 @@
+{
+  "title": "Darlehen",
+  "apply": "Darlehen beantragen",
+  "myLoans": "Meine Darlehen",
+  "types": {
+    "personal": "Privatkredit",
+    "business": "Geschäftskredit",
+    "mortgage": "Hypothek",
+    "auto": "Autokredit",
+    "education": "Bildungskredit"
+  },
+  "application": {
+    "title": "Darlehensantrag",
+    "loanType": "Darlehensart",
+    "amount": "Darlehensbetrag",
+    "amountPlaceholder": "Geben Sie den benötigten Betrag ein",
+    "purpose": "Verwendungszweck",
+    "purposePlaceholder": "Wofür verwenden Sie dieses Darlehen?",
+    "duration": "Darlehenslaufzeit",
+    "months": "{{count}} Monate",
+    "employmentStatus": "Beschäftigungsstatus",
+    "monthlyIncome": "Monatliches Einkommen",
+    "existingLoans": "Bestehende Darlehen",
+    "collateral": "Sicherheit",
+    "guarantor": "Bürgeninformationen",
+    "submit": "Antrag einreichen"
+  },
+  "details": {
+    "loanAmount": "Darlehensbetrag",
+    "amountDisbursed": "Ausgezahlter Betrag",
+    "outstanding": "Ausstehender Saldo",
+    "totalPaid": "Gesamt gezahlt",
+    "interestRate": "Zinssatz",
+    "duration": "Laufzeit",
+    "monthlyPayment": "Monatliche Rate",
+    "nextPayment": "Nächste Zahlung fällig",
+    "startDate": "Startdatum",
+    "endDate": "Enddatum",
+    "status": "Status"
+  },
+  "status": {
+    "draft": "Entwurf",
+    "pending": "In Prüfung",
+    "approved": "Genehmigt",
+    "rejected": "Abgelehnt",
+    "active": "Aktiv",
+    "completed": "Abgeschlossen",
+    "defaulted": "Ausgefallen"
+  },
+  "repayment": {
+    "title": "Tilgungsplan",
+    "makePayment": "Zahlung tätigen",
+    "paymentHistory": "Zahlungsverlauf",
+    "dueDate": "Fälligkeitsdatum",
+    "amount": "Betrag",
+    "principal": "Tilgung",
+    "interest": "Zinsen",
+    "totalPayable": "Gesamt zu zahlen",
+    "earlyPayment": "Vorzeitige Rückzahlung Rabatt"
+  },
+  "calculator": {
+    "title": "Darlehensrechner",
+    "amount": "Darlehensbetrag",
+    "rate": "Zinssatz (%)",
+    "duration": "Laufzeit (Monate)",
+    "calculate": "Berechnen",
+    "monthlyPayment": "Monatliche Rate",
+    "totalInterest": "Gesamtzinsen",
+    "totalPayable": "Gesamt zu zahlen"
+  }
+}

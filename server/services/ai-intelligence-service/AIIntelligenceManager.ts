@@ -51,11 +51,11 @@ export class AIIntelligenceManager {
         [userId]
       );
 
-      // Get recent transfers from tenant-specific database (real user data)
+      // Get recent transactions from tenant-specific database (real user data)
       const transactionsResult = await query(
-        `SELECT amount, recipient_name as description, 'debit' as type, created_at, status
-         FROM tenant.transfers
-         WHERE sender_id = $1
+        `SELECT amount, description, type, created_at, status
+         FROM tenant.transactions
+         WHERE user_id = $1
          ORDER BY created_at DESC
          LIMIT 20`,
         [userId]
@@ -65,12 +65,16 @@ export class AIIntelligenceManager {
       const recentTransactions = transactionsResult.rows || [];
 
       // Calculate financial metrics
+      // For income: look for credit, deposit types
       const totalIncome = recentTransactions
-        .filter((t: TransactionData) => t.type === 'credit')
+        .filter((t: TransactionData) => t.type === 'credit' || t.type === 'deposit')
         .reduce((sum: number, t: TransactionData) => sum + parseFloat(t.amount.toString()), 0);
 
+      // For expenses: all outgoing transaction types
       const totalExpenses = recentTransactions
-        .filter((t: TransactionData) => t.type === 'debit')
+        .filter((t: TransactionData) =>
+          t.type === 'debit' || t.type === 'money_transfer' || t.type === 'bill_payment' ||
+          t.type === 'cash_withdrawal' || t.type === 'withdrawal' || t.type === 'transfer')
         .reduce((sum: number, t: TransactionData) => sum + Math.abs(parseFloat(t.amount.toString())), 0);
 
       const averageTransaction = recentTransactions.length > 0
@@ -252,6 +256,13 @@ export class AIIntelligenceManager {
       return { intent: 'transaction_history', confidence: 0.9 };
     }
 
+    // Spending inquiry - CHECK BEFORE TRANSFER
+    if (lowerMessage.includes('spending') ||
+        (lowerMessage.includes('spend') && (lowerMessage.includes('too much') || lowerMessage.includes('am i'))) ||
+        lowerMessage.includes('expenses')) {
+      return { intent: 'spending_inquiry', confidence: 0.93 };
+    }
+
     // Transfer intent with entity extraction
     if (lowerMessage.includes('transfer') || lowerMessage.includes('send')) {
       const entities: any = {};
@@ -290,17 +301,33 @@ export class AIIntelligenceManager {
   }
 
   async processEnhancedMessage(message: string, context: any, options?: any): Promise<any> {
-    const userId = context.userId || context.user?.id;
+    // Handle enriched context from AI chat route
+    const userId = context.userId || context.user?.id || context.bankingContext?.user?.id;
+
     const financialData = userId ? await this.getUserFinancialData(userId) : null;
+
     const lowerMessage = message.toLowerCase();
 
     // Classify intent
     const classification = this.classifyIntent(message);
 
     // Generate contextual response based on intent
-    let response = `Processed: ${message}`;
+    let response = `I can help you with your banking needs. You can ask me about account balances, transfers, transactions, spending analysis, or any other banking services.`;
     if (classification.intent === 'balance_inquiry' && financialData) {
       response = `Your current balance is ₦${financialData.balance.toLocaleString()}.`;
+    } else if (classification.intent === 'spending_inquiry' && financialData) {
+      // Calculate spending from transactions correctly
+      const spendingTotal = financialData.totalExpenses;
+      const spendingRate = spendingTotal / (financialData.balance + spendingTotal);
+
+      if (spendingTotal > 0) {
+        const advice = spendingRate > 0.6 ? "Yes, you've spent over 60% of your initial funds. Consider reducing expenses." :
+                       spendingRate > 0.4 ? "Your spending is moderate but watch your expenses." :
+                       "Your spending is under control.";
+        response = `You've spent ₦${spendingTotal.toLocaleString()} recently. ${advice} Current balance: ₦${financialData.balance.toLocaleString()}.`;
+      } else {
+        response = `You haven't had any recent spending. Your balance is ₦${financialData.balance.toLocaleString()}.`;
+      }
     } else if (classification.intent === 'transaction_history' && financialData) {
       const recentCount = financialData.recentTransactions.length;
       if (recentCount > 0) {

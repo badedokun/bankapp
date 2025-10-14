@@ -1,0 +1,60 @@
+{
+  "title": "Sparen",
+  "plans": "Sparpläne",
+  "goals": "Sparziele",
+  "create": "Neuen Plan erstellen",
+  "types": {
+    "fixed": "Festgeld",
+    "flexible": "Flexibles Sparen",
+    "target": "Zielsparen",
+    "automatic": "Automatisches Sparen"
+  },
+  "form": {
+    "planName": "Planname",
+    "planNamePlaceholder": "Geben Sie Ihrem Plan einen Namen",
+    "amount": "Betrag",
+    "targetAmount": "Zielbetrag",
+    "initialDeposit": "Ersteinlage",
+    "frequency": "Häufigkeit",
+    "duration": "Laufzeit",
+    "interestRate": "Zinssatz",
+    "maturityDate": "Fälligkeitsdatum",
+    "autoSave": "Automatisches Sparen aktivieren",
+    "createPlan": "Plan erstellen"
+  },
+  "details": {
+    "totalSaved": "Gesamt gespart",
+    "targetAmount": "Zielbetrag",
+    "progress": "Fortschritt",
+    "interestEarned": "Verdiente Zinsen",
+    "contributions": "Beiträge",
+    "lastDeposit": "Letzte Einzahlung",
+    "nextDeposit": "Nächste Einzahlung",
+    "maturityDate": "Fälligkeitsdatum"
+  },
+  "actions": {
+    "deposit": "Einzahlung tätigen",
+    "withdraw": "Auszahlen",
+    "viewDetails": "Details ansehen",
+    "editPlan": "Plan bearbeiten",
+    "pausePlan": "Plan pausieren",
+    "deletePlan": "Plan löschen",
+    "breakPlan": "Plan auflösen"
+  },
+  "goals": {
+    "vacation": "Urlaub",
+    "emergency": "Notfallfonds",
+    "education": "Bildung",
+    "home": "Hauskauf",
+    "car": "Autokauf",
+    "wedding": "Hochzeit",
+    "retirement": "Altersvorsorge",
+    "custom": "Benutzerdefiniertes Ziel"
+  },
+  "insights": {
+    "projectedSavings": "Prognostizierte Ersparnisse",
+    "timeToGoal": "Zeit bis zum Ziel",
+    "recommendedDeposit": "Empfohlene monatliche Einzahlung",
+    "performanceVsGoal": "Leistung im Vergleich zum Ziel"
+  }
+}

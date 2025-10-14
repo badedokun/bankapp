@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Save As You Transact - OrokiiPay Banking Platform</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --surface-color: #ffffff;
+            --background-color: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --gradient-sayt: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --gradient-success: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            background: var(--surface-color);
+            min-height: 100vh;
+            box-shadow: var(--shadow);
+        }
+
+        /* Header */
+        .header {
+            background: var(--gradient-sayt);
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+        }
+
+        .header-title h1 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .header-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        /* Content */
+        .content {
+            padding: 20px;
+        }
+
+        /* Product Hero */
+        .product-hero {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .product-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-sayt);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin: 0 auto 15px;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .product-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .status-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: var(--border-color);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--gradient-sayt);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(30px);
+        }
+
+        .status-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--success-color);
+        }
+
+        .status-text.inactive {
+            color: var(--text-secondary);
+        }
+
+        /* Stats Cards */
+        .stats-section {
+            margin-bottom: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Recent Transactions */
+        .transactions-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .transaction-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-right: 12px;
+        }
+
+        .transaction-icon.transfer {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+            color: var(--primary-color);
+        }
+
+        .transaction-icon.bill {
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
+            color: var(--warning-color);
+        }
+
+        .transaction-info {
+            flex: 1;
+        }
+
+        .transaction-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .transaction-details {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .transaction-amount {
+            text-align: right;
+        }
+
+        .amount-spent {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .amount-saved {
+            font-size: 12px;
+            color: var(--success-color);
+            font-weight: 600;
+        }
+
+        /* Settings Section */
+        .settings-section {
+            margin-bottom: 30px;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .setting-info {
+            flex: 1;
+        }
+
+        .setting-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .setting-description {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .setting-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        /* Rules Section */
+        .rules-section {
+            margin-bottom: 30px;
+        }
+
+        .rule-card {
+            background: var(--surface-color);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .rule-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .rule-card.active {
+            border-color: var(--success-color);
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
+        }
+
+        .rule-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .rule-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .rule-status {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .rule-card.active .rule-status {
+            border-color: var(--success-color);
+            background: var(--success-color);
+        }
+
+        .rule-card.active .rule-status::after {
+            content: '✓';
+            position: absolute;
+            top: -2px;
+            left: 2px;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .rule-description {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* Info Card */
+        .info-card {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .info-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-content {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .info-list {
+            list-style: none;
+            padding-left: 20px;
+            margin-top: 8px;
+        }
+
+        .info-list li {
+            position: relative;
+            margin-bottom: 6px;
+        }
+
+        .info-list li::before {
+            content: "✓";
+            position: absolute;
+            left: -20px;
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--gradient-sayt);
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--surface-color);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--surface-color);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 380px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                margin: 0;
+                max-width: 100%;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .transaction-item {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <button class="back-btn" onclick="goBack()">← Back</button>
+                <div class="header-title">
+                    <h1>Save As You Transact</h1>
+                    <div class="header-subtitle">Automatic savings on every transaction</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Product Hero -->
+            <div class="product-hero">
+                <div class="product-icon">🔄</div>
+                <p class="product-description">
+                    Save money automatically on every transaction you make.
+                    Round up purchases or save a fixed amount with each payment.
+                </p>
+            </div>
+
+            <!-- Status Toggle -->
+            <div class="status-toggle">
+                <div class="toggle-switch active" onclick="toggleService()">
+                    <div class="toggle-slider"></div>
+                </div>
+                <span class="status-text" id="statusText">Service Active</span>
+            </div>
+
+            <!-- Stats Section -->
+            <div class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">₦12,450</div>
+                        <div class="stat-label">Total Saved</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">87</div>
+                        <div class="stat-label">Transactions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">₦143</div>
+                        <div class="stat-label">Avg. per Transaction</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">₦1,240</div>
+                        <div class="stat-label">This Month</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="transactions-section">
+                <h3 class="section-title">Recent Transactions with Savings</h3>
+
+                <div class="transaction-item">
+                    <div class="transaction-icon transfer">💸</div>
+                    <div class="transaction-info">
+                        <div class="transaction-title">Transfer to John Doe</div>
+                        <div class="transaction-details">Today, 2:30 PM</div>
+                    </div>
+                    <div class="transaction-amount">
+                        <div class="amount-spent">-₦15,500</div>
+                        <div class="amount-saved">+₦500 saved</div>
+                    </div>
+                </div>
+
+                <div class="transaction-item">
+                    <div class="transaction-icon bill">🔌</div>
+                    <div class="transaction-info">
+                        <div class="transaction-title">Electricity Bill</div>
+                        <div class="transaction-details">Yesterday, 11:45 AM</div>
+                    </div>
+                    <div class="transaction-amount">
+                        <div class="amount-spent">-₦8,750</div>
+                        <div class="amount-saved">+₦250 saved</div>
+                    </div>
+                </div>
+
+                <div class="transaction-item">
+                    <div class="transaction-icon transfer">🛒</div>
+                    <div class="transaction-info">
+                        <div class="transaction-title">Online Shopping</div>
+                        <div class="transaction-details">2 days ago, 4:20 PM</div>
+                    </div>
+                    <div class="transaction-amount">
+                        <div class="amount-spent">-₦25,680</div>
+                        <div class="amount-saved">+₦320 saved</div>
+                    </div>
+                </div>
+
+                <div class="transaction-item">
+                    <div class="transaction-icon bill">🍕</div>
+                    <div class="transaction-info">
+                        <div class="transaction-title">Food Delivery</div>
+                        <div class="transaction-details">3 days ago, 7:15 PM</div>
+                    </div>
+                    <div class="transaction-amount">
+                        <div class="amount-spent">-₦4,200</div>
+                        <div class="amount-saved">+₦800 saved</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Savings Rules -->
+            <div class="rules-section">
+                <h3 class="section-title">Active Savings Rules</h3>
+
+                <div class="rule-card active" onclick="toggleRule(this)">
+                    <div class="rule-header">
+                        <span class="rule-title">Round-Up Savings</span>
+                        <div class="rule-status"></div>
+                    </div>
+                    <p class="rule-description">
+                        Round up every transaction to the nearest ₦100 and save the difference.
+                        Example: ₦4,750 transaction → Save ₦250
+                    </p>
+                </div>
+
+                <div class="rule-card" onclick="toggleRule(this)">
+                    <div class="rule-header">
+                        <span class="rule-title">Fixed Amount Rule</span>
+                        <div class="rule-status"></div>
+                    </div>
+                    <p class="rule-description">
+                        Save a fixed ₦200 on every transaction above ₦1,000.
+                        Consistent savings regardless of transaction amount.
+                    </p>
+                </div>
+
+                <div class="rule-card" onclick="toggleRule(this)">
+                    <div class="rule-header">
+                        <span class="rule-title">Percentage Rule</span>
+                        <div class="rule-status"></div>
+                    </div>
+                    <p class="rule-description">
+                        Save 2% of every transaction amount.
+                        Higher transactions = Higher savings automatically.
+                    </p>
+                </div>
+
+                <div class="rule-card" onclick="toggleRule(this)">
+                    <div class="rule-header">
+                        <span class="rule-title">Weekend Double</span>
+                        <div class="rule-status"></div>
+                    </div>
+                    <p class="rule-description">
+                        Double your savings rate on weekend transactions.
+                        Perfect for leisure spending control.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Settings -->
+            <div class="settings-section">
+                <h3 class="section-title">Settings</h3>
+
+                <div class="setting-item" onclick="editSetting('min-amount')">
+                    <div class="setting-info">
+                        <div class="setting-title">Minimum Transaction Amount</div>
+                        <div class="setting-description">Only save on transactions above this amount</div>
+                    </div>
+                    <div class="setting-value">₦1,000</div>
+                </div>
+
+                <div class="setting-item" onclick="editSetting('max-daily')">
+                    <div class="setting-info">
+                        <div class="setting-title">Maximum Daily Savings</div>
+                        <div class="setting-description">Cap daily savings to control budget</div>
+                    </div>
+                    <div class="setting-value">₦5,000</div>
+                </div>
+
+                <div class="setting-item" onclick="editSetting('excluded-categories')">
+                    <div class="setting-info">
+                        <div class="setting-title">Excluded Categories</div>
+                        <div class="setting-description">Transaction types to exclude from savings</div>
+                    </div>
+                    <div class="setting-value">2 selected</div>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="info-card">
+                <div class="info-title">
+                    <span>💡</span>
+                    <span>How It Works</span>
+                </div>
+                <div class="info-content">
+                    <ul class="info-list">
+                        <li>Automatically saves money on qualifying transactions</li>
+                        <li>Multiple saving rules can be combined</li>
+                        <li>Savings transferred immediately to your savings wallet</li>
+                        <li>Real-time notifications for each save</li>
+                        <li>Detailed analytics and spending insights</li>
+                        <li>Can be paused or stopped anytime</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn btn-secondary" onclick="viewHistory()">
+                    View History
+                </button>
+                <button class="btn btn-secondary" onclick="showCustomRule()">
+                    Create Custom Rule
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Rule Modal -->
+    <div id="customRuleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Create Custom Rule</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+
+            <form id="customRuleForm">
+                <div class="form-group">
+                    <label class="form-label">Rule Name</label>
+                    <input type="text" class="form-input" placeholder="e.g., Weekend Special" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Saving Method</label>
+                    <select class="form-input">
+                        <option value="round-up">Round Up to Nearest Amount</option>
+                        <option value="fixed">Fixed Amount per Transaction</option>
+                        <option value="percentage">Percentage of Transaction</option>
+                        <option value="conditional">Conditional Savings</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Amount/Percentage</label>
+                    <input type="number" class="form-input" placeholder="Enter amount or percentage" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Conditions (Optional)</label>
+                    <select class="form-input">
+                        <option value="">No conditions</option>
+                        <option value="weekend">Only on weekends</option>
+                        <option value="weekday">Only on weekdays</option>
+                        <option value="above-amount">Only above certain amount</option>
+                        <option value="specific-category">Only specific categories</option>
+                    </select>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Rule</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let serviceActive = true;
+
+        // Toggle service on/off
+        function toggleService() {
+            const toggle = document.querySelector('.toggle-switch');
+            const statusText = document.getElementById('statusText');
+
+            serviceActive = !serviceActive;
+
+            if (serviceActive) {
+                toggle.classList.add('active');
+                statusText.textContent = 'Service Active';
+                statusText.classList.remove('inactive');
+            } else {
+                toggle.classList.remove('active');
+                statusText.textContent = 'Service Inactive';
+                statusText.classList.add('inactive');
+            }
+        }
+
+        // Toggle saving rules
+        function toggleRule(ruleElement) {
+            ruleElement.classList.toggle('active');
+        }
+
+        // Edit settings
+        function editSetting(settingType) {
+            console.log(`Editing setting: ${settingType}`);
+            const newValue = prompt('Enter new value:');
+            if (newValue) {
+                event.target.closest('.setting-item').querySelector('.setting-value').textContent = newValue;
+            }
+        }
+
+        // Show custom rule modal
+        function showCustomRule() {
+            document.getElementById('customRuleModal').classList.add('active');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('customRuleModal').classList.remove('active');
+        }
+
+        // View history
+        function viewHistory() {
+            console.log('Viewing savings history...');
+            alert('Opening savings history...');
+        }
+
+        // Go back
+        function goBack() {
+            window.history.back();
+        }
+
+        // Form submission
+        document.getElementById('customRuleForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log('Creating custom rule...');
+            alert('Custom rule created successfully!');
+            closeModal();
+        });
+
+        // Initialize animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate stats on load
+            setTimeout(() => {
+                document.querySelectorAll('.stat-value').forEach((stat, index) => {
+                    setTimeout(() => {
+                        stat.style.transform = 'scale(1.1)';
+                        setTimeout(() => {
+                            stat.style.transform = 'scale(1)';
+                        }, 200);
+                    }, index * 100);
+                });
+            }, 500);
+        });
+    </script>
+</body>
+</html>

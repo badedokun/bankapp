@@ -1,0 +1,74 @@
+{
+  "title": "Transaktionen",
+  "history": "Transaktionsverlauf",
+  "recent": "Aktuelle Transaktionen",
+  "all": "Alle Transaktionen",
+  "filters": {
+    "title": "Filter",
+    "dateRange": "Zeitraum",
+    "type": "Transaktionstyp",
+    "status": "Status",
+    "amount": "Betragsspanne",
+    "minAmount": "Mindestbetrag",
+    "maxAmount": "Höchstbetrag",
+    "apply": "Filter anwenden",
+    "clear": "Filter löschen"
+  },
+  "types": {
+    "all": "Alle Typen",
+    "debit": "Lastschrift",
+    "credit": "Gutschrift",
+    "transfer": "Überweisung",
+    "payment": "Zahlung",
+    "deposit": "Einzahlung",
+    "withdrawal": "Auszahlung",
+    "fee": "Gebühr",
+    "reversal": "Stornierung",
+    "refund": "Rückerstattung"
+  },
+  "details": {
+    "title": "Transaktionsdetails",
+    "reference": "Referenznummer",
+    "date": "Datum & Uhrzeit",
+    "type": "Typ",
+    "amount": "Betrag",
+    "fee": "Gebühr",
+    "total": "Gesamt",
+    "from": "Von",
+    "to": "An",
+    "description": "Beschreibung",
+    "status": "Status",
+    "balanceBefore": "Saldo vorher",
+    "balanceAfter": "Saldo nachher"
+  },
+  "actions": {
+    "viewDetails": "Details ansehen",
+    "downloadReceipt": "Beleg herunterladen",
+    "shareReceipt": "Beleg teilen",
+    "dispute": "Transaktion anfechten",
+    "reverse": "Transaktion rückgängig machen",
+    "repeat": "Transaktion wiederholen"
+  },
+  "search": {
+    "placeholder": "Transaktionen durchsuchen...",
+    "noResults": "Keine Transaktionen gefunden",
+    "searching": "Suche läuft..."
+  },
+  "export": {
+    "title": "Transaktionen exportieren",
+    "format": "Format",
+    "formats": {
+      "pdf": "PDF",
+      "csv": "CSV",
+      "excel": "Excel"
+    },
+    "dateRange": "Zeitraum",
+    "download": "Herunterladen",
+    "success": "Export erfolgreich heruntergeladen"
+  },
+  "empty": {
+    "title": "Noch keine Transaktionen",
+    "message": "Sie haben noch keine Transaktionen durchgeführt",
+    "action": "Überweisung tätigen"
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "title": "Configuración",
+  "profile": {
+    "title": "Perfil",
+    "personalInfo": "Información Personal",
+    "firstName": "Nombre",
+    "lastName": "Apellidos",
+    "email": "Correo Electrónico",
+    "phone": "Número de Teléfono",
+    "dateOfBirth": "Fecha de Nacimiento",
+    "address": "Dirección",
+    "city": "Ciudad",
+    "state": "Provincia",
+    "country": "País",
+    "zipCode": "Código Postal",
+    "updateProfile": "Actualizar Perfil",
+    "profileUpdated": "Perfil actualizado correctamente"
+  },
+  "security": {
+    "title": "Seguridad",
+    "changePassword": "Cambiar Contraseña",
+    "currentPassword": "Contraseña Actual",
+    "newPassword": "Nueva Contraseña",
+    "confirmPassword": "Confirmar Nueva Contraseña",
+    "updatePassword": "Actualizar Contraseña",
+    "passwordUpdated": "Contraseña actualizada correctamente",
+    "twoFactor": "Autenticación de Dos Factores",
+    "enableTwoFactor": "Activar 2FA",
+    "disableTwoFactor": "Desactivar 2FA",
+    "transactionPin": "PIN de Transacción",
+    "changePin": "Cambiar PIN",
+    "biometrics": "Autenticación Biométrica",
+    "enableBiometrics": "Activar Biometría",
+    "sessions": "Sesiones Activas",
+    "viewSessions": "Ver Sesiones Activas",
+    "logoutAll": "Cerrar Sesión en Todos los Dispositivos"
+  },
+  "preferences": {
+    "title": "Preferencias",
+    "language": "Idioma",
+    "currency": "Moneda Predeterminada",
+    "timezone": "Zona Horaria",
+    "dateFormat": "Formato de Fecha",
+    "notifications": "Notificaciones",
+    "emailNotifications": "Notificaciones por Correo",
+    "pushNotifications": "Notificaciones Push",
+    "smsNotifications": "Notificaciones SMS",
+    "transactionAlerts": "Alertas de Transacción",
+    "marketingEmails": "Correos de Marketing",
+    "theme": "Tema de la Aplicación",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "auto": "Automático"
+  },
+  "limits": {
+    "title": "Límites de Transacción",
+    "daily": "Límite Diario",
+    "monthly": "Límite Mensual",
+    "perTransaction": "Por Transacción",
+    "requestIncrease": "Solicitar Aumento de Límite",
+    "currentLimits": "Límites Actuales",
+    "pendingRequest": "Solicitud de aumento de límite pendiente"
+  },
+  "linked": {
+    "title": "Cuentas Vinculadas",
+    "linkAccount": "Vincular Nueva Cuenta",
+    "bankAccounts": "Cuentas Bancarias",
+    "cards": "Tarjetas",
+    "unlinkAccount": "Desvincular Cuenta"
+  },
+  "privacy": {
+    "title": "Privacidad",
+    "dataSharing": "Compartir Datos",
+    "analytics": "Analítica y Rendimiento",
+    "personalization": "Personalización",
+    "downloadData": "Descargar Mis Datos",
+    "deleteAccount": "Eliminar Cuenta"
+  },
+  "support": {
+    "title": "Ayuda y Soporte",
+    "contactUs": "Contáctenos",
+    "faq": "Preguntas Frecuentes",
+    "tutorials": "Tutoriales",
+    "reportIssue": "Informar de un Problema",
+    "feedback": "Enviar Comentarios"
+  },
+  "about": {
+    "title": "Acerca de",
+    "version": "Versión de la Aplicación",
+    "terms": "Términos y Condiciones",
+    "privacy": "Política de Privacidad",
+    "licenses": "Licencias de Código Abierto"
+  },
+  "logout": {
+    "title": "Cerrar Sesión",
+    "confirm": "¿Está seguro de que desea cerrar sesión?",
+    "button": "Cerrar Sesión"
+  }
+}

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RBAC Management Interface Demo - OrokiiPay Banking Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex items-center space-x-3">
+                        <div class="h-8 w-8 bg-blue-600 rounded flex items-center justify-center">
+                            <i data-lucide="shield" class="h-5 w-5 text-white"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-lg font-semibold text-gray-900">OrokiiPay Banking Platform</h1>
+                            <p class="text-sm text-gray-500">RBAC Management Interface</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500">admin@fmfb.com</span>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        CEO Role
+                    </span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="bg-white shadow rounded-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">
+                    Role-Based Access Control (RBAC) Management Interface
+                </h2>
+                <p class="text-gray-600 mb-4">
+                    Complete solution for managing roles, permissions, and user access across platform and tenant levels.
+                </p>
+
+                <!-- Key Features -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="flex items-center space-x-3 mb-2">
+                            <i data-lucide="users" class="h-5 w-5 text-blue-600"></i>
+                            <h3 class="text-sm font-medium text-gray-900">User Management</h3>
+                        </div>
+                        <p class="text-xs text-gray-600">Assign and remove roles from users with full audit trail</p>
+                    </div>
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="flex items-center space-x-3 mb-2">
+                            <i data-lucide="key" class="h-5 w-5 text-green-600"></i>
+                            <h3 class="text-sm font-medium text-gray-900">Role & Permissions</h3>
+                        </div>
+                        <p class="text-xs text-gray-600">Comprehensive role editor with 89+ banking permissions</p>
+                    </div>
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="flex items-center space-x-3 mb-2">
+                            <i data-lucide="shield" class="h-5 w-5 text-purple-600"></i>
+                            <h3 class="text-sm font-medium text-gray-900">Multi-Tenant</h3>
+                        </div>
+                        <p class="text-xs text-gray-600">Platform and tenant-level permission management</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RBAC Dashboard Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i data-lucide="users" class="h-8 w-8 text-blue-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Total Users</dt>
+                                <dd class="text-2xl font-semibold text-gray-900">156</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i data-lucide="key" class="h-8 w-8 text-green-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Active Roles</dt>
+                                <dd class="text-2xl font-semibold text-gray-900">25</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i data-lucide="settings" class="h-8 w-8 text-purple-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Total Permissions</dt>
+                                <dd class="text-2xl font-semibold text-gray-900">89</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i data-lucide="activity" class="h-8 w-8 text-orange-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Recent Assignments</dt>
+                                <dd class="text-2xl font-semibold text-gray-900">12</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Component Overview -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- RBAC Dashboard Component -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                        🛡️ RBAC Dashboard Component
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <span class="text-sm font-medium">Dashboard Overview</span>
+                            <span class="text-xs text-green-600">✓ Complete</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <span class="text-sm font-medium">User Management Tab</span>
+                            <span class="text-xs text-green-600">✓ Complete</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <span class="text-sm font-medium">Role Management Tab</span>
+                            <span class="text-xs text-blue-600">📋 Framework Ready</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <span class="text-sm font-medium">Permissions Management</span>
+                            <span class="text-xs text-blue-600">📋 Framework Ready</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <span class="text-sm font-medium">Audit Trail</span>
+                            <span class="text-xs text-blue-600">📋 Framework Ready</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-xs text-gray-500">
+                        <p><strong>Location:</strong> /src/components/admin/RBACDashboard.tsx</p>
+                        <p><strong>Features:</strong> Multi-tab interface, search, pagination, real-time stats</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Role Permissions Editor Component -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                        ⚙️ Role Permissions Editor
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <span class="text-sm font-medium">89 Banking Permissions</span>
+                            <span class="text-xs text-green-600">✓ Complete</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <span class="text-sm font-medium">Category Grouping</span>
+                            <span class="text-xs text-green-600">✓ Complete</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <span class="text-sm font-medium">Bulk Permission Actions</span>
+                            <span class="text-xs text-green-600">✓ Complete</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <span class="text-sm font-medium">Permission Level Selection</span>
+                            <span class="text-xs text-green-600">✓ Complete</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <span class="text-sm font-medium">CBN/NIBSS Indicators</span>
+                            <span class="text-xs text-green-600">✓ Complete</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-xs text-gray-500">
+                        <p><strong>Location:</strong> /src/components/admin/RolePermissionsEditor.tsx</p>
+                        <p><strong>Features:</strong> Modal interface, search filtering, expandable categories</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Role Assignment Modal -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                        👤 User Role Assignment
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <span class="text-sm font-medium">Role Assignment Form</span>
+                            <span class="text-xs text-green-600">✓ Complete</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <span class="text-sm font-medium">Current Roles Display</span>
+                            <span class="text-xs text-green-600">✓ Complete</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <span class="text-sm font-medium">Assignment Reason</span>
+                            <span class="text-xs text-green-600">✓ Complete</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <span class="text-sm font-medium">Effective Date Range</span>
+                            <span class="text-xs text-green-600">✓ Complete</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <span class="text-sm font-medium">Role Removal</span>
+                            <span class="text-xs text-green-600">✓ Complete</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-xs text-gray-500">
+                        <p><strong>Location:</strong> /src/components/admin/UserRoleAssignmentModal.tsx</p>
+                        <p><strong>Features:</strong> Modal interface, validation, legacy role integration</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Backend API Integration -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                        🔗 Backend API Integration
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <span class="text-sm font-medium">RBAC Admin Routes</span>
+                            <span class="text-xs text-green-600">✓ Complete</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <span class="text-sm font-medium">Permission Management</span>
+                            <span class="text-xs text-green-600">✓ Complete</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <span class="text-sm font-medium">User Role Assignment</span>
+                            <span class="text-xs text-green-600">✓ Complete</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <span class="text-sm font-medium">Dashboard Analytics</span>
+                            <span class="text-xs text-green-600">✓ Complete</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <span class="text-sm font-medium">API Service Methods</span>
+                            <span class="text-xs text-green-600">✓ Complete</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-xs text-gray-500">
+                        <p><strong>Backend:</strong> /server/routes/rbac.ts</p>
+                        <p><strong>Frontend:</strong> /src/services/api.ts</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Integration Details -->
+        <div class="mt-8 bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                    Integration & Access Control
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-900 mb-3">Platform Level Access</h4>
+                        <div class="space-y-2 text-sm text-gray-600">
+                            <p>• <strong>Platform Administrator:</strong> Full RBAC management across all tenants</p>
+                            <p>• <strong>System Configuration:</strong> Global role and permission templates</p>
+                            <p>• <strong>Cross-Tenant Analytics:</strong> Platform-wide RBAC insights</p>
+                            <p>• <strong>Audit Trail:</strong> Complete platform permission history</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-900 mb-3">Tenant Level Access</h4>
+                        <div class="space-y-2 text-sm text-gray-600">
+                            <p>• <strong>CEO/Tenant Admin:</strong> Full tenant RBAC management</p>
+                            <p>• <strong>Role Customization:</strong> Create tenant-specific roles</p>
+                            <p>• <strong>User Management:</strong> Assign roles within tenant boundary</p>
+                            <p>• <strong>Permission Overrides:</strong> Tenant-specific permission levels</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div class="flex items-start space-x-3">
+                        <i data-lucide="info" class="h-5 w-5 text-blue-600 mt-0.5"></i>
+                        <div>
+                            <h4 class="text-sm font-medium text-blue-900">Integration Complete</h4>
+                            <p class="text-sm text-blue-700 mt-1">
+                                The RBAC management interface has been successfully integrated into the OrokiiPay banking platform.
+                                Both <strong>admin@fmfb.com</strong> and <strong>demo@fmfb.com</strong> users with CEO roles now have
+                                <code>platform_administration</code> permission set to <code>full</code>, enabling access to the
+                                RBAC Management feature in the platform administration section.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>

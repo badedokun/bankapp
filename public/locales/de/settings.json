@@ -1,0 +1,99 @@
+{
+  "title": "Einstellungen",
+  "profile": {
+    "title": "Profil",
+    "personalInfo": "Persönliche Informationen",
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "email": "E-Mail-Adresse",
+    "phone": "Telefonnummer",
+    "dateOfBirth": "Geburtsdatum",
+    "address": "Adresse",
+    "city": "Stadt",
+    "state": "Bundesland",
+    "country": "Land",
+    "zipCode": "Postleitzahl",
+    "updateProfile": "Profil aktualisieren",
+    "profileUpdated": "Profil erfolgreich aktualisiert"
+  },
+  "security": {
+    "title": "Sicherheit",
+    "changePassword": "Passwort ändern",
+    "currentPassword": "Aktuelles Passwort",
+    "newPassword": "Neues Passwort",
+    "confirmPassword": "Neues Passwort bestätigen",
+    "updatePassword": "Passwort aktualisieren",
+    "passwordUpdated": "Passwort erfolgreich aktualisiert",
+    "twoFactor": "Zwei-Faktor-Authentifizierung",
+    "enableTwoFactor": "2FA aktivieren",
+    "disableTwoFactor": "2FA deaktivieren",
+    "transactionPin": "Transaktions-PIN",
+    "changePin": "PIN ändern",
+    "biometrics": "Biometrische Authentifizierung",
+    "enableBiometrics": "Biometrie aktivieren",
+    "sessions": "Aktive Sitzungen",
+    "viewSessions": "Aktive Sitzungen anzeigen",
+    "logoutAll": "Alle Geräte abmelden"
+  },
+  "preferences": {
+    "title": "Einstellungen",
+    "language": "Sprache",
+    "currency": "Standardwährung",
+    "timezone": "Zeitzone",
+    "dateFormat": "Datumsformat",
+    "notifications": "Benachrichtigungen",
+    "emailNotifications": "E-Mail-Benachrichtigungen",
+    "pushNotifications": "Push-Benachrichtigungen",
+    "smsNotifications": "SMS-Benachrichtigungen",
+    "transactionAlerts": "Transaktionswarnungen",
+    "marketingEmails": "Marketing-E-Mails",
+    "theme": "App-Design",
+    "light": "Hell",
+    "dark": "Dunkel",
+    "auto": "Automatisch"
+  },
+  "limits": {
+    "title": "Transaktionslimits",
+    "daily": "Tageslimit",
+    "monthly": "Monatslimit",
+    "perTransaction": "Pro Transaktion",
+    "requestIncrease": "Limiterhöhung beantragen",
+    "currentLimits": "Aktuelle Limits",
+    "pendingRequest": "Antrag auf Limiterhöhung ausstehend"
+  },
+  "linked": {
+    "title": "Verknüpfte Konten",
+    "linkAccount": "Neues Konto verknüpfen",
+    "bankAccounts": "Bankkonten",
+    "cards": "Karten",
+    "unlinkAccount": "Kontoverknüpfung aufheben"
+  },
+  "privacy": {
+    "title": "Datenschutz",
+    "dataSharing": "Datenweitergabe",
+    "analytics": "Analysen & Leistung",
+    "personalization": "Personalisierung",
+    "downloadData": "Meine Daten herunterladen",
+    "deleteAccount": "Konto löschen"
+  },
+  "support": {
+    "title": "Hilfe & Support",
+    "contactUs": "Kontaktieren Sie uns",
+    "faq": "Häufig gestellte Fragen",
+    "tutorials": "Anleitungen",
+    "reportIssue": "Problem melden",
+    "feedback": "Feedback senden"
+  },
+  "about": {
+    "title": "Über",
+    "version": "App-Version",
+    "terms": "Allgemeine Geschäftsbedingungen",
+    "privacy": "Datenschutzrichtlinie",
+    "licenses": "Open-Source-Lizenzen"
+  },
+  "logout": {
+    "title": "Abmelden",
+    "confirm": "Sind Sie sicher, dass Sie sich abmelden möchten?",
+    "button": "Abmelden"
+  }
+}

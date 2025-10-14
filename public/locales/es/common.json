@@ -1,0 +1,74 @@
+{
+  "app": {
+    "name": "OrokiiPay",
+    "tagline": "Plataforma Bancaria Potenciada por IA"
+  },
+  "navigation": {
+    "dashboard": "Panel",
+    "transfers": "Transferencias",
+    "transactions": "Transacciones",
+    "savings": "Ahorros",
+    "loans": "Préstamos",
+    "settings": "Configuración",
+    "accounts": "Cuentas",
+    "bills": "Facturas y Pagos",
+    "analytics": "Analítica",
+    "help": "Ayuda y Soporte"
+  },
+  "actions": {
+    "submit": "Enviar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "back": "Volver",
+    "next": "Siguiente",
+    "confirm": "Confirmar",
+    "continue": "Continuar",
+    "close": "Cerrar",
+    "retry": "Reintentar",
+    "refresh": "Actualizar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "export": "Exportar",
+    "import": "Importar",
+    "download": "Descargar",
+    "upload": "Cargar"
+  },
+  "status": {
+    "success": "Éxito",
+    "error": "Error",
+    "pending": "Pendiente",
+    "completed": "Completado",
+    "failed": "Fallido",
+    "processing": "Procesando",
+    "cancelled": "Cancelado",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "suspended": "Suspendido"
+  },
+  "time": {
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "tomorrow": "Mañana",
+    "thisWeek": "Esta Semana",
+    "lastWeek": "Semana Pasada",
+    "thisMonth": "Este Mes",
+    "lastMonth": "Mes Pasado",
+    "thisYear": "Este Año",
+    "custom": "Rango Personalizado"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "noData": "No hay datos disponibles",
+    "selectOption": "Seleccione una opción",
+    "required": "Obligatorio",
+    "optional": "Opcional",
+    "all": "Todo",
+    "none": "Ninguno",
+    "yes": "Sí",
+    "no": "No",
+    "or": "o",
+    "and": "y"
+  }
+}

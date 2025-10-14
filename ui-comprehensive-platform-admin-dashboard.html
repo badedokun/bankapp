@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform Admin Dashboard - OrokiiPay SaaS Management</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --surface-color: #ffffff;
+            --background-color: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --gradient-success: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            --gradient-warning: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+            --gradient-purple: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+            --gradient-teal: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            background: var(--surface-color);
+            min-height: 100vh;
+            box-shadow: var(--shadow);
+        }
+
+        /* Header */
+        .header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-title h1 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .header-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+            color: #e0e7ff;
+        }
+
+        .admin-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Platform Stats */
+        .platform-stats {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            background: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .stat-card {
+            background: var(--gradient-primary);
+            padding: 16px;
+            border-radius: 12px;
+            color: white;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card.revenue {
+            background: var(--gradient-success);
+        }
+
+        .stat-card.tenants {
+            background: var(--gradient-purple);
+        }
+
+        .stat-card.transactions {
+            background: var(--gradient-teal);
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Platform Management Sections */
+        .content {
+            padding: 20px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-icon {
+            width: 20px;
+            height: 20px;
+            background: var(--gradient-primary);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        /* Feature Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .feature-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-color);
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+            margin-bottom: 12px;
+        }
+
+        .feature-icon.tenants { background: var(--gradient-purple); }
+        .feature-icon.analytics { background: var(--gradient-success); }
+        .feature-icon.billing { background: var(--gradient-warning); }
+        .feature-icon.system { background: var(--gradient-teal); }
+        .feature-icon.onboarding { background: var(--gradient-primary); }
+        .feature-icon.support { background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%); }
+
+        .feature-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+
+        .feature-description {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* Tenant List */
+        .tenant-list {
+            background: var(--surface-color);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .tenant-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .tenant-item:last-child {
+            border-bottom: none;
+        }
+
+        .tenant-item:hover {
+            background-color: #f1f5f9;
+        }
+
+        .tenant-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            margin-right: 12px;
+        }
+
+        .tenant-info {
+            flex: 1;
+        }
+
+        .tenant-name {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .tenant-status {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .tenant-metrics {
+            text-align: right;
+            font-size: 12px;
+        }
+
+        .tenant-transactions {
+            font-weight: 600;
+            color: var(--success-color);
+        }
+
+        .tenant-users {
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        /* Status Indicators */
+        .status-indicator {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-active {
+            background: rgba(5, 150, 105, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-pending {
+            background: rgba(217, 119, 6, 0.1);
+            color: var(--warning-color);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .action-btn.secondary {
+            background: var(--surface-color);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        /* System Health */
+        .health-indicators {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .health-item {
+            text-align: center;
+            padding: 12px 8px;
+            background: var(--surface-color);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .health-status {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin: 0 auto 6px;
+        }
+
+        .health-status.healthy { background: var(--success-color); }
+        .health-status.warning { background: var(--warning-color); }
+        .health-status.error { background: var(--danger-color); }
+
+        .health-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .health-value {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <div class="header-title">
+                    <h1>Platform Admin</h1>
+                    <div class="header-subtitle">admin.orokiipay.com</div>
+                </div>
+                <div class="admin-badge">OrokiiPay Team</div>
+            </div>
+        </div>
+
+        <!-- Platform Statistics -->
+        <div class="platform-stats">
+            <div class="stat-card revenue">
+                <div class="stat-value">₦2.4M</div>
+                <div class="stat-label">Monthly Revenue</div>
+            </div>
+            <div class="stat-card tenants">
+                <div class="stat-value">8</div>
+                <div class="stat-label">Active Tenants</div>
+            </div>
+            <div class="stat-card transactions">
+                <div class="stat-value">45.2K</div>
+                <div class="stat-label">Total Transactions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">99.8%</div>
+                <div class="stat-label">System Uptime</div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Platform Management -->
+            <div class="section">
+                <div class="section-title">
+                    <div class="section-icon">🏢</div>
+                    Platform Management
+                </div>
+
+                <div class="feature-grid">
+                    <div class="feature-card" onclick="navigateToTenantManagement()">
+                        <div class="feature-icon tenants">🏦</div>
+                        <div class="feature-title">Tenant Management</div>
+                        <div class="feature-description">Manage all bank tenants, configurations, and status</div>
+                    </div>
+
+                    <div class="feature-card" onclick="navigateToAnalytics()">
+                        <div class="feature-icon analytics">📊</div>
+                        <div class="feature-title">Platform Analytics</div>
+                        <div class="feature-description">Cross-tenant business intelligence and metrics</div>
+                    </div>
+
+                    <div class="feature-card" onclick="navigateToBilling()">
+                        <div class="feature-icon billing">💰</div>
+                        <div class="feature-title">Billing & Revenue</div>
+                        <div class="feature-description">Subscription management and revenue tracking</div>
+                    </div>
+
+                    <div class="feature-card" onclick="navigateToSystemHealth()">
+                        <div class="feature-icon system">🔧</div>
+                        <div class="feature-title">System Health</div>
+                        <div class="feature-description">Platform monitoring and maintenance</div>
+                    </div>
+
+                    <div class="feature-card" onclick="navigateToOnboarding()">
+                        <div class="feature-icon onboarding">✅</div>
+                        <div class="feature-title">Tenant Onboarding</div>
+                        <div class="feature-description">New bank registration and approval workflow</div>
+                    </div>
+
+                    <div class="feature-card" onclick="navigateToSupport()">
+                        <div class="feature-icon support">🎧</div>
+                        <div class="feature-title">Customer Support</div>
+                        <div class="feature-description">Multi-tenant support and issue management</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Health Overview -->
+            <div class="section">
+                <div class="section-title">
+                    <div class="section-icon">💚</div>
+                    System Health
+                </div>
+
+                <div class="health-indicators">
+                    <div class="health-item">
+                        <div class="health-status healthy"></div>
+                        <div class="health-label">API</div>
+                        <div class="health-value">99.8%</div>
+                    </div>
+                    <div class="health-item">
+                        <div class="health-status healthy"></div>
+                        <div class="health-label">Database</div>
+                        <div class="health-value">100%</div>
+                    </div>
+                    <div class="health-item">
+                        <div class="health-status warning"></div>
+                        <div class="health-label">NIBSS</div>
+                        <div class="health-value">Config</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Tenants -->
+            <div class="section">
+                <div class="section-title">
+                    <div class="section-icon">🏛️</div>
+                    Active Tenants (8)
+                </div>
+
+                <div class="tenant-list">
+                    <div class="tenant-item" onclick="manageTenant('fmfb')">
+                        <div class="tenant-avatar">FM</div>
+                        <div class="tenant-info">
+                            <div class="tenant-name">FirstMidas Microfinance Bank</div>
+                            <div class="tenant-status">
+                                <span class="status-indicator status-active">Active</span>
+                                • fmfb.orokiipay.com
+                            </div>
+                        </div>
+                        <div class="tenant-metrics">
+                            <div class="tenant-transactions">₦1.2M</div>
+                            <div class="tenant-users">150 users</div>
+                        </div>
+                    </div>
+
+                    <div class="tenant-item" onclick="manageTenant('zenith')">
+                        <div class="tenant-avatar" style="background: var(--gradient-success);">ZB</div>
+                        <div class="tenant-info">
+                            <div class="tenant-name">Zenith Bank</div>
+                            <div class="tenant-status">
+                                <span class="status-indicator status-active">Active</span>
+                                • zenith.orokiipay.com
+                            </div>
+                        </div>
+                        <div class="tenant-metrics">
+                            <div class="tenant-transactions">₦800K</div>
+                            <div class="tenant-users">320 users</div>
+                        </div>
+                    </div>
+
+                    <div class="tenant-item" onclick="manageTenant('gtb')">
+                        <div class="tenant-avatar" style="background: var(--gradient-warning);">GT</div>
+                        <div class="tenant-info">
+                            <div class="tenant-name">Guaranty Trust Bank</div>
+                            <div class="tenant-status">
+                                <span class="status-indicator status-pending">Setup</span>
+                                • gtb.orokiipay.com
+                            </div>
+                        </div>
+                        <div class="tenant-metrics">
+                            <div class="tenant-transactions">₦0</div>
+                            <div class="tenant-users">5 users</div>
+                        </div>
+                    </div>
+
+                    <div class="tenant-item" onclick="showAllTenants()">
+                        <div class="tenant-avatar" style="background: var(--gradient-teal);">+5</div>
+                        <div class="tenant-info">
+                            <div class="tenant-name">View All Tenants</div>
+                            <div class="tenant-status">See complete tenant list and management</div>
+                        </div>
+                        <div class="tenant-metrics">
+                            <div class="tenant-transactions">→</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="section">
+                <div class="section-title">
+                    <div class="section-icon">⚡</div>
+                    Quick Actions
+                </div>
+
+                <div class="quick-actions">
+                    <button class="action-btn" onclick="approveNewTenant()">
+                        ✅ Approve New Tenant
+                    </button>
+                    <button class="action-btn secondary" onclick="generateReport()">
+                        📊 Generate Report
+                    </button>
+                    <button class="action-btn secondary" onclick="systemMaintenance()">
+                        🔧 System Maintenance
+                    </button>
+                    <button class="action-btn secondary" onclick="broadcastMessage()">
+                        📢 Broadcast Message
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Platform Admin Navigation Functions
+        function navigateToTenantManagement() {
+            console.log('Navigate to Tenant Management');
+            alert('Platform Admin: Tenant Management - Manage all bank tenants, configurations, and settings');
+        }
+
+        function navigateToAnalytics() {
+            console.log('Navigate to Platform Analytics');
+            alert('Platform Admin: Analytics - Cross-tenant business intelligence, revenue trends, and performance metrics');
+        }
+
+        function navigateToBilling() {
+            console.log('Navigate to Billing Management');
+            alert('Platform Admin: Billing & Revenue - Subscription management, usage tracking, and revenue analytics');
+        }
+
+        function navigateToSystemHealth() {
+            console.log('Navigate to System Health');
+            alert('Platform Admin: System Health - Platform monitoring, maintenance, and performance optimization');
+        }
+
+        function navigateToOnboarding() {
+            console.log('Navigate to Tenant Onboarding');
+            alert('Platform Admin: Tenant Onboarding - New bank registration, approval workflow, and configuration');
+        }
+
+        function navigateToSupport() {
+            console.log('Navigate to Customer Support');
+            alert('Platform Admin: Customer Support - Multi-tenant support tickets and issue management');
+        }
+
+        function manageTenant(tenantId) {
+            console.log('Manage tenant:', tenantId);
+            alert(`Platform Admin: Managing tenant ${tenantId} - Access tenant-specific configuration and monitoring`);
+        }
+
+        function showAllTenants() {
+            console.log('Show all tenants');
+            alert('Platform Admin: All Tenants - Complete tenant list with detailed management options');
+        }
+
+        function approveNewTenant() {
+            console.log('Approve new tenant');
+            alert('Platform Admin: Approve New Tenant - Review and approve pending bank registrations');
+        }
+
+        function generateReport() {
+            console.log('Generate report');
+            alert('Platform Admin: Generate Report - Create business intelligence and compliance reports');
+        }
+
+        function systemMaintenance() {
+            console.log('System maintenance');
+            alert('Platform Admin: System Maintenance - Platform updates, security patches, and maintenance mode');
+        }
+
+        function broadcastMessage() {
+            console.log('Broadcast message');
+            alert('Platform Admin: Broadcast Message - Send notifications to all tenants and users');
+        }
+
+        // Auto-refresh platform statistics
+        setInterval(() => {
+            // Simulate real-time updates
+            console.log('Refreshing platform statistics...');
+        }, 30000);
+    </script>
+</body>
+</html>

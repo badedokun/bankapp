@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Banking Dashboard - FMFB</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Modern color palette */
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --gray-900: #1e293b;
+            --gray-800: #334155;
+            --gray-700: #475569;
+            --gray-600: #64748b;
+            --gray-500: #94a3b8;
+            --gray-400: #cbd5e1;
+            --gray-300: #e2e8f0;
+            --gray-200: #f1f5f9;
+            --gray-100: #f8fafc;
+            --white: #ffffff;
+
+            /* Gradients */
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-success: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --gradient-info: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-warning: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --gradient-dark: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+
+            /* Shadows - modern, subtle */
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+            --shadow-glow: 0 0 30px rgba(99, 102, 241, 0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        /* Modern Navigation Bar */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .search-container {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+            margin: 0 2rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 16px 10px 44px;
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-500);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gray-100);
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            border: none;
+        }
+
+        .nav-icon-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 20px;
+            height: 20px;
+            background: var(--danger);
+            color: white;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: var(--gray-100);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .user-profile:hover {
+            background: var(--gray-200);
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: var(--gradient-primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .user-role {
+            font-size: 11px;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Welcome Section - Modern Hero Style */
+        .welcome-section {
+            background: var(--gradient-dark);
+            border-radius: 24px;
+            padding: 3rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-2xl);
+        }
+
+        .welcome-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .welcome-content {
+            position: relative;
+            z-index: 1;
+            color: white;
+        }
+
+        .welcome-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .welcome-subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 4px;
+        }
+
+        .stat-change {
+            font-size: 13px;
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-change.negative {
+            color: var(--danger);
+        }
+
+        /* Feature Categories */
+        .features-section {
+            margin-top: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .view-all-btn {
+            padding: 8px 16px;
+            background: var(--gray-100);
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .view-all-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Modern Feature Cards Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--primary-light);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon-container {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 24px;
+            position: relative;
+        }
+
+        /* Gradient backgrounds for different categories */
+        .transfers .feature-icon-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .savings .feature-icon-container {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .loans .feature-icon-container {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .operations .feature-icon-container {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .management .feature-icon-container {
+            background: linear-gradient(135deg, #ffa726 0%, #ff7043 100%);
+        }
+
+        .feature-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 6px;
+        }
+
+        .feature-subtitle {
+            font-size: 13px;
+            color: var(--gray-600);
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .feature-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .permission-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .permission-full {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--primary);
+        }
+
+        .feature-arrow {
+            width: 24px;
+            height: 24px;
+            border-radius: 8px;
+            background: var(--gray-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-600);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover .feature-arrow {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Recent Activity Section */
+        .activity-section {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            margin-top: 2rem;
+        }
+
+        .activity-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .activity-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            background: var(--gray-50);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .activity-item:hover {
+            background: var(--gray-100);
+            transform: translateX(4px);
+        }
+
+        .activity-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .activity-icon.credit {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .activity-icon.debit {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .activity-details {
+            flex: 1;
+        }
+
+        .activity-description {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 4px;
+        }
+
+        .activity-time {
+            font-size: 12px;
+            color: var(--gray-600);
+        }
+
+        .activity-amount {
+            text-align: right;
+        }
+
+        .amount-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .amount-status {
+            font-size: 11px;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-primary);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: var(--shadow-2xl);
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .fab:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+
+            .welcome-section {
+                padding: 2rem 1.5rem;
+            }
+
+            .welcome-title {
+                font-size: 24px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-container {
+                display: none;
+            }
+
+            .quick-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Modern Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo">
+                <div class="logo-icon">🏦</div>
+                <span>FMFB</span>
+            </div>
+
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" placeholder="Search transactions, features, or help...">
+            </div>
+
+            <div class="nav-actions">
+                <button class="nav-icon-btn">
+                    <span>🔔</span>
+                    <span class="notification-badge">3</span>
+                </button>
+
+                <button class="nav-icon-btn">
+                    <span>💬</span>
+                </button>
+
+                <div class="user-profile">
+                    <div class="user-avatar">AD</div>
+                    <div class="user-info">
+                        <span class="user-name">Admin User</span>
+                        <span class="user-role">CEO</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Welcome Section with Quick Stats -->
+        <div class="welcome-section">
+            <div class="welcome-content">
+                <h1 class="welcome-title">Welcome back, Admin!</h1>
+                <p class="welcome-subtitle">Here's your banking operations overview for today</p>
+
+                <div class="quick-stats">
+                    <div class="stat-card">
+                        <div class="stat-label">Account Balance</div>
+                        <div class="stat-value">₦2.5M</div>
+                        <div class="stat-change">
+                            <span>↑</span>
+                            <span>+12.5%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Today's Transactions</div>
+                        <div class="stat-value">247</div>
+                        <div class="stat-change">
+                            <span>↑</span>
+                            <span>+8.3%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Active Loans</div>
+                        <div class="stat-value">12</div>
+                        <div class="stat-change negative">
+                            <span>↓</span>
+                            <span>-2.1%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Savings Goal</div>
+                        <div class="stat-value">85%</div>
+                        <div class="stat-change">
+                            <span>↑</span>
+                            <span>+5.0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Banking Features Section -->
+        <div class="features-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span>⚡</span>
+                    Banking Operations
+                </h2>
+                <button class="view-all-btn">View All →</button>
+            </div>
+
+            <div class="features-grid">
+                <!-- Money Transfer Operations (Consolidated) -->
+                <div class="feature-card transfers">
+                    <div class="feature-icon-container">💸</div>
+                    <h3 class="feature-title">Money Transfer Operations</h3>
+                    <p class="feature-subtitle">All transfer services in one place</p>
+                    <div class="feature-footer">
+                        <span class="permission-badge permission-full">Full Access</span>
+                        <div class="feature-arrow">→</div>
+                    </div>
+                </div>
+
+                <!-- Savings Products (Consolidated) -->
+                <div class="feature-card savings">
+                    <div class="feature-icon-container">💰</div>
+                    <h3 class="feature-title">Savings Products</h3>
+                    <p class="feature-subtitle">Flexible, target & locked savings</p>
+                    <div class="feature-footer">
+                        <span class="permission-badge permission-full">Full Access</span>
+                        <div class="feature-arrow">→</div>
+                    </div>
+                </div>
+
+                <!-- Loan Products (Consolidated) -->
+                <div class="feature-card loans">
+                    <div class="feature-icon-container">💳</div>
+                    <h3 class="feature-title">Loan Products</h3>
+                    <p class="feature-subtitle">Personal, business & quick loans</p>
+                    <div class="feature-footer">
+                        <span class="permission-badge permission-full">Full Access</span>
+                        <div class="feature-arrow">→</div>
+                    </div>
+                </div>
+
+                <!-- Operations Management (Consolidated) -->
+                <div class="feature-card operations">
+                    <div class="feature-icon-container">⚙️</div>
+                    <h3 class="feature-title">Operations Management</h3>
+                    <p class="feature-subtitle">Banking operations & compliance</p>
+                    <div class="feature-footer">
+                        <span class="permission-badge permission-full">Full Access</span>
+                        <div class="feature-arrow">→</div>
+                    </div>
+                </div>
+
+                <!-- Management & Reports (Consolidated) -->
+                <div class="feature-card management">
+                    <div class="feature-icon-container">📊</div>
+                    <h3 class="feature-title">Management & Reports</h3>
+                    <p class="feature-subtitle">Analytics, compliance & administration</p>
+                    <div class="feature-footer">
+                        <span class="permission-badge permission-full">Full Access</span>
+                        <div class="feature-arrow">→</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Section -->
+        <div class="activity-section">
+            <div class="activity-header">
+                <h3 class="activity-title">Recent Activity</h3>
+                <button class="view-all-btn">View All →</button>
+            </div>
+
+            <div class="activity-list">
+                <div class="activity-item">
+                    <div class="activity-icon credit">↓</div>
+                    <div class="activity-details">
+                        <div class="activity-description">Transfer from John Doe</div>
+                        <div class="activity-time">2 minutes ago</div>
+                    </div>
+                    <div class="activity-amount">
+                        <div class="amount-value">+₦50,000</div>
+                        <div class="amount-status">Completed</div>
+                    </div>
+                </div>
+
+                <div class="activity-item">
+                    <div class="activity-icon debit">↑</div>
+                    <div class="activity-details">
+                        <div class="activity-description">Bill Payment - Electricity</div>
+                        <div class="activity-time">1 hour ago</div>
+                    </div>
+                    <div class="activity-amount">
+                        <div class="amount-value">-₦15,000</div>
+                        <div class="amount-status">Completed</div>
+                    </div>
+                </div>
+
+                <div class="activity-item">
+                    <div class="activity-icon credit">↓</div>
+                    <div class="activity-details">
+                        <div class="activity-description">Salary Credit</div>
+                        <div class="activity-time">3 hours ago</div>
+                    </div>
+                    <div class="activity-amount">
+                        <div class="amount-value">+₦250,000</div>
+                        <div class="amount-status">Completed</div>
+                    </div>
+                </div>
+
+                <div class="activity-item">
+                    <div class="activity-icon debit">↑</div>
+                    <div class="activity-details">
+                        <div class="activity-description">Transfer to Savings</div>
+                        <div class="activity-time">5 hours ago</div>
+                    </div>
+                    <div class="activity-amount">
+                        <div class="amount-value">-₦100,000</div>
+                        <div class="amount-status">Completed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button for AI Assistant -->
+    <button class="fab">
+        🤖
+    </button>
+
+    <script>
+        // Add interactive animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate feature cards on scroll
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '0';
+                        entry.target.style.transform = 'translateY(20px)';
+
+                        setTimeout(() => {
+                            entry.target.style.transition = 'all 0.6s ease';
+                            entry.target.style.opacity = '1';
+                            entry.target.style.transform = 'translateY(0)';
+                        }, 100);
+                    }
+                });
+            });
+
+            document.querySelectorAll('.feature-card').forEach(card => {
+                observer.observe(card);
+            });
+
+            // Add click handlers for feature cards
+            document.querySelectorAll('.feature-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const title = this.querySelector('.feature-title').textContent;
+                    console.log(`Navigate to: ${title}`);
+                    // In real app, this would navigate to the feature screen
+                });
+            });
+
+            // Add hover effect to activity items
+            document.querySelectorAll('.activity-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    console.log('View transaction details');
+                });
+            });
+
+            // FAB click handler
+            document.querySelector('.fab').addEventListener('click', function() {
+                console.log('Open AI Assistant');
+            });
+        });
+    </script>
+</body>
+</html>

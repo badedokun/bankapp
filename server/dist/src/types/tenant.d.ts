@@ -51,6 +51,7 @@ export interface TenantAIConfig {
         language: string;
         accent: string;
     };
+    fallbackToOpenAI?: boolean;
 }
 export interface TenantTheme {
     colors: {

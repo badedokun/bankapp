@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 const appDirectory = path.resolve(__dirname, './');
 
@@ -104,10 +105,28 @@ module.exports = {
       filename: 'index.html',
       inject: 'body',
     }),
+    new ForkTsCheckerWebpackPlugin({
+      async: false,
+      typescript: {
+        configFile: path.resolve(__dirname, 'tsconfig.json'),
+        diagnosticOptions: {
+          semantic: true,
+          syntactic: true,
+        },
+        mode: 'write-references',
+      },
+      logger: {
+        infrastructure: 'console',
+        issues: 'console',
+      },
+    }),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.DefinePlugin({
       __DEV__: JSON.stringify(true),
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+      'process.env.REACT_APP_TENANT_CODE': JSON.stringify(
+        process.env.REACT_APP_TENANT_CODE || ''
+      ),
       'process.env.TENANT_DETECTION_METHOD': JSON.stringify(
         process.env.TENANT_DETECTION_METHOD || 'subdomain'
       ),
@@ -117,7 +136,8 @@ module.exports = {
       'window.__WEBPACK_ENV__': JSON.stringify({
         DEPLOYMENT_TYPE: process.env.DEPLOYMENT_TYPE || 'development',
         NODE_ENV: process.env.NODE_ENV || 'development',
-        TENANT_DETECTION_METHOD: process.env.TENANT_DETECTION_METHOD || 'subdomain'
+        TENANT_DETECTION_METHOD: process.env.TENANT_DETECTION_METHOD || 'subdomain',
+        REACT_APP_TENANT_CODE: process.env.REACT_APP_TENANT_CODE || ''
       }),
     }),
     new webpack.ProvidePlugin({
@@ -142,7 +162,8 @@ module.exports = {
     },
     compress: true,
     port: 3000,
-    hot: true,
+    hot: 'only', // Changed from true to 'only' - prevents full page reloads
+    liveReload: false, // Disable live reload to prevent automatic refreshes
     historyApiFallback: true,
     open: false,
     allowedHosts: [
@@ -156,6 +177,15 @@ module.exports = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
       'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization'
-    }
+    },
+    proxy: [
+      {
+        context: ['/api'],
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        secure: false,
+        logLevel: 'debug'
+      }
+    ]
   },
 };

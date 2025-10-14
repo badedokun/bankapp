@@ -1,0 +1,59 @@
+{
+  "general": {
+    "unknown": "Se ha producido un error desconocido",
+    "networkError": "Error de red. Por favor, compruebe su conexión.",
+    "serverError": "Error del servidor. Por favor, inténtelo más tarde.",
+    "timeout": "Se agotó el tiempo de espera de la solicitud. Por favor, inténtelo de nuevo.",
+    "maintenance": "El sistema está en mantenimiento. Por favor, inténtelo más tarde.",
+    "forbidden": "No tiene permiso para realizar esta acción.",
+    "notFound": "No se encontró el recurso solicitado.",
+    "badRequest": "Solicitud inválida. Por favor, compruebe su entrada.",
+    "unauthorized": "Por favor, inicie sesión para continuar."
+  },
+  "validation": {
+    "required": "Este campo es obligatorio",
+    "invalidEmail": "Por favor, introduzca un correo electrónico válido",
+    "invalidPhone": "Por favor, introduzca un número de teléfono válido",
+    "invalidAmount": "Por favor, introduzca un importe válido",
+    "minAmount": "El importe debe ser al menos {{min}}",
+    "maxAmount": "El importe no puede exceder {{max}}",
+    "invalidDate": "Por favor, introduzca una fecha válida",
+    "futureDate": "La fecha no puede ser en el futuro",
+    "pastDate": "La fecha no puede ser en el pasado",
+    "minLength": "Debe tener al menos {{min}} caracteres",
+    "maxLength": "No puede exceder {{max}} caracteres",
+    "invalidFormat": "Formato inválido",
+    "numberOnly": "Solo se permiten números",
+    "alphaOnly": "Solo se permiten letras"
+  },
+  "authentication": {
+    "invalidCredentials": "Correo electrónico o contraseña incorrectos",
+    "accountLocked": "Su cuenta ha sido bloqueada",
+    "accountSuspended": "Su cuenta ha sido suspendida",
+    "sessionExpired": "Su sesión ha expirado. Por favor, inicie sesión de nuevo.",
+    "invalidToken": "Token inválido o expirado",
+    "mfaRequired": "Se requiere autenticación de dos factores",
+    "mfaFailed": "Código de verificación inválido",
+    "passwordExpired": "Su contraseña ha expirado. Por favor, actualícela.",
+    "weakPassword": "La contraseña es demasiado débil"
+  },
+  "transaction": {
+    "insufficientFunds": "Fondos insuficientes",
+    "limitExceeded": "Límite de transacción excedido",
+    "invalidAccount": "Número de cuenta inválido",
+    "accountClosed": "La cuenta está cerrada",
+    "accountFrozen": "La cuenta está congelada",
+    "duplicateTransaction": "Transacción duplicada detectada",
+    "transactionFailed": "La transacción ha fallado",
+    "invalidPin": "PIN inválido",
+    "pinLocked": "El PIN ha sido bloqueado tras demasiados intentos",
+    "invalidBeneficiary": "Beneficiario inválido"
+  },
+  "system": {
+    "databaseError": "Se ha producido un error en la base de datos",
+    "serviceUnavailable": "Servicio temporalmente no disponible",
+    "configError": "Error de configuración",
+    "integrationError": "Error de integración con terceros",
+    "rateLimitExceeded": "Demasiadas solicitudes. Por favor, inténtelo más tarde."
+  }
+}

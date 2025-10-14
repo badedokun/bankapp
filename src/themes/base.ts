@@ -42,6 +42,7 @@ export const createBaseTheme = (primaryColor: string = '#007bff'): TenantTheme =
       surface: '#ffffff',
       text: '#1a1a1a',
       textSecondary: '#666666',
+      textInverse: '#ffffff',
       error: '#dc3545',
       warning: '#ffc107',
       success: '#28a745',
@@ -98,5 +99,6 @@ export const darkTheme: TenantTheme = {
     surface: '#1e1e1e',
     text: '#ffffff',
     textSecondary: '#b3b3b3',
+    textInverse: '#1a1a1a',
   },
 };

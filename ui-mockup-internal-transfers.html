@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internal Transfers - OrokiiPay Banking Platform</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --surface-color: #ffffff;
+            --background-color: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --gradient-success: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            background: var(--surface-color);
+            min-height: 100vh;
+            box-shadow: var(--shadow);
+        }
+
+        /* Header */
+        .header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+        }
+
+        .header-title h1 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .header-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        /* Content */
+        .content {
+            padding: 20px;
+        }
+
+        .transfer-tabs {
+            display: flex;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 6px;
+            margin-bottom: 30px;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .transfer-content {
+            display: none;
+        }
+
+        .transfer-content.active {
+            display: block;
+        }
+
+        .transfer-form {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .account-selector {
+            position: relative;
+        }
+
+        .account-option {
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .account-option:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+        }
+
+        .account-option.selected {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .account-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .account-details h4 {
+            color: #1e293b;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .account-number {
+            color: #64748b;
+            font-size: 0.875rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        .account-balance {
+            color: #059669;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .amount-input-group {
+            position: relative;
+        }
+
+        .currency-symbol {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .amount-input {
+            padding-left: 40px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        .quick-amounts {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .quick-amount {
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            color: #475569;
+            transition: all 0.3s ease;
+        }
+
+        .quick-amount:hover {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        .transfer-summary {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .summary-row:last-child {
+            margin-bottom: 0;
+            padding-top: 12px;
+            border-top: 1px solid #bfdbfe;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .summary-label {
+            color: #374151;
+        }
+
+        .summary-value {
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        .scheduled-transfers {
+            margin-top: 30px;
+        }
+
+        .section-title {
+            color: #1e293b;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .transfer-item {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .transfer-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: #3b82f6;
+        }
+
+        .transfer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .transfer-info h4 {
+            color: #1e293b;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .transfer-meta {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .transfer-amount {
+            color: #2563eb;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .transfer-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .status-completed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-scheduled {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .favorite-accounts {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .favorite-title {
+            color: #1e293b;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .favorite-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .favorite-account {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .favorite-account:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+        }
+
+        .favorite-account h5 {
+            color: #1e293b;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .favorite-account .account-number {
+            font-size: 0.8rem;
+        }
+
+        .verification-section {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .verification-title {
+            color: #92400e;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .otp-input {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .otp-digit {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #d97706;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: white;
+        }
+
+        .otp-digit:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+
+        .resend-otp {
+            color: #d97706;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .transfer-tabs {
+                flex-direction: column;
+            }
+
+            .quick-amounts {
+                justify-content: center;
+            }
+
+            .favorite-list {
+                grid-template-columns: 1fr;
+            }
+
+            .otp-input {
+                gap: 8px;
+            }
+
+            .otp-digit {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <button class="back-btn" onclick="goBack()">← Back</button>
+                <div class="header-title">
+                    <h1>Internal Transfers</h1>
+                    <div class="header-subtitle">Move money between your accounts</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+
+            <div class="transfer-tabs">
+            <button class="tab-button active" onclick="switchTab('instant')">Instant Transfer</button>
+            <button class="tab-button" onclick="switchTab('scheduled')">Schedule Transfer</button>
+            <button class="tab-button" onclick="switchTab('recurring')">Recurring Transfer</button>
+        </div>
+
+        <!-- Instant Transfer Tab -->
+        <div class="transfer-content active" id="instant">
+            <div class="transfer-form">
+                <div class="favorite-accounts">
+                    <div class="favorite-title">
+                        ⭐ Favorite Accounts
+                    </div>
+                    <div class="favorite-list">
+                        <div class="favorite-account" onclick="selectFavorite('0123456789', 'Primary Savings')">
+                            <h5>Primary Savings</h5>
+                            <div class="account-number">0123456789</div>
+                        </div>
+                        <div class="favorite-account" onclick="selectFavorite('0987654321', 'Business Current')">
+                            <h5>Business Current</h5>
+                            <div class="account-number">0987654321</div>
+                        </div>
+                        <div class="favorite-account" onclick="selectFavorite('5566778899', 'Target Savings')">
+                            <h5>Target Savings</h5>
+                            <div class="account-number">5566778899</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">From Account</label>
+                    <div class="account-selector">
+                        <div class="account-option selected" data-account="0123456789">
+                            <div class="account-info">
+                                <div class="account-details">
+                                    <h4>Primary Savings</h4>
+                                    <div class="account-number">0123456789</div>
+                                </div>
+                                <div class="account-balance">₦1,245,800.00</div>
+                            </div>
+                        </div>
+                        <div class="account-option" data-account="0987654321">
+                            <div class="account-info">
+                                <div class="account-details">
+                                    <h4>Business Current</h4>
+                                    <div class="account-number">0987654321</div>
+                                </div>
+                                <div class="account-balance">₦890,250.00</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">To Account</label>
+                    <div class="account-selector">
+                        <div class="account-option" data-account="0987654321">
+                            <div class="account-info">
+                                <div class="account-details">
+                                    <h4>Business Current</h4>
+                                    <div class="account-number">0987654321</div>
+                                </div>
+                                <div class="account-balance">₦890,250.00</div>
+                            </div>
+                        </div>
+                        <div class="account-option" data-account="5566778899">
+                            <div class="account-info">
+                                <div class="account-details">
+                                    <h4>Target Savings - Car Fund</h4>
+                                    <div class="account-number">5566778899</div>
+                                </div>
+                                <div class="account-balance">₦180,000.00</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Amount</label>
+                    <div class="amount-input-group">
+                        <span class="currency-symbol">₦</span>
+                        <input type="number" class="form-input amount-input" id="transferAmount" placeholder="0.00" min="1" step="0.01">
+                    </div>
+                    <div class="quick-amounts">
+                        <button class="quick-amount" onclick="setQuickAmount(5000)">₦5,000</button>
+                        <button class="quick-amount" onclick="setQuickAmount(10000)">₦10,000</button>
+                        <button class="quick-amount" onclick="setQuickAmount(25000)">₦25,000</button>
+                        <button class="quick-amount" onclick="setQuickAmount(50000)">₦50,000</button>
+                        <button class="quick-amount" onclick="setQuickAmount(100000)">₦100,000</button>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Transfer Reference</label>
+                        <input type="text" class="form-input" id="transferReference" placeholder="Optional reference" maxlength="50">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Narration</label>
+                        <input type="text" class="form-input" id="transferNarration" placeholder="Purpose of transfer" maxlength="100">
+                    </div>
+                </div>
+
+                <div class="transfer-summary" id="transferSummary" style="display: none;">
+                    <div class="summary-row">
+                        <span class="summary-label">From Account</span>
+                        <span class="summary-value" id="summaryFromAccount">-</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">To Account</span>
+                        <span class="summary-value" id="summaryToAccount">-</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Amount</span>
+                        <span class="summary-value" id="summaryAmount">₦0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Transfer Fee</span>
+                        <span class="summary-value">₦0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Total Debit</span>
+                        <span class="summary-value" id="summaryTotal">₦0.00</span>
+                    </div>
+                </div>
+
+                <button class="btn-primary" id="initiateTransferBtn" onclick="initiateTransfer()" disabled>
+                    Review Transfer
+                </button>
+            </div>
+        </div>
+
+        <!-- Scheduled Transfer Tab -->
+        <div class="transfer-content" id="scheduled">
+            <div class="transfer-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">From Account</label>
+                        <select class="form-select">
+                            <option value="0123456789">Primary Savings - 0123456789</option>
+                            <option value="0987654321">Business Current - 0987654321</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">To Account</label>
+                        <select class="form-select">
+                            <option value="0987654321">Business Current - 0987654321</option>
+                            <option value="5566778899">Target Savings - 5566778899</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Amount</label>
+                        <div class="amount-input-group">
+                            <span class="currency-symbol">₦</span>
+                            <input type="number" class="form-input amount-input" placeholder="0.00" min="1" step="0.01">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Schedule Date</label>
+                        <input type="datetime-local" class="form-input" min="2024-09-24T00:00">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Narration</label>
+                    <input type="text" class="form-input" placeholder="Purpose of scheduled transfer" maxlength="100">
+                </div>
+
+                <button class="btn-primary">Schedule Transfer</button>
+            </div>
+        </div>
+
+        <!-- Recurring Transfer Tab -->
+        <div class="transfer-content" id="recurring">
+            <div class="transfer-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">From Account</label>
+                        <select class="form-select">
+                            <option value="0123456789">Primary Savings - 0123456789</option>
+                            <option value="0987654321">Business Current - 0987654321</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">To Account</label>
+                        <select class="form-select">
+                            <option value="5566778899">Target Savings - 5566778899</option>
+                            <option value="0987654321">Business Current - 0987654321</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Amount</label>
+                        <div class="amount-input-group">
+                            <span class="currency-symbol">₦</span>
+                            <input type="number" class="form-input amount-input" placeholder="0.00" min="1" step="0.01">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Frequency</label>
+                        <select class="form-select">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="quarterly">Quarterly</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" class="form-input" min="2024-09-24">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">End Date (Optional)</label>
+                        <input type="date" class="form-input" min="2024-09-25">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Narration</label>
+                    <input type="text" class="form-input" placeholder="Purpose of recurring transfer" maxlength="100">
+                </div>
+
+                <button class="btn-primary">Setup Recurring Transfer</button>
+            </div>
+        </div>
+
+        <!-- Recent Transfers -->
+        <div class="scheduled-transfers">
+            <h2 class="section-title">Recent Transfers</h2>
+
+            <div class="transfer-item">
+                <div class="transfer-header">
+                    <div class="transfer-info">
+                        <h4>To Target Savings - Car Fund</h4>
+                        <div class="transfer-meta">From Primary Savings • Today, 2:30 PM</div>
+                    </div>
+                    <div class="transfer-amount">₦50,000.00</div>
+                </div>
+                <div class="transfer-status status-completed">Completed</div>
+            </div>
+
+            <div class="transfer-item">
+                <div class="transfer-header">
+                    <div class="transfer-info">
+                        <h4>To Business Current</h4>
+                        <div class="transfer-meta">From Primary Savings • Today, 10:15 AM</div>
+                    </div>
+                    <div class="transfer-amount">₦200,000.00</div>
+                </div>
+                <div class="transfer-status status-completed">Completed</div>
+            </div>
+
+            <div class="transfer-item">
+                <div class="transfer-header">
+                    <div class="transfer-info">
+                        <h4>To Primary Savings</h4>
+                        <div class="transfer-meta">From Business Current • Scheduled for tomorrow, 9:00 AM</div>
+                    </div>
+                    <div class="transfer-amount">₦75,000.00</div>
+                </div>
+                <div class="transfer-status status-scheduled">Scheduled</div>
+            </div>
+
+            <div class="transfer-item">
+                <div class="transfer-header">
+                    <div class="transfer-info">
+                        <h4>To Target Savings - Car Fund</h4>
+                        <div class="transfer-meta">From Primary Savings • Processing...</div>
+                    </div>
+                    <div class="transfer-amount">₦25,000.00</div>
+                </div>
+                <div class="transfer-status status-pending">Processing</div>
+            </div>
+        </div>
+
+        <!-- OTP Verification Modal (Hidden by default) -->
+        <div class="verification-section" id="otpVerification" style="display: none;">
+            <div class="verification-title">
+                🔐 Verify Your Transfer
+            </div>
+            <p style="margin-bottom: 16px; color: #92400e;">Enter the 6-digit OTP sent to your registered phone number ending in ***8642</p>
+            <div class="otp-input">
+                <input type="text" class="otp-digit" maxlength="1" oninput="moveToNext(this, 0)">
+                <input type="text" class="otp-digit" maxlength="1" oninput="moveToNext(this, 1)">
+                <input type="text" class="otp-digit" maxlength="1" oninput="moveToNext(this, 2)">
+                <input type="text" class="otp-digit" maxlength="1" oninput="moveToNext(this, 3)">
+                <input type="text" class="otp-digit" maxlength="1" oninput="moveToNext(this, 4)">
+                <input type="text" class="otp-digit" maxlength="1" oninput="moveToNext(this, 5)">
+            </div>
+            <div style="text-align: center; margin-bottom: 16px;">
+                <span class="resend-otp" onclick="resendOTP()">Resend OTP (00:45)</span>
+            </div>
+            <button class="btn-primary" onclick="verifyTransfer()">Verify & Complete Transfer</button>
+        </div>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+        let selectedFromAccount = null;
+        let selectedToAccount = null;
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all content
+            document.querySelectorAll('.transfer-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Show selected content
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // Account selection
+        document.querySelectorAll('.account-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const parent = this.parentNode;
+                parent.querySelectorAll('.account-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                this.classList.add('selected');
+                updateTransferSummary();
+            });
+        });
+
+        // Quick amount selection
+        function setQuickAmount(amount) {
+            document.getElementById('transferAmount').value = amount;
+            updateTransferSummary();
+        }
+
+        // Favorite account selection
+        function selectFavorite(accountNumber, accountName) {
+            // Auto-select as "To" account
+            const toAccountOptions = document.querySelectorAll('#instant .account-selector:last-of-type .account-option');
+            toAccountOptions.forEach(option => {
+                option.classList.remove('selected');
+                if (option.dataset.account === accountNumber) {
+                    option.classList.add('selected');
+                }
+            });
+            updateTransferSummary();
+        }
+
+        // Update transfer summary
+        function updateTransferSummary() {
+            const fromAccount = document.querySelector('#instant .account-selector:first-of-type .account-option.selected');
+            const toAccount = document.querySelector('#instant .account-selector:last-of-type .account-option.selected');
+            const amount = parseFloat(document.getElementById('transferAmount').value) || 0;
+
+            const summary = document.getElementById('transferSummary');
+            const initiateBtn = document.getElementById('initiateTransferBtn');
+
+            if (fromAccount && toAccount && amount > 0) {
+                document.getElementById('summaryFromAccount').textContent = fromAccount.querySelector('h4').textContent;
+                document.getElementById('summaryToAccount').textContent = toAccount.querySelector('h4').textContent;
+                document.getElementById('summaryAmount').textContent = `₦${amount.toLocaleString('en-NG', {minimumFractionDigits: 2})}`;
+                document.getElementById('summaryTotal').textContent = `₦${amount.toLocaleString('en-NG', {minimumFractionDigits: 2})}`;
+
+                summary.style.display = 'block';
+                initiateBtn.disabled = false;
+                initiateBtn.textContent = 'Initiate Transfer';
+            } else {
+                summary.style.display = 'none';
+                initiateBtn.disabled = true;
+                initiateBtn.textContent = 'Review Transfer';
+            }
+        }
+
+        // Transfer amount input event
+        document.getElementById('transferAmount').addEventListener('input', updateTransferSummary);
+
+        // Initiate transfer
+        function initiateTransfer() {
+            const amount = parseFloat(document.getElementById('transferAmount').value);
+            const fromAccount = document.querySelector('#instant .account-selector:first-of-type .account-option.selected');
+
+            // Check sufficient balance
+            const balance = parseFloat(fromAccount.querySelector('.account-balance').textContent.replace(/[₦,]/g, ''));
+
+            if (amount > balance) {
+                alert('Insufficient balance in the selected account.');
+                return;
+            }
+
+            // Show OTP verification
+            document.getElementById('otpVerification').style.display = 'block';
+            document.querySelector('.transfer-form').style.display = 'none';
+        }
+
+        // OTP input handling
+        function moveToNext(current, index) {
+            if (current.value.length === 1 && index < 5) {
+                document.querySelectorAll('.otp-digit')[index + 1].focus();
+            }
+        }
+
+        // Resend OTP
+        function resendOTP() {
+            alert('OTP resent to your registered phone number');
+            // Reset timer logic would go here
+        }
+
+        // Verify transfer
+        function verifyTransfer() {
+            const otpDigits = document.querySelectorAll('.otp-digit');
+            const otp = Array.from(otpDigits).map(digit => digit.value).join('');
+
+            if (otp.length !== 6) {
+                alert('Please enter complete OTP');
+                return;
+            }
+
+            // Simulate verification
+            if (otp === '123456') {
+                alert('Transfer completed successfully!');
+                // Reset form
+                location.reload();
+            } else {
+                alert('Invalid OTP. Please try again.');
+                otpDigits.forEach(digit => digit.value = '');
+                otpDigits[0].focus();
+            }
+        }
+
+        // View transfer history
+        function viewTransferHistory() {
+            alert('Opening transfer history...');
+        }
+
+        // Initialize
+        updateTransferSummary();
+    </script>
+</body>
+</html>

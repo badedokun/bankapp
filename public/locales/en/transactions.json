@@ -1,0 +1,74 @@
+{
+  "title": "Transactions",
+  "history": "Transaction History",
+  "recent": "Recent Transactions",
+  "all": "All Transactions",
+  "filters": {
+    "title": "Filters",
+    "dateRange": "Date Range",
+    "type": "Transaction Type",
+    "status": "Status",
+    "amount": "Amount Range",
+    "minAmount": "Min Amount",
+    "maxAmount": "Max Amount",
+    "apply": "Apply Filters",
+    "clear": "Clear Filters"
+  },
+  "types": {
+    "all": "All Types",
+    "debit": "Debit",
+    "credit": "Credit",
+    "transfer": "Transfer",
+    "payment": "Payment",
+    "deposit": "Deposit",
+    "withdrawal": "Withdrawal",
+    "fee": "Fee",
+    "reversal": "Reversal",
+    "refund": "Refund"
+  },
+  "details": {
+    "title": "Transaction Details",
+    "reference": "Reference Number",
+    "date": "Date & Time",
+    "type": "Type",
+    "amount": "Amount",
+    "fee": "Fee",
+    "total": "Total",
+    "from": "From",
+    "to": "To",
+    "description": "Description",
+    "status": "Status",
+    "balanceBefore": "Balance Before",
+    "balanceAfter": "Balance After"
+  },
+  "actions": {
+    "viewDetails": "View Details",
+    "downloadReceipt": "Download Receipt",
+    "shareReceipt": "Share Receipt",
+    "dispute": "Dispute Transaction",
+    "reverse": "Reverse Transaction",
+    "repeat": "Repeat Transaction"
+  },
+  "search": {
+    "placeholder": "Search transactions...",
+    "noResults": "No transactions found",
+    "searching": "Searching..."
+  },
+  "export": {
+    "title": "Export Transactions",
+    "format": "Format",
+    "formats": {
+      "pdf": "PDF",
+      "csv": "CSV",
+      "excel": "Excel"
+    },
+    "dateRange": "Date Range",
+    "download": "Download",
+    "success": "Export downloaded successfully"
+  },
+  "empty": {
+    "title": "No Transactions Yet",
+    "message": "You haven't made any transactions yet",
+    "action": "Make a Transfer"
+  }
+}

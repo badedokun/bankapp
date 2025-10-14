@@ -18,14 +18,21 @@ import {
   Image,
   KeyboardAvoidingView,
 } from 'react-native';
-import { useTenant, useTenantTheme, useTenantBranding } from '../../tenants/TenantContext';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, { FadeInDown, FadeInUp, useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import { useTenant, useTenantBranding } from '../../tenants/TenantContext';
+import { useTenantTheme } from '../../context/TenantThemeContext';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
+import { GlassCard } from '../../components/ui/GlassCard';
+import { triggerHaptic } from '../../utils/haptics';
 import { SecurityMonitor, SecurityConfig } from '../../utils/security';
 import APIService from '../../services/api';
 import DeploymentManager from '../../config/deployment';
-import { useBankingAlert } from '../../services/AlertService';
+import { useNotification } from '../../services/ModernNotificationService';
 import { ENV_CONFIG, buildApiUrl } from '../../config/environment';
+
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -49,10 +56,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   navigation,
 }) => {
   const { currentTenant, isLoading } = useTenant();
-  const theme = useTenantTheme();
+  const { theme } = useTenantTheme();
   const branding = useTenantBranding();
   const deploymentBranding = DeploymentManager.getDeploymentBranding();
-  const { showAlert } = useBankingAlert();
+  const notify = useNotification();
 
   // Form state with security validation
   const [formData, setFormData] = useState<LoginFormData>({
@@ -109,14 +116,18 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
   // Handle form submission with security checks
   const handleSubmit = useCallback(async () => {
+    console.log('🎯 handleSubmit called - formData:', formData);
+    console.log('🎯 formErrors:', formErrors);
+    console.log('🎯 isSubmitting:', isSubmitting);
+
     if (isSubmitting) return;
 
     // Check if user is blocked due to too many attempts
     const attemptCheck = SecurityMonitor.trackLoginAttempt(formData.email || 'anonymous');
     if (attemptCheck.blocked) {
-      showAlert(
+      notify.error(
+        `Your account has been temporarily locked due to multiple failed login attempts. For your security, please wait 1 hour before trying again, or contact our support team for immediate assistance.`,
         '🔒 Account Security Lock',
-        `Your account has been temporarily locked due to multiple failed login attempts.\n\nFor your security, please wait 1 hour before trying again, or contact our support team for immediate assistance.\n\nRemaining attempts will be reset automatically.`,
         [
           {
             text: 'Contact Support',
@@ -137,10 +148,12 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
     // Validate form data
     const hasErrors = Object.values(formErrors).some(error => error !== undefined);
+    console.log('🔍 Validation check - hasErrors:', hasErrors, 'email:', formData.email, 'password:', formData.password);
     if (hasErrors || !formData.email || !formData.password) {
-      showAlert(
+      console.log('❌ Validation failed - showing alert');
+      notify.warning(
+        'Please ensure all fields are filled correctly before proceeding. Check that your email address is valid and your password meets the security requirements.',
         '⚠️ Form Validation',
-        'Please ensure all fields are filled correctly before proceeding.\n\nCheck that your email address is valid and your password meets the security requirements.',
         [
           {
             text: 'OK',
@@ -201,11 +214,19 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           balance: loginResponse.user.wallet?.availableBalance
         });
         
+        // Dispatch auth state changed event
+        window.dispatchEvent(new CustomEvent('authStateChanged', {
+          detail: { isAuthenticated: true, user: loginResponse.user }
+        }));
+
         // Navigate to main app immediately (Alert doesn't work well in web)
         if (navigation) {
+          console.log('🚀 Calling navigation.replace(\'MainApp\')');
           navigation.replace('MainApp');
         } else {
           console.error('❌ Navigation object not available');
+          // Try to reload the page as a fallback
+          window.location.reload();
         }
       }
       
@@ -303,14 +324,24 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         ];
       }
       
-      showAlert(errorTitle, errorMessage, buttons);
+      if (buttons && buttons.length > 0 && buttons[0].onPress) {
+        notify.confirm(
+          errorTitle,
+          errorMessage,
+          buttons[0].onPress,
+          () => {}
+        );
+      } else {
+        notify.error(errorMessage, errorTitle);
+      }
     } finally {
       setIsSubmitting(false);
     }
-  }, [formData, formErrors, isSubmitting, onLogin, currentTenant, showAlert, handleForgotPassword]);
+  }, [formData, formErrors, isSubmitting, onLogin, currentTenant, notify, handleForgotPassword]);
 
   // Handle biometric authentication
   const handleBiometricAuth = useCallback((type: 'fingerprint' | 'faceId' | 'voice') => {
+    triggerHaptic('impactLight');
     if (onBiometricAuth) {
       onBiometricAuth(type);
     } else {
@@ -319,10 +350,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         faceId: { emoji: '😊', name: 'Face ID' },
         voice: { emoji: '🎤', name: 'Voice' }
       };
-      
-      showAlert(
+
+      notify.info(
+        `${typeMap[type].name} authentication is not yet configured for this device. This feature would securely authenticate using your device's biometric sensors in a production environment.`,
         `${typeMap[type].emoji} ${typeMap[type].name} Authentication`,
-        `${typeMap[type].name} authentication is not yet configured for this device.\n\nThis feature would securely authenticate using your device's biometric sensors in a production environment.`,
         [
           {
             text: 'Set Up Later',
@@ -332,7 +363,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         ]
       );
     }
-  }, [onBiometricAuth, showAlert]);
+  }, [onBiometricAuth, notify]);
 
   // Toggle password visibility
   const togglePasswordVisibility = useCallback(() => {
@@ -341,12 +372,13 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
   // Handle forgot password
   const handleForgotPassword = useCallback(() => {
+    triggerHaptic('impactLight');
     if (onForgotPassword) {
       onForgotPassword();
     } else {
-      showAlert(
+      notify.info(
+        'Password reset functionality is not yet available in this demo environment. In a production application, you would receive a secure reset link via email to create a new password.',
         '🔑 Password Reset',
-        'Password reset functionality is not yet available in this demo environment.\n\nIn a production application, you would receive a secure reset link via email to create a new password.',
         [
           {
             text: 'Contact Support',
@@ -362,163 +394,277 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         ]
       );
     }
-  }, [onForgotPassword, showAlert]);
+  }, [onForgotPassword, notify]);
 
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: `linear-gradient(135deg, ${theme.colors.primary}22 0%, ${theme.colors.secondary}22 100%)`,
+      backgroundColor: theme.colors.background,
     },
     scrollContainer: {
       flexGrow: 1,
       justifyContent: 'center',
-      paddingHorizontal: theme.spacing.lg,
-      paddingVertical: theme.spacing.xl,
+      paddingHorizontal: theme.layout.spacing * 1.25,
+      paddingVertical: theme.layout.spacing * 2,
+      minHeight: '100%',
     },
     loginCard: {
       backgroundColor: theme.colors.surface,
-      borderRadius: theme.borderRadius.xl,
+      borderRadius: theme.layout.borderRadiusLarge,
       marginHorizontal: screenWidth > 600 ? '20%' : 0,
-      maxWidth: 400,
+      maxWidth: 440,
       alignSelf: 'center',
       width: '100%',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 10 },
-      shadowOpacity: 0.1,
-      shadowRadius: 20,
-      elevation: 10,
+      overflow: 'hidden',
+      ...Platform.select({
+        ios: {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 12 },
+          shadowOpacity: 0.15,
+          shadowRadius: 24,
+        },
+        android: {
+          elevation: 12,
+        },
+        web: {
+          boxShadow: '0 12px 40px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)',
+        },
+      }),
     },
     tenantHeader: {
       backgroundColor: theme.colors.primary,
-      paddingVertical: theme.spacing.xl,
-      paddingHorizontal: theme.spacing.lg,
+      paddingTop: theme.layout.spacing * 2.5,
+      paddingBottom: theme.layout.spacing * 2,
+      paddingHorizontal: theme.layout.spacing * 1.5,
       alignItems: 'center',
-      borderTopLeftRadius: theme.borderRadius.xl,
-      borderTopRightRadius: theme.borderRadius.xl,
+      borderTopLeftRadius: theme.layout.borderRadiusLarge,
+      borderTopRightRadius: theme.layout.borderRadiusLarge,
     },
     tenantLogo: {
-      width: 70,
-      height: 70,
-      backgroundColor: 'rgba(255, 255, 255, 0.2)',
-      borderRadius: 35,
+      width: 80,
+      height: 80,
+      backgroundColor: 'rgba(255, 255, 255, 0.15)',
+      borderRadius: 40,
       justifyContent: 'center',
       alignItems: 'center',
-      marginBottom: theme.spacing.md,
+      marginBottom: theme.layout.spacing,
       overflow: 'hidden',
+      borderWidth: 2,
+      borderColor: 'rgba(255, 255, 255, 0.25)',
     },
     tenantLogoText: {
-      fontSize: theme.typography.sizes.xxxl,
-      fontWeight: theme.typography.weights.bold as any,
-      color: '#ffffff',
+      fontSize: 32,
+      fontWeight: '700' as any,
+      color: theme.colors.textInverse,
+      fontFamily: theme.typography?.fontFamily,
+      letterSpacing: 1,
     },
     tenantLogoImage: {
-      width: 60,
-      height: 60,
+      width: 68,
+      height: 68,
       borderRadius: 30,
     },
     tenantName: {
-      fontSize: theme.typography.sizes.xl,
-      fontWeight: theme.typography.weights.semibold as any,
-      color: '#ffffff',
-      marginBottom: theme.spacing.xs,
+      fontSize: 22,
+      fontWeight: '700' as any,
+      color: theme.colors.textInverse,
+      marginBottom: theme.layout.spacing * 0.5,
+      fontFamily: theme.typography?.fontFamily,
+      textAlign: 'center',
+      letterSpacing: 0.5,
     },
     tenantSubtitle: {
-      fontSize: theme.typography.sizes.sm,
-      color: 'rgba(255, 255, 255, 0.9)',
+      fontSize: 15,
+      fontWeight: '500' as any,
+      color: 'rgba(255, 255, 255, 0.85)',
+      textAlign: 'center',
+      letterSpacing: 0.3,
     },
     formContainer: {
-      padding: theme.spacing.xl,
+      padding: theme.layout.spacing * 2,
     },
     welcomeSection: {
       alignItems: 'center',
-      marginBottom: theme.spacing.xl,
+      marginBottom: theme.layout.spacing * 2,
     },
     welcomeTitle: {
-      fontSize: theme.typography.sizes.xl,
-      fontWeight: theme.typography.weights.semibold as any,
+      fontSize: 26,
+      fontWeight: '700' as any,
       color: theme.colors.text,
-      marginBottom: theme.spacing.xs,
+      marginBottom: theme.layout.spacing * 0.5,
+      fontFamily: theme.typography?.fontFamily,
+      letterSpacing: 0.3,
     },
     welcomeSubtitle: {
-      fontSize: theme.typography.sizes.sm,
+      fontSize: 15,
+      fontWeight: '400' as any,
       color: theme.colors.textSecondary,
       textAlign: 'center',
+      lineHeight: 22,
     },
     formSection: {
-      marginBottom: theme.spacing.lg,
+      marginBottom: theme.layout.spacing,
     },
     rememberForgotContainer: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: theme.spacing.lg,
+      marginBottom: theme.layout.spacing,
     },
     rememberContainer: {
       flexDirection: 'row',
       alignItems: 'center',
+      paddingVertical: theme.layout.spacing * 0.5,
+    },
+    checkbox: {
+      width: 20,
+      height: 20,
+      borderRadius: 4,
+      borderWidth: 2,
+      borderColor: theme.colors.border,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: theme.colors.surface,
+    },
+    checkboxChecked: {
+      backgroundColor: theme.colors.primary,
+      borderColor: theme.colors.primary,
+    },
+    checkmark: {
+      color: theme.colors.textInverse,
+      fontSize: 14,
+      fontWeight: '700' as any,
     },
     rememberText: {
-      fontSize: theme.typography.sizes.sm,
+      fontSize: 14,
+      fontWeight: '500' as any,
       color: theme.colors.text,
-      marginLeft: theme.spacing.sm,
+      marginLeft: theme.layout.spacing * 0.75,
     },
     forgotPasswordButton: {
-      padding: theme.spacing.xs,
+      padding: theme.layout.spacing * 0.5,
     },
     forgotPasswordText: {
-      fontSize: theme.typography.sizes.sm,
+      fontSize: 14,
       color: theme.colors.primary,
-      fontWeight: theme.typography.weights.medium as any,
+      fontWeight: '600' as any,
+    },
+    signInButton: {
+      backgroundColor: theme.colors.primary,
+      borderRadius: theme.layout.borderRadius,
+      paddingVertical: theme.layout.spacing * 0.875,
+      paddingHorizontal: theme.layout.spacing * 1.5,
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: 52,
+      width: '100%',
+      marginBottom: theme.layout.spacing * 1.5,
+      ...Platform.select({
+        ios: {
+          shadowColor: theme.colors.primary,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+        },
+        android: {
+          elevation: 4,
+        },
+        web: {
+          boxShadow: `0 4px 12px ${theme.colors.primary}40`,
+        },
+      }),
+    },
+    signInButtonDisabled: {
+      opacity: 0.6,
+    },
+    signInButtonText: {
+      color: theme.colors.textInverse,
+      fontSize: 16,
+      fontWeight: '700' as any,
+      fontFamily: theme.typography?.fontFamily,
+      letterSpacing: 0.5,
     },
     divider: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginVertical: theme.spacing.lg,
+      marginVertical: theme.layout.spacing,
     },
     dividerLine: {
       flex: 1,
       height: 1,
-      backgroundColor: '#e1e5e9',
+      backgroundColor: theme.colors.border || '#e1e5e9',
     },
     dividerText: {
-      paddingHorizontal: theme.spacing.md,
-      fontSize: theme.typography.sizes.sm,
+      paddingHorizontal: theme.layout.spacing * 0.75,
+      fontSize: 14,
       color: theme.colors.textSecondary,
     },
     biometricContainer: {
       flexDirection: 'row',
       justifyContent: 'center',
-      gap: theme.spacing.md,
+      gap: theme.layout.spacing,
+      marginBottom: theme.layout.spacing * 1.5,
     },
     biometricButton: {
-      width: 60,
-      height: 60,
-      backgroundColor: theme.colors.background,
-      borderRadius: theme.borderRadius.md,
-      borderWidth: 2,
-      borderColor: '#e1e5e9',
+      flex: 1,
+      maxWidth: 100,
+      paddingVertical: theme.layout.spacing * 0.75,
+      paddingHorizontal: theme.layout.spacing * 0.5,
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.layout.borderRadius,
+      borderWidth: 1.5,
+      borderColor: theme.colors.border,
       justifyContent: 'center',
       alignItems: 'center',
     },
-    biometricButtonActive: {
-      borderColor: theme.colors.primary,
-      backgroundColor: `${theme.colors.primary}10`,
+    biometricIconContainer: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: theme.colors.background,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: theme.layout.spacing * 0.5,
     },
-    biometricIcon: {
-      fontSize: 24,
+    biometricIconText: {
+      fontSize: 20,
+      color: theme.colors.primary,
     },
-    securityInfo: {
-      marginTop: theme.spacing.lg,
-      padding: theme.spacing.md,
-      backgroundColor: `${theme.colors.info}10`,
-      borderRadius: theme.borderRadius.sm,
-      borderLeftWidth: 4,
-      borderLeftColor: theme.colors.info,
-    },
-    securityText: {
-      fontSize: theme.typography.sizes.xs,
+    biometricLabel: {
+      fontSize: 11,
+      fontWeight: '600' as any,
       color: theme.colors.textSecondary,
       textAlign: 'center',
+    },
+    securityInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: theme.layout.spacing * 0.5,
+      padding: theme.layout.spacing,
+      backgroundColor: `${theme.colors.info}08`,
+      borderRadius: theme.layout.borderRadius,
+      borderWidth: 1,
+      borderColor: `${theme.colors.info}20`,
+    },
+    securityIconContainer: {
+      width: 20,
+      height: 20,
+      borderRadius: 10,
+      backgroundColor: theme.colors.info,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: theme.layout.spacing * 0.75,
+    },
+    securityIcon: {
+      fontSize: 10,
+      color: theme.colors.textInverse,
+    },
+    securityText: {
+      flex: 1,
+      fontSize: 12,
+      fontWeight: '500' as any,
+      color: theme.colors.textSecondary,
+      lineHeight: 18,
     },
   });
 
@@ -557,22 +703,21 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           <View style={styles.tenantHeader}>
             <View style={[
               styles.tenantLogo,
-              currentTenant?.id === 'fmfb' && { backgroundColor: '#FFFFFF' }
+              theme.brandLogo && { backgroundColor: '#FFFFFF' }
             ]}>
-              {currentTenant?.id === 'fmfb' ? (
+              {theme.brandLogo ? (
                 !fmfbLogoError ? (
                   <Image
-                    source={{ uri: buildApiUrl('tenants/by-name/fmfb/assets/logo/default') }}
+                    source={{ uri: theme.brandLogo }}
                     style={styles.tenantLogoImage}
                     resizeMode="contain"
                     onLoad={() => {
-                      console.log('✅ FMFB logo loaded successfully');
+                      console.log('✅ Tenant logo loaded successfully');
                       setFmfbLogoLoading(false);
                     }}
                     onError={(error) => {
-                      console.log('❌ FMFB logo failed to load:', {
-                        apiBaseUrl: ENV_CONFIG.API_BASE_URL,
-                        fullUrl: buildApiUrl('tenants/by-name/fmfb/assets/logo/default'),
+                      console.log('❌ Tenant logo failed to load:', {
+                        logoUrl: theme.brandLogo,
                         error: error.nativeEvent.error,
                         isReactNative: typeof navigator !== 'undefined' && navigator.product === 'ReactNative'
                       });
@@ -582,7 +727,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                   />
                 ) : (
                   <Text style={styles.tenantLogoText}>
-                    FMFB
+                    {getTenantLogoInitials()}
                   </Text>
                 )
               ) : (
@@ -592,10 +737,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
               )}
             </View>
             <Text style={styles.tenantName}>
-              {currentTenant?.displayName || deploymentBranding.loginPageTitle}
+              {currentTenant?.displayName || theme.brandName || deploymentBranding.loginPageTitle}
             </Text>
             <Text style={styles.tenantSubtitle}>
-              {currentTenant ? 'Secure Banking App' : 'AI-Enhanced Banking Platform'}
+              {currentTenant ? 'Secure Banking App' : theme.brandTagline || 'AI-Enhanced Banking Platform'}
             </Text>
           </View>
 
@@ -638,22 +783,41 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                 returnKeyType="done"
                 onSubmitEditing={handleSubmit}
                 rightIcon={
-                  <Text style={{ fontSize: 18 }}>
-                    {showPassword ? '🙈' : '👁️'}
-                  </Text>
+                  <View style={{
+                    width: 24,
+                    height: 24,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    borderRadius: 12,
+                    backgroundColor: showPassword ? 'rgba(0, 0, 0, 0.05)' : 'transparent',
+                  }}>
+                    <Text style={{
+                      fontSize: 18,
+                      color: theme.colors.textSecondary,
+                    }}>
+                      {showPassword ? '○' : '●'}
+                    </Text>
+                  </View>
                 }
                 onRightIconPress={togglePasswordVisibility}
               />
             </View>
 
             <View style={styles.rememberForgotContainer}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.rememberContainer}
                 onPress={() => handleFieldChange('rememberMe', !formData.rememberMe)}
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: formData.rememberMe }}
               >
-                <Text style={{ fontSize: 16 }}>
-                  {formData.rememberMe ? '☑️' : '☐'}
-                </Text>
+                <View style={[
+                  styles.checkbox,
+                  formData.rememberMe && styles.checkboxChecked
+                ]}>
+                  {formData.rememberMe && (
+                    <Text style={styles.checkmark}>✓</Text>
+                  )}
+                </View>
                 <Text style={styles.rememberText}>Remember me</Text>
               </TouchableOpacity>
               
@@ -667,13 +831,22 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
               </TouchableOpacity>
             </View>
 
-            <Button
-              title="Sign In"
-              onPress={handleSubmit}
-              loading={isSubmitting}
-              disabled={isSubmitting || Object.values(formErrors).some(error => error !== undefined)}
-              fullWidth
-            />
+            <TouchableOpacity
+              onPress={() => {
+                console.log('🚀 Sign In button pressed');
+                triggerHaptic('impactMedium');
+                handleSubmit();
+              }}
+              style={[styles.signInButton, isSubmitting && styles.signInButtonDisabled]}
+              disabled={isSubmitting}
+              accessibilityRole="button"
+              accessibilityLabel="Sign in to your account"
+              accessibilityState={{ disabled: isSubmitting }}
+            >
+              <Text style={styles.signInButtonText}>
+                {isSubmitting ? 'Signing in...' : 'Sign In'}
+              </Text>
+            </TouchableOpacity>
 
             {/* Divider */}
             <View style={styles.divider}>
@@ -685,31 +858,49 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             {/* Biometric Authentication */}
             <View style={styles.biometricContainer}>
               <TouchableOpacity
-                style={[styles.biometricButton]}
+                style={styles.biometricButton}
                 onPress={() => handleBiometricAuth('fingerprint')}
+                accessibilityRole="button"
+                accessibilityLabel="Sign in with fingerprint"
               >
-                <Text style={styles.biometricIcon}>👆</Text>
+                <View style={styles.biometricIconContainer}>
+                  <Text style={styles.biometricIconText}>●</Text>
+                </View>
+                <Text style={styles.biometricLabel}>Touch ID</Text>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
-                style={[styles.biometricButton]}
+                style={styles.biometricButton}
                 onPress={() => handleBiometricAuth('faceId')}
+                accessibilityRole="button"
+                accessibilityLabel="Sign in with Face ID"
               >
-                <Text style={styles.biometricIcon}>😊</Text>
+                <View style={styles.biometricIconContainer}>
+                  <Text style={styles.biometricIconText}>◐</Text>
+                </View>
+                <Text style={styles.biometricLabel}>Face ID</Text>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
-                style={[styles.biometricButton]}
+                style={styles.biometricButton}
                 onPress={() => handleBiometricAuth('voice')}
+                accessibilityRole="button"
+                accessibilityLabel="Sign in with voice"
               >
-                <Text style={styles.biometricIcon}>🎤</Text>
+                <View style={styles.biometricIconContainer}>
+                  <Text style={styles.biometricIconText}>♫</Text>
+                </View>
+                <Text style={styles.biometricLabel}>Voice</Text>
               </TouchableOpacity>
             </View>
 
             {/* Security Info */}
             <View style={styles.securityInfo}>
+              <View style={styles.securityIconContainer}>
+                <Text style={styles.securityIcon}>●</Text>
+              </View>
               <Text style={styles.securityText}>
-                🔐 Your data is protected with bank-level security and encryption
+                Your data is protected with bank-level security and encryption
               </Text>
             </View>
           </View>

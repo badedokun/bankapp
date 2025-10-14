@@ -7,6 +7,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.initializeTransferServices = void 0;
 const express_1 = __importDefault(require("express"));
 const express_validator_1 = require("express-validator");
 const bcrypt_1 = __importDefault(require("bcrypt"));
@@ -16,7 +17,69 @@ const tenant_1 = require("../middleware/tenant");
 const errorHandler_1 = require("../middleware/errorHandler");
 const nibss_1 = require("../services/nibss");
 const fraud_detection_1 = require("../services/fraud-detection");
+const InternalTransferService_1 = require("../services/transfers/InternalTransferService");
+const ExternalTransferService_1 = __importDefault(require("../services/transfers/ExternalTransferService"));
+const BillPaymentService_1 = __importDefault(require("../services/transfers/BillPaymentService"));
+const ScheduledPaymentService_1 = __importDefault(require("../services/transfers/ScheduledPaymentService"));
+const InternationalTransferService_1 = __importDefault(require("../services/transfers/InternationalTransferService"));
+const TransactionReceiptService_1 = __importDefault(require("../services/transfers/TransactionReceiptService"));
+const NotificationService_1 = __importDefault(require("../services/transfers/NotificationService"));
+const transfers_1 = require("../types/transfers");
 const router = express_1.default.Router();
+// Initialize transfer services
+let transferServices = {};
+// Function to initialize services with database pool
+const initializeTransferServices = (db) => {
+    transferServices.internal = new InternalTransferService_1.InternalTransferService(db);
+    transferServices.external = new ExternalTransferService_1.default(db);
+    transferServices.billPayment = new BillPaymentService_1.default(db);
+    transferServices.international = new InternationalTransferService_1.default(db);
+    transferServices.receipt = new TransactionReceiptService_1.default(db);
+    transferServices.notification = new NotificationService_1.default(db);
+    transferServices.scheduled = new ScheduledPaymentService_1.default(db, transferServices.internal, transferServices.external, transferServices.billPayment);
+};
+exports.initializeTransferServices = initializeTransferServices;
+// Helper function to handle transfer errors
+function handleTransferError(error, res) {
+    console.error('Transfer error:', error);
+    if (error instanceof transfers_1.ValidationError) {
+        res.status(400).json({
+            success: false,
+            message: error.message,
+            field: error.field,
+            code: 'VALIDATION_ERROR',
+        });
+    }
+    else if (error instanceof transfers_1.InsufficientFundsError) {
+        res.status(400).json({
+            success: false,
+            message: error.message,
+            code: 'INSUFFICIENT_FUNDS',
+        });
+    }
+    else if (error instanceof transfers_1.LimitExceededError) {
+        res.status(400).json({
+            success: false,
+            message: error.message,
+            code: 'LIMIT_EXCEEDED',
+        });
+    }
+    else if (error instanceof transfers_1.TransferError) {
+        res.status(400).json({
+            success: false,
+            message: error.message,
+            code: error.code,
+            details: error.details,
+        });
+    }
+    else {
+        res.status(500).json({
+            success: false,
+            message: 'An unexpected error occurred',
+            code: 'INTERNAL_ERROR',
+        });
+    }
+}
 /**
  * POST /api/transfers/fraud-check
  * Standalone fraud detection analysis endpoint
@@ -713,6 +776,620 @@ router.get('/recipients', auth_1.authenticateToken, tenant_1.validateTenantAcces
             }))
         }
     });
+}));
+/**
+ * Enhanced Transfer Service Endpoints
+ * These complement the existing NIBSS transfer routes
+ */
+// POST /api/transfers/internal - Process internal transfer
+router.post('/internal', auth_1.authenticateToken, tenant_1.validateTenantAccess, [
+    (0, express_validator_1.body)('recipientAccountNumber').isLength({ min: 10, max: 10 }).withMessage('Account number must be 10 digits'),
+    (0, express_validator_1.body)('recipientName').isLength({ min: 2, max: 100 }).withMessage('Recipient name is required'),
+    (0, express_validator_1.body)('amount').isFloat({ min: 100 }).withMessage('Amount must be at least ₦100'),
+    (0, express_validator_1.body)('pin').isLength({ min: 4, max: 4 }).withMessage('Transaction PIN required'),
+], (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const validationErrors = (0, express_validator_1.validationResult)(req);
+    if (!validationErrors.isEmpty()) {
+        return res.status(400).json({
+            success: false,
+            error: 'Validation failed',
+            code: 'VALIDATION_ERROR',
+            details: validationErrors.array()
+        });
+    }
+    try {
+        // Get user's primary wallet ID
+        const walletQuery = await (0, database_1.query)(`
+      SELECT id FROM tenant.wallets
+      WHERE user_id = $1 AND tenant_id = $2 AND status = 'active'
+      ORDER BY is_primary DESC, created_at ASC
+      LIMIT 1
+    `, [req.user.id, req.user.tenantId]);
+        if (walletQuery.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'No active wallet found',
+                code: 'WALLET_NOT_FOUND'
+            });
+        }
+        const fromWalletId = walletQuery.rows[0].id;
+        // For toWalletId, we need to find the recipient's wallet by account number
+        const recipientQuery = await (0, database_1.query)(`
+      SELECT w.id FROM tenant.wallets w
+      JOIN tenant.users u ON w.user_id = u.id
+      WHERE w.wallet_number = $1 AND w.tenant_id = $2 AND w.status = 'active'
+      ORDER BY w.is_primary DESC
+      LIMIT 1
+    `, [req.body.recipientAccountNumber, req.user.tenantId]);
+        if (recipientQuery.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'Recipient account not found',
+                code: 'RECIPIENT_NOT_FOUND'
+            });
+        }
+        const toWalletId = recipientQuery.rows[0].id;
+        const request = {
+            fromWalletId: fromWalletId,
+            toWalletId: toWalletId,
+            amount: parseFloat(req.body.amount),
+            currency: 'NGN',
+            narration: req.body.description || 'Internal transfer',
+            reference: `INT-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+        };
+        const result = await transferServices.internal.processTransfer(request);
+        res.status(200).json({
+            success: true,
+            message: 'Internal transfer processed successfully',
+            data: result,
+        });
+    }
+    catch (error) {
+        handleTransferError(error, res);
+    }
+}));
+// POST /api/transfers/external - Process external transfer
+router.post('/external', auth_1.authenticateToken, tenant_1.validateTenantAccess, [
+    (0, express_validator_1.body)('recipientAccountNumber').isLength({ min: 10, max: 10 }).withMessage('Account number must be 10 digits'),
+    (0, express_validator_1.body)('recipientBankCode').isLength({ min: 3, max: 3 }).withMessage('Bank code must be 3 digits'),
+    (0, express_validator_1.body)('recipientName').isLength({ min: 2, max: 100 }).withMessage('Recipient name is required'),
+    (0, express_validator_1.body)('amount').isFloat({ min: 100 }).withMessage('Amount must be at least ₦100'),
+    (0, express_validator_1.body)('pin').isLength({ min: 4, max: 4 }).withMessage('Transaction PIN required'),
+], (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    try {
+        // Get user's primary wallet ID for external transfer
+        const walletQuery = await (0, database_1.query)(`
+      SELECT id FROM tenant.wallets
+      WHERE user_id = $1 AND tenant_id = $2 AND status = 'active'
+      ORDER BY is_primary DESC, created_at ASC
+      LIMIT 1
+    `, [req.user.id, req.user.tenantId]);
+        if (walletQuery.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'No active wallet found',
+                code: 'WALLET_NOT_FOUND'
+            });
+        }
+        const sourceWalletId = walletQuery.rows[0].id;
+        const request = {
+            sourceWalletId: sourceWalletId,
+            recipientAccountNumber: req.body.recipientAccountNumber,
+            recipientBankCode: req.body.recipientBankCode,
+            recipientName: req.body.recipientName,
+            amount: parseFloat(req.body.amount),
+            narration: req.body.description || 'External transfer',
+            saveBeneficiary: req.body.saveBeneficiary,
+            beneficiaryNickname: req.body.beneficiaryNickname,
+        };
+        const result = await transferServices.external.processTransfer(request, req.user.id);
+        res.status(200).json({
+            success: true,
+            message: 'External transfer initiated successfully',
+            data: result,
+        });
+    }
+    catch (error) {
+        handleTransferError(error, res);
+    }
+}));
+// POST /api/transfers/bills - Process bill payment
+router.post('/bills', auth_1.authenticateToken, tenant_1.validateTenantAccess, [
+    (0, express_validator_1.body)('billerId').notEmpty().withMessage('Biller ID is required'),
+    (0, express_validator_1.body)('customerReference').notEmpty().withMessage('Customer reference is required'),
+    (0, express_validator_1.body)('amount').isFloat({ min: 50 }).withMessage('Amount must be at least ₦50'),
+    (0, express_validator_1.body)('pin').isLength({ min: 4, max: 4 }).withMessage('Transaction PIN required'),
+], (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    try {
+        // Get user's primary wallet ID for bill payment
+        const walletQuery = await (0, database_1.query)(`
+      SELECT id FROM tenant.wallets
+      WHERE user_id = $1 AND tenant_id = $2 AND status = 'active'
+      ORDER BY is_primary DESC, created_at ASC
+      LIMIT 1
+    `, [req.user.id, req.user.tenantId]);
+        if (walletQuery.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'No active wallet found',
+                code: 'WALLET_NOT_FOUND'
+            });
+        }
+        const walletId = walletQuery.rows[0].id;
+        const request = {
+            billerId: req.body.billerId,
+            customerReference: req.body.customerReference,
+            amount: parseFloat(req.body.amount),
+            walletId: walletId,
+            validateCustomer: req.body.validateCustomer
+        };
+        const result = await transferServices.billPayment.processBillPayment(request, req.user.id);
+        res.status(200).json({
+            success: true,
+            message: 'Bill payment processed successfully',
+            data: result,
+        });
+    }
+    catch (error) {
+        handleTransferError(error, res);
+    }
+}));
+// POST /api/transfers/international - Process international transfer
+router.post('/international', auth_1.authenticateToken, tenant_1.validateTenantAccess, [
+    (0, express_validator_1.body)('recipientName').isLength({ min: 2, max: 100 }).withMessage('Recipient name is required'),
+    (0, express_validator_1.body)('recipientIban').notEmpty().withMessage('Recipient IBAN is required'),
+    (0, express_validator_1.body)('recipientSwiftCode').notEmpty().withMessage('Recipient SWIFT code is required'),
+    (0, express_validator_1.body)('recipientCountry').isLength({ min: 2, max: 2 }).withMessage('Valid country code required'),
+    (0, express_validator_1.body)('amount').isFloat({ min: 1000 }).withMessage('Amount must be at least ₦1,000'),
+    (0, express_validator_1.body)('purpose').notEmpty().withMessage('Transfer purpose is required'),
+    (0, express_validator_1.body)('sourceOfFunds').notEmpty().withMessage('Source of funds is required'),
+    (0, express_validator_1.body)('pin').isLength({ min: 4, max: 4 }).withMessage('Transaction PIN required'),
+], (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    try {
+        // Get user's primary wallet ID for international transfer
+        const walletQuery = await (0, database_1.query)(`
+      SELECT id FROM tenant.wallets
+      WHERE user_id = $1 AND tenant_id = $2 AND status = 'active'
+      ORDER BY is_primary DESC, created_at ASC
+      LIMIT 1
+    `, [req.user.id, req.user.tenantId]);
+        if (walletQuery.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'No active wallet found',
+                code: 'WALLET_NOT_FOUND'
+            });
+        }
+        const sourceWalletId = walletQuery.rows[0].id;
+        const request = {
+            sourceWalletId: sourceWalletId,
+            amount: parseFloat(req.body.amount),
+            sourceCurrency: 'NGN',
+            destinationCurrency: req.body.destinationCurrency || 'USD',
+            recipientName: req.body.recipientName,
+            recipientAddress: req.body.recipientAddress,
+            recipientCountry: req.body.recipientCountry,
+            recipientBankName: req.body.recipientBankName || '',
+            recipientBankSwift: req.body.recipientSwiftCode,
+            recipientAccountNumber: req.body.recipientAccountNumber || '',
+            recipientIban: req.body.recipientIban,
+            transferPurpose: req.body.purpose || 'Personal remittance'
+        };
+        const result = await transferServices.international.processTransfer(request, req.user.id);
+        res.status(200).json({
+            success: true,
+            message: 'International transfer initiated successfully',
+            data: result,
+        });
+    }
+    catch (error) {
+        handleTransferError(error, res);
+    }
+}));
+// POST /api/transfers/scheduled - Create scheduled payment
+router.post('/scheduled', auth_1.authenticateToken, tenant_1.validateTenantAccess, [
+    (0, express_validator_1.body)('scheduledDate').isISO8601().withMessage('Valid scheduled date required'),
+    (0, express_validator_1.body)('frequency').isIn(['once', 'daily', 'weekly', 'monthly', 'quarterly', 'yearly']).withMessage('Valid frequency required'),
+], (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    try {
+        const request = {
+            ...req.body,
+            scheduledDate: new Date(req.body.scheduledDate),
+            endDate: req.body.endDate ? new Date(req.body.endDate) : undefined,
+        };
+        const result = await transferServices.scheduled.createScheduledPayment(request, req.user.id);
+        res.status(200).json({
+            success: true,
+            message: 'Scheduled payment created successfully',
+            data: result,
+        });
+    }
+    catch (error) {
+        handleTransferError(error, res);
+    }
+}));
+// GET /api/transfers/billers - Get available billers
+router.get('/billers', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    try {
+        const category = req.query.category;
+        const billers = await transferServices.billPayment.getBillers(category);
+        res.status(200).json({
+            success: true,
+            data: billers,
+        });
+    }
+    catch (error) {
+        handleTransferError(error, res);
+    }
+}));
+// GET /api/transfers/scheduled - Get user's scheduled payments
+router.get('/scheduled', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    try {
+        const isActive = req.query.isActive !== undefined ? req.query.isActive === 'true' : undefined;
+        const scheduledPayments = await transferServices.scheduled.getUserScheduledPayments(req.user.id, isActive);
+        res.status(200).json({
+            success: true,
+            data: scheduledPayments,
+        });
+    }
+    catch (error) {
+        handleTransferError(error, res);
+    }
+}));
+// PUT /api/transfers/scheduled/:id - Update scheduled payment
+router.put('/scheduled/:id', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updates = req.body;
+        const result = await transferServices.scheduled.updateScheduledPayment(id, updates, req.user.id);
+        res.status(200).json({
+            success: result,
+            message: result ? 'Scheduled payment updated successfully' : 'Failed to update scheduled payment',
+        });
+    }
+    catch (error) {
+        handleTransferError(error, res);
+    }
+}));
+// DELETE /api/transfers/scheduled/:id - Cancel scheduled payment
+router.delete('/scheduled/:id', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await transferServices.scheduled.cancelScheduledPayment(id, req.user.id);
+        res.status(200).json({
+            success: result,
+            message: result ? 'Scheduled payment cancelled successfully' : 'Failed to cancel scheduled payment',
+        });
+    }
+    catch (error) {
+        handleTransferError(error, res);
+    }
+}));
+// POST /api/transfers/scheduled/:id/execute - Execute scheduled payment
+router.post('/scheduled/:id/execute', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await transferServices.scheduled.executeScheduledPayment(id);
+        res.status(200).json({
+            success: result.success,
+            message: result.success ? 'Scheduled payment executed successfully' : 'Failed to execute scheduled payment',
+            data: result,
+        });
+    }
+    catch (error) {
+        handleTransferError(error, res);
+    }
+}));
+// ===== RECEIPT MANAGEMENT ENDPOINTS =====
+/**
+ * POST /api/transfers/receipts/generate
+ * Generate receipt for a transaction
+ */
+router.post('/receipts/generate', auth_1.authenticateToken, tenant_1.validateTenantAccess, [
+    (0, express_validator_1.body)('transactionId').isUUID().withMessage('Valid transaction ID required'),
+    (0, express_validator_1.body)('transactionType').isIn(['internal_transfer', 'external_transfer', 'bill_payment', 'international_transfer', 'scheduled_payment']).withMessage('Valid transaction type required')
+], (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const validationErrors = (0, express_validator_1.validationResult)(req);
+    if (!validationErrors.isEmpty()) {
+        return res.status(400).json({
+            success: false,
+            error: 'Validation failed',
+            code: 'VALIDATION_ERROR',
+            details: validationErrors.array()
+        });
+    }
+    try {
+        const { transactionId, transactionType } = req.body;
+        const tenantId = req.user.tenantId;
+        const receipt = await transferServices.receipt.generateReceipt(transactionId, transactionType, tenantId);
+        res.status(200).json({
+            success: true,
+            message: 'Receipt generated successfully',
+            data: receipt,
+        });
+    }
+    catch (error) {
+        handleTransferError(error, res);
+    }
+}));
+/**
+ * GET /api/transfers/receipts/:receiptId
+ * Get receipt by ID
+ */
+router.get('/receipts/:receiptId', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    try {
+        const { receiptId } = req.params;
+        const tenantId = req.user.tenantId;
+        const receipt = await transferServices.receipt.getReceipt(receiptId, tenantId);
+        if (!receipt) {
+            return res.status(404).json({
+                success: false,
+                message: 'Receipt not found',
+                code: 'RECEIPT_NOT_FOUND',
+            });
+        }
+        res.status(200).json({
+            success: true,
+            data: receipt,
+        });
+    }
+    catch (error) {
+        handleTransferError(error, res);
+    }
+}));
+/**
+ * GET /api/transfers/transaction-records
+ * Search transaction records with filters
+ */
+router.get('/transaction-records', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    try {
+        const tenantId = req.user.tenantId;
+        const { accountId, transactionType, status, dateFrom, dateTo, amountMin, amountMax, reference, recipientName, limit, offset } = req.query;
+        const filters = {
+            accountId: accountId,
+            transactionType: transactionType,
+            status: status,
+            dateFrom: dateFrom ? new Date(dateFrom) : undefined,
+            dateTo: dateTo ? new Date(dateTo) : undefined,
+            amountMin: amountMin ? parseFloat(amountMin) : undefined,
+            amountMax: amountMax ? parseFloat(amountMax) : undefined,
+            reference: reference,
+            recipientName: recipientName,
+            limit: limit ? parseInt(limit) : undefined,
+            offset: offset ? parseInt(offset) : undefined,
+        };
+        const result = await transferServices.receipt.searchTransactionRecords(tenantId, filters);
+        res.status(200).json({
+            success: true,
+            data: result,
+        });
+    }
+    catch (error) {
+        handleTransferError(error, res);
+    }
+}));
+/**
+ * GET /api/transfers/transaction-summary/:accountId
+ * Get transaction summary for an account
+ */
+router.get('/transaction-summary/:accountId', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    try {
+        const { accountId } = req.params;
+        const tenantId = req.user.tenantId;
+        const { period } = req.query;
+        const summary = await transferServices.receipt.getTransactionSummary(accountId, tenantId, period);
+        res.status(200).json({
+            success: true,
+            data: summary,
+        });
+    }
+    catch (error) {
+        handleTransferError(error, res);
+    }
+}));
+// ===== NOTIFICATION MANAGEMENT ENDPOINTS =====
+/**
+ * GET /api/transfers/notifications/unread
+ * Get unread notifications for user
+ */
+router.get('/notifications/unread', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const tenantId = req.user.tenantId;
+        const notifications = await transferServices.notification.getUnreadNotifications(userId, tenantId);
+        res.status(200).json({
+            success: true,
+            data: notifications,
+        });
+    }
+    catch (error) {
+        handleTransferError(error, res);
+    }
+}));
+/**
+ * PUT /api/transfers/notifications/:notificationId/read
+ * Mark notification as read
+ */
+router.put('/notifications/:notificationId/read', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    try {
+        const { notificationId } = req.params;
+        const userId = req.user.id;
+        await transferServices.notification.markNotificationAsRead(notificationId, userId);
+        res.status(200).json({
+            success: true,
+            message: 'Notification marked as read',
+        });
+    }
+    catch (error) {
+        handleTransferError(error, res);
+    }
+}));
+/**
+ * POST /api/transfers/notifications/test
+ * Send test notification (development only)
+ */
+router.post('/notifications/test', auth_1.authenticateToken, tenant_1.validateTenantAccess, [
+    (0, express_validator_1.body)('type').isIn(['transfer_initiated', 'transfer_completed', 'transfer_failed', 'receipt_generated']).withMessage('Valid notification type required'),
+    (0, express_validator_1.body)('transferData').isObject().withMessage('Transfer data is required')
+], (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const validationErrors = (0, express_validator_1.validationResult)(req);
+    if (!validationErrors.isEmpty()) {
+        return res.status(400).json({
+            success: false,
+            error: 'Validation failed',
+            code: 'VALIDATION_ERROR',
+            details: validationErrors.array()
+        });
+    }
+    try {
+        const { type, transferData, priority } = req.body;
+        const userId = req.user.id;
+        const tenantId = req.user.tenantId;
+        await transferServices.notification.sendTransferNotification({
+            type,
+            tenantId,
+            userId,
+            transferData,
+            priority: priority || 'medium',
+        });
+        res.status(200).json({
+            success: true,
+            message: 'Test notification sent successfully',
+        });
+    }
+    catch (error) {
+        handleTransferError(error, res);
+    }
+}));
+// ===== ENHANCED TRANSFER STATUS AND ANALYTICS =====
+/**
+ * GET /api/transfers/analytics/summary
+ * Get transfer analytics summary
+ */
+router.get('/analytics/summary', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    try {
+        const tenantId = req.user.tenantId;
+        const { startDate, endDate, groupBy } = req.query;
+        // Mock analytics data - in production, implement proper analytics service
+        const mockAnalytics = {
+            totalTransfers: 1250,
+            totalVolume: 15750000.00,
+            averageAmount: 12600.00,
+            successRate: 98.5,
+            transfersByType: {
+                internal: { count: 750, volume: 8250000.00 },
+                external: { count: 400, volume: 6500000.00 },
+                bills: { count: 80, volume: 800000.00 },
+                international: { count: 20, volume: 200000.00 },
+            },
+            topRecipients: [
+                { name: 'John Doe', count: 15, volume: 180000.00 },
+                { name: 'Jane Smith', count: 12, volume: 150000.00 },
+                { name: 'David Wilson', count: 10, volume: 120000.00 },
+            ],
+            fraudPrevented: {
+                count: 25,
+                potentialLoss: 450000.00,
+            },
+        };
+        res.status(200).json({
+            success: true,
+            data: mockAnalytics,
+        });
+    }
+    catch (error) {
+        handleTransferError(error, res);
+    }
+}));
+/**
+ * GET /api/transfers/limits/:accountId
+ * Get current transfer limits and usage
+ */
+router.get('/limits/:accountId', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    try {
+        const { accountId } = req.params;
+        const tenantId = req.user.tenantId;
+        // Mock limits data - in production, implement proper limits service
+        const mockLimits = {
+            daily: {
+                limit: 500000.00,
+                used: 125000.00,
+                remaining: 375000.00,
+                resetTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+            },
+            monthly: {
+                limit: 10000000.00,
+                used: 3250000.00,
+                remaining: 6750000.00,
+                resetTime: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+            },
+            perTransaction: {
+                internal: 1000000.00,
+                external: 500000.00,
+                bills: 100000.00,
+                international: 50000.00,
+            },
+        };
+        res.status(200).json({
+            success: true,
+            data: mockLimits,
+        });
+    }
+    catch (error) {
+        handleTransferError(error, res);
+    }
+}));
+/**
+ * GET /api/transfers/fees/calculate
+ * Calculate transfer fees
+ */
+router.get('/fees/calculate', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    try {
+        const { amount, transferType, recipientCountry } = req.query;
+        if (!amount || !transferType) {
+            return res.status(400).json({
+                success: false,
+                error: 'Amount and transfer type are required',
+                code: 'VALIDATION_ERROR',
+            });
+        }
+        // Mock fee calculation - in production, implement proper fee service
+        const transferAmount = parseFloat(amount);
+        let fees = {};
+        switch (transferType) {
+            case 'internal':
+                fees = { amount: 0, description: 'No fee for internal transfers' };
+                break;
+            case 'external':
+                fees = { amount: 50, description: 'NIBSS transfer fee' };
+                break;
+            case 'bills':
+                fees = { amount: 25, description: 'Bill payment processing fee' };
+                break;
+            case 'international':
+                fees = {
+                    swiftFee: 2500,
+                    correspondentFee: 3000,
+                    regulatoryFee: 500,
+                    totalFees: 6000,
+                    description: 'International transfer fees',
+                };
+                break;
+            default:
+                fees = { amount: 0, description: 'Unknown transfer type' };
+        }
+        res.status(200).json({
+            success: true,
+            data: {
+                transferAmount,
+                fees,
+                totalAmount: transferAmount + (fees.totalFees || fees.amount || 0),
+            },
+        });
+    }
+    catch (error) {
+        handleTransferError(error, res);
+    }
 }));
 exports.default = router;
 //# sourceMappingURL=transfers.js.map

@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Account Management - OrokiiPay Banking Platform</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --surface-color: #ffffff;
+            --background-color: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --gradient-success: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            background: var(--surface-color);
+            min-height: 100vh;
+            box-shadow: var(--shadow);
+        }
+
+
+        /* Header */
+        .header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .greeting {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .user-name {
+            font-size: 24px;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .notification-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .notification-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Total balance card */
+        .balance-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .balance-label {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 8px;
+        }
+
+        .total-balance {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .balance-change {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        /* Quick actions - Android & iPhone responsive */
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            padding: 16px;
+            overflow-x: auto;
+            /* Android scroll behavior */
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            /* Safe area support */
+            padding-left: max(16px, env(safe-area-inset-left));
+            padding-right: max(16px, env(safe-area-inset-right));
+        }
+
+        .quick-actions::-webkit-scrollbar {
+            display: none; /* Hide scrollbar on Android Chrome */
+        }
+
+        .action-btn {
+            min-width: 68px;
+            height: 68px;
+            border-radius: 14px;
+            border: none;
+            background: white;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            /* Android material design */
+            flex-shrink: 0;
+        }
+
+        /* Larger touch targets for Android */
+        @media screen and (max-width: 414px) {
+            .action-btn {
+                min-width: 64px;
+                height: 64px;
+                border-radius: 12px;
+            }
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .action-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .action-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        /* Accounts section - Android & iPhone responsive */
+        .accounts-section {
+            padding: 0 16px 20px;
+            /* Safe area support */
+            padding-left: max(16px, env(safe-area-inset-left));
+            padding-right: max(16px, env(safe-area-inset-right));
+            padding-bottom: max(100px, calc(70px + env(safe-area-inset-bottom))); /* Account for bottom nav */
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .view-all {
+            color: #2563eb;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        /* Account cards - mobile optimized */
+        .account-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid #f1f5f9;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .account-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+            border-color: #3b82f6;
+        }
+
+        .account-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .account-info h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .account-number {
+            font-size: 14px;
+            color: #64748b;
+            font-family: 'SF Mono', monospace;
+        }
+
+        .account-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .savings-account {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .current-account {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+        }
+
+        .fixed-account {
+            background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+            color: white;
+        }
+
+        .target-account {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+
+        .account-balance {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+
+        .account-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .account-status {
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-dormant {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Progress bar for target savings */
+        .progress-container {
+            margin-top: 12px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #f1f5f9;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        /* Bottom navigation - Android & iPhone responsive */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            background: white;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-around;
+            /* Android bottom navigation */
+            padding: 8px 16px;
+            padding-bottom: max(8px, env(safe-area-inset-bottom));
+            /* iPhone home indicator support */
+            padding-left: max(16px, env(safe-area-inset-left));
+            padding-right: max(16px, env(safe-area-inset-right));
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        /* iPhone specific bottom nav adjustments */
+        @supports (padding: max(0px)) {
+            .bottom-nav {
+                padding-bottom: max(20px, calc(8px + env(safe-area-inset-bottom)));
+            }
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #64748b;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .nav-item.active {
+            color: #2563eb;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .nav-label {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Floating action button - Android & iPhone responsive */
+        .fab {
+            position: fixed;
+            bottom: max(90px, calc(70px + env(safe-area-inset-bottom)));
+            right: max(16px, env(safe-area-inset-right));
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            border-radius: 28px;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        /* Android material design FAB */
+        @media screen and (max-width: 414px) {
+            .fab {
+                width: 52px;
+                height: 52px;
+                border-radius: 26px;
+                box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+            }
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 24px rgba(37, 99, 235, 0.5);
+        }
+
+        /* Responsive for tablet/desktop */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 768px;
+            }
+
+            .quick-actions {
+                justify-content: center;
+            }
+
+            .accounts-section {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .section-header {
+                grid-column: 1 / -1;
+            }
+
+            .account-card {
+                margin-bottom: 0;
+            }
+
+            .fab {
+                bottom: 120px;
+                right: 40px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 1024px;
+                display: grid;
+                grid-template-columns: 300px 1fr;
+                min-height: 100vh;
+            }
+
+            .status-bar {
+                grid-column: 1 / -1;
+            }
+
+            .header {
+                grid-column: 1 / -1;
+            }
+
+            .quick-actions {
+                grid-column: 1 / -1;
+            }
+
+            .accounts-section {
+                grid-column: 1 / -1;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+                gap: 24px;
+                padding: 24px;
+            }
+
+            .bottom-nav {
+                display: none;
+            }
+
+            .fab {
+                display: none;
+            }
+        }
+
+        /* Hide elements for clean mobile look */
+        .hide-mobile {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .hide-mobile {
+                display: block;
+            }
+        }
+
+        /* Android-specific styles */
+        .android-device .account-card {
+            /* Slightly flatter material design cards */
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+            border-radius: 12px;
+        }
+
+        .android-device .action-btn {
+            /* Material design button style */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.14), 0 3px 1px rgba(0, 0, 0, 0.12);
+        }
+
+        .android-device .balance-card {
+            /* Material design card */
+            border-radius: 12px;
+        }
+
+        /* iOS-specific styles */
+        .ios-device .account-card {
+            /* iOS card shadow style */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border-radius: 16px;
+        }
+
+        .ios-device .action-btn {
+            /* iOS button style */
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+            border-radius: 16px;
+        }
+
+        /* Touch-friendly interactions for mobile devices */
+        @media (hover: none) and (pointer: coarse) {
+            .account-card:hover {
+                transform: none;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+                border-color: #f1f5f9;
+            }
+
+            .account-card:active {
+                transform: scale(0.98);
+                transition: transform 0.1s ease;
+            }
+
+            .action-btn:hover {
+                transform: none;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            .action-btn:active {
+                transform: scale(0.95);
+                transition: transform 0.1s ease;
+            }
+
+            /* Android ripple effect simulation */
+            .android-device .account-card:active,
+            .android-device .action-btn:active {
+                background: rgba(37, 99, 235, 0.04);
+            }
+        }
+
+        /* Common Android screen sizes */
+        @media screen and (max-width: 360px) {
+            /* Small Android phones (Samsung Galaxy, etc.) */
+            .header {
+                padding: 12px 16px;
+            }
+
+            .user-name {
+                font-size: 22px;
+            }
+
+            .total-balance {
+                font-size: 28px;
+            }
+        }
+
+        @media screen and (min-width: 360px) and (max-width: 414px) {
+            /* Medium Android phones */
+            .container {
+                width: 100%;
+            }
+        }
+
+        @media screen and (min-width: 414px) and (max-width: 768px) {
+            /* Large Android phones & iPhone Plus/Max */
+            .container {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-top">
+                <div>
+                    <div class="greeting">Good morning</div>
+                    <div class="user-name">John Adebayo</div>
+                </div>
+                <button class="notification-btn" onclick="showNotifications()">
+                    🔔
+                </button>
+            </div>
+
+            <div class="balance-card">
+                <div class="balance-label">Total Balance</div>
+                <div class="total-balance">₦2,847,650.00</div>
+                <div class="balance-change">+8.2% from last month</div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button class="action-btn" onclick="quickTransfer()">
+                <div class="action-icon">💸</div>
+                <div class="action-label">Transfer</div>
+            </button>
+            <button class="action-btn" onclick="payBills()">
+                <div class="action-icon">⚡</div>
+                <div class="action-label">Pay Bills</div>
+            </button>
+            <button class="action-btn" onclick="buyAirtime()">
+                <div class="action-icon">📱</div>
+                <div class="action-label">Airtime</div>
+            </button>
+            <button class="action-btn" onclick="showQRCode()">
+                <div class="action-icon">📷</div>
+                <div class="action-label">Scan</div>
+            </button>
+            <button class="action-btn" onclick="showMore()">
+                <div class="action-icon">⋯</div>
+                <div class="action-label">More</div>
+            </button>
+        </div>
+
+        <!-- Accounts Section -->
+        <div class="accounts-section">
+            <div class="section-header">
+                <h2 class="section-title">My Accounts</h2>
+                <a href="#" class="view-all hide-mobile">View All</a>
+            </div>
+
+            <!-- Primary Savings Account -->
+            <div class="account-card" onclick="viewAccount('savings-primary')">
+                <div class="account-header">
+                    <div class="account-info">
+                        <h3>Primary Savings</h3>
+                        <div class="account-number">••• 6789</div>
+                    </div>
+                    <div class="account-icon savings-account">💰</div>
+                </div>
+                <div class="account-balance">₦1,245,800.00</div>
+                <div class="account-details">
+                    <span>3.5% interest</span>
+                    <span class="account-status status-active">Active</span>
+                </div>
+            </div>
+
+            <!-- Business Current Account -->
+            <div class="account-card" onclick="viewAccount('current-business')">
+                <div class="account-header">
+                    <div class="account-info">
+                        <h3>Business Current</h3>
+                        <div class="account-number">••• 4321</div>
+                    </div>
+                    <div class="account-icon current-account">🏢</div>
+                </div>
+                <div class="account-balance">₦890,250.00</div>
+                <div class="account-details">
+                    <span>₦500,000 overdraft</span>
+                    <span class="account-status status-active">Active</span>
+                </div>
+            </div>
+
+            <!-- Fixed Deposit Account -->
+            <div class="account-card" onclick="viewAccount('fixed-deposit')">
+                <div class="account-header">
+                    <div class="account-info">
+                        <h3>12-Month Fixed Deposit</h3>
+                        <div class="account-number">••• 4455</div>
+                    </div>
+                    <div class="account-icon fixed-account">🔒</div>
+                </div>
+                <div class="account-balance">₦500,000.00</div>
+                <div class="account-details">
+                    <span>8.5% p.a. • Matures Dec 2025</span>
+                    <span class="account-status status-active">Locked</span>
+                </div>
+            </div>
+
+            <!-- Target Savings Account -->
+            <div class="account-card" onclick="viewAccount('target-car')">
+                <div class="account-header">
+                    <div class="account-info">
+                        <h3>Car Fund (Target)</h3>
+                        <div class="account-number">••• 8899</div>
+                    </div>
+                    <div class="account-icon target-account">🚗</div>
+                </div>
+                <div class="account-balance">₦180,000.00</div>
+                <div class="progress-container">
+                    <div class="progress-info">
+                        <span>₦180,000 of ₦3,500,000</span>
+                        <span>5.1%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 5.1%"></div>
+                    </div>
+                </div>
+                <div class="account-details" style="margin-top: 8px;">
+                    <span>Target: Jun 2026</span>
+                    <span class="account-status status-active">On Track</span>
+                </div>
+            </div>
+
+            <!-- Dormant Account -->
+            <div class="account-card" onclick="viewAccount('dormant-savings')" style="opacity: 0.7;">
+                <div class="account-header">
+                    <div class="account-info">
+                        <h3>Old Savings Account</h3>
+                        <div class="account-number">••• 6655</div>
+                    </div>
+                    <div class="account-icon savings-account">💤</div>
+                </div>
+                <div class="account-balance">₦31,600.00</div>
+                <div class="account-details">
+                    <span>Inactive 8 months</span>
+                    <span class="account-status status-dormant">Dormant</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Action Button -->
+        <button class="fab" onclick="createNewAccount()">+</button>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <a href="#" class="nav-item active">
+                <div class="nav-icon">🏠</div>
+                <div class="nav-label">Home</div>
+            </a>
+            <a href="#" class="nav-item">
+                <div class="nav-icon">💳</div>
+                <div class="nav-label">Cards</div>
+            </a>
+            <a href="#" class="nav-item">
+                <div class="nav-icon">📊</div>
+                <div class="nav-label">Analytics</div>
+            </a>
+            <a href="#" class="nav-item">
+                <div class="nav-icon">💰</div>
+                <div class="nav-label">Savings</div>
+            </a>
+            <a href="#" class="nav-item">
+                <div class="nav-icon">👤</div>
+                <div class="nav-label">Profile</div>
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        // Customer-facing interactions
+        function viewAccount(accountId) {
+            // Navigate to account details
+            console.log(`Viewing account: ${accountId}`);
+
+            // Haptic feedback simulation
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+
+            alert(`Opening ${accountId} details...`);
+        }
+
+        function quickTransfer() {
+            alert('Opening Quick Transfer...');
+        }
+
+        function payBills() {
+            alert('Opening Bill Payments...');
+        }
+
+        function buyAirtime() {
+            alert('Opening Airtime Purchase...');
+        }
+
+        function showQRCode() {
+            alert('Opening QR Scanner...');
+        }
+
+        function showMore() {
+            alert('Showing more actions...');
+        }
+
+        function createNewAccount() {
+            alert('Opening New Account Application...');
+        }
+
+        function showNotifications() {
+            alert('Showing notifications...');
+        }
+
+        // Touch interactions for mobile
+        document.querySelectorAll('.account-card').forEach(card => {
+            card.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.98)';
+            });
+
+            card.addEventListener('touchend', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+
+        // Update time in status bar
+        function updateTime() {
+            const now = new Date();
+            const time = now.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: false
+            });
+            document.getElementById('current-time').textContent = time;
+        }
+
+        setInterval(updateTime, 1000);
+
+        // Detect device type and adjust status bar
+        function detectDevice() {
+            const userAgent = navigator.userAgent;
+            const androidIndicators = document.querySelector('.android-indicators');
+            const iosIndicators = document.querySelector('.ios-indicators');
+
+            if (/Android/i.test(userAgent)) {
+                // Show Android-style status indicators
+                androidIndicators.style.display = 'inline';
+                iosIndicators.style.display = 'none';
+
+                // Add Android-specific body class for additional styling
+                document.body.classList.add('android-device');
+            } else if (/iPhone|iPad|iPod/i.test(userAgent)) {
+                // Show iOS-style battery percentage
+                androidIndicators.style.display = 'none';
+                iosIndicators.style.display = 'inline';
+
+                document.body.classList.add('ios-device');
+            }
+        }
+
+        // Run device detection on load
+        detectDevice();
+
+        // Simulate real-time balance updates (demo only)
+        function simulateBalanceUpdates() {
+            const totalBalance = document.querySelector('.total-balance');
+            const currentAmount = parseFloat(totalBalance.textContent.replace(/[₦,]/g, ''));
+            const variation = (Math.random() - 0.5) * 1000; // ±500 variation
+            const newAmount = currentAmount + variation;
+
+            totalBalance.textContent = `₦${newAmount.toLocaleString('en-NG', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            })}`;
+        }
+
+        // Uncomment for demo balance updates
+        // setInterval(simulateBalanceUpdates, 30000);
+    </script>
+</body>
+</html>

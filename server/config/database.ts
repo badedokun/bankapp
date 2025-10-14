@@ -173,6 +173,17 @@ async function testConnection() {
 // Test connection on startup
 testConnection();
 
+/**
+ * Get tenant pool (currently returns platform pool with tenant isolation)
+ * @param tenantId The tenant ID
+ * @returns Pool instance for the tenant
+ */
+export function getTenantPool(tenantId: string): Pool {
+  // Currently using single database with schema-based tenant isolation
+  // In the future, this could return tenant-specific pools
+  return pool;
+}
+
 export { query, transaction, pool, getPoolStats, closePool, testConnection };
 
 export default {

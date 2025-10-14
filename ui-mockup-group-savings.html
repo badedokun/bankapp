@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Savings - OrokiiPay Banking Platform</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --surface-color: #ffffff;
+            --background-color: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --gradient-group: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --gradient-warning: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            background: var(--surface-color);
+            min-height: 100vh;
+            box-shadow: var(--shadow);
+        }
+
+        /* Header */
+        .header {
+            background: var(--gradient-group);
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+        }
+
+        .header-title h1 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .header-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            background: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 15px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary-color);
+        }
+
+        /* Content */
+        .content {
+            padding: 20px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Product Hero */
+        .product-hero {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .product-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-group);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin: 0 auto 15px;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .product-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .interest-badge {
+            display: inline-block;
+            background: var(--gradient-group);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* Group Cards */
+        .group-card {
+            background: var(--surface-color);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .group-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .group-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .group-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gradient-group);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+
+        .group-info {
+            flex: 1;
+        }
+
+        .group-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .group-members {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .group-status {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            background: var(--success-color);
+            color: white;
+        }
+
+        .group-status.pending {
+            background: var(--warning-color);
+        }
+
+        .group-status.completed {
+            background: var(--success-color);
+        }
+
+        .group-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 12px 0;
+        }
+
+        .detail-item {
+            text-align: center;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .detail-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .progress-section {
+            margin-top: 12px;
+        }
+
+        .progress-bar {
+            background: var(--border-color);
+            border-radius: 6px;
+            height: 8px;
+            margin: 8px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: var(--gradient-group);
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Member List */
+        .members-list {
+            margin-top: 16px;
+        }
+
+        .member-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .member-item:last-child {
+            border-bottom: none;
+        }
+
+        .member-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+
+        .member-info {
+            flex: 1;
+        }
+
+        .member-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .member-contribution {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .member-status {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--success-color);
+        }
+
+        .member-status.pending {
+            color: var(--warning-color);
+        }
+
+        /* Create Group Form */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Info Cards */
+        .info-card {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .info-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-content {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .info-list {
+            list-style: none;
+            padding-left: 20px;
+            margin-top: 8px;
+        }
+
+        .info-list li {
+            position: relative;
+            margin-bottom: 6px;
+        }
+
+        .info-list li::before {
+            content: "✓";
+            position: absolute;
+            left: -20px;
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .empty-text {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--gradient-group);
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--surface-color);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                margin: 0;
+                max-width: 100%;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .group-card {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <button class="back-btn" onclick="goBack()">← Back</button>
+                <div class="header-title">
+                    <h1>Group Savings</h1>
+                    <div class="header-subtitle">Save together, achieve more</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="showTab('my-groups')">My Groups</button>
+            <button class="tab-btn" onclick="showTab('discover')">Discover</button>
+            <button class="tab-btn" onclick="showTab('create')">Create Group</button>
+        </div>
+
+        <!-- My Groups Tab -->
+        <div id="my-groups-tab" class="content tab-content active">
+            <!-- Product Hero -->
+            <div class="product-hero">
+                <div class="product-icon">👥</div>
+                <p class="product-description">
+                    Join forces with friends, family, or colleagues to achieve common savings goals together.
+                </p>
+                <div class="interest-badge">Up to 6.0% p.a.</div>
+            </div>
+
+            <!-- Active Groups -->
+            <div class="group-card" onclick="viewGroupDetails('office-trip')">
+                <div class="group-header">
+                    <div class="group-avatar">OT</div>
+                    <div class="group-info">
+                        <div class="group-name">Office Trip 2025</div>
+                        <div class="group-members">8 members</div>
+                    </div>
+                    <div class="group-status">Active</div>
+                </div>
+
+                <div class="group-details">
+                    <div class="detail-item">
+                        <div class="detail-value">₦320,000</div>
+                        <div class="detail-label">Total Saved</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">₦500,000</div>
+                        <div class="detail-label">Target Amount</div>
+                    </div>
+                </div>
+
+                <div class="progress-section">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 64%"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span>64% completed</span>
+                        <span>2 months left</span>
+                    </div>
+                </div>
+
+                <div class="members-list">
+                    <div class="member-item">
+                        <div class="member-avatar">JD</div>
+                        <div class="member-info">
+                            <div class="member-name">John Doe (You)</div>
+                            <div class="member-contribution">₦45,000 contributed</div>
+                        </div>
+                        <div class="member-status">Paid</div>
+                    </div>
+                    <div class="member-item">
+                        <div class="member-avatar">SA</div>
+                        <div class="member-info">
+                            <div class="member-name">Sarah Ahmed</div>
+                            <div class="member-contribution">₦40,000 contributed</div>
+                        </div>
+                        <div class="member-status">Paid</div>
+                    </div>
+                    <div class="member-item">
+                        <div class="member-avatar">MO</div>
+                        <div class="member-info">
+                            <div class="member-name">Mike Okonkwo</div>
+                            <div class="member-contribution">₦35,000 contributed</div>
+                        </div>
+                        <div class="member-status pending">Pending</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="group-card" onclick="viewGroupDetails('family-fund')">
+                <div class="group-header">
+                    <div class="group-avatar">FF</div>
+                    <div class="group-info">
+                        <div class="group-name">Family Emergency Fund</div>
+                        <div class="group-members">5 members</div>
+                    </div>
+                    <div class="group-status">Active</div>
+                </div>
+
+                <div class="group-details">
+                    <div class="detail-item">
+                        <div class="detail-value">₦185,000</div>
+                        <div class="detail-label">Total Saved</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">₦1,000,000</div>
+                        <div class="detail-label">Target Amount</div>
+                    </div>
+                </div>
+
+                <div class="progress-section">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 18%"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span>18% completed</span>
+                        <span>No deadline</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="showTab('discover')">
+                    Find Groups
+                </button>
+            </div>
+        </div>
+
+        <!-- Discover Tab -->
+        <div id="discover-tab" class="content tab-content">
+            <div class="info-card">
+                <div class="info-title">
+                    <span>🔍</span>
+                    <span>Popular Group Categories</span>
+                </div>
+                <div class="info-content">
+                    <ul class="info-list">
+                        <li>Travel & Vacation Groups</li>
+                        <li>Wedding & Events Planning</li>
+                        <li>Business Investment Clubs</li>
+                        <li>Education & Training Funds</li>
+                        <li>Emergency Fund Groups</li>
+                        <li>Gadget & Electronics</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="group-card" onclick="joinGroup('wedding-vendors')">
+                <div class="group-header">
+                    <div class="group-avatar">WV</div>
+                    <div class="group-info">
+                        <div class="group-name">Wedding Vendors Association</div>
+                        <div class="group-members">12/15 members</div>
+                    </div>
+                    <div class="group-status">Open</div>
+                </div>
+
+                <div class="group-details">
+                    <div class="detail-item">
+                        <div class="detail-value">₦2,400,000</div>
+                        <div class="detail-label">Target Amount</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">₦200,000</div>
+                        <div class="detail-label">Min. Contribution</div>
+                    </div>
+                </div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
+                    Monthly contribution for wedding equipment fund. 6-month commitment.
+                </p>
+            </div>
+
+            <div class="group-card" onclick="joinGroup('tech-entrepreneurs')">
+                <div class="group-header">
+                    <div class="group-avatar">TE</div>
+                    <div class="group-info">
+                        <div class="group-name">Tech Entrepreneurs Club</div>
+                        <div class="group-members">8/10 members</div>
+                    </div>
+                    <div class="group-status">Open</div>
+                </div>
+
+                <div class="group-details">
+                    <div class="detail-item">
+                        <div class="detail-value">₦5,000,000</div>
+                        <div class="detail-label">Target Amount</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">₦500,000</div>
+                        <div class="detail-label">Min. Contribution</div>
+                    </div>
+                </div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
+                    Investment fund for startup opportunities. 12-month commitment.
+                </p>
+            </div>
+
+            <div class="empty-state">
+                <div class="empty-icon">🔍</div>
+                <div class="empty-title">No More Groups</div>
+                <div class="empty-text">Check back later for new groups or create your own!</div>
+            </div>
+        </div>
+
+        <!-- Create Group Tab -->
+        <div id="create-tab" class="content tab-content">
+            <div class="info-card">
+                <div class="info-title">
+                    <span>💡</span>
+                    <span>How Group Savings Works</span>
+                </div>
+                <div class="info-content">
+                    <ul class="info-list">
+                        <li>Create or join savings groups with common goals</li>
+                        <li>Set contribution amounts and frequency</li>
+                        <li>Track group progress in real-time</li>
+                        <li>Earn higher interest rates together (up to 6% p.a.)</li>
+                        <li>Automatic notifications for contributions</li>
+                        <li>Flexible withdrawal options upon goal completion</li>
+                    </ul>
+                </div>
+            </div>
+
+            <form id="createGroupForm">
+                <div class="form-group">
+                    <label class="form-label">Group Name</label>
+                    <input type="text" class="form-input" placeholder="e.g., Office Christmas Party" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-input form-textarea" placeholder="Describe the purpose of this savings group..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Target Amount</label>
+                    <input type="number" class="form-input" placeholder="₦0.00" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Maximum Members</label>
+                    <input type="number" class="form-input" placeholder="10" min="2" max="50" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Minimum Contribution per Member</label>
+                    <input type="number" class="form-input" placeholder="₦0.00" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Target Date (Optional)</label>
+                    <input type="date" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Privacy Setting</label>
+                    <select class="form-input">
+                        <option value="public">Public - Anyone can join</option>
+                        <option value="private">Private - Invitation only</option>
+                    </select>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        Create Group
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        function showTab(tabName) {
+            // Remove active class from all tabs and buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            // Add active class to selected tab and button
+            document.querySelector(`[onclick="showTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+        }
+
+        // View group details
+        function viewGroupDetails(groupId) {
+            console.log(`Viewing details for group: ${groupId}`);
+            // Navigate to group details page
+        }
+
+        // Join group
+        function joinGroup(groupId) {
+            const confirmJoin = confirm('Are you sure you want to join this group?');
+            if (confirmJoin) {
+                console.log(`Joining group: ${groupId}`);
+                alert('Group join request sent!');
+            }
+        }
+
+        // Go back
+        function goBack() {
+            window.history.back();
+        }
+
+        // Form submission
+        document.getElementById('createGroupForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log('Creating new group...');
+            alert('Group created successfully!');
+            showTab('my-groups');
+        });
+
+        // Initialize progress animations
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                document.querySelectorAll('.progress-fill').forEach(bar => {
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = width;
+                    }, 100);
+                });
+            }, 500);
+        });
+    </script>
+</body>
+</html>

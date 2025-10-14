@@ -1,0 +1,110 @@
+{
+  "title": "Transferencias",
+  "types": {
+    "internal": "Transferencia Interna",
+    "external": "Transferencia Externa",
+    "international": "Transferencia Internacional",
+    "scheduled": "Transferencia Programada",
+    "recurring": "Transferencia Recurrente"
+  },
+  "form": {
+    "selectType": "Seleccionar Tipo de Transferencia",
+    "recipient": "Beneficiario",
+    "recipientPlaceholder": "Introduzca nombre o cuenta del beneficiario",
+    "amount": "Importe",
+    "amountPlaceholder": "Introduzca el importe",
+    "currency": "Moneda",
+    "description": "Descripción",
+    "descriptionPlaceholder": "¿Para qué es esta transferencia?",
+    "purpose": "Propósito",
+    "sourceAccount": "Cuenta de Origen",
+    "destinationAccount": "Cuenta de Destino",
+    "bank": "Banco",
+    "bankPlaceholder": "Seleccione banco",
+    "accountNumber": "Número de Cuenta",
+    "accountNumberPlaceholder": "Introduzca número de cuenta",
+    "accountName": "Nombre de la Cuenta",
+    "swiftCode": "Código SWIFT",
+    "swiftCodePlaceholder": "Introduzca código SWIFT",
+    "routingNumber": "Número de Ruta",
+    "iban": "IBAN",
+    "country": "País"
+  },
+  "schedule": {
+    "title": "Programar Transferencia",
+    "frequency": "Frecuencia",
+    "startDate": "Fecha de Inicio",
+    "endDate": "Fecha de Finalización",
+    "nextExecution": "Próxima Ejecución",
+    "frequencies": {
+      "once": "Una Vez",
+      "daily": "Diaria",
+      "weekly": "Semanal",
+      "biweekly": "Quincenal",
+      "monthly": "Mensual",
+      "quarterly": "Trimestral",
+      "yearly": "Anual"
+    }
+  },
+  "beneficiary": {
+    "title": "Beneficiarios Guardados",
+    "addNew": "Añadir Nuevo Beneficiario",
+    "recent": "Beneficiarios Recientes",
+    "frequent": "Beneficiarios Frecuentes",
+    "saveAsBeneficiary": "Guardar como Beneficiario",
+    "nickname": "Alias",
+    "nicknamePlaceholder": "Asigne un nombre a este beneficiario"
+  },
+  "limits": {
+    "title": "Límites de Transferencia",
+    "daily": "Límite Diario",
+    "monthly": "Límite Mensual",
+    "perTransaction": "Por Transacción",
+    "remaining": "Restante Hoy",
+    "exceeded": "Límite Excedido",
+    "increaseLimits": "Solicitar Aumento de Límite"
+  },
+  "confirmation": {
+    "title": "Confirmar Transferencia",
+    "review": "Revisar Detalles de la Transferencia",
+    "from": "De",
+    "to": "Para",
+    "amount": "Importe",
+    "fee": "Comisión de Transacción",
+    "total": "Importe Total",
+    "exchangeRate": "Tipo de Cambio",
+    "estimatedArrival": "Llegada Estimada",
+    "pin": "PIN de Transacción",
+    "pinPlaceholder": "Introduzca su PIN de 4 dígitos",
+    "confirmButton": "Confirmar Transferencia",
+    "editButton": "Editar Detalles"
+  },
+  "success": {
+    "title": "Transferencia Exitosa",
+    "message": "Su transferencia ha sido procesada correctamente",
+    "reference": "Número de Referencia",
+    "viewReceipt": "Ver Recibo",
+    "downloadReceipt": "Descargar Recibo",
+    "shareReceipt": "Compartir Recibo",
+    "anotherTransfer": "Realizar Otra Transferencia",
+    "backToDashboard": "Volver al Panel"
+  },
+  "errors": {
+    "insufficientFunds": "Fondos insuficientes en su cuenta",
+    "invalidAccount": "Número de cuenta inválido",
+    "accountNotFound": "Cuenta no encontrada",
+    "bankNotAvailable": "Servicio bancario temporalmente no disponible",
+    "limitExceeded": "El importe de la transferencia excede su límite",
+    "invalidPin": "PIN de transacción inválido",
+    "networkError": "Error de red. Por favor, inténtelo de nuevo.",
+    "duplicateTransfer": "Una transferencia similar ya se realizó recientemente"
+  },
+  "status": {
+    "pending": "Pendiente",
+    "processing": "Procesando",
+    "completed": "Completada",
+    "failed": "Fallida",
+    "cancelled": "Cancelada",
+    "reversed": "Revertida"
+  }
+}

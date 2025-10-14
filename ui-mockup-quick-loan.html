@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Loan - OrokiiPay Banking Platform</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --surface-color: #ffffff;
+            --background-color: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --gradient-loan: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+            --gradient-quick: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --gradient-danger: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            background: var(--surface-color);
+            min-height: 100vh;
+            box-shadow: var(--shadow);
+        }
+
+        /* Header */
+        .header {
+            background: var(--gradient-quick);
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+        }
+
+        .header-title h1 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .header-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        /* Content */
+        .content {
+            padding: 20px;
+        }
+
+        /* Product Hero */
+        .product-hero {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .product-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-quick);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin: 0 auto 15px;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .product-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .interest-badge {
+            display: inline-block;
+            background: var(--gradient-danger);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* Available Credit */
+        .credit-section {
+            background: var(--gradient-quick);
+            color: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .credit-amount {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .credit-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 12px;
+        }
+
+        .credit-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        /* Loan Application Form */
+        .loan-form-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .amount-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--border-color);
+            outline: none;
+            margin: 12px 0;
+        }
+
+        .amount-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--gradient-quick);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .amount-display {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 16px 0;
+        }
+
+        /* Loan Terms */
+        .terms-section {
+            margin-bottom: 30px;
+        }
+
+        .terms-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .term-card {
+            background: var(--surface-color);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .term-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .term-card.selected {
+            border-color: var(--success-color);
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
+        }
+
+        .term-duration {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .term-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .term-interest {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--danger-color);
+        }
+
+        /* Loan Summary */
+        .summary-section {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .summary-label {
+            color: var(--text-secondary);
+        }
+
+        .summary-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .summary-value.highlight {
+            color: var(--danger-color);
+            font-size: 16px;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 16px 0;
+        }
+
+        /* Requirements */
+        .requirements-section {
+            margin-bottom: 30px;
+        }
+
+        .requirement-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .requirement-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            margin-right: 12px;
+            background: var(--success-color);
+            color: white;
+        }
+
+        .requirement-icon.pending {
+            background: var(--warning-color);
+        }
+
+        .requirement-icon.failed {
+            background: var(--danger-color);
+        }
+
+        .requirement-text {
+            flex: 1;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .requirement-status {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--success-color);
+        }
+
+        .requirement-status.pending {
+            color: var(--warning-color);
+        }
+
+        .requirement-status.failed {
+            color: var(--danger-color);
+        }
+
+        /* Warning Card */
+        .warning-card {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.05) 0%, rgba(239, 68, 68, 0.05) 100%);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .warning-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--danger-color);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .warning-content {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .warning-list {
+            list-style: none;
+            padding-left: 20px;
+            margin-top: 8px;
+        }
+
+        .warning-list li {
+            position: relative;
+            margin-bottom: 4px;
+        }
+
+        .warning-list li::before {
+            content: "⚠️";
+            position: absolute;
+            left: -20px;
+            font-size: 12px;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 16px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--gradient-quick);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:disabled {
+            background: var(--border-color);
+            color: var(--text-secondary);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: var(--surface-color);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                margin: 0;
+                max-width: 100%;
+            }
+
+            .terms-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .requirement-item {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <button class="back-btn" onclick="goBack()">← Back</button>
+                <div class="header-title">
+                    <h1>Quick Loan</h1>
+                    <div class="header-subtitle">Fast cash when you need it</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Product Hero -->
+            <div class="product-hero">
+                <div class="product-icon">⚡</div>
+                <p class="product-description">
+                    Get instant access to cash with our Quick Loan service.
+                    Fast approval, flexible repayment, and competitive rates.
+                </p>
+                <div class="interest-badge">15% monthly interest</div>
+            </div>
+
+            <!-- Available Credit -->
+            <div class="credit-section">
+                <div class="credit-amount">₦5,000</div>
+                <div class="credit-label">Available Credit Limit</div>
+                <div class="credit-details">
+                    <span>Credit Score: 750 (Good)</span>
+                    <span>Instant Approval</span>
+                </div>
+            </div>
+
+            <!-- Loan Application Form -->
+            <div class="loan-form-section">
+                <h3 class="section-title">Loan Application</h3>
+
+                <div class="form-group">
+                    <label class="form-label">Loan Amount</label>
+                    <div class="slider-labels">
+                        <span>₦2,000</span>
+                        <span>₦5,000</span>
+                    </div>
+                    <input
+                        type="range"
+                        class="amount-slider"
+                        min="2000"
+                        max="5000"
+                        step="500"
+                        value="3000"
+                        oninput="updateAmount(this.value)"
+                    >
+                    <div class="amount-display" id="amountDisplay">₦3,000</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Purpose of Loan</label>
+                    <select class="form-input">
+                        <option value="">Select purpose</option>
+                        <option value="emergency">Emergency</option>
+                        <option value="bills">Pay Bills</option>
+                        <option value="business">Business</option>
+                        <option value="personal">Personal Use</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Loan Terms -->
+            <div class="terms-section">
+                <h3 class="section-title">Repayment Terms</h3>
+                <div class="terms-grid">
+                    <div class="term-card selected" onclick="selectTerm(this, 7)">
+                        <div class="term-duration">7 Days</div>
+                        <div class="term-label">Short term</div>
+                        <div class="term-interest">15% interest</div>
+                    </div>
+                    <div class="term-card" onclick="selectTerm(this, 14)">
+                        <div class="term-duration">14 Days</div>
+                        <div class="term-label">Extended</div>
+                        <div class="term-interest">18% interest</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loan Summary -->
+            <div class="summary-section">
+                <h3 class="summary-title">Loan Summary</h3>
+
+                <div class="summary-item">
+                    <span class="summary-label">Loan Amount</span>
+                    <span class="summary-value" id="summaryAmount">₦3,000</span>
+                </div>
+
+                <div class="summary-item">
+                    <span class="summary-label">Interest Rate</span>
+                    <span class="summary-value" id="summaryRate">15% monthly</span>
+                </div>
+
+                <div class="summary-item">
+                    <span class="summary-label">Interest Amount</span>
+                    <span class="summary-value" id="summaryInterest">₦450</span>
+                </div>
+
+                <div class="summary-item">
+                    <span class="summary-label">Repayment Period</span>
+                    <span class="summary-value" id="summaryPeriod">7 days</span>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="summary-item">
+                    <span class="summary-label">Total Repayment</span>
+                    <span class="summary-value highlight" id="summaryTotal">₦3,450</span>
+                </div>
+
+                <div class="summary-item">
+                    <span class="summary-label">Due Date</span>
+                    <span class="summary-value" id="summaryDueDate">Oct 1, 2024</span>
+                </div>
+            </div>
+
+            <!-- Requirements Check -->
+            <div class="requirements-section">
+                <h3 class="section-title">Eligibility Requirements</h3>
+
+                <div class="requirement-item">
+                    <div class="requirement-icon">✓</div>
+                    <div class="requirement-text">Active account for 30+ days</div>
+                    <div class="requirement-status">Met</div>
+                </div>
+
+                <div class="requirement-item">
+                    <div class="requirement-icon">✓</div>
+                    <div class="requirement-text">Minimum transaction history</div>
+                    <div class="requirement-status">Met</div>
+                </div>
+
+                <div class="requirement-item">
+                    <div class="requirement-icon">✓</div>
+                    <div class="requirement-text">Good credit standing</div>
+                    <div class="requirement-status">Met</div>
+                </div>
+
+                <div class="requirement-item">
+                    <div class="requirement-icon pending">!</div>
+                    <div class="requirement-text">Phone number verification</div>
+                    <div class="requirement-status pending">Pending</div>
+                </div>
+            </div>
+
+            <!-- Warning Card -->
+            <div class="warning-card">
+                <div class="warning-title">
+                    <span>⚠️</span>
+                    <span>Important Information</span>
+                </div>
+                <div class="warning-content">
+                    <ul class="warning-list">
+                        <li>This is a high-interest short-term loan</li>
+                        <li>Late payment incurs additional 5% penalty</li>
+                        <li>Loan affects your credit score</li>
+                        <li>Maximum 2 active loans at a time</li>
+                        <li>Early repayment reduces total interest</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="applyBtn" onclick="applyForLoan()">
+                    Apply for Loan
+                </button>
+                <button class="btn btn-secondary" onclick="viewTerms()">
+                    View Full Terms
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentAmount = 3000;
+        let currentTerm = 7;
+        let currentRate = 0.15;
+
+        // Update loan amount
+        function updateAmount(amount) {
+            currentAmount = parseInt(amount);
+            document.getElementById('amountDisplay').textContent = `₦${currentAmount.toLocaleString()}`;
+            updateSummary();
+        }
+
+        // Select repayment term
+        function selectTerm(element, days) {
+            // Remove selected class from all terms
+            document.querySelectorAll('.term-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+
+            // Add selected class to clicked term
+            element.classList.add('selected');
+
+            currentTerm = days;
+            currentRate = days === 7 ? 0.15 : 0.18;
+            updateSummary();
+        }
+
+        // Update loan summary
+        function updateSummary() {
+            const interestAmount = Math.round(currentAmount * currentRate);
+            const totalRepayment = currentAmount + interestAmount;
+            const dueDate = new Date();
+            dueDate.setDate(dueDate.getDate() + currentTerm);
+
+            document.getElementById('summaryAmount').textContent = `₦${currentAmount.toLocaleString()}`;
+            document.getElementById('summaryRate').textContent = `${Math.round(currentRate * 100)}% monthly`;
+            document.getElementById('summaryInterest').textContent = `₦${interestAmount.toLocaleString()}`;
+            document.getElementById('summaryPeriod').textContent = `${currentTerm} days`;
+            document.getElementById('summaryTotal').textContent = `₦${totalRepayment.toLocaleString()}`;
+            document.getElementById('summaryDueDate').textContent = dueDate.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
+
+        // Apply for loan
+        function applyForLoan() {
+            // Check if phone verification is pending
+            const pendingRequirements = document.querySelectorAll('.requirement-status.pending');
+
+            if (pendingRequirements.length > 0) {
+                alert('Please complete phone number verification first.');
+                return;
+            }
+
+            const confirmApply = confirm(
+                `Apply for ₦${currentAmount.toLocaleString()} loan?\n` +
+                `Total repayment: ₦${(currentAmount + Math.round(currentAmount * currentRate)).toLocaleString()}\n` +
+                `Due in ${currentTerm} days`
+            );
+
+            if (confirmApply) {
+                console.log('Applying for loan...');
+                alert('Loan application submitted! You will receive the funds within 5 minutes.');
+            }
+        }
+
+        // View terms
+        function viewTerms() {
+            console.log('Viewing full terms and conditions...');
+            alert('Opening terms and conditions...');
+        }
+
+        // Go back
+        function goBack() {
+            window.history.back();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateSummary();
+
+            // Check phone verification after 3 seconds (simulate)
+            setTimeout(() => {
+                const pendingReq = document.querySelector('.requirement-icon.pending');
+                const pendingStatus = document.querySelector('.requirement-status.pending');
+
+                if (pendingReq && pendingStatus) {
+                    pendingReq.className = 'requirement-icon';
+                    pendingReq.textContent = '✓';
+                    pendingStatus.className = 'requirement-status';
+                    pendingStatus.textContent = 'Met';
+
+                    // Enable apply button
+                    document.getElementById('applyBtn').disabled = false;
+                }
+            }, 3000);
+        });
+    </script>
+</body>
+</html>

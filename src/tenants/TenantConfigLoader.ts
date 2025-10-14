@@ -38,9 +38,10 @@ const tenantConfigs: Record<TenantID, TenantConfig> = {
       shadowIntensity: 0.1,
     },
     aiConfig: {
-      provider: 'openai',
+      provider: 'custom',
+      endpoint: 'local-ai-intelligence',
       models: {
-        conversational: 'gpt-4',
+        conversational: 'real-data-enhanced',
         fraud: 'custom-fraud-model',
         prediction: 'custom-prediction-model',
       },
@@ -49,6 +50,7 @@ const tenantConfigs: Record<TenantID, TenantConfig> = {
         language: 'en-NG',
         accent: 'nigerian',
       },
+      fallbackToOpenAI: true, // Only for general banking questions
     },
     languages: ['en', 'yo', 'ha', 'ig', 'pcm'],
     defaultLanguage: 'en',

@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Loan - OrokiiPay Banking Platform</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --surface-color: #ffffff;
+            --background-color: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --gradient-business: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --gradient-success: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            --gradient-warning: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            background: var(--surface-color);
+            min-height: 100vh;
+            box-shadow: var(--shadow);
+        }
+
+        /* Header */
+        .header {
+            background: var(--gradient-business);
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+        }
+
+        .header-title h1 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .header-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            background: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 15px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary-color);
+        }
+
+        /* Content */
+        .content {
+            padding: 20px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Product Hero */
+        .product-hero {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .product-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-business);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin: 0 auto 15px;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .product-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .interest-badge {
+            display: inline-block;
+            background: var(--gradient-warning);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* Business Profile */
+        .profile-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .profile-card {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .business-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .business-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background: var(--gradient-business);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 20px;
+            margin-right: 16px;
+        }
+
+        .business-details h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .business-type {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 2px;
+        }
+
+        .business-since {
+            font-size: 12px;
+            color: var(--success-color);
+            font-weight: 600;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 12px;
+            background: var(--surface-color);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Loan Options */
+        .loan-options {
+            margin-bottom: 30px;
+        }
+
+        .option-card {
+            background: var(--surface-color);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .option-card.selected {
+            border-color: var(--success-color);
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
+        }
+
+        .option-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .option-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .option-rate {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--warning-color);
+        }
+
+        .option-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .detail-item {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .option-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .feature-tag {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary-color);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* Application Form */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-select {
+            appearance: none;
+            background: url('data:image/svg+xml;utf8,<svg fill="%23333" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 12px center;
+            background-size: 20px;
+            padding-right: 40px;
+        }
+
+        .amount-range {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .range-input {
+            flex: 1;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--border-color);
+            outline: none;
+        }
+
+        .range-input::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--gradient-business);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+        }
+
+        .amount-display {
+            font-weight: 600;
+            color: var(--primary-color);
+            min-width: 80px;
+            text-align: right;
+        }
+
+        /* Document Upload */
+        .upload-section {
+            margin-bottom: 30px;
+        }
+
+        .upload-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .upload-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .upload-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: var(--success-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        .upload-icon.pending {
+            background: var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .upload-text {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .upload-status {
+            font-size: 12px;
+            color: var(--success-color);
+            font-weight: 600;
+        }
+
+        .upload-status.pending {
+            color: var(--text-secondary);
+        }
+
+        .upload-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 16px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--gradient-business);
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--surface-color);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+        }
+
+        /* Info Card */
+        .info-card {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .info-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-content {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .info-list {
+            list-style: none;
+            padding-left: 20px;
+            margin-top: 8px;
+        }
+
+        .info-list li {
+            position: relative;
+            margin-bottom: 6px;
+        }
+
+        .info-list li::before {
+            content: "✓";
+            position: absolute;
+            left: -20px;
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                margin: 0;
+                max-width: 100%;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .option-card {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <button class="back-btn" onclick="goBack()">← Back</button>
+                <div class="header-title">
+                    <h1>Business Loan</h1>
+                    <div class="header-subtitle">Grow your business with capital</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+            <button class="tab-btn" onclick="showTab('apply')">Apply</button>
+            <button class="tab-btn" onclick="showTab('documents')">Documents</button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div id="overview-tab" class="content tab-content active">
+            <!-- Product Hero -->
+            <div class="product-hero">
+                <div class="product-icon">💼</div>
+                <p class="product-description">
+                    Scale your business with flexible financing options.
+                    Higher loan limits, longer repayment terms, and competitive rates.
+                </p>
+                <div class="interest-badge">12% monthly interest</div>
+            </div>
+
+            <!-- Business Profile -->
+            <div class="profile-section">
+                <h3 class="section-title">Your Business Profile</h3>
+                <div class="profile-card">
+                    <div class="business-info">
+                        <div class="business-avatar">TM</div>
+                        <div class="business-details">
+                            <h3>Tech Masters Nigeria Ltd</h3>
+                            <div class="business-type">Software Development</div>
+                            <div class="business-since">Established 2020</div>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value">₦2.5M</div>
+                            <div class="stat-label">Monthly Revenue</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">4 Years</div>
+                            <div class="stat-label">Business Age</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">12</div>
+                            <div class="stat-label">Employees</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loan Options -->
+            <div class="loan-options">
+                <h3 class="section-title">Available Loan Products</h3>
+
+                <div class="option-card selected">
+                    <div class="option-header">
+                        <span class="option-title">Working Capital Loan</span>
+                        <span class="option-rate">12% monthly</span>
+                    </div>
+                    <div class="option-details">
+                        <div class="detail-item">
+                            Amount: <span class="detail-value">₦50K - ₦500K</span>
+                        </div>
+                        <div class="detail-item">
+                            Term: <span class="detail-value">1-3 months</span>
+                        </div>
+                    </div>
+                    <div class="option-features">
+                        <div class="feature-tag">Quick Approval</div>
+                        <div class="feature-tag">Flexible Terms</div>
+                        <div class="feature-tag">Cash Flow Support</div>
+                    </div>
+                </div>
+
+                <div class="option-card">
+                    <div class="option-header">
+                        <span class="option-title">Equipment Finance</span>
+                        <span class="option-rate">10% monthly</span>
+                    </div>
+                    <div class="option-details">
+                        <div class="detail-item">
+                            Amount: <span class="detail-value">₦100K - ₦2M</span>
+                        </div>
+                        <div class="detail-item">
+                            Term: <span class="detail-value">6-12 months</span>
+                        </div>
+                    </div>
+                    <div class="option-features">
+                        <div class="feature-tag">Asset Backed</div>
+                        <div class="feature-tag">Lower Interest</div>
+                        <div class="feature-tag">Tax Benefits</div>
+                    </div>
+                </div>
+
+                <div class="option-card">
+                    <div class="option-header">
+                        <span class="option-title">Trade Finance</span>
+                        <span class="option-rate">8% monthly</span>
+                    </div>
+                    <div class="option-details">
+                        <div class="detail-item">
+                            Amount: <span class="detail-value">₦200K - ₦5M</span>
+                        </div>
+                        <div class="detail-item">
+                            Term: <span class="detail-value">3-6 months</span>
+                        </div>
+                    </div>
+                    <div class="option-features">
+                        <div class="feature-tag">Import/Export</div>
+                        <div class="feature-tag">Letter of Credit</div>
+                        <div class="feature-tag">Trade Support</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="info-card">
+                <div class="info-title">
+                    <span>💡</span>
+                    <span>Business Loan Benefits</span>
+                </div>
+                <div class="info-content">
+                    <ul class="info-list">
+                        <li>Higher loan limits based on business performance</li>
+                        <li>Longer repayment terms (up to 12 months)</li>
+                        <li>Lower interest rates than personal loans</li>
+                        <li>Build business credit history</li>
+                        <li>Dedicated business relationship manager</li>
+                        <li>Flexible repayment schedule options</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Apply Tab -->
+        <div id="apply-tab" class="content tab-content">
+            <form id="businessLoanForm">
+                <div class="form-group">
+                    <label class="form-label">Loan Type</label>
+                    <select class="form-input form-select">
+                        <option value="working-capital">Working Capital Loan</option>
+                        <option value="equipment">Equipment Finance</option>
+                        <option value="trade">Trade Finance</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Loan Amount</label>
+                    <div class="amount-range">
+                        <span>₦50K</span>
+                        <input
+                            type="range"
+                            class="range-input"
+                            min="50000"
+                            max="500000"
+                            step="10000"
+                            value="200000"
+                            oninput="updateLoanAmount(this.value)"
+                        >
+                        <span>₦500K</span>
+                    </div>
+                    <div class="amount-display" id="loanAmountDisplay">₦200,000</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Purpose of Loan</label>
+                    <select class="form-input form-select">
+                        <option value="">Select purpose</option>
+                        <option value="inventory">Inventory Purchase</option>
+                        <option value="equipment">Equipment Purchase</option>
+                        <option value="expansion">Business Expansion</option>
+                        <option value="working-capital">Working Capital</option>
+                        <option value="renovation">Office/Shop Renovation</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Monthly Revenue</label>
+                    <input type="number" class="form-input" placeholder="₦0.00" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Number of Employees</label>
+                    <input type="number" class="form-input" placeholder="0" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Business Address</label>
+                    <textarea class="form-input form-textarea" placeholder="Enter your business address" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Repayment Term</label>
+                    <select class="form-input form-select">
+                        <option value="1">1 Month</option>
+                        <option value="2">2 Months</option>
+                        <option value="3">3 Months</option>
+                        <option value="6">6 Months</option>
+                        <option value="12">12 Months</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Additional Information</label>
+                    <textarea class="form-input form-textarea" placeholder="Tell us more about your business and loan purpose..."></textarea>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        Submit Application
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Documents Tab -->
+        <div id="documents-tab" class="content tab-content">
+            <div class="upload-section">
+                <h3 class="section-title">Required Documents</h3>
+
+                <div class="upload-item">
+                    <div class="upload-info">
+                        <div class="upload-icon">📄</div>
+                        <div class="upload-text">Business Registration Certificate</div>
+                    </div>
+                    <div class="upload-status">Uploaded</div>
+                </div>
+
+                <div class="upload-item">
+                    <div class="upload-info">
+                        <div class="upload-icon">📊</div>
+                        <div class="upload-text">Financial Statements (Last 6 months)</div>
+                    </div>
+                    <div class="upload-status">Uploaded</div>
+                </div>
+
+                <div class="upload-item">
+                    <div class="upload-info">
+                        <div class="upload-icon">🏦</div>
+                        <div class="upload-text">Bank Statements (Last 3 months)</div>
+                    </div>
+                    <div class="upload-status">Uploaded</div>
+                </div>
+
+                <div class="upload-item">
+                    <div class="upload-info">
+                        <div class="upload-icon pending">📋</div>
+                        <div class="upload-text">Tax Clearance Certificate</div>
+                    </div>
+                    <button class="upload-btn" onclick="uploadDocument('tax-clearance')">Upload</button>
+                </div>
+
+                <div class="upload-item">
+                    <div class="upload-info">
+                        <div class="upload-icon pending">🏢</div>
+                        <div class="upload-text">Business Utility Bill</div>
+                    </div>
+                    <button class="upload-btn" onclick="uploadDocument('utility-bill')">Upload</button>
+                </div>
+
+                <div class="upload-item">
+                    <div class="upload-info">
+                        <div class="upload-icon pending">👤</div>
+                        <div class="upload-text">Director's Valid ID</div>
+                    </div>
+                    <button class="upload-btn" onclick="uploadDocument('director-id')">Upload</button>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-title">
+                    <span>📎</span>
+                    <span>Document Requirements</span>
+                </div>
+                <div class="info-content">
+                    <ul class="info-list">
+                        <li>All documents must be clear and readable</li>
+                        <li>Accept PDF, JPG, PNG formats (max 5MB)</li>
+                        <li>Documents must be current and valid</li>
+                        <li>Financial statements must be signed</li>
+                        <li>Bank statements must show business transactions</li>
+                        <li>Processing time: 2-3 business days</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-secondary" onclick="showTab('apply')">Back to Application</button>
+                <button class="btn btn-primary" onclick="submitDocuments()">Submit Documents</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        function showTab(tabName) {
+            // Remove active class from all tabs and buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            // Add active class to selected tab and button
+            document.querySelector(`[onclick="showTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+        }
+
+        // Update loan amount display
+        function updateLoanAmount(amount) {
+            const displayAmount = parseInt(amount).toLocaleString();
+            document.getElementById('loanAmountDisplay').textContent = `₦${displayAmount}`;
+        }
+
+        // Select loan option
+        function selectOption(element) {
+            document.querySelectorAll('.option-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            element.classList.add('selected');
+        }
+
+        // Upload document
+        function uploadDocument(docType) {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.pdf,.jpg,.jpeg,.png';
+            fileInput.onchange = function(e) {
+                if (e.target.files[0]) {
+                    console.log(`Uploading ${docType}:`, e.target.files[0].name);
+                    alert(`${docType.replace('-', ' ')} uploaded successfully!`);
+
+                    // Update UI
+                    const uploadItem = event.target.closest('.upload-item');
+                    const icon = uploadItem.querySelector('.upload-icon');
+                    const status = uploadItem.querySelector('.upload-status, .upload-btn');
+
+                    icon.classList.remove('pending');
+                    icon.textContent = '📄';
+                    status.outerHTML = '<div class="upload-status">Uploaded</div>';
+                }
+            };
+            fileInput.click();
+        }
+
+        // Submit documents
+        function submitDocuments() {
+            const pendingDocs = document.querySelectorAll('.upload-icon.pending').length;
+            if (pendingDocs > 0) {
+                alert(`Please upload ${pendingDocs} remaining document(s).`);
+                return;
+            }
+
+            alert('All documents submitted successfully! Your application will be reviewed within 2-3 business days.');
+        }
+
+        // Go back
+        function goBack() {
+            window.history.back();
+        }
+
+        // Form submission
+        document.getElementById('businessLoanForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log('Submitting business loan application...');
+            alert('Business loan application submitted! Please upload required documents.');
+            showTab('documents');
+        });
+
+        // Initialize option card selection
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.option-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    selectOption(this);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

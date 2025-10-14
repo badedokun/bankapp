@@ -20,6 +20,7 @@ import { useBankingAlert } from '../../services/AlertService';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import APIService from '../../services/api';
+import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -285,7 +286,12 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     },
     header: {
       backgroundColor: theme.colors.primary,
-      paddingHorizontal: theme.spacing.lg,
+      
+      marginLeft: 20,
+      marginRight: 20,
+      marginTop: 0,
+      marginBottom: 0,
+      borderRadius: 12,
       paddingTop: theme.spacing.lg,
       paddingBottom: theme.spacing.lg,
     },
@@ -304,7 +310,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       gap: 8,
     },
     backButtonText: {
-      color: '#ffffff',
+      color: theme.colors.textInverse,
       fontSize: 16,
       fontWeight: '500',
     },
@@ -315,7 +321,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     headerTitleText: {
       fontSize: 28,
       fontWeight: 'bold',
-      color: '#ffffff',
+      color: theme.colors.textInverse,
       marginBottom: 5,
     },
     headerSubtitle: {
@@ -329,7 +335,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       borderRadius: 20,
     },
     saveButtonText: {
-      color: '#ffffff',
+      color: theme.colors.textInverse,
       fontSize: 14,
       fontWeight: '500',
     },
@@ -339,7 +345,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     },
     sidebar: {
       width: screenWidth < 768 ? screenWidth : 300,
-      backgroundColor: '#ffffff',
+      backgroundColor: theme.colors.surface,
       borderRightWidth: screenWidth >= 768 ? 1 : 0,
       borderRightColor: '#e1e5e9',
     },
@@ -360,7 +366,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       position: 'relative',
     },
     avatarText: {
-      color: '#ffffff',
+      color: theme.colors.textInverse,
       fontSize: 32,
       fontWeight: 'bold',
     },
@@ -381,12 +387,12 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     profileName: {
       fontSize: 20,
       fontWeight: 'bold',
-      color: '#333',
+      color: theme.colors.text,
       marginBottom: 4,
     },
     profileEmail: {
       fontSize: 14,
-      color: '#666',
+      color: theme.colors.textSecondary,
       marginBottom: 4,
     },
     profileTier: {
@@ -420,7 +426,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     },
     navLabel: {
       fontSize: 16,
-      color: '#333',
+      color: theme.colors.text,
       fontWeight: '500',
     },
     activeNavLabel: {
@@ -429,7 +435,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     },
     contentArea: {
       flex: 1,
-      backgroundColor: '#ffffff',
+      backgroundColor: theme.colors.surface,
     },
     contentHeader: {
       padding: theme.spacing.lg,
@@ -439,12 +445,12 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     contentTitle: {
       fontSize: 24,
       fontWeight: 'bold',
-      color: '#333',
+      color: theme.colors.text,
       marginBottom: theme.spacing.xs,
     },
     contentSubtitle: {
       fontSize: 16,
-      color: '#666',
+      color: theme.colors.textSecondary,
       lineHeight: 22,
     },
     contentBody: {
@@ -457,7 +463,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     sectionTitle: {
       fontSize: 18,
       fontWeight: 'bold',
-      color: '#333',
+      color: theme.colors.text,
       marginBottom: theme.spacing.md,
     },
     formGrid: {
@@ -484,12 +490,12 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     settingTitle: {
       fontSize: 16,
       fontWeight: '500',
-      color: '#333',
+      color: theme.colors.text,
       marginBottom: 2,
     },
     settingDescription: {
       fontSize: 14,
-      color: '#666',
+      color: theme.colors.textSecondary,
     },
     settingControl: {
       marginLeft: theme.spacing.md,
@@ -503,7 +509,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       marginVertical: theme.spacing.sm,
     },
     actionButtonText: {
-      color: '#ffffff',
+      color: theme.colors.textInverse,
       fontSize: 16,
       fontWeight: 'bold',
     },
@@ -529,16 +535,16 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     supportTitle: {
       fontSize: 16,
       fontWeight: '500',
-      color: '#333',
+      color: theme.colors.text,
       marginBottom: 2,
     },
     supportDescription: {
       fontSize: 14,
-      color: '#666',
+      color: theme.colors.textSecondary,
     },
     supportArrow: {
       fontSize: 16,
-      color: '#999',
+      color: theme.colors.textTertiary,
     },
   });
 
@@ -735,20 +741,20 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
                     <Text style={dynamicStyles.settingTitle}>Daily Spending Limit</Text>
                     <Text style={[dynamicStyles.settingTitle, { color: theme.colors.primary }]}>
-                      ₦{transactionLimits.dailyLimit.toLocaleString()}
+                      {formatCurrency(transactionLimits.dailyLimit, theme.currency)}
                     </Text>
                   </View>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
                     <Text style={dynamicStyles.settingDescription}>Used today</Text>
-                    <Text style={[dynamicStyles.settingDescription, { 
-                      color: transactionLimits.dailySpent > transactionLimits.dailyLimit * 0.8 ? theme.colors.error : '#666'
+                    <Text style={[dynamicStyles.settingDescription, {
+                      color: transactionLimits.dailySpent > transactionLimits.dailyLimit * 0.8 ? theme.colors.error : theme.colors.textSecondary
                     }]}>
-                      ₦{transactionLimits.dailySpent.toLocaleString()}
+                      {formatCurrency(transactionLimits.dailySpent, theme.currency)}
                     </Text>
                   </View>
                   <View style={{
                     height: 8,
-                    backgroundColor: '#f1f5f9',
+                    backgroundColor: theme.colors.background,
                     borderRadius: 4,
                     overflow: 'hidden'
                   }}>
@@ -765,7 +771,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
                     <Text style={[dynamicStyles.settingDescription, { fontSize: 12 }]}>Available</Text>
                     <Text style={[dynamicStyles.settingDescription, { fontSize: 12, fontWeight: '500' }]}>
-                      ₦{Math.max(0, transactionLimits.dailyRemaining).toLocaleString()}
+                      {formatCurrency(Math.max(0, transactionLimits.dailyRemaining), theme.currency)}
                     </Text>
                   </View>
                 </View>
@@ -779,20 +785,20 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
                     <Text style={dynamicStyles.settingTitle}>Monthly Spending Limit</Text>
                     <Text style={[dynamicStyles.settingTitle, { color: theme.colors.primary }]}>
-                      ₦{transactionLimits.monthlyLimit.toLocaleString()}
+                      {formatCurrency(transactionLimits.monthlyLimit, theme.currency)}
                     </Text>
                   </View>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
                     <Text style={dynamicStyles.settingDescription}>Used this month</Text>
-                    <Text style={[dynamicStyles.settingDescription, { 
-                      color: transactionLimits.monthlySpent > transactionLimits.monthlyLimit * 0.8 ? theme.colors.error : '#666'
+                    <Text style={[dynamicStyles.settingDescription, {
+                      color: transactionLimits.monthlySpent > transactionLimits.monthlyLimit * 0.8 ? theme.colors.error : theme.colors.textSecondary
                     }]}>
-                      ₦{transactionLimits.monthlySpent.toLocaleString()}
+                      {formatCurrency(transactionLimits.monthlySpent, theme.currency)}
                     </Text>
                   </View>
                   <View style={{
                     height: 8,
-                    backgroundColor: '#f1f5f9',
+                    backgroundColor: theme.colors.background,
                     borderRadius: 4,
                     overflow: 'hidden'
                   }}>
@@ -809,7 +815,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
                     <Text style={[dynamicStyles.settingDescription, { fontSize: 12 }]}>Available</Text>
                     <Text style={[dynamicStyles.settingDescription, { fontSize: 12, fontWeight: '500' }]}>
-                      ₦{Math.max(0, transactionLimits.monthlyRemaining).toLocaleString()}
+                      {formatCurrency(Math.max(0, transactionLimits.monthlyRemaining), theme.currency)}
                     </Text>
                   </View>
                 </View>
@@ -839,7 +845,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             }}>
               <Text style={{
                 fontSize: 14,
-                color: '#666',
+                color: theme.colors.textSecondary,
                 lineHeight: 20,
                 textAlign: 'center'
               }}>
@@ -850,10 +856,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         ) : (
           <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: theme.spacing.xl }}>
             <Text style={{ fontSize: 48, marginBottom: theme.spacing.md }}>⏳</Text>
-            <Text style={{ fontSize: 16, fontWeight: '500', color: '#666', marginBottom: theme.spacing.sm }}>
+            <Text style={{ fontSize: 16, fontWeight: '500', color: theme.colors.textSecondary, marginBottom: theme.spacing.sm }}>
               Loading Limits...
             </Text>
-            <Text style={{ fontSize: 14, color: '#999', textAlign: 'center' }}>
+            <Text style={{ fontSize: 14, color: theme.colors.textTertiary, textAlign: 'center' }}>
               Please wait while we fetch your transaction limits
             </Text>
           </View>
@@ -890,7 +896,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           </Text>
           <Text style={{
             fontSize: 14,
-            color: '#666',
+            color: theme.colors.textSecondary,
             lineHeight: 20
           }}>
             This section allows administrators to modify transaction limits for user accounts. Use with caution and ensure compliance with banking regulations.
@@ -913,7 +919,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               <View style={dynamicStyles.formGroup}>
                 <Input
                   key="admin-daily-limit"
-                  label="Daily Limit (₦)"
+                  label={`Daily Limit (${getCurrencySymbol(theme.currency)})`}
                   value={adminLimitsForm.dailyLimit}
                   onChangeText={(text) => setAdminLimitsForm({...adminLimitsForm, dailyLimit: text})}
                   placeholder="100000"
@@ -923,7 +929,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               <View style={dynamicStyles.formGroup}>
                 <Input
                   key="admin-monthly-limit"
-                  label="Monthly Limit (₦)"
+                  label={`Monthly Limit (${getCurrencySymbol(theme.currency)})`}
                   value={adminLimitsForm.monthlyLimit}
                   onChangeText={(text) => setAdminLimitsForm({...adminLimitsForm, monthlyLimit: text})}
                   placeholder="500000"
@@ -969,7 +975,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           </TouchableOpacity>
 
           <TouchableOpacity 
-            style={[dynamicStyles.supportItem, { backgroundColor: '#f59e0b20' }]}
+            style={[dynamicStyles.supportItem, { backgroundColor: theme.colors.warning + '20' }]}
             onPress={() => showAlert('KYC-Based Limits', 'Auto-set limits based on KYC level feature coming soon!')}
           >
             <Text style={dynamicStyles.supportIcon}>⚙️</Text>
@@ -1045,10 +1051,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         return isAdmin ? renderAdminLimitsSection() : (
           <View style={[dynamicStyles.contentArea, { alignItems: 'center', justifyContent: 'center' }]}>
             <Text style={{ fontSize: 48, marginBottom: theme.spacing.md }}>🚫</Text>
-            <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#666', marginBottom: theme.spacing.sm }}>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', color: theme.colors.textSecondary, marginBottom: theme.spacing.sm }}>
               Access Denied
             </Text>
-            <Text style={{ fontSize: 14, color: '#999', textAlign: 'center' }}>
+            <Text style={{ fontSize: 14, color: theme.colors.textTertiary, textAlign: 'center' }}>
               Admin privileges required to access this section.
             </Text>
           </View>
@@ -1059,10 +1065,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         return (
           <View style={[dynamicStyles.contentArea, { alignItems: 'center', justifyContent: 'center' }]}>
             <Text style={{ fontSize: 48, marginBottom: theme.spacing.md }}>🚧</Text>
-            <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#666', marginBottom: theme.spacing.sm }}>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', color: theme.colors.textSecondary, marginBottom: theme.spacing.sm }}>
               Coming Soon
             </Text>
-            <Text style={{ fontSize: 14, color: '#999', textAlign: 'center' }}>
+            <Text style={{ fontSize: 14, color: theme.colors.textTertiary, textAlign: 'center' }}>
               This feature is under development and will be available soon!
             </Text>
           </View>
@@ -1078,7 +1084,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       <View style={dynamicStyles.header}>
         <View style={dynamicStyles.headerContent}>
           <TouchableOpacity style={dynamicStyles.backButton} onPress={onBack}>
-            <Text style={dynamicStyles.backButtonText}>← Back</Text>
+            <Text style={dynamicStyles.backButtonText}>←</Text>
           </TouchableOpacity>
           
           <View style={dynamicStyles.headerTitle}>

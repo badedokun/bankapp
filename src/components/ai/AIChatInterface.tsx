@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  ScrollView, 
-  StyleSheet, 
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
   Alert,
   Animated,
   ActivityIndicator,
@@ -17,6 +17,8 @@ import { BackButton } from '../ui/BackButton';
 import { useTenant } from '../../tenants/TenantContext';
 import { Storage } from '../../utils/storage';
 import APIService from '../../services/api';
+import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
+import { useTenantTheme } from '../../context/TenantThemeContext';
 
 interface Message {
   id: string;
@@ -74,8 +76,9 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
   
   const scrollViewRef = useRef<ScrollView>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  
+
   const { currentTenant } = useTenant();
+  const { theme: tenantTheme } = useTenantTheme();
 
   useEffect(() => {
     if (isVisible) {
@@ -421,7 +424,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
       if (data.success) {
         const { balance, currency, accountNumber, owner } = data.data;
         return {
-          message: `Your current account balance is ${currency}${balance.toLocaleString()}. Account: ${accountNumber}. Account holder: ${owner.name}. You have sufficient funds for transactions.`,
+          message: `Your current account balance is ${formatCurrency(balance, currency || tenantTheme.currency, { locale: tenantTheme.locale })}. Account: ${accountNumber}. Account holder: ${owner.name}. You have sufficient funds for transactions.`,
           intent: 'balance_inquiry',
           actions: ['Send Money', 'View Transactions', 'Transfer Funds']
         };
@@ -456,7 +459,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
           const direction = tx.direction === 'sent' ? 'to' : 'from';
           const recipient = tx.recipient?.accountName || 'Unknown';
           
-          const formatted = `${index + 1}) ${description} ${direction} ${recipient} - ₦${amount} (${date})`;
+          const formatted = `${index + 1}) ${description} ${direction} ${recipient} - ${formatCurrency(parseFloat(amount.replace(/,/g, '')), tenantTheme.currency, { locale: tenantTheme.locale })} (${date})`;
           console.log(`✅ Formatted transaction ${index + 1}:`, formatted);
           return formatted;
         }).join(', ');
@@ -547,7 +550,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
         }
         setTransferData(prev => prev ? { ...prev, recipientName: cleanInput, step: 'amount' } : null);
         return {
-          message: `Recipient: ${cleanInput}\n\nPlease enter the amount you want to send (minimum ₦100):`,
+          message: `Recipient: ${cleanInput}\n\nPlease enter the amount you want to send (minimum ${formatCurrency(100, tenantTheme.currency, { locale: tenantTheme.locale })}):`,
           intent: 'money_transfer_amount_step',
           actions: ['Cancel Transfer']
         };
@@ -556,14 +559,14 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
         const amount = parseFloat(cleanInput.replace(/[^\d.]/g, ''));
         if (isNaN(amount) || amount < 100) {
           return {
-            message: 'Please enter a valid amount (minimum ₦100):',
+            message: `Please enter a valid amount (minimum ${formatCurrency(100, tenantTheme.currency, { locale: tenantTheme.locale })}):`,
             intent: 'money_transfer_validation_error',
             actions: ['Cancel Transfer']
           };
         }
         setTransferData(prev => prev ? { ...prev, amount, step: 'pin' } : null);
         return {
-          message: `Amount: ₦${amount.toLocaleString()}\n\nPlease enter your 4-digit transaction PIN to authorize this transfer:`,
+          message: `Amount: ${formatCurrency(amount, tenantTheme.currency, { locale: tenantTheme.locale })}\n\nPlease enter your 4-digit transaction PIN to authorize this transfer:`,
           intent: 'money_transfer_pin_step',
           actions: ['Cancel Transfer']
         };
@@ -592,7 +595,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
           step: 'confirm'
         };
         return {
-          message: `Please confirm your transfer details:\n\n📋 Transfer Summary\n• Account: ${transferSummary.recipientAccountNumber}\n• Bank Code: ${transferSummary.recipientBankCode}\n• Recipient: ${transferSummary.recipientName}\n• Amount: ₦${transferSummary.amount?.toLocaleString()}\n• Description: ${transferSummary.description || 'None'}\n\nType "confirm" to proceed or "cancel" to abort:`,
+          message: `Please confirm your transfer details:\n\n📋 Transfer Summary\n• Account: ${transferSummary.recipientAccountNumber}\n• Bank Code: ${transferSummary.recipientBankCode}\n• Recipient: ${transferSummary.recipientName}\n• Amount: ${formatCurrency(transferSummary.amount || 0, tenantTheme.currency, { locale: tenantTheme.locale })}\n• Description: ${transferSummary.description || 'None'}\n\nType "confirm" to proceed or "cancel" to abort:`,
           intent: 'money_transfer_confirm_step',
           actions: ['Confirm Transfer', 'Cancel Transfer']
         };
@@ -655,7 +658,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
       
       if (response.ok && data.success) {
         return {
-          message: `✅ Transfer successful!\n\nTransfer ID: ${data.data.reference}\nAmount: ₦${transferData.amount?.toLocaleString()}\nRecipient: ${transferData.recipientName}\nStatus: Completed\n\nYour transfer has been processed successfully.`,
+          message: `✅ Transfer successful!\n\nTransfer ID: ${data.data.reference}\nAmount: ${formatCurrency(transferData.amount || 0, tenantTheme.currency, { locale: tenantTheme.locale })}\nRecipient: ${transferData.recipientName}\nStatus: Completed\n\nYour transfer has been processed successfully.`,
           intent: 'transfer_success',
           actions: ['Check Balance', 'Send Another', 'View Transactions']
         };

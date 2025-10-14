@@ -18,6 +18,8 @@ import {
 } from 'react-native';
 import { createButtonStyles } from '../../design-system';
 import { useTheme } from '../../hooks/useTheme';
+import { getCurrencySymbol } from '../../utils/currency';
+import { useTenantTheme } from '../../tenants/TenantContext';
 
 interface EnhancedButtonProps {
   onPress: () => void;
@@ -55,10 +57,12 @@ export const EnhancedButton: React.FC<EnhancedButtonProps> = ({
   textStyle,
   secure = false,
   amount,
-  currency = '₦',
+  currency,
   requiresConfirmation = false,
 }) => {
   const theme = useTheme();
+  const { theme: tenantTheme } = useTenantTheme();
+  const currencySymbol = currency ? getCurrencySymbol(currency) : getCurrencySymbol(tenantTheme.currency);
   const buttonStyles = createButtonStyles(theme, {
     variant,
     size,
@@ -117,10 +121,10 @@ export const EnhancedButton: React.FC<EnhancedButtonProps> = ({
         <View style={styles.textContainer}>
           {amount && (
             <Text style={[styles.amount, buttonStyles.text, textStyle]}>
-              {currency}{amount}
+              {currencySymbol}{amount}
             </Text>
           )}
-          
+
           <Text style={[styles.text, buttonStyles.text, textStyle]}>
             {children || title}
           </Text>
@@ -262,11 +266,13 @@ export const TransactionButton: React.FC<{
   onPress,
   type,
   amount,
-  currency = '₦',
+  currency,
   loading = false,
   disabled = false,
   style,
 }) => {
+  const { theme: tenantTheme } = useTenantTheme();
+  const currencySymbol = currency || getCurrencySymbol(tenantTheme.currency);
   const getButtonConfig = () => {
     switch (type) {
       case 'transfer':
@@ -311,7 +317,7 @@ export const TransactionButton: React.FC<{
       variant={config.variant}
       leftIcon={<Text style={styles.transactionIcon}>{config.icon}</Text>}
       amount={amount}
-      currency={currency}
+      currency={currencySymbol}
       loading={loading}
       disabled={disabled}
       secure={type === 'transfer' || type === 'withdraw'}

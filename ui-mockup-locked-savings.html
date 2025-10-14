@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Locked Savings - OrokiiPay Banking Platform</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --surface-color: #ffffff;
+            --background-color: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --gradient-locked: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            --gradient-success: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            background: var(--surface-color);
+            min-height: 100vh;
+            box-shadow: var(--shadow);
+        }
+
+        /* Header */
+        .header {
+            background: var(--gradient-locked);
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+        }
+
+        .header-title h1 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .header-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        /* Product Hero */
+        .product-hero {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .product-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-locked);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin: 0 auto 15px;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .product-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .interest-badge {
+            display: inline-block;
+            background: var(--gradient-success);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* Content */
+        .content {
+            padding: 24px;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .feature-card {
+            background: #f8fafc;
+            padding: 20px 16px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .feature-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .feature-label {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .feature-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        /* Calculator Section */
+        .calculator-section {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 32px;
+            border: 1px solid #bae6fd;
+        }
+
+        .calculator-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #0369a1;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .amount-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+        }
+
+        .amount-input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .duration-options {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .duration-btn {
+            flex: 1;
+            padding: 8px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .duration-btn.active {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        .projection-result {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 20px;
+            border: 2px solid #2563eb;
+        }
+
+        .projection-amount {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2563eb;
+            margin-bottom: 8px;
+        }
+
+        .projection-label {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .breakdown {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .breakdown-item {
+            text-align: center;
+        }
+
+        .breakdown-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .breakdown-label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        /* Terms Section */
+        .terms-section {
+            background: #fefce8;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 32px;
+            border: 1px solid #fde047;
+        }
+
+        .terms-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #a16207;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .terms-list {
+            list-style: none;
+        }
+
+        .terms-list li {
+            font-size: 14px;
+            color: #713f12;
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .terms-list li::before {
+            content: "•";
+            color: #a16207;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            position: sticky;
+            bottom: 0;
+            background: white;
+            padding: 20px 24px 40px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: var(--gradient-locked);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:disabled {
+            background: var(--border-color);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Interest Payment Info */
+        .payment-info {
+            background: #f0fdf4;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 20px 0;
+            border: 1px solid #bbf7d0;
+        }
+
+        .payment-info-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #166534;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .payment-info-text {
+            font-size: 13px;
+            color: #166534;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <button class="back-btn" onclick="goBack()">← Back</button>
+                <div class="header-title">
+                    <h1>Locked Savings</h1>
+                    <div class="header-subtitle">Fixed-term savings with guaranteed returns</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Product Hero -->
+            <div class="product-hero">
+                <div class="product-icon">🔒</div>
+                <p class="product-description">
+                    Secure your savings for a fixed term and enjoy guaranteed returns.
+                    8.5% annual interest with monthly payouts.
+                </p>
+                <div class="interest-badge">8.5% p.a.</div>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📅</div>
+                    <div class="feature-label">Duration</div>
+                    <div class="feature-value">12-24 Months</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <div class="feature-label">Interest Payment</div>
+                    <div class="feature-value">Monthly</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <div class="feature-label">Lock Period</div>
+                    <div class="feature-value">Until Maturity</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💵</div>
+                    <div class="feature-label">Min. Amount</div>
+                    <div class="feature-value">₦5,000</div>
+                </div>
+            </div>
+
+            <!-- Interest Payment Info -->
+            <div class="payment-info">
+                <div class="payment-info-title">
+                    📈 Monthly Interest Payments
+                </div>
+                <div class="payment-info-text">
+                    Earn interest monthly while your principal remains locked. You can withdraw accrued interest anytime, but the principal stays secure until maturity.
+                </div>
+            </div>
+
+            <!-- Calculator Section -->
+            <div class="calculator-section">
+                <div class="calculator-title">💡 Savings Calculator</div>
+
+                <div class="input-group">
+                    <label class="input-label">How much would you like to save?</label>
+                    <input type="number" class="amount-input" id="amount-input" placeholder="Enter amount" value="100000" min="5000">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Select savings duration</label>
+                    <div class="duration-options">
+                        <button class="duration-btn active" data-months="12">12 Months</button>
+                        <button class="duration-btn" data-months="18">18 Months</button>
+                        <button class="duration-btn" data-months="24">24 Months</button>
+                    </div>
+                </div>
+
+                <div class="projection-result">
+                    <div class="projection-amount" id="total-amount">₦108,500</div>
+                    <div class="projection-label">Total interest earned over <span id="duration-text">12 months</span></div>
+
+                    <div class="breakdown">
+                        <div class="breakdown-item">
+                            <div class="breakdown-value" id="monthly-interest">₦708</div>
+                            <div class="breakdown-label">Monthly Interest</div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="breakdown-value" id="final-balance">₦108,500</div>
+                            <div class="breakdown-label">Final Balance</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terms Section -->
+            <div class="terms-section">
+                <div class="terms-title">
+                    ⚠️ Important Terms & Conditions
+                </div>
+                <ul class="terms-list">
+                    <li>Principal amount cannot be withdrawn until maturity date</li>
+                    <li>Interest is paid monthly to your main account</li>
+                    <li>You can withdraw accrued interest anytime</li>
+                    <li>Fixed 8.5% annual interest rate guaranteed</li>
+                    <li>VAT deductions apply on accrued interest</li>
+                    <li>Minimum savings amount: ₦5,000</li>
+                    <li>Early termination not allowed</li>
+                    <li>Interest calculated on daily balance</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="openLockedSavings()">
+                Start Locked Savings Plan
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Duration selection
+        const durationBtns = document.querySelectorAll('.duration-btn');
+        const amountInput = document.getElementById('amount-input');
+        const totalAmountEl = document.getElementById('total-amount');
+        const monthlyInterestEl = document.getElementById('monthly-interest');
+        const finalBalanceEl = document.getElementById('final-balance');
+        const durationTextEl = document.getElementById('duration-text');
+
+        let selectedMonths = 12;
+        const annualRate = 0.085; // 8.5%
+
+        durationBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                durationBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedMonths = parseInt(btn.dataset.months);
+                calculateProjection();
+            });
+        });
+
+        amountInput.addEventListener('input', calculateProjection);
+
+        function calculateProjection() {
+            const principal = parseFloat(amountInput.value) || 0;
+
+            if (principal < 5000) {
+                totalAmountEl.textContent = '₦0';
+                monthlyInterestEl.textContent = '₦0';
+                finalBalanceEl.textContent = '₦0';
+                return;
+            }
+
+            // Monthly interest calculation (8.5% annual / 12 months)
+            const monthlyRate = annualRate / 12;
+            const monthlyInterest = principal * monthlyRate;
+            const totalInterest = monthlyInterest * selectedMonths;
+            const finalBalance = principal + totalInterest;
+
+            // Update display
+            totalAmountEl.textContent = formatCurrency(totalInterest);
+            monthlyInterestEl.textContent = formatCurrency(monthlyInterest);
+            finalBalanceEl.textContent = formatCurrency(finalBalance);
+            durationTextEl.textContent = `${selectedMonths} months`;
+        }
+
+        function formatCurrency(amount) {
+            return '₦' + amount.toLocaleString('en-US', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
+        }
+
+        function openLockedSavings() {
+            const amount = parseFloat(amountInput.value) || 0;
+
+            if (amount < 5000) {
+                alert('Minimum savings amount is ₦5,000');
+                return;
+            }
+
+            // Simulate opening locked savings application flow
+            alert(`Starting Locked Savings Plan:\n\nAmount: ${formatCurrency(amount)}\nDuration: ${selectedMonths} months\nMonthly Interest: ${formatCurrency(amount * annualRate / 12)}\n\nNote: This would navigate to the application form in the actual app.`);
+        }
+
+        // Initial calculation
+        calculateProjection();
+
+        // Minimum amount validation
+        amountInput.addEventListener('blur', function() {
+            if (this.value && parseFloat(this.value) < 5000) {
+                this.style.borderColor = '#ef4444';
+                setTimeout(() => {
+                    this.style.borderColor = '#e5e7eb';
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>

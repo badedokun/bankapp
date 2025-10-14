@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Loan - OrokiiPay Banking Platform</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --surface-color: #ffffff;
+            --background-color: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --gradient-personal: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --gradient-salary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --gradient-warning: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            background: var(--surface-color);
+            min-height: 100vh;
+            box-shadow: var(--shadow);
+        }
+
+        /* Header */
+        .header {
+            background: var(--gradient-personal);
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+        }
+
+        .header-title h1 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .header-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            background: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 15px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary-color);
+        }
+
+        /* Content */
+        .content {
+            padding: 20px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Product Hero */
+        .product-hero {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .product-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-personal);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin: 0 auto 15px;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .product-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .interest-badge {
+            display: inline-block;
+            background: var(--gradient-warning);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* Salary Info */
+        .salary-section {
+            background: var(--gradient-salary);
+            color: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .salary-amount {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .salary-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 16px;
+        }
+
+        .salary-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .detail-item {
+            text-align: center;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .detail-label {
+            font-size: 11px;
+        }
+
+        /* Loan Options */
+        .loan-types {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .type-card {
+            background: var(--surface-color);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .type-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .type-card.selected {
+            border-color: var(--success-color);
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+        }
+
+        .type-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .type-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-right: 12px;
+            background: var(--gradient-personal);
+            color: white;
+        }
+
+        .type-info {
+            flex: 1;
+        }
+
+        .type-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .type-subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .type-rate {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--warning-color);
+        }
+
+        .type-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .type-detail {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .type-detail-value {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        /* Calculator Section */
+        .calculator-section {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .calculator-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            text-align: center;
+        }
+
+        .calculator-form {
+            display: grid;
+            gap: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .slider-container {
+            margin: 16px 0;
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .amount-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--border-color);
+            outline: none;
+        }
+
+        .amount-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--gradient-personal);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+        }
+
+        .amount-display {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 12px 0;
+        }
+
+        .calculation-result {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .result-label {
+            color: var(--text-secondary);
+        }
+
+        .result-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .result-total {
+            border-top: 1px solid var(--border-color);
+            padding-top: 8px;
+            margin-top: 8px;
+            font-size: 16px;
+        }
+
+        .result-total .result-value {
+            color: var(--success-color);
+            font-size: 18px;
+        }
+
+        /* Application Form */
+        .application-form {
+            margin-bottom: 30px;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-select {
+            appearance: none;
+            background: url('data:image/svg+xml;utf8,<svg fill="%23333" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 12px center;
+            background-size: 20px;
+            padding-right: 40px;
+        }
+
+        /* Employment Info */
+        .employment-section {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .employment-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .employment-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .employment-item {
+            font-size: 12px;
+        }
+
+        .employment-label {
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .employment-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 16px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--gradient-personal);
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--surface-color);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+        }
+
+        /* Info Card */
+        .info-card {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .info-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-content {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .info-list {
+            list-style: none;
+            padding-left: 20px;
+            margin-top: 8px;
+        }
+
+        .info-list li {
+            position: relative;
+            margin-bottom: 6px;
+        }
+
+        .info-list li::before {
+            content: "✓";
+            position: absolute;
+            left: -20px;
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                margin: 0;
+                max-width: 100%;
+            }
+
+            .employment-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .type-card {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <button class="back-btn" onclick="goBack()">← Back</button>
+                <div class="header-title">
+                    <h1>Personal Loan</h1>
+                    <div class="header-subtitle">Salary-based lending solutions</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+            <button class="tab-btn" onclick="showTab('calculator')">Calculator</button>
+            <button class="tab-btn" onclick="showTab('apply')">Apply</button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div id="overview-tab" class="content tab-content active">
+            <!-- Product Hero -->
+            <div class="product-hero">
+                <div class="product-icon">💳</div>
+                <p class="product-description">
+                    Get personal loans based on your salary history.
+                    Competitive rates, flexible terms, and quick approval for salary earners.
+                </p>
+                <div class="interest-badge">10% monthly interest</div>
+            </div>
+
+            <!-- Salary Information -->
+            <div class="salary-section">
+                <div class="salary-amount">₦450,000</div>
+                <div class="salary-label">Monthly Salary (Verified)</div>
+                <div class="salary-details">
+                    <div class="detail-item">
+                        <div class="detail-value">₦180,000</div>
+                        <div class="detail-label">Max Loan Amount</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">85%</div>
+                        <div class="detail-label">Approval Rate</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Employment Info -->
+            <div class="employment-section">
+                <h3 class="employment-title">Employment Details</h3>
+                <div class="employment-grid">
+                    <div class="employment-item">
+                        <div class="employment-label">Company</div>
+                        <div class="employment-value">Tech Solutions Ltd</div>
+                    </div>
+                    <div class="employment-item">
+                        <div class="employment-label">Position</div>
+                        <div class="employment-value">Software Engineer</div>
+                    </div>
+                    <div class="employment-item">
+                        <div class="employment-label">Employment Type</div>
+                        <div class="employment-value">Full-time</div>
+                    </div>
+                    <div class="employment-item">
+                        <div class="employment-label">Work Experience</div>
+                        <div class="employment-value">3.5 years</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loan Types -->
+            <div class="loan-types">
+                <h3 class="section-title">Available Loan Products</h3>
+
+                <div class="type-card selected">
+                    <div class="type-header">
+                        <div class="type-icon">⚡</div>
+                        <div class="type-info">
+                            <div class="type-title">Salary Advance</div>
+                            <div class="type-subtitle">Quick access to salary before payday</div>
+                        </div>
+                        <div class="type-rate">10% monthly</div>
+                    </div>
+                    <div class="type-details">
+                        <div class="type-detail">
+                            <div class="type-detail-value">Up to 40%</div>
+                            <div>of monthly salary</div>
+                        </div>
+                        <div class="type-detail">
+                            <div class="type-detail-value">30 days</div>
+                            <div>repayment term</div>
+                        </div>
+                        <div class="type-detail">
+                            <div class="type-detail-value">2 hours</div>
+                            <div>approval time</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="type-card">
+                    <div class="type-header">
+                        <div class="type-icon">🏠</div>
+                        <div class="type-info">
+                            <div class="type-title">Personal Loan</div>
+                            <div class="type-subtitle">For personal expenses and emergencies</div>
+                        </div>
+                        <div class="type-rate">12% monthly</div>
+                    </div>
+                    <div class="type-details">
+                        <div class="type-detail">
+                            <div class="type-detail-value">Up to 60%</div>
+                            <div>of monthly salary</div>
+                        </div>
+                        <div class="type-detail">
+                            <div class="type-detail-value">3-6 months</div>
+                            <div>repayment term</div>
+                        </div>
+                        <div class="type-detail">
+                            <div class="type-detail-value">24 hours</div>
+                            <div>approval time</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="type-card">
+                    <div class="type-header">
+                        <div class="type-icon">📚</div>
+                        <div class="type-info">
+                            <div class="type-title">Education Loan</div>
+                            <div class="type-subtitle">For training, courses, and certification</div>
+                        </div>
+                        <div class="type-rate">8% monthly</div>
+                    </div>
+                    <div class="type-details">
+                        <div class="type-detail">
+                            <div class="type-detail-value">Up to 80%</div>
+                            <div>of course fee</div>
+                        </div>
+                        <div class="type-detail">
+                            <div class="type-detail-value">6-12 months</div>
+                            <div>repayment term</div>
+                        </div>
+                        <div class="type-detail">
+                            <div class="type-detail-value">3 days</div>
+                            <div>approval time</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="info-card">
+                <div class="info-title">
+                    <span>💡</span>
+                    <span>Personal Loan Benefits</span>
+                </div>
+                <div class="info-content">
+                    <ul class="info-list">
+                        <li>Loan amount based on your verified salary</li>
+                        <li>Lower interest rates for salary earners</li>
+                        <li>Automatic deduction from salary account</li>
+                        <li>Build personal credit history</li>
+                        <li>Flexible repayment options</li>
+                        <li>Pre-approved limits based on employment</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calculator Tab -->
+        <div id="calculator-tab" class="content tab-content">
+            <div class="calculator-section">
+                <h3 class="calculator-title">Loan Calculator</h3>
+
+                <div class="calculator-form">
+                    <div class="form-group">
+                        <label class="form-label">Loan Amount</label>
+                        <div class="slider-container">
+                            <div class="slider-labels">
+                                <span>₦10,000</span>
+                                <span>₦180,000</span>
+                            </div>
+                            <input
+                                type="range"
+                                class="amount-slider"
+                                min="10000"
+                                max="180000"
+                                step="5000"
+                                value="90000"
+                                oninput="calculateLoan()"
+                                id="loanAmountSlider"
+                            >
+                            <div class="amount-display" id="loanAmountDisplay">₦90,000</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Loan Type</label>
+                        <select class="form-input form-select" onchange="calculateLoan()" id="loanTypeSelect">
+                            <option value="salary-advance">Salary Advance (10% monthly)</option>
+                            <option value="personal">Personal Loan (12% monthly)</option>
+                            <option value="education">Education Loan (8% monthly)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Repayment Term</label>
+                        <select class="form-input form-select" onchange="calculateLoan()" id="termSelect">
+                            <option value="1">1 Month</option>
+                            <option value="2">2 Months</option>
+                            <option value="3">3 Months</option>
+                            <option value="6">6 Months</option>
+                            <option value="12">12 Months</option>
+                        </select>
+                    </div>
+
+                    <div class="calculation-result">
+                        <div class="result-row">
+                            <span class="result-label">Loan Amount</span>
+                            <span class="result-value" id="resultLoanAmount">₦90,000</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="result-label">Interest Rate</span>
+                            <span class="result-value" id="resultInterestRate">10% monthly</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="result-label">Total Interest</span>
+                            <span class="result-value" id="resultTotalInterest">₦9,000</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="result-label">Monthly Payment</span>
+                            <span class="result-value" id="resultMonthlyPayment">₦99,000</span>
+                        </div>
+                        <div class="result-row result-total">
+                            <span class="result-label">Total Repayment</span>
+                            <span class="result-value" id="resultTotalRepayment">₦99,000</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-secondary" onclick="showTab('overview')">Back to Overview</button>
+                <button class="btn btn-primary" onclick="showTab('apply')">Apply for Loan</button>
+            </div>
+        </div>
+
+        <!-- Apply Tab -->
+        <div id="apply-tab" class="content tab-content">
+            <div class="application-form">
+                <h3 class="section-title">Loan Application</h3>
+
+                <form id="personalLoanForm">
+                    <div class="form-group">
+                        <label class="form-label">Loan Type</label>
+                        <select class="form-input form-select">
+                            <option value="salary-advance">Salary Advance</option>
+                            <option value="personal">Personal Loan</option>
+                            <option value="education">Education Loan</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Loan Amount</label>
+                        <input type="number" class="form-input" placeholder="₦0.00" min="10000" max="180000" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Purpose of Loan</label>
+                        <select class="form-input form-select">
+                            <option value="">Select purpose</option>
+                            <option value="emergency">Emergency</option>
+                            <option value="medical">Medical Bills</option>
+                            <option value="education">Education/Training</option>
+                            <option value="home-improvement">Home Improvement</option>
+                            <option value="debt-consolidation">Debt Consolidation</option>
+                            <option value="travel">Travel</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Repayment Term</label>
+                        <select class="form-input form-select">
+                            <option value="1">1 Month</option>
+                            <option value="2">2 Months</option>
+                            <option value="3">3 Months</option>
+                            <option value="6">6 Months</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Current Monthly Salary</label>
+                        <input type="number" class="form-input" placeholder="₦0.00" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Company Name</label>
+                        <input type="text" class="form-input" placeholder="Enter your company name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Years of Employment</label>
+                        <select class="form-input form-select">
+                            <option value="">Select duration</option>
+                            <option value="less-than-1">Less than 1 year</option>
+                            <option value="1-2">1-2 years</option>
+                            <option value="3-5">3-5 years</option>
+                            <option value="more-than-5">More than 5 years</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Next of Kin (Full Name)</label>
+                        <input type="text" class="form-input" placeholder="Enter next of kin name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Next of Kin Phone Number</label>
+                        <input type="tel" class="form-input" placeholder="+234 XXX XXX XXXX" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Additional Information (Optional)</label>
+                        <textarea class="form-input form-textarea" placeholder="Any additional information about your loan request..."></textarea>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button type="submit" class="btn btn-primary">
+                            Submit Application
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        function showTab(tabName) {
+            // Remove active class from all tabs and buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            // Add active class to selected tab and button
+            document.querySelector(`[onclick="showTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+        }
+
+        // Select loan type
+        function selectLoanType(element) {
+            document.querySelectorAll('.type-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            element.classList.add('selected');
+        }
+
+        // Calculate loan
+        function calculateLoan() {
+            const loanAmount = parseInt(document.getElementById('loanAmountSlider').value);
+            const loanType = document.getElementById('loanTypeSelect').value;
+            const term = parseInt(document.getElementById('termSelect').value);
+
+            // Interest rates
+            const rates = {
+                'salary-advance': 0.10,
+                'personal': 0.12,
+                'education': 0.08
+            };
+
+            const interestRate = rates[loanType];
+            const totalInterest = Math.round(loanAmount * interestRate * term);
+            const totalRepayment = loanAmount + totalInterest;
+            const monthlyPayment = Math.round(totalRepayment / term);
+
+            // Update display
+            document.getElementById('loanAmountDisplay').textContent = `₦${loanAmount.toLocaleString()}`;
+            document.getElementById('resultLoanAmount').textContent = `₦${loanAmount.toLocaleString()}`;
+            document.getElementById('resultInterestRate').textContent = `${Math.round(interestRate * 100)}% monthly`;
+            document.getElementById('resultTotalInterest').textContent = `₦${totalInterest.toLocaleString()}`;
+            document.getElementById('resultMonthlyPayment').textContent = `₦${monthlyPayment.toLocaleString()}`;
+            document.getElementById('resultTotalRepayment').textContent = `₦${totalRepayment.toLocaleString()}`;
+        }
+
+        // Go back
+        function goBack() {
+            window.history.back();
+        }
+
+        // Form submission
+        document.getElementById('personalLoanForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log('Submitting personal loan application...');
+            alert('Personal loan application submitted successfully! You will receive approval notification within 24 hours.');
+        });
+
+        // Initialize loan type selection
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize calculator
+            calculateLoan();
+
+            // Add click handlers to loan type cards
+            document.querySelectorAll('.type-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    selectLoanType(this);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

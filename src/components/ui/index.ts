@@ -1,7 +1,110 @@
 /**
  * OrokiiPay UI Components
  * Central export point for all design system components
+ * Updated with World-Class UI Design System components
  */
+
+// ============================================================================
+// WORLD-CLASS UI COMPONENTS (New)
+// ============================================================================
+
+// Typography Components
+export {
+  // Display
+  DisplayLarge,
+  DisplayMedium,
+  DisplaySmall,
+  // Headline
+  HeadlineLarge,
+  HeadlineMedium,
+  HeadlineSmall,
+  // Title
+  TitleLarge,
+  TitleMedium,
+  TitleSmall,
+  // Body
+  BodyLarge,
+  BodyMedium,
+  BodySmall,
+  // Label
+  LabelLarge,
+  LabelMedium,
+  LabelSmall,
+  // Amount
+  Amount,
+  // Utility
+  Caption,
+  Overline,
+  Link,
+  ErrorText,
+  SuccessText,
+} from './Typography';
+
+// Modern Button Components
+export {
+  ModernButton,
+  PrimaryButton,
+  SecondaryButton,
+  OutlineButton,
+  GhostButton,
+  DangerButton,
+  SuccessButton,
+  GlassButton,
+} from './ModernButton';
+
+// Glass Card
+export { GlassCard } from './GlassCard';
+
+// Modern Input Components
+export {
+  ModernTextInput,
+  ModernAmountInput,
+  ModernDropdown,
+} from './ModernInputs';
+
+// Skeleton Loaders
+export {
+  Skeleton,
+  SkeletonCard,
+  SkeletonTransaction,
+  SkeletonTransactionList,
+  SkeletonDashboard,
+  SkeletonForm,
+  SkeletonProfile,
+  SkeletonChart,
+} from './SkeletonLoader';
+
+// Empty States
+export {
+  EmptyState,
+  EmptyTransactions,
+  EmptySearch,
+  EmptyNotifications,
+  EmptySavings,
+  EmptyCards,
+  EmptyBills,
+  EmptyRewards,
+  EmptyReferrals,
+  EmptyAnalytics,
+} from './EmptyState';
+
+// Error States
+export {
+  ErrorState,
+  NetworkError,
+  ServerError,
+  PermissionError,
+  ValidationError,
+  NotFoundError,
+  TransactionError,
+  InsufficientFundsError,
+  AccountSuspendedError,
+  RateLimitError,
+} from './ErrorState';
+
+// ============================================================================
+// EXISTING UI COMPONENTS (Legacy)
+// ============================================================================
 
 // Core UI Components
 export { default as Avatar, AvatarGroup, CustomerAvatar } from './Avatar';
@@ -10,13 +113,13 @@ export { default as Card, TransactionCard, BalanceCard } from './Card';
 export { default as Modal, ConfirmDialog, TransactionConfirmDialog, LoadingModal } from './Modal';
 
 // Enhanced Components with Design System Integration
-export { 
+export {
   default as EnhancedButton,
   IconButton,
-  FloatingActionButton, 
+  FloatingActionButton,
   TransactionButton,
   ButtonGroup,
-  QuickActionButton 
+  QuickActionButton
 } from './EnhancedButton';
 
 export {

@@ -15,10 +15,16 @@ import {
   Dimensions,
   RefreshControl,
   TextInput,
+  Platform,
+  Modal,
 } from 'react-native';
 import { useTenant, useTenantTheme } from '../../tenants/TenantContext';
 import { useBankingAlert } from '../../services/AlertService';
 import APIService from '../../services/api';
+import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
+import TransactionAnalyticsScreen from '../analytics/TransactionAnalyticsScreen';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -63,8 +69,9 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
 }) => {
   const { currentTenant } = useTenant();
   const theme = useTenantTheme();
+  const tenantTheme = useTenantTheme();
   const { showAlert } = useBankingAlert();
-  
+
   // State
   const [historyData, setHistoryData] = useState<TransactionHistoryData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -75,6 +82,10 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
   const [dateRange, setDateRange] = useState('this-month');
   const [viewMode, setViewMode] = useState<'list' | 'table'>('list');
   const [filteredTransactions, setFilteredTransactions] = useState<DetailedTransaction[]>([]);
+  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
+  const [showTypeDropdown, setShowTypeDropdown] = useState(false);
+  const [showExportDropdown, setShowExportDropdown] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
 
   // Load transaction history
   const loadHistoryData = useCallback(async () => {
@@ -140,12 +151,12 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
         transactions: detailedTransactions,
         summary: {
           totalTransactions: detailedTransactions.length,
-          totalVolume: `₦${(totalVolume / 1000000).toFixed(1)}M`,
-          avgFees: `₦${avgFees.toFixed(2)}`,
+          totalVolume: `${formatCurrency(totalVolume / 1000000, tenantTheme.currency)}M`,
+          avgFees: formatCurrency(avgFees, tenantTheme.currency),
           monthlyChange: '+0%', // Would need historical data to calculate
         },
         aiInsights: {
-          message: `You have ${detailedTransactions.length} transactions with a total volume of ₦${totalVolume.toLocaleString()}. Your average transaction fee is ₦${avgFees.toFixed(2)}.`,
+          message: `You have ${detailedTransactions.length} transactions with a total volume of ${formatCurrency(totalVolume, tenantTheme.currency)}. Your average transaction fee is ${formatCurrency(avgFees, tenantTheme.currency)}.`,
           suggestions: ['View spending patterns', 'Download transaction history', 'Set up transfer limits'],
         },
       });
@@ -213,15 +224,200 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
     showAlert('AI Assistant', `I'll help you ${suggestion.toLowerCase()}. This feature is coming soon!`);
   }, []);
 
-  // Export transactions
-  const handleExport = useCallback(() => {
-    showAlert('Export', 'Exporting transaction history... This feature is coming soon!');
-  }, []);
+  // Export transactions to CSV
+  const exportToCSV = useCallback(() => {
+    try {
+      // Create CSV header
+      const headers = ['Date', 'Transaction ID', 'Type', 'Description', 'Recipient', 'Amount', 'Status', 'Balance'];
+
+      // Create CSV rows
+      const rows = filteredTransactions.map(transaction => [
+        new Date(transaction.date).toLocaleString(),
+        transaction.id,
+        transaction.type,
+        transaction.description,
+        transaction.recipient || 'N/A',
+        `${getCurrencySymbol(transaction.currency)}${formatCurrency(transaction.amount, transaction.currency)}`,
+        transaction.status,
+        `${getCurrencySymbol(transaction.currency)}${formatCurrency(transaction.balance, transaction.currency)}`
+      ]);
+
+      // Combine header and rows
+      const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+      ].join('\n');
+
+      // For web platform, trigger download
+      if (Platform.OS === 'web') {
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `transactions_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        showAlert('Export Successful', `${filteredTransactions.length} transactions exported to CSV`, [{ text: 'OK' }]);
+      } else {
+        // For mobile, show the content (in real app, would use Share API)
+        console.log('CSV Content:', csvContent);
+        showAlert(
+          'Export Ready',
+          `${filteredTransactions.length} transactions ready for export. In a production app, this would share the CSV file.`,
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      console.error('Export error:', error);
+      showAlert('Export Failed', 'There was an error exporting your transactions. Please try again.', [{ text: 'OK' }]);
+    }
+  }, [filteredTransactions, showAlert]);
+
+  // Export transactions to PDF
+  const exportToPDF = useCallback(() => {
+    try {
+      if (Platform.OS !== 'web') {
+        showAlert(
+          'PDF Export',
+          'PDF export is currently available on web only. Please use CSV export on mobile.',
+          [{ text: 'OK' }]
+        );
+        return;
+      }
+
+      // Create new PDF document
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+
+      // Add header
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Transaction History', pageWidth / 2, 20, { align: 'center' });
+
+      // Add generation date
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      const dateStr = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      doc.text(`Generated on: ${dateStr}`, pageWidth / 2, 28, { align: 'center' });
+
+      // Add summary info
+      doc.setFontSize(9);
+      doc.text(`Total Transactions: ${filteredTransactions.length}`, 14, 38);
+
+      // Prepare table data
+      const tableData = filteredTransactions.map(transaction => {
+        // Safe substring helper
+        const safeTruncate = (str: string | undefined, maxLen: number): string => {
+          if (!str) return 'N/A';
+          return str.length > maxLen ? str.substring(0, maxLen) + '...' : str;
+        };
+
+        return [
+          transaction.date ? new Date(transaction.date).toLocaleDateString() : 'N/A',
+          safeTruncate(transaction.id, 12),
+          transaction.type || 'N/A',
+          safeTruncate(transaction.description, 25),
+          safeTruncate(transaction.recipient, 20),
+          formatCurrency(transaction.amount || 0, transaction.currency || 'NGN'),
+          transaction.status || 'N/A',
+          formatCurrency(transaction.balance || 0, transaction.currency || 'NGN')
+        ];
+      });
+
+      // Add table
+      autoTable(doc, {
+        head: [['Date', 'Transaction ID', 'Type', 'Description', 'Recipient', 'Amount', 'Status', 'Balance']],
+        body: tableData,
+        startY: 45,
+        styles: {
+          fontSize: 8,
+          cellPadding: 2,
+        },
+        headStyles: {
+          fillColor: [30, 58, 138], // FMFB primary color
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+        },
+        alternateRowStyles: {
+          fillColor: [248, 250, 252],
+        },
+        columnStyles: {
+          0: { cellWidth: 20 },  // Date
+          1: { cellWidth: 25 },  // Transaction ID
+          2: { cellWidth: 15 },  // Type
+          3: { cellWidth: 35 },  // Description
+          4: { cellWidth: 30 },  // Recipient
+          5: { cellWidth: 25 },  // Amount
+          6: { cellWidth: 20 },  // Status
+          7: { cellWidth: 25 },  // Balance
+        },
+        margin: { top: 45, left: 7, right: 7 },
+      });
+
+      // Add footer
+      const pageCount = doc.internal.pages.length - 1;
+      doc.setFontSize(8);
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.text(
+          `Page ${i} of ${pageCount}`,
+          pageWidth / 2,
+          doc.internal.pageSize.getHeight() - 10,
+          { align: 'center' }
+        );
+      }
+
+      // Save the PDF
+      doc.save(`transactions_${new Date().toISOString().split('T')[0]}.pdf`);
+
+      showAlert(
+        'Export Successful',
+        `${filteredTransactions.length} transactions exported to PDF`,
+        [{ text: 'OK' }]
+      );
+    } catch (error) {
+      console.error('PDF Export error:', error);
+      showAlert(
+        'Export Failed',
+        'There was an error generating the PDF. Please try again.',
+        [{ text: 'OK' }]
+      );
+    }
+  }, [filteredTransactions, showAlert]);
+
+  // Export handler with format selection
+  const handleExport = useCallback((format: string) => {
+    setShowExportDropdown(false);
+
+    if (format === 'csv') {
+      exportToCSV();
+    } else if (format === 'pdf') {
+      exportToPDF();
+    } else if (format === 'excel') {
+      showAlert(
+        'Coming Soon',
+        'Excel export will be available in the next update. For now, please use CSV or PDF export.',
+        [{ text: 'OK' }]
+      );
+    }
+  }, [exportToCSV, exportToPDF, showAlert]);
 
   // Analytics
   const handleAnalytics = useCallback(() => {
-    showAlert('Analytics', 'Opening transaction analytics... This feature is coming soon!');
+    setShowAnalytics(true);
   }, []);
+
+  // Show Analytics screen if requested
+  if (showAnalytics) {
+    return <TransactionAnalyticsScreen onBack={() => setShowAnalytics(false)} />;
+  }
 
   if (isLoading) {
     return (
@@ -240,7 +436,11 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
     },
     header: {
       backgroundColor: theme.colors.primary,
-      paddingHorizontal: theme.spacing.lg,
+      marginLeft: 20,
+      marginRight: 20,
+      marginTop: 0,
+      marginBottom: 0,
+      borderRadius: 12,
       paddingTop: theme.spacing.lg,
       paddingBottom: theme.spacing.lg,
     },
@@ -259,23 +459,27 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       gap: 8,
     },
     backButtonText: {
-      color: '#ffffff',
+      color: tenantTheme.colors.textInverse,
       fontSize: 16,
-      fontWeight: '500',
+      fontWeight: '600',
+      letterSpacing: 0.2,
     },
     headerTitle: {
       flex: 1,
       alignItems: 'center',
     },
     headerTitleText: {
-      fontSize: 28,
-      fontWeight: 'bold',
-      color: '#ffffff',
+      fontSize: 30,
+      fontWeight: '700',
+      color: tenantTheme.colors.textInverse,
       marginBottom: 5,
+      letterSpacing: 0.3,
     },
     headerSubtitle: {
       fontSize: 16,
+      fontWeight: '400',
       color: 'rgba(255, 255, 255, 0.9)',
+      letterSpacing: 0.2,
     },
     headerActions: {
       flexDirection: 'row',
@@ -288,18 +492,31 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       borderRadius: 20,
     },
     headerButtonText: {
-      color: '#ffffff',
+      color: tenantTheme.colors.textInverse,
       fontSize: 14,
-      fontWeight: '500',
+      fontWeight: '600',
+      letterSpacing: 0.2,
     },
     filtersSection: {
-      backgroundColor: '#ffffff',
+      backgroundColor: tenantTheme.colors.surface,
       padding: theme.spacing.lg,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.05,
-      shadowRadius: 10,
-      elevation: 4,
+      overflow: 'visible',
+      position: 'relative',
+      zIndex: 100,
+      ...Platform.select({
+        ios: {
+          shadowColor: tenantTheme.colors.text,
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.08,
+          shadowRadius: 12,
+        },
+        android: {
+          elevation: 4,
+        },
+        web: {
+          boxShadow: '0 2px 12px rgba(0, 0, 0, 0.08)',
+        },
+      }),
     },
     filtersHeader: {
       flexDirection: 'row',
@@ -308,43 +525,53 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       marginBottom: theme.spacing.md,
     },
     filtersTitle: {
-      fontSize: 20,
-      fontWeight: 'bold',
-      color: '#333',
+      fontSize: 22,
+      fontWeight: '700',
+      color: tenantTheme.colors.text,
+      letterSpacing: 0.3,
     },
     clearFilters: {
       color: theme.colors.primary,
       fontSize: 14,
-      fontWeight: '500',
+      fontWeight: '600',
+      letterSpacing: 0.2,
     },
     filtersGrid: {
       gap: theme.spacing.md,
+      overflow: 'visible',
     },
     filterRow: {
       flexDirection: 'row',
       gap: theme.spacing.md,
+      position: 'relative',
+      zIndex: 200,
     },
     filterGroup: {
       flex: 1,
+      position: 'relative',
+      zIndex: 300,
     },
     filterLabel: {
       fontSize: 14,
-      fontWeight: '500',
-      color: '#666',
+      fontWeight: '600',
+      color: tenantTheme.colors.textSecondary,
       marginBottom: theme.spacing.xs,
+      letterSpacing: 0.2,
     },
     searchContainer: {
       position: 'relative',
     },
     searchInput: {
       borderWidth: 2,
-      borderColor: '#e1e5e9',
+      borderColor: tenantTheme.colors.border,
       borderRadius: 12,
       paddingLeft: 40,
       paddingRight: theme.spacing.md,
       paddingVertical: theme.spacing.sm,
       fontSize: 16,
-      backgroundColor: '#f8fafc',
+      fontWeight: '400',
+      lineHeight: 24,
+      backgroundColor: tenantTheme.colors.background,
     },
     searchIcon: {
       position: 'absolute',
@@ -353,68 +580,164 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       fontSize: 16,
     },
     filterPicker: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
       borderWidth: 2,
-      borderColor: '#e1e5e9',
+      borderColor: tenantTheme.colors.border,
       borderRadius: 12,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.sm,
+      backgroundColor: tenantTheme.colors.background,
+    },
+    filterPickerText: {
+      flex: 1,
       fontSize: 16,
-      backgroundColor: '#f8fafc',
-      color: '#333',
+      fontWeight: '400',
+      lineHeight: 24,
+      color: tenantTheme.colors.text,
+    },
+    filterPickerArrow: {
+      fontSize: 12,
+      color: tenantTheme.colors.textSecondary,
+      marginLeft: 8,
+    },
+    dropdownMenu: {
+      position: 'absolute',
+      top: '100%',
+      left: 0,
+      right: 0,
+      marginTop: 8,
+      backgroundColor: tenantTheme.colors.surface,
+      borderRadius: 12,
+      borderWidth: 2,
+      borderColor: tenantTheme.colors.border,
+      zIndex: 9999,
+      ...Platform.select({
+        ios: {
+          shadowColor: tenantTheme.colors.text,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.15,
+          shadowRadius: 12,
+        },
+        android: {
+          elevation: 8,
+        },
+        web: {
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+        },
+      }),
+    },
+    dropdownItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: 12,
+    },
+    dropdownItemBorder: {
+      borderBottomWidth: 1,
+      borderBottomColor: tenantTheme.colors.border,
+    },
+    dropdownItemActive: {
+      backgroundColor: `${tenantTheme.colors.primary}10`,
+    },
+    dropdownItemIcon: {
+      fontSize: 18,
+      marginRight: 12,
+    },
+    dropdownItemText: {
+      flex: 1,
+      fontSize: 15,
+      fontWeight: '400',
+      color: tenantTheme.colors.text,
+      letterSpacing: 0.1,
+    },
+    dropdownItemTextActive: {
+      fontWeight: '600',
+      color: tenantTheme.colors.primary,
+    },
+    dropdownItemCheck: {
+      fontSize: 18,
+      color: tenantTheme.colors.primary,
+      fontWeight: '700',
     },
     summaryGrid: {
       flexDirection: 'row',
       padding: theme.spacing.lg,
       gap: theme.spacing.sm,
+      position: 'relative',
+      zIndex: 1,
     },
     summaryCard: {
       flex: 1,
-      backgroundColor: '#ffffff',
+      backgroundColor: tenantTheme.colors.surface,
       borderRadius: 16,
       padding: theme.spacing.md,
       alignItems: 'center',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.05,
-      shadowRadius: 10,
-      elevation: 4,
+      ...Platform.select({
+        ios: {
+          shadowColor: tenantTheme.colors.text,
+          shadowOffset: { width: 0, height: 3 },
+          shadowOpacity: 0.1,
+          shadowRadius: 12,
+        },
+        android: {
+          elevation: 6,
+        },
+        web: {
+          boxShadow: '0 3px 12px rgba(0, 0, 0, 0.1)',
+        },
+      }),
     },
     summaryIcon: {
       fontSize: 24,
       marginBottom: theme.spacing.xs,
     },
     summaryValue: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: '#333',
+      fontSize: 20,
+      fontWeight: '700',
+      color: tenantTheme.colors.text,
       marginBottom: theme.spacing.xs,
+      letterSpacing: -0.3,
     },
     summaryLabel: {
       fontSize: 12,
-      color: '#666',
+      fontWeight: '500',
+      color: tenantTheme.colors.textSecondary,
       textAlign: 'center',
       marginBottom: theme.spacing.xs,
+      letterSpacing: 0.1,
     },
     summaryChange: {
       fontSize: 11,
-      fontWeight: '500',
+      fontWeight: '600',
+      letterSpacing: 0.1,
     },
     positiveChange: {
-      color: '#22c55e',
+      color: tenantTheme.colors.success,
     },
     negativeChange: {
-      color: '#ef4444',
+      color: tenantTheme.colors.danger,
     },
     transactionsSection: {
-      backgroundColor: '#ffffff',
+      backgroundColor: tenantTheme.colors.surface,
       marginHorizontal: theme.spacing.lg,
       borderRadius: 20,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.08,
-      shadowRadius: 20,
-      elevation: 4,
       marginBottom: theme.spacing.lg,
+      ...Platform.select({
+        ios: {
+          shadowColor: tenantTheme.colors.text,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.12,
+          shadowRadius: 20,
+        },
+        android: {
+          elevation: 8,
+        },
+        web: {
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.12)',
+        },
+      }),
     },
     transactionsHeader: {
       flexDirection: 'row',
@@ -424,13 +747,14 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       paddingBottom: theme.spacing.md,
     },
     sectionTitle: {
-      fontSize: 22,
-      fontWeight: 'bold',
-      color: '#333',
+      fontSize: 24,
+      fontWeight: '700',
+      color: tenantTheme.colors.text,
+      letterSpacing: 0.3,
     },
     viewOptions: {
       flexDirection: 'row',
-      backgroundColor: '#f8fafc',
+      backgroundColor: tenantTheme.colors.background,
       borderRadius: 12,
       padding: 4,
     },
@@ -440,23 +764,35 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       borderRadius: 8,
     },
     activeViewToggle: {
-      backgroundColor: '#ffffff',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.1,
-      shadowRadius: 3,
-      elevation: 2,
+      backgroundColor: tenantTheme.colors.surface,
+      ...Platform.select({
+        ios: {
+          shadowColor: tenantTheme.colors.text,
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.15,
+          shadowRadius: 4,
+        },
+        android: {
+          elevation: 3,
+        },
+        web: {
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15)',
+        },
+      }),
     },
     viewToggleText: {
       fontSize: 14,
-      color: '#666',
+      fontWeight: '500',
+      color: tenantTheme.colors.textSecondary,
+      letterSpacing: 0.2,
     },
     activeViewToggleText: {
-      color: '#333',
-      fontWeight: '500',
+      color: tenantTheme.colors.text,
+      fontWeight: '600',
+      letterSpacing: 0.2,
     },
     aiInsights: {
-      backgroundColor: '#f0f9ff',
+      backgroundColor: `${tenantTheme.colors.primary}10`,
       margin: theme.spacing.lg,
       marginTop: 0,
       borderRadius: 16,
@@ -472,14 +808,17 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
     },
     aiInsightsTitle: {
       fontSize: 16,
-      fontWeight: 'bold',
-      color: '#1e40af',
+      fontWeight: '700',
+      color: tenantTheme.colors.primary,
+      letterSpacing: 0.2,
     },
     aiInsightsContent: {
       fontSize: 14,
-      color: '#1e40af',
+      fontWeight: '400',
+      color: tenantTheme.colors.primary,
       lineHeight: 20,
       marginBottom: theme.spacing.md,
+      letterSpacing: 0.1,
     },
     aiSuggestions: {
       flexDirection: 'row',
@@ -495,15 +834,16 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       borderRadius: 20,
     },
     aiSuggestionText: {
-      color: '#1e40af',
+      color: tenantTheme.colors.primary,
       fontSize: 12,
-      fontWeight: '500',
+      fontWeight: '600',
+      letterSpacing: 0.2,
     },
     transactionItem: {
       paddingHorizontal: theme.spacing.lg,
       paddingVertical: theme.spacing.md,
       borderBottomWidth: 1,
-      borderBottomColor: '#f1f5f9',
+      borderBottomColor: tenantTheme.colors.border,
     },
     transactionMain: {
       flexDirection: 'row',
@@ -518,16 +858,16 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       marginRight: theme.spacing.md,
     },
     sentIcon: {
-      backgroundColor: '#fef2f2',
+      backgroundColor: `${tenantTheme.colors.danger}15`,
     },
     receivedIcon: {
-      backgroundColor: '#f0fdf4',
+      backgroundColor: `${tenantTheme.colors.success}15`,
     },
     pendingIcon: {
-      backgroundColor: '#fef3c7',
+      backgroundColor: `${tenantTheme.colors.warning}15`,
     },
     billsIcon: {
-      backgroundColor: '#f0f9ff',
+      backgroundColor: `${tenantTheme.colors.primary}10`,
     },
     transactionDetails: {
       flex: 1,
@@ -539,34 +879,38 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
     },
     transactionTitle: {
       fontSize: 16,
-      fontWeight: '500',
-      color: '#333',
+      fontWeight: '600',
+      color: tenantTheme.colors.text,
       flex: 1,
+      letterSpacing: 0.1,
     },
     transactionStatus: {
       paddingHorizontal: 8,
       paddingVertical: 2,
       borderRadius: 12,
       fontSize: 10,
-      fontWeight: '500',
+      fontWeight: '700',
       textTransform: 'uppercase',
+      letterSpacing: 0.5,
     },
     completedStatus: {
-      backgroundColor: '#f0fdf4',
-      color: '#16a34a',
+      backgroundColor: `${tenantTheme.colors.success}15`,
+      color: tenantTheme.colors.success,
     },
     pendingStatus: {
-      backgroundColor: '#fef3c7',
-      color: '#ca8a04',
+      backgroundColor: `${tenantTheme.colors.warning}15`,
+      color: tenantTheme.colors.warning,
     },
     failedStatus: {
-      backgroundColor: '#fef2f2',
-      color: '#dc2626',
+      backgroundColor: `${tenantTheme.colors.danger}15`,
+      color: tenantTheme.colors.danger,
     },
     transactionSecondary: {
       fontSize: 14,
-      color: '#666',
+      fontWeight: '400',
+      color: tenantTheme.colors.textSecondary,
       marginBottom: 6,
+      letterSpacing: 0.1,
     },
     transactionMeta: {
       flexDirection: 'row',
@@ -575,28 +919,33 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
     },
     metaItem: {
       fontSize: 12,
-      color: '#999',
+      fontWeight: '400',
+      color: tenantTheme.colors.textSecondary,
+      letterSpacing: 0.1,
     },
     transactionAmountContainer: {
       alignItems: 'flex-end',
     },
     transactionAmount: {
-      fontSize: 18,
-      fontWeight: 'bold',
+      fontSize: 20,
+      fontWeight: '700',
       marginBottom: 2,
+      letterSpacing: -0.3,
     },
     amountSent: {
-      color: '#ef4444',
+      color: tenantTheme.colors.danger,
     },
     amountReceived: {
-      color: '#22c55e',
+      color: tenantTheme.colors.success,
     },
     amountPending: {
-      color: '#f59e0b',
+      color: tenantTheme.colors.warning,
     },
     balanceText: {
       fontSize: 12,
-      color: '#666',
+      fontWeight: '400',
+      color: tenantTheme.colors.textSecondary,
+      letterSpacing: 0.1,
     },
     emptyState: {
       alignItems: 'center',
@@ -608,15 +957,146 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       marginBottom: theme.spacing.md,
     },
     emptyStateTitle: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: '#666',
+      fontSize: 20,
+      fontWeight: '700',
+      color: tenantTheme.colors.textSecondary,
       marginBottom: theme.spacing.sm,
+      letterSpacing: 0.2,
     },
     emptyStateText: {
       fontSize: 14,
-      color: '#999',
+      fontWeight: '400',
+      color: tenantTheme.colors.textSecondary,
       textAlign: 'center',
+      letterSpacing: 0.1,
+    },
+    // Export Modal Styles
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.6)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 20,
+    },
+    exportModal: {
+      backgroundColor: tenantTheme.colors.surface,
+      borderRadius: 20,
+      padding: 24,
+      width: Platform.OS === 'web' ? 480 : screenWidth - 40,
+      maxWidth: 480,
+      ...Platform.select({
+        ios: {
+          shadowColor: tenantTheme.colors.text,
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.3,
+          shadowRadius: 24,
+        },
+        android: {
+          elevation: 16,
+        },
+        web: {
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+        },
+      }),
+    },
+    exportModalTitle: {
+      fontSize: 24,
+      fontWeight: '700',
+      color: tenantTheme.colors.text,
+      marginBottom: 8,
+      letterSpacing: 0.3,
+      textAlign: 'center',
+    },
+    exportModalSubtitle: {
+      fontSize: 15,
+      fontWeight: '400',
+      color: tenantTheme.colors.textSecondary,
+      marginBottom: 24,
+      letterSpacing: 0.1,
+      textAlign: 'center',
+      lineHeight: 22,
+    },
+    exportOptions: {
+      gap: 12,
+      marginBottom: 20,
+    },
+    exportOption: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: tenantTheme.colors.background,
+      padding: 16,
+      borderRadius: 12,
+      borderWidth: 2,
+      borderColor: tenantTheme.colors.border,
+      ...Platform.select({
+        ios: {
+          shadowColor: tenantTheme.colors.text,
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.08,
+          shadowRadius: 8,
+        },
+        android: {
+          elevation: 3,
+        },
+        web: {
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+        },
+      }),
+    },
+    exportOptionIcon: {
+      fontSize: 32,
+      marginRight: 16,
+    },
+    exportOptionContent: {
+      flex: 1,
+    },
+    exportOptionTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: tenantTheme.colors.text,
+      marginBottom: 4,
+      letterSpacing: 0.2,
+    },
+    exportOptionDescription: {
+      fontSize: 13,
+      fontWeight: '400',
+      color: tenantTheme.colors.textSecondary,
+      lineHeight: 18,
+      letterSpacing: 0.1,
+    },
+    exportOptionArrow: {
+      fontSize: 20,
+      color: tenantTheme.colors.primary,
+      fontWeight: '700',
+    },
+    exportModalCancel: {
+      backgroundColor: tenantTheme.colors.background,
+      paddingVertical: 14,
+      paddingHorizontal: 24,
+      borderRadius: 12,
+      borderWidth: 2,
+      borderColor: tenantTheme.colors.border,
+      alignItems: 'center',
+      ...Platform.select({
+        ios: {
+          shadowColor: tenantTheme.colors.text,
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 8,
+        },
+        android: {
+          elevation: 2,
+        },
+        web: {
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+        },
+      }),
+    },
+    exportModalCancelText: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: tenantTheme.colors.text,
+      letterSpacing: 0.2,
     },
   });
 
@@ -670,7 +1150,7 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       <View style={dynamicStyles.header}>
         <View style={dynamicStyles.headerContent}>
           <TouchableOpacity style={dynamicStyles.backButton} onPress={onBack}>
-            <Text style={dynamicStyles.backButtonText}>← Back</Text>
+            <Text style={dynamicStyles.backButtonText}>←</Text>
           </TouchableOpacity>
           
           <View style={dynamicStyles.headerTitle}>
@@ -682,7 +1162,7 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
             <TouchableOpacity style={dynamicStyles.headerButton} onPress={handleAnalytics}>
               <Text style={dynamicStyles.headerButtonText}>📊 Analytics</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={dynamicStyles.headerButton} onPress={handleExport}>
+            <TouchableOpacity style={dynamicStyles.headerButton} onPress={() => setShowExportDropdown(!showExportDropdown)}>
               <Text style={dynamicStyles.headerButtonText}>📄 Export</Text>
             </TouchableOpacity>
           </View>
@@ -720,7 +1200,7 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
                   placeholder="Transaction ID, recipient, description..."
                   value={searchQuery}
                   onChangeText={setSearchQuery}
-                  placeholderTextColor="#999"
+                  placeholderTextColor={tenantTheme.colors.textSecondary}
                 />
               </View>
             </View>
@@ -729,22 +1209,106 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
             <View style={dynamicStyles.filterRow}>
               <View style={dynamicStyles.filterGroup}>
                 <Text style={dynamicStyles.filterLabel}>Status</Text>
-                <TextInput
-                  style={dynamicStyles.filterPicker}
-                  placeholder="All Statuses"
-                  value={statusFilter === 'all' ? 'All Statuses' : statusFilter}
-                  editable={false}
-                />
+                <View>
+                  <TouchableOpacity
+                    style={dynamicStyles.filterPicker}
+                    onPress={() => {
+                      setShowStatusDropdown(!showStatusDropdown);
+                      setShowTypeDropdown(false);
+                    }}
+                  >
+                    <Text style={dynamicStyles.filterPickerText}>
+                      {statusFilter === 'all' ? 'All Statuses' : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}
+                    </Text>
+                    <Text style={dynamicStyles.filterPickerArrow}>▼</Text>
+                  </TouchableOpacity>
+                  {showStatusDropdown && (
+                    <View style={dynamicStyles.dropdownMenu}>
+                      {[
+                        { value: 'all', label: 'All Statuses', icon: '📋' },
+                        { value: 'successful', label: 'Successful', icon: '✅' },
+                        { value: 'pending', label: 'Pending', icon: '⏳' },
+                        { value: 'failed', label: 'Failed', icon: '❌' },
+                      ].map((option, index, array) => (
+                        <TouchableOpacity
+                          key={option.value}
+                          style={[
+                            dynamicStyles.dropdownItem,
+                            index < array.length - 1 && dynamicStyles.dropdownItemBorder,
+                            statusFilter === option.value && dynamicStyles.dropdownItemActive
+                          ]}
+                          onPress={() => {
+                            setStatusFilter(option.value);
+                            setShowStatusDropdown(false);
+                          }}
+                        >
+                          <Text style={dynamicStyles.dropdownItemIcon}>{option.icon}</Text>
+                          <Text style={[
+                            dynamicStyles.dropdownItemText,
+                            statusFilter === option.value && dynamicStyles.dropdownItemTextActive
+                          ]}>
+                            {option.label}
+                          </Text>
+                          {statusFilter === option.value && (
+                            <Text style={dynamicStyles.dropdownItemCheck}>✓</Text>
+                          )}
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
+                </View>
               </View>
 
               <View style={dynamicStyles.filterGroup}>
                 <Text style={dynamicStyles.filterLabel}>Type</Text>
-                <TextInput
-                  style={dynamicStyles.filterPicker}
-                  placeholder="All Types"
-                  value={typeFilter === 'all' ? 'All Types' : typeFilter}
-                  editable={false}
-                />
+                <View>
+                  <TouchableOpacity
+                    style={dynamicStyles.filterPicker}
+                    onPress={() => {
+                      setShowTypeDropdown(!showTypeDropdown);
+                      setShowStatusDropdown(false);
+                    }}
+                  >
+                    <Text style={dynamicStyles.filterPickerText}>
+                      {typeFilter === 'all' ? 'All Types' : typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1)}
+                    </Text>
+                    <Text style={dynamicStyles.filterPickerArrow}>▼</Text>
+                  </TouchableOpacity>
+                  {showTypeDropdown && (
+                    <View style={dynamicStyles.dropdownMenu}>
+                      {[
+                        { value: 'all', label: 'All Types', icon: '📋' },
+                        { value: 'sent', label: 'Sent', icon: '📤' },
+                        { value: 'received', label: 'Received', icon: '📥' },
+                        { value: 'bills', label: 'Bills', icon: '💡' },
+                      ].map((option, index, array) => (
+                        <TouchableOpacity
+                          key={option.value}
+                          style={[
+                            dynamicStyles.dropdownItem,
+                            index < array.length - 1 && dynamicStyles.dropdownItemBorder,
+                            typeFilter === option.value && dynamicStyles.dropdownItemActive
+                          ]}
+                          onPress={() => {
+                            setTypeFilter(option.value);
+                            setShowTypeDropdown(false);
+                          }}
+                        >
+                          <Text style={dynamicStyles.dropdownItemIcon}>{option.icon}</Text>
+                          <Text style={[
+                            dynamicStyles.dropdownItemText,
+                            typeFilter === option.value && dynamicStyles.dropdownItemTextActive
+                          ]}>
+                            {option.label}
+                          </Text>
+                          {typeFilter === option.value && (
+                            <Text style={dynamicStyles.dropdownItemCheck}>✓</Text>
+                          )}
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
+                </View>
               </View>
             </View>
           </View>
@@ -867,17 +1431,17 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
                       <Text style={dynamicStyles.metaItem}>📅 {transaction.timestamp}</Text>
                       <Text style={dynamicStyles.metaItem}>🔍 {transaction.referenceNumber}</Text>
                       <Text style={dynamicStyles.metaItem}>
-                        ⚡ {transaction.fees > 0 ? `₦${transaction.fees}` : 'No fee'}
+                        ⚡ {transaction.fees > 0 ? formatCurrency(transaction.fees, tenantTheme.currency) : 'No fee'}
                       </Text>
                     </View>
                   </View>
 
                   <View style={dynamicStyles.transactionAmountContainer}>
                     <Text style={[dynamicStyles.transactionAmount, getAmountStyle(transaction.type)]}>
-                      {transaction.amount > 0 ? '+' : ''}₦{Math.abs(transaction.amount).toLocaleString()}
+                      {transaction.amount > 0 ? '+' : ''}{formatCurrency(Math.abs(transaction.amount), tenantTheme.currency)}
                     </Text>
                     <Text style={dynamicStyles.balanceText}>
-                      Balance: ₦{transaction.balance.toLocaleString()}
+                      Balance: {formatCurrency(transaction.balance, tenantTheme.currency)}
                     </Text>
                   </View>
                 </View>
@@ -887,6 +1451,80 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
           )}
         </View>
       </ScrollView>
+
+      {/* Export Format Selection Modal */}
+      <Modal
+        visible={showExportDropdown}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowExportDropdown(false)}
+      >
+        <TouchableOpacity
+          style={dynamicStyles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowExportDropdown(false)}
+        >
+          <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
+            <View style={dynamicStyles.exportModal}>
+              <Text style={dynamicStyles.exportModalTitle}>Export Transactions</Text>
+              <Text style={dynamicStyles.exportModalSubtitle}>
+                Choose your preferred export format
+              </Text>
+
+              <View style={dynamicStyles.exportOptions}>
+                <TouchableOpacity
+                  style={dynamicStyles.exportOption}
+                  onPress={() => handleExport('csv')}
+                >
+                  <Text style={dynamicStyles.exportOptionIcon}>📄</Text>
+                  <View style={dynamicStyles.exportOptionContent}>
+                    <Text style={dynamicStyles.exportOptionTitle}>CSV Format</Text>
+                    <Text style={dynamicStyles.exportOptionDescription}>
+                      Comma-separated values, works with Excel & Google Sheets
+                    </Text>
+                  </View>
+                  <Text style={dynamicStyles.exportOptionArrow}>→</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={dynamicStyles.exportOption}
+                  onPress={() => handleExport('pdf')}
+                >
+                  <Text style={dynamicStyles.exportOptionIcon}>📑</Text>
+                  <View style={dynamicStyles.exportOptionContent}>
+                    <Text style={dynamicStyles.exportOptionTitle}>PDF Document</Text>
+                    <Text style={dynamicStyles.exportOptionDescription}>
+                      Professional format for printing and sharing
+                    </Text>
+                  </View>
+                  <Text style={dynamicStyles.exportOptionArrow}>→</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={dynamicStyles.exportOption}
+                  onPress={() => handleExport('excel')}
+                >
+                  <Text style={dynamicStyles.exportOptionIcon}>📊</Text>
+                  <View style={dynamicStyles.exportOptionContent}>
+                    <Text style={dynamicStyles.exportOptionTitle}>Excel Spreadsheet</Text>
+                    <Text style={dynamicStyles.exportOptionDescription}>
+                      Native Excel format with formulas and formatting
+                    </Text>
+                  </View>
+                  <Text style={dynamicStyles.exportOptionArrow}>→</Text>
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity
+                style={dynamicStyles.exportModalCancel}
+                onPress={() => setShowExportDropdown(false)}
+              >
+                <Text style={dynamicStyles.exportModalCancelText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 };

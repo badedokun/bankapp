@@ -15,6 +15,8 @@ import {
 } from 'react-native';
 import { createCardStyles } from '../../design-system';
 import { useTheme } from '../../hooks/useTheme';
+import { getCurrencySymbol } from '../../utils/currency';
+import { useTenantTheme } from '../../tenants/TenantContext';
 
 interface CardProps {
   variant?: 'default' | 'elevated' | 'outlined' | 'filled';
@@ -150,7 +152,7 @@ export const TransactionCard: React.FC<{
   onPress?: () => void;
 }> = ({
   amount,
-  currency = '₦',
+  currency,
   recipientName,
   recipientBank,
   date,
@@ -159,6 +161,8 @@ export const TransactionCard: React.FC<{
   onPress,
 }) => {
   const theme = useTheme();
+  const { theme: tenantTheme } = useTenantTheme();
+  const currencySymbol = currency ? getCurrencySymbol(currency) : getCurrencySymbol(tenantTheme.currency);
   
   return (
     <Card
@@ -171,7 +175,7 @@ export const TransactionCard: React.FC<{
       <View style={styles.transactionContent}>
         <View style={styles.transactionMain}>
           <Text style={styles.transactionAmount}>
-            {currency}{amount}
+            {currencySymbol}{amount}
           </Text>
           <Text style={styles.transactionRecipient}>
             {recipientName}
@@ -201,12 +205,14 @@ export const BalanceCard: React.FC<{
   onToggleVisibility?: () => void;
 }> = ({
   balance,
-  currency = '₦',
+  currency,
   accountType = 'Main Account',
   accountNumber,
   hideBalance = false,
   onToggleVisibility,
 }) => {
+  const { theme: tenantTheme } = useTenantTheme();
+  const currencySymbol = currency ? getCurrencySymbol(currency) : getCurrencySymbol(tenantTheme.currency);
   return (
     <Card
       variant="filled"
@@ -218,7 +224,7 @@ export const BalanceCard: React.FC<{
         <Text style={styles.balanceLabel}>{accountType}</Text>
         <View style={styles.balanceRow}>
           <Text style={styles.balanceAmount}>
-            {currency}
+            {currencySymbol}
             {hideBalance ? '****' : balance}
           </Text>
           {onToggleVisibility && (

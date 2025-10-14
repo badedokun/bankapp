@@ -1,0 +1,99 @@
+{
+  "title": "Paramètres",
+  "profile": {
+    "title": "Profil",
+    "personalInfo": "Informations personnelles",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "email": "Adresse e-mail",
+    "phone": "Numéro de téléphone",
+    "dateOfBirth": "Date de naissance",
+    "address": "Adresse",
+    "city": "Ville",
+    "state": "État/Province",
+    "country": "Pays",
+    "zipCode": "Code postal",
+    "updateProfile": "Mettre à jour le profil",
+    "profileUpdated": "Profil mis à jour avec succès"
+  },
+  "security": {
+    "title": "Sécurité",
+    "changePassword": "Changer le mot de passe",
+    "currentPassword": "Mot de passe actuel",
+    "newPassword": "Nouveau mot de passe",
+    "confirmPassword": "Confirmer le nouveau mot de passe",
+    "updatePassword": "Mettre à jour le mot de passe",
+    "passwordUpdated": "Mot de passe mis à jour avec succès",
+    "twoFactor": "Authentification à deux facteurs",
+    "enableTwoFactor": "Activer l'A2F",
+    "disableTwoFactor": "Désactiver l'A2F",
+    "transactionPin": "Code PIN de transaction",
+    "changePin": "Changer le code PIN",
+    "biometrics": "Authentification biométrique",
+    "enableBiometrics": "Activer la biométrie",
+    "sessions": "Sessions actives",
+    "viewSessions": "Voir les sessions actives",
+    "logoutAll": "Déconnecter tous les appareils"
+  },
+  "preferences": {
+    "title": "Préférences",
+    "language": "Langue",
+    "currency": "Devise par défaut",
+    "timezone": "Fuseau horaire",
+    "dateFormat": "Format de date",
+    "notifications": "Notifications",
+    "emailNotifications": "Notifications par e-mail",
+    "pushNotifications": "Notifications push",
+    "smsNotifications": "Notifications SMS",
+    "transactionAlerts": "Alertes de transaction",
+    "marketingEmails": "E-mails marketing",
+    "theme": "Thème de l'application",
+    "light": "Clair",
+    "dark": "Sombre",
+    "auto": "Automatique"
+  },
+  "limits": {
+    "title": "Limites de transaction",
+    "daily": "Limite quotidienne",
+    "monthly": "Limite mensuelle",
+    "perTransaction": "Par transaction",
+    "requestIncrease": "Demander une augmentation de limite",
+    "currentLimits": "Limites actuelles",
+    "pendingRequest": "Demande d'augmentation de limite en attente"
+  },
+  "linked": {
+    "title": "Comptes liés",
+    "linkAccount": "Lier un nouveau compte",
+    "bankAccounts": "Comptes bancaires",
+    "cards": "Cartes",
+    "unlinkAccount": "Délier le compte"
+  },
+  "privacy": {
+    "title": "Confidentialité",
+    "dataSharing": "Partage des données",
+    "analytics": "Analyses & Performance",
+    "personalization": "Personnalisation",
+    "downloadData": "Télécharger mes données",
+    "deleteAccount": "Supprimer le compte"
+  },
+  "support": {
+    "title": "Aide & Support",
+    "contactUs": "Nous contacter",
+    "faq": "Questions fréquemment posées",
+    "tutorials": "Tutoriels",
+    "reportIssue": "Signaler un problème",
+    "feedback": "Envoyer un commentaire"
+  },
+  "about": {
+    "title": "À propos",
+    "version": "Version de l'application",
+    "terms": "Conditions générales",
+    "privacy": "Politique de confidentialité",
+    "licenses": "Licences open source"
+  },
+  "logout": {
+    "title": "Déconnexion",
+    "confirm": "Êtes-vous sûr de vouloir vous déconnecter ?",
+    "button": "Se déconnecter"
+  }
+}

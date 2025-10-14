@@ -1,0 +1,110 @@
+{
+  "title": "Transfers",
+  "types": {
+    "internal": "Internal Transfer",
+    "external": "External Transfer",
+    "international": "International Transfer",
+    "scheduled": "Scheduled Transfer",
+    "recurring": "Recurring Transfer"
+  },
+  "form": {
+    "selectType": "Select Transfer Type",
+    "recipient": "Recipient",
+    "recipientPlaceholder": "Enter recipient name or account",
+    "amount": "Amount",
+    "amountPlaceholder": "Enter amount",
+    "currency": "Currency",
+    "description": "Description",
+    "descriptionPlaceholder": "What's this transfer for?",
+    "purpose": "Purpose",
+    "sourceAccount": "Source Account",
+    "destinationAccount": "Destination Account",
+    "bank": "Bank",
+    "bankPlaceholder": "Select bank",
+    "accountNumber": "Account Number",
+    "accountNumberPlaceholder": "Enter account number",
+    "accountName": "Account Name",
+    "swiftCode": "SWIFT Code",
+    "swiftCodePlaceholder": "Enter SWIFT code",
+    "routingNumber": "Routing Number",
+    "iban": "IBAN",
+    "country": "Country"
+  },
+  "schedule": {
+    "title": "Schedule Transfer",
+    "frequency": "Frequency",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "nextExecution": "Next Execution",
+    "frequencies": {
+      "once": "One Time",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "biweekly": "Bi-Weekly",
+      "monthly": "Monthly",
+      "quarterly": "Quarterly",
+      "yearly": "Yearly"
+    }
+  },
+  "beneficiary": {
+    "title": "Saved Beneficiaries",
+    "addNew": "Add New Beneficiary",
+    "recent": "Recent Recipients",
+    "frequent": "Frequent Recipients",
+    "saveAsBeneficiary": "Save as Beneficiary",
+    "nickname": "Nickname",
+    "nicknamePlaceholder": "Give this beneficiary a name"
+  },
+  "limits": {
+    "title": "Transfer Limits",
+    "daily": "Daily Limit",
+    "monthly": "Monthly Limit",
+    "perTransaction": "Per Transaction",
+    "remaining": "Remaining Today",
+    "exceeded": "Limit Exceeded",
+    "increaseLimits": "Request Limit Increase"
+  },
+  "confirmation": {
+    "title": "Confirm Transfer",
+    "review": "Review Transfer Details",
+    "from": "From",
+    "to": "To",
+    "amount": "Amount",
+    "fee": "Transaction Fee",
+    "total": "Total Amount",
+    "exchangeRate": "Exchange Rate",
+    "estimatedArrival": "Estimated Arrival",
+    "pin": "Transaction PIN",
+    "pinPlaceholder": "Enter your 4-digit PIN",
+    "confirmButton": "Confirm Transfer",
+    "editButton": "Edit Details"
+  },
+  "success": {
+    "title": "Transfer Successful",
+    "message": "Your transfer has been processed successfully",
+    "reference": "Reference Number",
+    "viewReceipt": "View Receipt",
+    "downloadReceipt": "Download Receipt",
+    "shareReceipt": "Share Receipt",
+    "anotherTransfer": "Make Another Transfer",
+    "backToDashboard": "Back to Dashboard"
+  },
+  "errors": {
+    "insufficientFunds": "Insufficient funds in your account",
+    "invalidAccount": "Invalid account number",
+    "accountNotFound": "Account not found",
+    "bankNotAvailable": "Bank service temporarily unavailable",
+    "limitExceeded": "Transfer amount exceeds your limit",
+    "invalidPin": "Invalid transaction PIN",
+    "networkError": "Network error. Please try again.",
+    "duplicateTransfer": "A similar transfer was already made recently"
+  },
+  "status": {
+    "pending": "Pending",
+    "processing": "Processing",
+    "completed": "Completed",
+    "failed": "Failed",
+    "cancelled": "Cancelled",
+    "reversed": "Reversed"
+  }
+}

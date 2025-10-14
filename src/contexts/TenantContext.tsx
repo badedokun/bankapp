@@ -16,13 +16,13 @@ interface TenantContextType {
   setCurrentTenant: (tenant: TenantConfig) => void;
 }
 
-// Load FMFB as the default tenant
+// Load platform as the default tenant - no hardcoded tenant data
 const defaultTenant: TenantConfig = {
-  id: 'fmfb',
-  displayName: 'Firstmidas Microfinance Bank',
+  id: 'platform',
+  displayName: 'OrokiiPay',
   defaultLanguage: 'en',
   theme: {
-    primaryColor: '#010080'
+    primaryColor: '#6366F1'
   }
 };
 

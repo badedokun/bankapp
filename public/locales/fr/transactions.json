@@ -1,0 +1,74 @@
+{
+  "title": "Transactions",
+  "history": "Historique des transactions",
+  "recent": "Transactions récentes",
+  "all": "Toutes les transactions",
+  "filters": {
+    "title": "Filtres",
+    "dateRange": "Plage de dates",
+    "type": "Type de transaction",
+    "status": "Statut",
+    "amount": "Plage de montant",
+    "minAmount": "Montant minimum",
+    "maxAmount": "Montant maximum",
+    "apply": "Appliquer les filtres",
+    "clear": "Effacer les filtres"
+  },
+  "types": {
+    "all": "Tous les types",
+    "debit": "Débit",
+    "credit": "Crédit",
+    "transfer": "Virement",
+    "payment": "Paiement",
+    "deposit": "Dépôt",
+    "withdrawal": "Retrait",
+    "fee": "Frais",
+    "reversal": "Annulation",
+    "refund": "Remboursement"
+  },
+  "details": {
+    "title": "Détails de la transaction",
+    "reference": "Numéro de référence",
+    "date": "Date et heure",
+    "type": "Type",
+    "amount": "Montant",
+    "fee": "Frais",
+    "total": "Total",
+    "from": "De",
+    "to": "À",
+    "description": "Description",
+    "status": "Statut",
+    "balanceBefore": "Solde avant",
+    "balanceAfter": "Solde après"
+  },
+  "actions": {
+    "viewDetails": "Voir les détails",
+    "downloadReceipt": "Télécharger le reçu",
+    "shareReceipt": "Partager le reçu",
+    "dispute": "Contester la transaction",
+    "reverse": "Annuler la transaction",
+    "repeat": "Répéter la transaction"
+  },
+  "search": {
+    "placeholder": "Rechercher des transactions...",
+    "noResults": "Aucune transaction trouvée",
+    "searching": "Recherche en cours..."
+  },
+  "export": {
+    "title": "Exporter les transactions",
+    "format": "Format",
+    "formats": {
+      "pdf": "PDF",
+      "csv": "CSV",
+      "excel": "Excel"
+    },
+    "dateRange": "Plage de dates",
+    "download": "Télécharger",
+    "success": "Exportation téléchargée avec succès"
+  },
+  "empty": {
+    "title": "Aucune transaction pour le moment",
+    "message": "Vous n'avez pas encore effectué de transaction",
+    "action": "Effectuer un virement"
+  }
+}

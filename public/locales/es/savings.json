@@ -1,0 +1,60 @@
+{
+  "title": "Ahorros",
+  "plans": "Planes de Ahorro",
+  "goals": "Objetivos de Ahorro",
+  "create": "Crear Nuevo Plan",
+  "types": {
+    "fixed": "Depósito a Plazo Fijo",
+    "flexible": "Ahorro Flexible",
+    "target": "Ahorro con Objetivo",
+    "automatic": "Ahorro Automático"
+  },
+  "form": {
+    "planName": "Nombre del Plan",
+    "planNamePlaceholder": "Asigne un nombre a su plan",
+    "amount": "Importe",
+    "targetAmount": "Importe Objetivo",
+    "initialDeposit": "Depósito Inicial",
+    "frequency": "Frecuencia",
+    "duration": "Duración",
+    "interestRate": "Tipo de Interés",
+    "maturityDate": "Fecha de Vencimiento",
+    "autoSave": "Activar Ahorro Automático",
+    "createPlan": "Crear Plan"
+  },
+  "details": {
+    "totalSaved": "Total Ahorrado",
+    "targetAmount": "Importe Objetivo",
+    "progress": "Progreso",
+    "interestEarned": "Intereses Generados",
+    "contributions": "Aportaciones",
+    "lastDeposit": "Último Depósito",
+    "nextDeposit": "Próximo Depósito",
+    "maturityDate": "Fecha de Vencimiento"
+  },
+  "actions": {
+    "deposit": "Realizar Depósito",
+    "withdraw": "Retirar",
+    "viewDetails": "Ver Detalles",
+    "editPlan": "Editar Plan",
+    "pausePlan": "Pausar Plan",
+    "deletePlan": "Eliminar Plan",
+    "breakPlan": "Cancelar Plan"
+  },
+  "goals": {
+    "vacation": "Vacaciones",
+    "emergency": "Fondo de Emergencia",
+    "education": "Educación",
+    "home": "Compra de Vivienda",
+    "car": "Compra de Vehículo",
+    "wedding": "Boda",
+    "retirement": "Jubilación",
+    "custom": "Objetivo Personalizado"
+  },
+  "insights": {
+    "projectedSavings": "Ahorros Proyectados",
+    "timeToGoal": "Tiempo hasta el Objetivo",
+    "recommendedDeposit": "Depósito Mensual Recomendado",
+    "performanceVsGoal": "Rendimiento vs Objetivo"
+  }
+}

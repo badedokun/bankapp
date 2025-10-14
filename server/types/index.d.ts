@@ -22,6 +22,8 @@ export interface AuthenticatedUser {
   tenantId: string;
   tenantName: string;
   tenantDisplayName: string;
+  permissions?: string[];
+  mfaEnabled?: boolean;
   iat?: number;
   exp?: number;
 }
@@ -54,12 +56,25 @@ export interface DatabaseConfig {
 }
 
 export interface TransferRequest {
-  recipientAccountNumber: string;
-  recipientBankCode: string;
+  type?: 'internal' | 'external' | 'bill_payment';
+  senderAccountId?: string;
+  recipientAccountNumber?: string;
+  recipientBankCode?: string;
+  recipientName?: string;
   amount: number;
   narration?: string;
-  pin: string;
+  description?: string;
+  pin?: string;
   metadata?: Record<string, any>;
+  // Scheduled payment fields
+  scheduledDate?: Date;
+  endDate?: Date;
+  frequency?: 'once' | 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly';
+  // Bill payment fields
+  billerId?: string;
+  billerName?: string;
+  customerReference?: string;
+  billCategory?: string;
 }
 
 export interface WalletResponse {
@@ -85,4 +100,31 @@ export interface TransactionResponse {
   description?: string;
   created_at: Date;
   completed_at?: Date;
+}
+
+export interface TransferResponse {
+  id?: string;
+  reference?: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
+  amount: number;
+  fees: number;
+  totalAmount: number;
+  recipient: {
+    name: string;
+    accountNumber: string;
+    bankName: string;
+  };
+  scheduledDate?: Date;
+  message?: string;
+}
+
+// Custom error class for validation errors
+export class ValidationError extends Error {
+  field: string;
+
+  constructor(message: string, field: string) {
+    super(message);
+    this.name = 'ValidationError';
+    this.field = field;
+  }
 }

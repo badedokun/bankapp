@@ -1,0 +1,71 @@
+{
+  "title": "Loans",
+  "apply": "Apply for Loan",
+  "myLoans": "My Loans",
+  "types": {
+    "personal": "Personal Loan",
+    "business": "Business Loan",
+    "mortgage": "Mortgage",
+    "auto": "Auto Loan",
+    "education": "Education Loan"
+  },
+  "application": {
+    "title": "Loan Application",
+    "loanType": "Loan Type",
+    "amount": "Loan Amount",
+    "amountPlaceholder": "Enter amount needed",
+    "purpose": "Loan Purpose",
+    "purposePlaceholder": "What will you use this loan for?",
+    "duration": "Loan Duration",
+    "months": "{{count}} months",
+    "employmentStatus": "Employment Status",
+    "monthlyIncome": "Monthly Income",
+    "existingLoans": "Existing Loans",
+    "collateral": "Collateral",
+    "guarantor": "Guarantor Information",
+    "submit": "Submit Application"
+  },
+  "details": {
+    "loanAmount": "Loan Amount",
+    "amountDisbursed": "Amount Disbursed",
+    "outstanding": "Outstanding Balance",
+    "totalPaid": "Total Paid",
+    "interestRate": "Interest Rate",
+    "duration": "Duration",
+    "monthlyPayment": "Monthly Payment",
+    "nextPayment": "Next Payment Due",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "status": "Status"
+  },
+  "status": {
+    "draft": "Draft",
+    "pending": "Pending Review",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "active": "Active",
+    "completed": "Completed",
+    "defaulted": "Defaulted"
+  },
+  "repayment": {
+    "title": "Repayment Schedule",
+    "makePayment": "Make Payment",
+    "paymentHistory": "Payment History",
+    "dueDate": "Due Date",
+    "amount": "Amount",
+    "principal": "Principal",
+    "interest": "Interest",
+    "totalPayable": "Total Payable",
+    "earlyPayment": "Early Payment Discount"
+  },
+  "calculator": {
+    "title": "Loan Calculator",
+    "amount": "Loan Amount",
+    "rate": "Interest Rate (%)",
+    "duration": "Duration (months)",
+    "calculate": "Calculate",
+    "monthlyPayment": "Monthly Payment",
+    "totalInterest": "Total Interest",
+    "totalPayable": "Total Payable"
+  }
+}

@@ -201,8 +201,13 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
       backgroundColor: theme.colors.background,
     },
     header: {
-      backgroundColor: '#ffffff',
-      paddingHorizontal: theme.spacing.lg,
+      backgroundColor: theme.colors.surface,
+      
+      marginLeft: 20,
+      marginRight: 20,
+      marginTop: 0,
+      marginBottom: 0,
+      borderRadius: 12,
       paddingTop: theme.spacing.lg,
       paddingBottom: theme.spacing.md,
       shadowColor: '#000',
@@ -219,12 +224,12 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
     headerTitle: {
       fontSize: 28,
       fontWeight: 'bold',
-      color: '#333',
+      color: theme.colors.text,
       flex: 1,
     },
     headerSubtitle: {
       fontSize: 14,
-      color: '#666',
+      color: theme.colors.textSecondary,
       marginTop: 4,
     },
     reportButton: {
@@ -234,12 +239,12 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
       borderRadius: 8,
     },
     reportButtonText: {
-      color: '#ffffff',
+      color: theme.colors.textInverse,
       fontSize: 14,
       fontWeight: 'bold',
     },
     statusCard: {
-      backgroundColor: '#ffffff',
+      backgroundColor: theme.colors.surface,
       margin: theme.spacing.lg,
       borderRadius: 20,
       padding: theme.spacing.lg,
@@ -258,7 +263,7 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
     statusTitle: {
       fontSize: 22,
       fontWeight: 'bold',
-      color: '#333',
+      color: theme.colors.text,
     },
     statusBadge: {
       paddingHorizontal: theme.spacing.md,
@@ -266,7 +271,7 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
       borderRadius: 20,
     },
     statusBadgeText: {
-      color: '#ffffff',
+      color: theme.colors.textInverse,
       fontSize: 12,
       fontWeight: 'bold',
     },
@@ -278,7 +283,7 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
       width: 120,
       height: 120,
       borderRadius: 60,
-      backgroundColor: '#f8fafc',
+      backgroundColor: theme.colors.background,
       alignItems: 'center',
       justifyContent: 'center',
       marginBottom: theme.spacing.md,
@@ -290,7 +295,7 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
     },
     scoreLabel: {
       fontSize: 14,
-      color: '#666',
+      color: theme.colors.textSecondary,
     },
     infoGrid: {
       flexDirection: 'row',
@@ -298,7 +303,7 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
     },
     infoItem: {
       flex: 1,
-      backgroundColor: '#f8fafc',
+      backgroundColor: theme.colors.background,
       padding: theme.spacing.md,
       borderRadius: 12,
       alignItems: 'center',
@@ -306,16 +311,16 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
     infoValue: {
       fontSize: 16,
       fontWeight: 'bold',
-      color: '#333',
+      color: theme.colors.text,
       marginBottom: theme.spacing.xs,
     },
     infoLabel: {
       fontSize: 12,
-      color: '#666',
+      color: theme.colors.textSecondary,
       textAlign: 'center',
     },
     section: {
-      backgroundColor: '#ffffff',
+      backgroundColor: theme.colors.surface,
       marginHorizontal: theme.spacing.lg,
       marginBottom: theme.spacing.lg,
       borderRadius: 20,
@@ -335,7 +340,7 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
     sectionTitle: {
       fontSize: 20,
       fontWeight: 'bold',
-      color: '#333',
+      color: theme.colors.text,
     },
     seeAll: {
       color: theme.colors.primary,
@@ -361,20 +366,20 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
     requirementName: {
       fontSize: 16,
       fontWeight: '500',
-      color: '#333',
+      color: theme.colors.text,
       marginBottom: 2,
     },
     requirementDescription: {
       fontSize: 12,
-      color: '#666',
+      color: theme.colors.textSecondary,
       marginBottom: 2,
     },
     requirementDate: {
       fontSize: 11,
-      color: '#999',
+      color: theme.colors.textTertiary,
     },
     incidentItem: {
-      backgroundColor: '#f8fafc',
+      backgroundColor: theme.colors.background,
       padding: theme.spacing.md,
       borderRadius: 12,
       marginBottom: theme.spacing.sm,
@@ -389,7 +394,7 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
     incidentType: {
       fontSize: 16,
       fontWeight: 'bold',
-      color: '#333',
+      color: theme.colors.text,
     },
     incidentSeverity: {
       fontSize: 12,
@@ -397,11 +402,11 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
       paddingHorizontal: 8,
       paddingVertical: 2,
       borderRadius: 10,
-      color: '#ffffff',
+      color: theme.colors.textInverse,
     },
     incidentDescription: {
       fontSize: 14,
-      color: '#666',
+      color: theme.colors.textSecondary,
       marginBottom: theme.spacing.xs,
     },
     incidentFooter: {
@@ -411,7 +416,7 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
     },
     incidentDate: {
       fontSize: 12,
-      color: '#999',
+      color: theme.colors.textTertiary,
     },
     incidentStatus: {
       fontSize: 12,
@@ -431,11 +436,11 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
     dataType: {
       fontSize: 14,
       fontWeight: '500',
-      color: '#333',
+      color: theme.colors.text,
     },
     dataLocation: {
       fontSize: 12,
-      color: '#666',
+      color: theme.colors.textSecondary,
       marginTop: 2,
     },
     complianceStatus: {
@@ -452,7 +457,7 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
       alignItems: 'center',
     },
     modalContent: {
-      backgroundColor: '#ffffff',
+      backgroundColor: theme.colors.surface,
       width: screenWidth - 40,
       maxHeight: '80%',
       borderRadius: 20,
@@ -467,14 +472,14 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
     modalTitle: {
       fontSize: 22,
       fontWeight: 'bold',
-      color: '#333',
+      color: theme.colors.text,
     },
     modalCloseButton: {
       padding: theme.spacing.sm,
     },
     modalCloseText: {
       fontSize: 24,
-      color: '#666',
+      color: theme.colors.textSecondary,
     },
     formGroup: {
       marginBottom: theme.spacing.lg,
@@ -482,17 +487,17 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
     formLabel: {
       fontSize: 14,
       fontWeight: '500',
-      color: '#333',
+      color: theme.colors.text,
       marginBottom: theme.spacing.sm,
     },
     formInput: {
       borderWidth: 1,
-      borderColor: '#e1e5e9',
+      borderColor: theme.colors.border,
       borderRadius: 8,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.sm,
       fontSize: 16,
-      backgroundColor: '#f8fafc',
+      backgroundColor: theme.colors.background,
     },
     formTextArea: {
       height: 100,
@@ -528,15 +533,15 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
       backgroundColor: theme.colors.primary,
     },
     modalButtonSecondary: {
-      backgroundColor: '#f1f5f9',
+      backgroundColor: theme.colors.background,
     },
     modalButtonTextPrimary: {
-      color: '#ffffff',
+      color: theme.colors.textInverse,
       fontSize: 16,
       fontWeight: 'bold',
     },
     modalButtonTextSecondary: {
-      color: '#333',
+      color: theme.colors.text,
       fontSize: 16,
       fontWeight: '500',
     },
@@ -686,8 +691,8 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
 
               {complianceData.incidents.length === 0 && (
                 <View style={{ alignItems: 'center', paddingVertical: theme.spacing.xl }}>
-                  <Text style={{ color: '#666', fontSize: 16 }}>✅ No recent incidents</Text>
-                  <Text style={{ color: '#999', fontSize: 14, marginTop: 4 }}>
+                  <Text style={{ color: theme.colors.textSecondary, fontSize: 16 }}>✅ No recent incidents</Text>
+                  <Text style={{ color: theme.colors.textTertiary, fontSize: 14, marginTop: 4 }}>
                     All systems operating normally
                   </Text>
                 </View>
@@ -713,7 +718,7 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
                     dynamicStyles.complianceStatus,
                     {
                       backgroundColor: location.compliant ? '#22c55e' : '#ef4444',
-                      color: '#ffffff',
+                      color: theme.colors.textInverse,
                     }
                   ]}>
                     {location.compliant ? 'COMPLIANT' : 'NON-COMPLIANT'}
@@ -815,7 +820,7 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
                       <Text style={[
                         dynamicStyles.severityButtonText,
                         {
-                          color: incidentReport.severity === severity ? '#ffffff' : getStatusColor(severity)
+                          color: incidentReport.severity === severity ? theme.colors.textInverse : getStatusColor(severity)
                         }
                       ]}>
                         {severity.toUpperCase()}

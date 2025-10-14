@@ -1,0 +1,74 @@
+{
+  "title": "Transacciones",
+  "history": "Historial de Transacciones",
+  "recent": "Transacciones Recientes",
+  "all": "Todas las Transacciones",
+  "filters": {
+    "title": "Filtros",
+    "dateRange": "Rango de Fechas",
+    "type": "Tipo de Transacción",
+    "status": "Estado",
+    "amount": "Rango de Importe",
+    "minAmount": "Importe Mínimo",
+    "maxAmount": "Importe Máximo",
+    "apply": "Aplicar Filtros",
+    "clear": "Limpiar Filtros"
+  },
+  "types": {
+    "all": "Todos los Tipos",
+    "debit": "Débito",
+    "credit": "Crédito",
+    "transfer": "Transferencia",
+    "payment": "Pago",
+    "deposit": "Depósito",
+    "withdrawal": "Retirada",
+    "fee": "Comisión",
+    "reversal": "Reversión",
+    "refund": "Reembolso"
+  },
+  "details": {
+    "title": "Detalles de Transacción",
+    "reference": "Número de Referencia",
+    "date": "Fecha y Hora",
+    "type": "Tipo",
+    "amount": "Importe",
+    "fee": "Comisión",
+    "total": "Total",
+    "from": "De",
+    "to": "Para",
+    "description": "Descripción",
+    "status": "Estado",
+    "balanceBefore": "Saldo Anterior",
+    "balanceAfter": "Saldo Posterior"
+  },
+  "actions": {
+    "viewDetails": "Ver Detalles",
+    "downloadReceipt": "Descargar Recibo",
+    "shareReceipt": "Compartir Recibo",
+    "dispute": "Disputar Transacción",
+    "reverse": "Revertir Transacción",
+    "repeat": "Repetir Transacción"
+  },
+  "search": {
+    "placeholder": "Buscar transacciones...",
+    "noResults": "No se encontraron transacciones",
+    "searching": "Buscando..."
+  },
+  "export": {
+    "title": "Exportar Transacciones",
+    "format": "Formato",
+    "formats": {
+      "pdf": "PDF",
+      "csv": "CSV",
+      "excel": "Excel"
+    },
+    "dateRange": "Rango de Fechas",
+    "download": "Descargar",
+    "success": "Exportación descargada correctamente"
+  },
+  "empty": {
+    "title": "Aún No Hay Transacciones",
+    "message": "Todavía no ha realizado ninguna transacción",
+    "action": "Realizar una Transferencia"
+  }
+}

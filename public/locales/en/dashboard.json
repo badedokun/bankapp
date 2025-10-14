@@ -1,0 +1,58 @@
+{
+  "welcome": "Welcome back, {{name}}",
+  "quickActions": "Quick Actions",
+  "recentActivity": "Recent Activity",
+  "accountOverview": "Account Overview",
+  "totalBalance": "Total Balance",
+  "availableBalance": "Available Balance",
+  "pendingTransactions": "Pending Transactions",
+  "cards": {
+    "myWallet": "My Wallet",
+    "sendMoney": "Send Money",
+    "requestMoney": "Request Money",
+    "payBills": "Pay Bills",
+    "saveMoney": "Save Money",
+    "loans": "Loans",
+    "analytics": "Analytics",
+    "aiAssistant": "AI Assistant"
+  },
+  "insights": {
+    "title": "Financial Insights",
+    "spending": "Your spending this month",
+    "income": "Your income this month",
+    "savings": "Total savings",
+    "trend": "{{percentage}}% vs last month"
+  },
+  "aiChat": {
+    "title": "AI Banking Assistant",
+    "placeholder": "Ask me anything about your finances...",
+    "suggestions": {
+      "balance": "What's my balance?",
+      "transactions": "Show recent transactions",
+      "spending": "Am I spending too much?",
+      "transfer": "How do I transfer money?"
+    },
+    "greeting": "Hello! How can I help you with your banking today?",
+    "thinking": "Thinking...",
+    "error": "Sorry, I couldn't process that request."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "noNotifications": "No new notifications",
+    "types": {
+      "transaction": "Transaction",
+      "alert": "Alert",
+      "promotion": "Promotion",
+      "system": "System"
+    }
+  },
+  "accountSummary": {
+    "title": "Account Summary",
+    "accountNumber": "Account Number",
+    "accountType": "Account Type",
+    "branch": "Branch",
+    "openedOn": "Opened On",
+    "status": "Status"
+  }
+}

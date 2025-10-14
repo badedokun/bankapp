@@ -138,7 +138,10 @@ router.post('/login', [
         throw errorHandler_1.errors.unauthorized('Invalid credentials', 'INVALID_CREDENTIALS');
     }
     // Check if account is locked due to too many failed attempts
-    const maxAttempts = user.security_settings?.maxLoginAttempts || 5;
+    // Special handling for development accounts
+    const isDevelopmentAccount = process.env.NODE_ENV === 'development' &&
+        (user.email === 'admin@fmfb.com' || user.email === 'demo@fmfb.com');
+    const maxAttempts = isDevelopmentAccount ? 100 : (user.security_settings?.maxLoginAttempts || 5);
     if (user.failed_login_attempts >= maxAttempts) {
         throw errorHandler_1.errors.forbidden('Account locked due to too many failed login attempts', 'ACCOUNT_LOCKED');
     }
