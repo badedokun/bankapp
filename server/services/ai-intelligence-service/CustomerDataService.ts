@@ -161,7 +161,7 @@ export class CustomerDataService {
 
       const transactions = result.rows;
       const totalSpent = transactions
-        .filter(t => ['money_transfer', 'bill_payment', 'cash_withdrawal', 'airtime_purchase'].includes(t.type) && t.status === 'completed')
+        .filter(t => ['money_transfer', 'bill_payment', 'cash_withdrawal', 'airtime_purchase'].includes(t.type) && ['completed', 'successful', 'settled'].includes(t.status))
         .reduce((sum, t) => sum + parseFloat(t.amount), 0);
 
       const formattedTotal = new Intl.NumberFormat('en-NG', {
@@ -216,7 +216,7 @@ export class CustomerDataService {
    */
   static async analyzeSpending(userId: string, tenantId: string, days: number = 30): Promise<CustomerDataResponse> {
     try {
-      // Get spending by category
+      // Get spending by category (spending types: withdrawals, transfers, payments, etc.)
       const categoryResult = await dbManager.queryTenant(tenantId,
         `SELECT
           LOWER(description) as category,
@@ -226,25 +226,28 @@ export class CustomerDataService {
         FROM tenant.transactions
         WHERE user_id = $1
           AND created_at >= NOW() - INTERVAL '${days} days'
-          AND type = 'debit'
-          AND status = 'completed'
+          AND type IN ('cash_withdrawal', 'money_transfer', 'bill_payment', 'airtime_purchase', 'loan_payment', 'pos_payment', 'qr_payment')
+          AND status IN ('completed', 'successful', 'settled')
         GROUP BY LOWER(description)
         ORDER BY total_amount DESC
         LIMIT 10`,
         [userId]
       );
 
-      // Get overall spending stats
+      // Get overall spending stats (spending vs income)
       const statsResult = await dbManager.queryTenant(tenantId,
         `SELECT
           COUNT(*) as total_transactions,
-          SUM(CASE WHEN type = 'debit' THEN amount ELSE 0 END) as total_spent,
-          SUM(CASE WHEN type = 'credit' THEN amount ELSE 0 END) as total_received,
-          AVG(CASE WHEN type = 'debit' THEN amount ELSE NULL END) as avg_transaction
+          SUM(CASE WHEN type IN ('cash_withdrawal', 'money_transfer', 'bill_payment', 'airtime_purchase', 'loan_payment', 'pos_payment', 'qr_payment')
+              THEN amount ELSE 0 END) as total_spent,
+          SUM(CASE WHEN type IN ('account_opening', 'investment')
+              THEN amount ELSE 0 END) as total_received,
+          AVG(CASE WHEN type IN ('cash_withdrawal', 'money_transfer', 'bill_payment', 'airtime_purchase', 'loan_payment', 'pos_payment', 'qr_payment')
+              THEN amount ELSE NULL END) as avg_transaction
         FROM tenant.transactions
         WHERE user_id = $1
           AND created_at >= NOW() - INTERVAL '${days} days'
-          AND status = 'completed'`,
+          AND status IN ('completed', 'successful', 'settled')`,
         [userId]
       );
 
