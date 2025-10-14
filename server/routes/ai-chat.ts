@@ -5,6 +5,7 @@ import IntentClassificationService from '../services/ai-intelligence-service/nlp
 import EntityExtractionService from '../services/ai-intelligence-service/nlp/EntityExtractionService';
 import { AIIntelligenceManager } from '../services/ai-intelligence-service/AIIntelligenceManager';
 import { query } from '../config/database';
+import dbManager from '../config/multi-tenant-database';
 import { DevelopmentControls } from '../services/ai-intelligence-service/utils/DevelopmentControls';
 import { CustomerDataService } from '../services/ai-intelligence-service/CustomerDataService';
 import AIActionsService from '../services/ai-intelligence-service/AIActionsService';
@@ -28,22 +29,22 @@ const aiManager = new AIIntelligenceManager({
 const devControls = DevelopmentControls.getInstance();
 
 // Helper function to enrich context with comprehensive real user banking data
-async function enrichContextWithUserData(context: any, userId: string) {
+async function enrichContextWithUserData(context: any, userId: string, tenantId: string) {
   try {
-    // Get user profile data
-    const userResult = await query(
+    // Get user profile data from tenant database
+    const userResult = await dbManager.queryTenant(tenantId,
       'SELECT id, email, first_name, last_name, role, kyc_level, created_at FROM tenant.users WHERE id = $1',
       [userId]
     );
 
-    // Get account balance data
-    const balanceResult = await query(
+    // Get account balance data from tenant database
+    const balanceResult = await dbManager.queryTenant(tenantId,
       'SELECT balance, currency, updated_at, created_at FROM tenant.wallets WHERE user_id = $1',
       [userId]
     );
 
-    // Get recent transactions (last 20 for better analysis)
-    const transactionsResult = await query(
+    // Get recent transactions (last 20 for better analysis) from tenant database
+    const transactionsResult = await dbManager.queryTenant(tenantId,
       `SELECT
         amount,
         type,
@@ -58,8 +59,8 @@ async function enrichContextWithUserData(context: any, userId: string) {
       [userId]
     );
 
-    // Get spending analytics (last 30 days)
-    const spendingAnalyticsResult = await query(
+    // Get spending analytics (last 30 days) from tenant database
+    const spendingAnalyticsResult = await dbManager.queryTenant(tenantId,
       `SELECT
         SUM(amount) as total_spent,
         COUNT(*) as transaction_count,
@@ -74,8 +75,8 @@ async function enrichContextWithUserData(context: any, userId: string) {
       [userId]
     );
 
-    // Get monthly spending by category/description
-    const categorySpendingResult = await query(
+    // Get monthly spending by category/description from tenant database
+    const categorySpendingResult = await dbManager.queryTenant(tenantId,
       `SELECT
         LOWER(description) as category,
         SUM(amount) as total_amount,
@@ -241,7 +242,7 @@ router.post('/chat', authenticateToken, async (req, res) => {
 
     // Enrich context with real user banking data
     const enrichedContext = userId !== 'anonymous'
-      ? await enrichContextWithUserData(context, userId)
+      ? await enrichContextWithUserData(context, userId, tenantId)
       : context;
 
     let response;
@@ -645,6 +646,7 @@ router.get('/suggestions/smart', authenticateToken, async (req, res) => {
   try {
     const { context, category, limit = 5 } = req.query;
     const userId = (req as any).user?.id || 'anonymous';
+    const tenantId = (req as any).user?.tenantId || 'default';
 
     // Smart Suggestions Engine works locally without OpenAI - no rate limiting needed
 
@@ -658,7 +660,7 @@ router.get('/suggestions/smart', authenticateToken, async (req, res) => {
 
     // Enrich context with real user banking data
     if (userId !== 'anonymous') {
-      contextObj = await enrichContextWithUserData(contextObj, userId);
+      contextObj = await enrichContextWithUserData(contextObj, userId, tenantId);
     }
 
     // Always use real customer data from AIIntelligenceManager
@@ -688,6 +690,7 @@ router.get('/analytics/insights', authenticateToken, async (req, res) => {
   try {
     const { context, type, timeframe = 'month' } = req.query;
     const userId = (req as any).user?.id;
+    const tenantId = (req as any).user?.tenantId || 'default';
 
     let contextObj = context ? JSON.parse(context as string) : {
       userId: userId || 'anonymous',
@@ -699,7 +702,7 @@ router.get('/analytics/insights', authenticateToken, async (req, res) => {
 
     // Enrich context with real user banking data
     if (userId) {
-      contextObj = await enrichContextWithUserData(contextObj, userId);
+      contextObj = await enrichContextWithUserData(contextObj, userId, tenantId);
     }
 
     // Always use real customer data from AIIntelligenceManager
