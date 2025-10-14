@@ -6,7 +6,10 @@ import EntityExtractionService from '../services/ai-intelligence-service/nlp/Ent
 import { AIIntelligenceManager } from '../services/ai-intelligence-service/AIIntelligenceManager';
 import { query } from '../config/database';
 import { DevelopmentControls } from '../services/ai-intelligence-service/utils/DevelopmentControls';
-import { MockAIResponseGenerator } from '../services/ai-intelligence-service/utils/MockResponses';
+import { CustomerDataService } from '../services/ai-intelligence-service/CustomerDataService';
+import AIActionsService from '../services/ai-intelligence-service/AIActionsService';
+import ConversationalTransferService from '../services/ai-intelligence-service/ConversationalTransferService';
+import conversationStateManager from '../services/ai-intelligence-service/ConversationStateManager';
 
 const router = express.Router();
 
@@ -48,7 +51,7 @@ async function enrichContextWithUserData(context: any, userId: string) {
         created_at,
         status,
         reference
-      FROM transactions
+      FROM tenant.transactions
       WHERE user_id = $1
       ORDER BY created_at DESC
       LIMIT 20`,
@@ -62,10 +65,10 @@ async function enrichContextWithUserData(context: any, userId: string) {
         COUNT(*) as transaction_count,
         AVG(amount) as avg_transaction,
         type
-      FROM transactions
+      FROM tenant.transactions
       WHERE user_id = $1
         AND created_at >= NOW() - INTERVAL '30 days'
-        AND type IN ('debit', 'withdrawal', 'transfer')
+        AND type IN ('money_transfer', 'bill_payment', 'cash_withdrawal', 'airtime_purchase')
         AND status = 'completed'
       GROUP BY type`,
       [userId]
@@ -77,7 +80,7 @@ async function enrichContextWithUserData(context: any, userId: string) {
         LOWER(description) as category,
         SUM(amount) as total_amount,
         COUNT(*) as transaction_count
-      FROM transactions
+      FROM tenant.transactions
       WHERE user_id = $1
         AND created_at >= NOW() - INTERVAL '30 days'
         AND amount > 0
@@ -162,6 +165,7 @@ router.post('/chat', authenticateToken, async (req, res) => {
   try {
     const { message, context, options = {} } = req.body;
     const userId = (req as any).user?.id || 'anonymous';
+    const tenantId = (req as any).user?.tenantId || 'default';
 
     if (!message || !context) {
       return res.status(400).json({
@@ -169,124 +173,158 @@ router.post('/chat', authenticateToken, async (req, res) => {
       });
     }
 
-    // Ensure smart suggestions are enabled by default for enhanced experience
-    const enhancedOptions = {
-      includeSuggestions: true,
-      includeAnalytics: false, // Keep analytics optional for performance
-      ...options
-    };
-
-    // Identify data analysis queries that should use Smart Suggestions Engine directly
-    const isDataAnalysisQuery = (
-      (message.toLowerCase().includes('spending') && message.toLowerCase().includes('pattern')) ||
-      message.toLowerCase().includes('analyze') ||
-      (message.toLowerCase().includes('boost') && message.toLowerCase().includes('fund')) ||
-      message.toLowerCase().includes('save money') ||
-      message.toLowerCase().includes('investment') ||
-      message.toLowerCase().includes('budget') ||
-      message.toLowerCase().includes('insight') ||
-      message.toLowerCase().includes('finance') ||
-      (message.toLowerCase().includes('what') && (message.toLowerCase().includes('spend') || message.toLowerCase().includes('save'))) ||
-      message.toLowerCase().includes('emergency fund') ||
-      message.toLowerCase().includes('money management')
-    );
-
     // Debug logging
     console.log(`🔍 Query: "${message}"`);
-    console.log(`🔍 Data Analysis Query Detected: ${isDataAnalysisQuery}`);
+
+    // Generate conversation ID (use session ID or generate one)
+    const conversationId = context.conversationId || context.sessionId || `conv_${Date.now()}`;
+
+    // Check if user is in an active conversational flow
+    const conversationState = conversationStateManager.getState(userId, conversationId);
+
+    if (conversationState.currentFlow === 'transfer') {
+      // User is in middle of transfer flow - continue it
+      console.log('💬 Continuing transfer conversation flow');
+      const transferResponse = await ConversationalTransferService.processTransferConversation(
+        message,
+        userId,
+        conversationId,
+        tenantId
+      );
+
+      return res.json({
+        response: transferResponse.message,
+        confidence: 0.95,
+        intent: 'transfer_money',
+        suggestions: transferResponse.suggestions || [],
+        data: transferResponse.data,
+        inConversation: !transferResponse.completed,
+        completed: transferResponse.completed,
+        error: transferResponse.error,
+        metadata: {
+          source: 'conversational_transfer',
+          conversationId,
+          step: conversationState.step
+        }
+      });
+    }
+
+    // Check if message is starting a new transfer
+    const isTransferIntent = message.toLowerCase().includes('transfer') ||
+                            message.toLowerCase().includes('send money') ||
+                            (message.toLowerCase().includes('send') && message.toLowerCase().includes('₦'));
+
+    if (isTransferIntent && userId !== 'anonymous') {
+      // Start new conversational transfer flow
+      console.log('💬 Starting new transfer conversation flow');
+      const transferResponse = await ConversationalTransferService.processTransferConversation(
+        message,
+        userId,
+        conversationId,
+        tenantId
+      );
+
+      return res.json({
+        response: transferResponse.message,
+        confidence: 0.95,
+        intent: 'transfer_money',
+        suggestions: transferResponse.suggestions || [],
+        data: transferResponse.data,
+        inConversation: true,
+        metadata: {
+          source: 'conversational_transfer',
+          conversationId,
+          step: 1
+        }
+      });
+    }
 
     // Enrich context with real user banking data
     const enrichedContext = userId !== 'anonymous'
       ? await enrichContextWithUserData(context, userId)
       : context;
 
-    // For data analysis queries, use Smart Suggestions Engine directly (bypass rate limits and OpenAI)
-    if (isDataAnalysisQuery) {
-      console.log('🧠 Data Analysis Query detected - using Smart Suggestions Engine directly');
-
-      try {
-        const smartSuggestions = await aiManager.getPersonalizedSuggestions(enrichedContext);
-        const analyticsInsights = await aiManager.getAnalyticsInsights(enrichedContext);
-
-        // Generate contextual response based on the specific query type
-        let contextualResponse = "I've analyzed your transaction data and financial patterns. Here are personalized insights based on your banking activity:";
-
-        if (message.toLowerCase().includes('spending') && message.toLowerCase().includes('pattern')) {
-          contextualResponse = "Based on your transaction history, I've identified your spending patterns. Here's what the data shows:";
-        } else if (message.toLowerCase().includes('boost') && message.toLowerCase().includes('fund')) {
-          contextualResponse = "I've analyzed your financial situation for emergency fund optimization. Here are tailored recommendations:";
-        } else if (message.toLowerCase().includes('save money')) {
-          contextualResponse = "After analyzing your spending patterns, here are specific areas where you can save money:";
-        } else if (message.toLowerCase().includes('investment')) {
-          contextualResponse = "Based on your account balance and spending patterns, here are investment options suitable for your profile:";
-        } else if (message.toLowerCase().includes('analyze')) {
-          contextualResponse = "Here's a comprehensive analysis of your financial data with actionable insights:";
-        }
-
-        const response = {
-          response: contextualResponse,
-          suggestions: smartSuggestions,
-          insights: analyticsInsights,
-          confidence: 0.95,
-          metadata: {
-            source: 'smart-suggestions-engine',
-            reason: 'data_analysis_query',
-            realData: true,
-            enrichedContext: !!enrichedContext?.bankingContext?.user,
-            accountBalance: enrichedContext?.bankingContext?.accountBalance,
-            transactionCount: enrichedContext?.bankingContext?.recentTransactions?.length || 0,
-            processingTime: Date.now()
-          }
-        };
-
-        // Record usage for analytics (placeholder for future implementation)
-
-        return res.json(response);
-      } catch (error) {
-        console.error('Smart Suggestions Engine error:', error);
-        return res.status(500).json({
-          error: 'Unable to analyze your data at the moment',
-          message: 'Please try again later'
-        });
-      }
-    }
-
-    // For non-data-analysis queries, check rate limits before using OpenAI
-    if (!isDataAnalysisQuery) {
-      const rateCheck = devControls.checkRateLimit(userId);
-      if (!rateCheck.allowed) {
-        return res.status(429).json({
-          error: 'Rate limit exceeded',
-          message: rateCheck.reason,
-          resetTime: rateCheck.resetTime,
-          usageStats: devControls.getUsageStats(userId)
-        });
-      }
-    }
-
     let response;
 
-    // Always use real OpenAI with real data (unless API key is placeholder)
-    if (process.env.OPENAI_API_KEY?.includes('placeholder')) {
-      console.log('⚠️ OpenAI API key is placeholder - using mock responses');
-      const mockResponse = MockAIResponseGenerator.generateConversationalResponse(message, enrichedContext);
-      response = {
-        response: mockResponse.response,
-        confidence: mockResponse.confidence,
-        intent: mockResponse.intent,
-        entities: mockResponse.entities,
-        suggestions: mockResponse.suggestions,
-        metadata: {
-          source: 'mock',
-          reason: 'placeholder_api_key',
-          enrichedContext: !!enrichedContext?.bankingContext?.user
-        }
-      };
+    // First, try to answer using real customer data (no mock mode)
+    console.log('🔍 Checking if query can be answered with customer data...');
+    const customerDataResponse = await CustomerDataService.processQuery(message, userId);
+
+    if (!customerDataResponse.requiresOpenAI) {
+      // Check if this is an actionable intent (transfer, bill payment, etc.)
+      const queryType = CustomerDataService.classifyQuery(message);
+
+      if (queryType === 'transfers' || queryType === 'bills') {
+        // Handle actionable intents with AIActionsService
+        console.log(`🎯 Actionable intent detected: ${queryType}`);
+        const intentMap: Record<string, string> = {
+          'transfers': 'transfer_money',
+          'bills': 'bill_payment'
+        };
+
+        const actionResponse = await AIActionsService.processActionIntent(
+          intentMap[queryType],
+          userId,
+          message,
+          {}
+        );
+
+        response = {
+          response: actionResponse.message,
+          confidence: 0.95,
+          intent: actionResponse.action,
+          suggestions: actionResponse.suggestions || [],
+          data: actionResponse.data,
+          action: {
+            type: actionResponse.action,
+            status: actionResponse.status,
+            nextStep: actionResponse.nextStep,
+            requiredFields: actionResponse.requiredFields
+          },
+          metadata: {
+            source: 'ai_actions',
+            reason: 'actionable_intent',
+            realData: true,
+            enrichedContext: true
+          }
+        };
+      } else {
+        // Query answered with real customer data - no OpenAI needed
+        console.log('✅ Query answered using real customer banking data');
+        response = {
+          response: customerDataResponse.answer,
+          confidence: 0.95,
+          intent: 'customer_data',
+          suggestions: customerDataResponse.suggestions || [],
+          data: customerDataResponse.data,
+          metadata: {
+            source: 'customer_data',
+            reason: 'customer_specific_query',
+            realData: true,
+            enrichedContext: true
+          }
+        };
+      }
     } else {
+      // General banking question - use OpenAI
+      console.log('🤖 General banking question detected - using OpenAI');
+
+      if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'placeholder') {
+        // No OpenAI configured
+        console.log('❌ OpenAI API key not configured for general banking questions');
+        return res.status(503).json({
+          error: 'AI service not available',
+          message: 'General banking questions require OpenAI configuration. Please contact support.',
+          suggestion: 'I can help you with account-specific questions like balance, transactions, and spending analysis.'
+        });
+      }
       try {
         // Use real OpenAI with real database data
         console.log('🤖 Using real OpenAI with enriched banking data and Smart Suggestions');
-        response = await aiManager.processEnhancedMessage(message, enrichedContext, enhancedOptions);
+        response = await aiManager.processEnhancedMessage(message, enrichedContext, {
+          includeSuggestions: true,
+          includeAnalytics: false
+        });
 
         // Add metadata to show real data usage
         response.metadata = {
@@ -623,23 +661,13 @@ router.get('/suggestions/smart', authenticateToken, async (req, res) => {
       contextObj = await enrichContextWithUserData(contextObj, userId);
     }
 
-    let suggestions;
-
-    // Always use real data unless API key is placeholder
-    if (process.env.OPENAI_API_KEY?.includes('placeholder')) {
-      console.log('⚠️ OpenAI API key is placeholder - using mock smart suggestions');
-      suggestions = MockAIResponseGenerator.generateSmartSuggestions(
-        category as string || 'financial',
-        parseInt(limit as string)
-      );
-    } else {
-      console.log('🤖 Generating smart suggestions with real banking data');
-      suggestions = await aiManager.getPersonalizedSuggestions(
-        contextObj,
-        category as any,
-        parseInt(limit as string)
-      );
-    }
+    // Always use real customer data from AIIntelligenceManager
+    console.log('🤖 Generating smart suggestions with real banking data');
+    const suggestions = await aiManager.getPersonalizedSuggestions(
+      contextObj,
+      category as any,
+      parseInt(limit as string)
+    );
 
     // Record the request
     devControls.recordRequest(userId);
@@ -674,23 +702,13 @@ router.get('/analytics/insights', authenticateToken, async (req, res) => {
       contextObj = await enrichContextWithUserData(contextObj, userId);
     }
 
-    let insights;
-
-    // Always use real data unless API key is placeholder
-    if (process.env.OPENAI_API_KEY?.includes('placeholder')) {
-      console.log('⚠️ OpenAI API key is placeholder - using mock analytics insights');
-      insights = MockAIResponseGenerator.generateAnalyticsInsights(
-        type as string || 'spending',
-        timeframe as string || 'month'
-      );
-    } else {
-      console.log('🤖 Generating analytics insights with real banking data');
-      insights = await aiManager.getAnalyticsInsights(
-        contextObj,
-        type as any,
-        timeframe as any
-      );
-    }
+    // Always use real customer data from AIIntelligenceManager
+    console.log('🤖 Generating analytics insights with real banking data');
+    const insights = await aiManager.getAnalyticsInsights(
+      contextObj,
+      type as any,
+      timeframe as any
+    );
 
     res.json({ insights });
 

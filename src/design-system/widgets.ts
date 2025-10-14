@@ -95,7 +95,7 @@ export function createDatePickerStyles(theme: OrokiiPayTheme, props: DatePickerP
       backgroundColor: currentColors.background,
       color: currentColors.text,
       fontFamily: theme.typography.fontFamily.body,
-      outline: 'none',
+      outlineStyle: 'none' as any,
       transition: 'all 0.2s ease-in-out',
       position: 'relative'
     },
@@ -199,7 +199,7 @@ export function createPhoneFormatterStyles(theme: OrokiiPayTheme, props: PhoneFo
       backgroundColor: currentColors.background,
       color: currentColors.text,
       fontFamily: theme.typography.fontFamily.mono,
-      outline: 'none',
+      outlineStyle: 'none' as any,
       transition: 'all 0.2s ease-in-out',
       position: 'relative'
     },
@@ -296,7 +296,7 @@ export function createCurrencyFormatterStyles(theme: OrokiiPayTheme, props: Curr
       color: currentColors.text,
       fontFamily: theme.typography.fontFamily.mono,
       textAlign: 'right' as const,
-      outline: 'none',
+      outlineStyle: 'none' as any,
       transition: 'all 0.2s ease-in-out',
       position: 'relative'
     },
@@ -402,7 +402,7 @@ export function createAccountFormatterStyles(theme: OrokiiPayTheme, props: Accou
       color: currentColors.text,
       fontFamily: theme.typography.fontFamily.mono,
       letterSpacing: '0.05em',
-      outline: 'none',
+      outlineStyle: 'none' as any,
       transition: 'all 0.2s ease-in-out',
       position: 'relative'
     },
@@ -507,7 +507,7 @@ export function createPinInputStyles(theme: OrokiiPayTheme, props: PinInputProps
       fontFamily: theme.typography.fontFamily.mono,
       fontWeight: theme.typography.fontWeight.bold,
       textAlign: 'center' as const,
-      outline: 'none',
+      outlineStyle: 'none' as any,
       transition: 'all 0.2s ease-in-out',
       margin: `0 ${theme.spacing.xs}`
     },
@@ -713,7 +713,7 @@ export function createSearchWidgetStyles(theme: OrokiiPayTheme, props: SearchWid
       backgroundColor: currentColors.background,
       color: currentColors.text,
       fontFamily: theme.typography.fontFamily.body,
-      outline: 'none',
+      outlineStyle: 'none' as any,
       transition: 'all 0.2s ease-in-out'
     },
     label: {

@@ -24,6 +24,7 @@ import { useTenantTheme } from '../context/TenantThemeContext';
 import { useNotification } from '../services/ModernNotificationService';
 import APIService from '../services/api';
 import { formatCurrency, getCurrencySymbol } from '../utils/currency';
+import { ENV_CONFIG } from '../config/environment';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const isTablet = screenWidth >= 768;
@@ -72,6 +73,10 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
     'Apply for a loan',
   ]);
   const [transferState, setTransferState] = useState<any>(null);
+  const [conversationId, setConversationId] = useState<string>(`chat_${Date.now()}`);
+  const [isAwaitingPin, setIsAwaitingPin] = useState(false);
+  const [isAwaitingAccountNumber, setIsAwaitingAccountNumber] = useState(false);
+  const [lastTransferReference, setLastTransferReference] = useState<string | null>(null);
 
   const scrollViewRef = useRef<ScrollView>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -133,7 +138,13 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
             const transcript = event.results[0][0].transcript;
             if (event.results[0].isFinal) {
               setInputText(transcript);
-              handleSendMessage(transcript);
+              // Check if this is a special command like "view receipt"
+              if (transcript.toLowerCase().includes('view receipt') ||
+                  transcript.toLowerCase().includes('show receipt')) {
+                handleSuggestionPress('View receipt');
+              } else {
+                handleSendMessage(transcript);
+              }
               setVoiceMode('off');
             } else {
               setInputText(transcript);
@@ -213,6 +224,28 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
         setTransferState(response.transferState);
       }
 
+      // Check if we're awaiting PIN (step 6 in transfer flow)
+      if (response.inConversation && response.message) {
+        const isPinStep = response.message.toLowerCase().includes('transaction pin') ||
+                         response.message.toLowerCase().includes('enter your pin') ||
+                         response.message.toLowerCase().includes('incorrect pin') ||
+                         (response.error && response.message.toLowerCase().includes('try again:'));
+        setIsAwaitingPin(isPinStep);
+
+        // Check if we're awaiting account number (step 2 in transfer flow)
+        const isAccountStep = response.message.toLowerCase().includes('account number') &&
+                             response.message.toLowerCase().includes('10 digits');
+        setIsAwaitingAccountNumber(isAccountStep);
+      } else {
+        setIsAwaitingPin(false);
+        setIsAwaitingAccountNumber(false);
+      }
+
+      // Check if transfer completed successfully and extract reference
+      if (response.completed && response.data?.reference) {
+        setLastTransferReference(response.data.reference);
+      }
+
       // Update suggestions based on AI response
       if (response.suggestions && response.suggestions.length > 0) {
         setSuggestions(response.suggestions);
@@ -246,7 +279,7 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
       try {
         userProfile = await APIService.getProfile();
       } catch (error) {
-        console.log('Could not fetch user profile for AI context');
+        // Could not fetch user profile for AI context
       }
 
       try {
@@ -255,22 +288,23 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
           recentTransactions = transactionsData.transactions.slice(0, 3);
         }
       } catch (error) {
-        console.log('Could not fetch transactions for AI context');
+        // Could not fetch transactions for AI context
       }
 
-      const baseURL = Platform.OS === 'web' ? 'http://localhost:3001' : 'http://localhost:3001';
-
-      const response = await fetch(`${baseURL}/api/ai/chat`, {
+      const response = await fetch(`${ENV_CONFIG.API_BASE_URL}/api/ai/chat`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
+          'X-Tenant-ID': 'fmfb', // Add tenant header
         },
         body: JSON.stringify({
           message: text,
           userId: userProfile?.id || 'current-user',
           transferState: transferState,
           context: {
+            conversationId: conversationId, // Use persistent conversation ID
+            page: 'ai-chat',
             userName: userProfile ? `${userProfile.firstName} ${userProfile.lastName}`.trim() : 'User',
             accountType: userProfile?.role || 'customer',
             recentTransactions: recentTransactions,
@@ -284,7 +318,6 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
       }
 
       const data = await response.json();
-      console.log('🔥 Fresh AI Response:', data.response);
 
       return {
         message: data.response || data.message || data.text || 'I understand. How can I help you further?',
@@ -292,6 +325,10 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
         suggestions: data.suggestions || [],
         intent: data.intent,
         transferState: data.transferState,
+        inConversation: data.inConversation,
+        completed: data.completed,
+        conversationId: data.metadata?.conversationId,
+        data: data.data, // Include data field for transfer reference
       };
     } catch (error) {
       console.error('Error connecting to AI service:', error);
@@ -321,9 +358,112 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
     }
   };
 
-  const handleSuggestionPress = (suggestion: string) => {
+  const handleSuggestionPress = async (suggestion: string) => {
+    // Check if this is a "View receipt" action
+    if (suggestion.toLowerCase().includes('view receipt')) {
+      // Try to extract reference from the last message if lastTransferReference is not set
+      let referenceToUse = lastTransferReference;
+
+      if (!referenceToUse && messages.length > 0) {
+        // Look for reference in recent messages
+        for (let i = messages.length - 1; i >= Math.max(0, messages.length - 5); i--) {
+          const msg = messages[i];
+          if (msg.sender === 'ai' && msg.text) {
+            // Match reference pattern: 25 characters alphanumeric (bank code + ULID + HMAC + check digits)
+            const refMatch = msg.text.match(/Reference:\s*([A-Z0-9]{25})/i);
+            if (refMatch) {
+              referenceToUse = refMatch[1];
+              break;
+            }
+          }
+        }
+      }
+
+      if (referenceToUse) {
+        await handleViewReceipt(referenceToUse);
+        return;
+      } else {
+        notify.error('No transfer reference available', 'Error');
+        return;
+      }
+    }
+
     setInputText(suggestion);
     handleSendMessage(suggestion);
+  };
+
+  const handleViewReceipt = async (reference: string) => {
+    try {
+      const token = APIService.getAccessToken();
+      if (!token) {
+        notify.error('Authentication required', 'Error');
+        return;
+      }
+
+      // Show loading message
+      const loadingMessage: Message = {
+        id: Date.now().toString(),
+        text: '📄 Loading receipt...',
+        sender: 'ai',
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, loadingMessage]);
+
+      // Use APIService method to get transfer by reference
+      const transferData = await APIService.getTransferByReference(reference);
+
+      // Replace loading message with actual receipt
+      setMessages(prev => {
+        const filtered = prev.filter(msg => msg.id !== loadingMessage.id);
+        return [...filtered, {
+          id: (Date.now() + 1).toString(),
+          text: formatReceiptMessage(transferData),
+          sender: 'ai',
+          timestamp: new Date(),
+        }];
+      });
+
+      setSuggestions(['Make another transfer', 'Check balance', 'View transactions']);
+    } catch (error) {
+      console.error('Error fetching receipt:', error);
+      notify.error('Failed to load receipt. Please try again.', 'Error');
+
+      // Show error message
+      setMessages(prev => [...prev, {
+        id: (Date.now() + 2).toString(),
+        text: '❌ Sorry, I couldn\'t load the receipt. The transfer was successful, but there was an error retrieving the receipt details.',
+        sender: 'ai',
+        timestamp: new Date(),
+      }]);
+    }
+  };
+
+  const formatReceiptMessage = (transfer: any) => {
+    const statusEmoji = transfer.status === 'successful' ? '✅' :
+                       transfer.status === 'pending' ? '⏳' :
+                       transfer.status === 'failed' ? '❌' : '📋';
+
+    // Use initiatedAt or fallback to completedAt if initiatedAt is not available
+    const transactionDate = transfer.initiatedAt || transfer.completedAt || new Date();
+
+    return `📄 **Transfer Receipt**\n\n` +
+      `${statusEmoji} Status: ${transfer.status.toUpperCase()}\n\n` +
+      `**Transaction Details**\n` +
+      `Reference: ${transfer.reference}\n` +
+      `Date: ${new Date(transactionDate).toLocaleString()}\n` +
+      `Amount: ₦${transfer.amount.toLocaleString()}\n` +
+      `Fee: ₦${transfer.fees?.toLocaleString() || '0'}\n` +
+      `Total: ₦${transfer.totalAmount?.toLocaleString()}\n\n` +
+      `**Recipient**\n` +
+      `Name: ${transfer.recipient?.name}\n` +
+      `Account: ${transfer.recipient?.accountNumber}\n` +
+      `Bank: ${transfer.recipient?.bankName}\n\n` +
+      `**Sender**\n` +
+      `Name: ${transfer.sender?.name}\n` +
+      `Account: ${transfer.sender?.accountNumber}\n` +
+      `Bank: ${transfer.sender?.bankName}\n\n` +
+      `${transfer.description ? `Description: ${transfer.description}\n\n` : ''}` +
+      `Thank you for using our service!`;
   };
 
   const handleActionPress = (action: string) => {
@@ -333,6 +473,12 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
   const toggleVoiceRecording = () => {
     if (!speechRecognition) {
       notify.info('Voice recognition is not available in your browser', 'Info');
+      return;
+    }
+
+    // Disable voice input during PIN entry for security
+    if (isAwaitingPin) {
+      notify.info('For security, please type your PIN instead of speaking it', 'Security Notice');
       return;
     }
 
@@ -605,7 +751,7 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
       maxHeight: 100,
       ...Platform.select({
         web: {
-          outline: 'none',
+          outlineStyle: 'none' as any,
         },
       }),
     },
@@ -677,8 +823,16 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
       backgroundColor: theme.colors.warning,
       borderColor: theme.colors.warning,
     },
+    voiceButtonDisabled: {
+      backgroundColor: 'rgba(150, 150, 150, 0.3)',
+      borderColor: 'rgba(150, 150, 150, 0.3)',
+      opacity: 0.6,
+    },
     voiceButtonText: {
       fontSize: 20,
+    },
+    voiceButtonTextDisabled: {
+      opacity: 0.5,
     },
     voiceIndicator: {
       position: 'absolute',
@@ -869,21 +1023,51 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
                     styles.voiceButton,
                     voiceMode === 'listening' && styles.voiceButtonListening,
                     voiceMode === 'processing' && styles.voiceButtonProcessing,
+                    isAwaitingPin && styles.voiceButtonDisabled,
                   ]}
                   onPress={toggleVoiceRecording}
+                  disabled={isAwaitingPin}
                 >
-                  <Text style={styles.voiceButtonText}>
-                    {voiceMode === 'listening' ? '🔴' : '🎤'}
+                  <Text style={[
+                    styles.voiceButtonText,
+                    isAwaitingPin && styles.voiceButtonTextDisabled,
+                  ]}>
+                    {isAwaitingPin ? '🔒' : voiceMode === 'listening' ? '🔴' : '🎤'}
                   </Text>
                 </TouchableOpacity>
                 <View style={styles.inputWrapper}>
                   <TextInput
                     style={styles.textInput}
-                    placeholder={voiceMode === 'listening' ? 'Listening...' : 'Type your message...'}
+                    placeholder={
+                      isAwaitingPin
+                        ? 'Enter 4-digit PIN'
+                        : isAwaitingAccountNumber
+                          ? 'Enter 10-digit account number'
+                          : voiceMode === 'listening'
+                            ? 'Listening...'
+                            : 'Type your message...'
+                    }
                     placeholderTextColor={theme.colors.textSecondary}
                     value={inputText}
-                    onChangeText={setInputText}
-                    multiline
+                    onChangeText={(text) => {
+                      // If awaiting PIN, only allow digits and max 4 characters
+                      if (isAwaitingPin) {
+                        const digitsOnly = text.replace(/[^0-9]/g, '');
+                        setInputText(digitsOnly.slice(0, 4));
+                      }
+                      // If awaiting account number, only allow digits and max 10 characters
+                      else if (isAwaitingAccountNumber) {
+                        const digitsOnly = text.replace(/[^0-9]/g, '');
+                        setInputText(digitsOnly.slice(0, 10));
+                      }
+                      else {
+                        setInputText(text);
+                      }
+                    }}
+                    multiline={!isAwaitingPin && !isAwaitingAccountNumber}
+                    keyboardType={isAwaitingPin || isAwaitingAccountNumber ? 'numeric' : 'default'}
+                    maxLength={isAwaitingPin ? 4 : isAwaitingAccountNumber ? 10 : undefined}
+                    secureTextEntry={isAwaitingPin}
                     onSubmitEditing={() => handleSendMessage(inputText)}
                     editable={voiceMode === 'off'}
                     testID="message-input"
