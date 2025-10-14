@@ -78,7 +78,7 @@ export const CBNComplianceScreen: React.FC<CBNComplianceScreenProps> = ({
   onNavigateToDataLocalization,
 }) => {
   const { currentTenant } = useTenant();
-  const theme = useTenantTheme();
+  const { theme } = useTenantTheme();
   const { showAlert } = useBankingAlert();
   
   // State

@@ -534,7 +534,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
               <Typography.LabelMedium>Total Balance</Typography.LabelMedium>
               <Typography.Amount
                 value={dashboardData.totalBalance || 2450000}
-                currency={tenantTheme.currency}
+                currency={'NGN'}
                 variant="small"
                 style={{ marginVertical: 4 }}
               />
@@ -550,7 +550,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
               <Typography.LabelMedium>Available Balance</Typography.LabelMedium>
               <Typography.Amount
                 value={1850000}
-                currency={tenantTheme.currency}
+                currency={'NGN'}
                 variant="small"
                 style={{ marginVertical: 4 }}
               />
@@ -954,7 +954,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                       const date = new Date(dateValue);
                       return isNaN(date.getTime())
                         ? 'Date unavailable'
-                        : date.toLocaleString(tenantTheme.locale || 'en-US', {
+                        : date.toLocaleString('en-NG' || 'en-US', {
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric',
@@ -968,7 +968,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                   styles.activityAmount,
                   transaction.type === 'deposit' ? styles.creditAmount : styles.debitAmount
                 ]}>
-                  {transaction.type === 'deposit' ? '+' : '-'}{formatCurrency(Number(transaction.amount), tenantTheme.currency, { locale: tenantTheme.locale })}
+                  {transaction.type === 'deposit' ? '+' : '-'}{formatCurrency(Number(transaction.amount), 'NGN', { locale: 'en-NG' })}
                 </Text>
               </TouchableOpacity>
             ))}

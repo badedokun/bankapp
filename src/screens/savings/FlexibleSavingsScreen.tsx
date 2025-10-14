@@ -111,7 +111,7 @@ export const FlexibleSavingsScreen: React.FC<FlexibleSavingsScreenProps> = ({
                 NDIC Insured
               </RNText>
               <RNText style={[styles.benefitDesc, { color: tenantTheme.colors.textSecondary }]}>
-                Your savings are protected up to {formatCurrency(500000, tenantTheme.currency, { locale: tenantTheme.locale })}
+                Your savings are protected up to {formatCurrency(500000)}
               </RNText>
             </View>
           </View>
@@ -132,7 +132,7 @@ export const FlexibleSavingsScreen: React.FC<FlexibleSavingsScreenProps> = ({
                 color: tenantTheme.colors.text,
                 borderColor: tenantTheme.colors.border,
               }]}
-              placeholder={`${formatCurrency(1000, tenantTheme.currency, { locale: tenantTheme.locale })} minimum`}
+              placeholder={`${formatCurrency(1000)} minimum`}
               placeholderTextColor={tenantTheme.colors.textSecondary}
               value={amount}
               onChangeText={setAmount}
@@ -145,7 +145,7 @@ export const FlexibleSavingsScreen: React.FC<FlexibleSavingsScreenProps> = ({
               💡 Did you know?
             </RNText>
             <RNText style={[styles.infoText, { color: theme.colors.text }]}>
-              You can start saving with as little as {formatCurrency(1000, tenantTheme.currency, { locale: tenantTheme.locale })} and add more funds whenever you want!
+              You can start saving with as little as {formatCurrency(1000)} and add more funds whenever you want!
             </RNText>
           </View>
 

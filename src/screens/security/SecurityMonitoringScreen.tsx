@@ -100,7 +100,7 @@ export const SecurityMonitoringScreen: React.FC<SecurityMonitoringScreenProps> =
   onNavigateToThreatIntel,
 }) => {
   const { currentTenant } = useTenant();
-  const theme = useTenantTheme();
+  const { theme } = useTenantTheme();
   const { showAlert } = useBankingAlert();
   
   // State

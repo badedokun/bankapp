@@ -45,7 +45,7 @@ export const CompleteTransferFlowScreen: React.FC<CompleteTransferFlowScreenProp
   onBack,
   onTransferComplete,
 }) => {
-  const theme = useTenantTheme();
+  const { theme } = useTenantTheme();
   const { showAlert } = useBankingAlert();
   const { currentTenant } = useTenantContext();
 

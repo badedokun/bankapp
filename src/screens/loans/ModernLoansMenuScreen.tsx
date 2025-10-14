@@ -68,7 +68,7 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
       id: 'personal',
       name: 'Personal Loan',
       description: 'Quick funds for personal needs',
-      maxAmount: formatCurrency(5000000, tenantTheme.currency, { locale: tenantTheme.locale, compact: true }),
+      maxAmount: formatCurrency(5000000),
       rate: '15%',
       duration: '1-36 months',
       icon: '💵',
@@ -79,7 +79,7 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
       id: 'business',
       name: 'Business Loan',
       description: 'Grow your business capital',
-      maxAmount: formatCurrency(50000000, tenantTheme.currency, { locale: tenantTheme.locale, compact: true }),
+      maxAmount: formatCurrency(50000000),
       rate: '12%',
       duration: '3-60 months',
       icon: '💼',
@@ -90,7 +90,7 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
       id: 'quick',
       name: 'Quick Cash',
       description: 'Instant approval, same day',
-      maxAmount: formatCurrency(100000, tenantTheme.currency, { locale: tenantTheme.locale, compact: true }),
+      maxAmount: formatCurrency(100000),
       rate: '20%',
       duration: '7-30 days',
       icon: '⚡',
@@ -101,7 +101,7 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
       id: 'asset',
       name: 'Asset Finance',
       description: 'Purchase equipment & vehicles',
-      maxAmount: formatCurrency(100000000, tenantTheme.currency, { locale: tenantTheme.locale, compact: true }),
+      maxAmount: formatCurrency(100000000),
       rate: '10%',
       duration: '12-84 months',
       icon: '🚗',
@@ -111,7 +111,7 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
       id: 'mortgage',
       name: 'Home Mortgage',
       description: 'Own your dream home',
-      maxAmount: formatCurrency(200000000, tenantTheme.currency, { locale: tenantTheme.locale, compact: true }),
+      maxAmount: formatCurrency(200000000),
       rate: '9%',
       duration: '5-30 years',
       icon: '🏠',
@@ -122,7 +122,7 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
       id: 'salary',
       name: 'Salary Advance',
       description: 'Get paid before payday',
-      maxAmount: formatCurrency(500000, tenantTheme.currency, { locale: tenantTheme.locale, compact: true }),
+      maxAmount: formatCurrency(500000),
       rate: '5%',
       duration: '1 month',
       icon: '💰',
@@ -529,7 +529,7 @@ const ModernLoansMenuScreen: React.FC<ModernLoansMenuScreenProps> = ({
                 <View style={styles.eligibilityItem}>
                   <Text style={styles.eligibilityLabel}>Max Amount</Text>
                   <Text style={styles.eligibilityValue}>
-                    {formatCurrency(loanEligibility.maxAmount, tenantTheme.currency, { locale: tenantTheme.locale })}
+                    {formatCurrency(loanEligibility.maxAmount)}
                   </Text>
                 </View>
                 <View style={styles.eligibilityItem}>

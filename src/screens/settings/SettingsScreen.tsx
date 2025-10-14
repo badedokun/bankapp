@@ -91,7 +91,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   onLogout,
 }) => {
   const { currentTenant } = useTenant();
-  const theme = useTenantTheme();
+  const { theme } = useTenantTheme();
   const { showAlert } = useBankingAlert();
   
   // State

@@ -42,8 +42,7 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
   onBack,
   onTransferComplete,
 }) => {
-  const theme = useTenantTheme();
-  const tenantTheme = useTenantTheme();
+  const { theme } = useTenantTheme();
   const { showAlert, showConfirm } = useBankingAlert();
 
   // State management
@@ -483,10 +482,10 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
     } else {
       const amount = parseFloat(formData.amount);
       if (amount < limits.perTransaction.min) {
-        errors.push(`Minimum transfer amount is ${formatCurrency(limits.perTransaction.min, tenantTheme.currency, { locale: tenantTheme.locale })}`);
+        errors.push(`Minimum transfer amount is ${formatCurrency(limits.perTransaction.min)}`);
       }
       if (amount > limits.perTransaction.max) {
-        errors.push(`Maximum transfer amount is ${formatCurrency(limits.perTransaction.max, tenantTheme.currency, { locale: tenantTheme.locale })}`);
+        errors.push(`Maximum transfer amount is ${formatCurrency(limits.perTransaction.max)}`);
       }
       if (formData.senderAccount && amount > formData.senderAccount.balance) {
         errors.push('Insufficient balance');
@@ -537,7 +536,7 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
 
       showAlert(
         'Transfer Successful! 🎉',
-        `${formatCurrency(parseFloat(formData.amount), tenantTheme.currency, { locale: tenantTheme.locale })} has been sent to ${formData.recipientName} at ${formData.recipientBank?.name}\n\nTotal Charge: ${formatCurrency(total, tenantTheme.currency, { locale: tenantTheme.locale })} (including ${formatCurrency(fee, tenantTheme.currency, { locale: tenantTheme.locale })} NIBSS fee)`,
+        `${formatCurrency(parseFloat(formData.amount), 'NGN', { locale: 'en-NG' })} has been sent to ${formData.recipientName} at ${formData.recipientBank?.name}\n\nTotal Charge: ${formatCurrency(total)} (including ${formatCurrency(fee)} NIBSS fee)`,
         [{
           text: 'OK',
           onPress: () => {
@@ -576,7 +575,7 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
         <View style={styles.feeInfo}>
           <RNText style={styles.feeLabel}>Transfer Fee:</RNText>
           <RNText style={styles.feeAmount}>
-            {formatCurrency(formData.recipientBank.transferFee, tenantTheme.currency, { locale: tenantTheme.locale })}
+            {formatCurrency(formData.recipientBank.transferFee)}
           </RNText>
         </View>
       )}
@@ -645,18 +644,18 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
 
         <View style={styles.reviewRow}>
           <RNText style={styles.reviewLabel}>Amount:</RNText>
-          <RNText style={styles.reviewValue}>{formatCurrency(amount, tenantTheme.currency, { locale: tenantTheme.locale })}</RNText>
+          <RNText style={styles.reviewValue}>{formatCurrency(amount)}</RNText>
         </View>
 
         <View style={styles.reviewRow}>
           <RNText style={styles.reviewLabel}>NIBSS Fee:</RNText>
-          <RNText style={styles.reviewValue}>{formatCurrency(fee, tenantTheme.currency, { locale: tenantTheme.locale })}</RNText>
+          <RNText style={styles.reviewValue}>{formatCurrency(fee)}</RNText>
         </View>
 
         <View style={[styles.reviewRow, { borderBottomWidth: 0, marginTop: theme.spacing.sm }]}>
           <RNText style={[styles.reviewLabel, { fontWeight: 'bold' }]}>Total:</RNText>
           <RNText style={[styles.reviewValue, { fontWeight: 'bold', color: theme.colors.primary }]}>
-            {formatCurrency(total, tenantTheme.currency, { locale: tenantTheme.locale })}
+            {formatCurrency(total)}
           </RNText>
         </View>
       </View>
@@ -728,7 +727,7 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
           />
 
           <Input
-            label={`Amount (${getCurrencySymbol(tenantTheme.currency)})`}
+            label={`Amount (${getCurrencySymbol('NGN')})`}
             placeholder="Enter amount"
             value={formData.amount}
             onChangeText={(text) => handleFieldChange('amount', text)}
@@ -791,7 +790,7 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
 
         <RNText style={styles.disclaimerText}>
           External transfers via NIBSS are processed instantly during banking hours.
-          A fee of {formatCurrency(52.50, tenantTheme.currency, { locale: tenantTheme.locale })} applies per transaction.
+          A fee of {formatCurrency(52.50)} applies per transaction.
         </RNText>
       </ScrollView>
 
@@ -831,7 +830,7 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
                   <RNText style={styles.bankItemName}>{item.name}</RNText>
                   <RNText style={styles.bankItemCode}>{item.code}</RNText>
                   <RNText style={styles.bankItemFee}>
-                    Fee: {formatCurrency(item.transferFee, tenantTheme.currency, { locale: tenantTheme.locale })}
+                    Fee: {formatCurrency(item.transferFee)}
                   </RNText>
                 </TouchableOpacity>
               )}

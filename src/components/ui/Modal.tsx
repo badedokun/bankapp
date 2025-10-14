@@ -222,7 +222,7 @@ export const TransactionConfirmDialog: React.FC<{
 }> = ({ visible, onClose, onConfirm, transaction }) => {
   const theme = useTheme();
   const { theme: tenantTheme } = useTenantTheme();
-  const currencySymbol = transaction.currency ? getCurrencySymbol(transaction.currency) : getCurrencySymbol(tenantTheme.currency);
+  const currencySymbol = transaction.currency ? getCurrencySymbol(transaction.currency) : getCurrencySymbol('NGN');
   
   return (
     <Modal

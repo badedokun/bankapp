@@ -162,7 +162,7 @@ export const TransactionCard: React.FC<{
 }) => {
   const theme = useTheme();
   const { theme: tenantTheme } = useTenantTheme();
-  const currencySymbol = currency ? getCurrencySymbol(currency) : getCurrencySymbol(tenantTheme.currency);
+  const currencySymbol = currency ? getCurrencySymbol(currency) : getCurrencySymbol('NGN');
   
   return (
     <Card
@@ -212,7 +212,7 @@ export const BalanceCard: React.FC<{
   onToggleVisibility,
 }) => {
   const { theme: tenantTheme } = useTenantTheme();
-  const currencySymbol = currency ? getCurrencySymbol(currency) : getCurrencySymbol(tenantTheme.currency);
+  const currencySymbol = currency ? getCurrencySymbol(currency) : getCurrencySymbol('NGN');
   return (
     <Card
       variant="filled"

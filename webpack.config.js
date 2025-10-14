@@ -83,6 +83,9 @@ module.exports = {
       '@expo/vector-icons/MaterialCommunityIcons': false,
       '@expo/vector-icons': false,
       'react-native-vector-icons/MaterialCommunityIcons': false,
+      // Mobile-specific modules - web stubs
+      'expo-haptics': path.resolve(appDirectory, 'src/utils/haptics.ts'),
+      'react-native-reanimated': path.resolve(appDirectory, 'src/utils/reanimated-web-mock.ts'),
     },
     fallback: {
       "crypto": false,

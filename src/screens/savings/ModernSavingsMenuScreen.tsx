@@ -546,13 +546,13 @@ const ModernSavingsMenuScreen: React.FC<ModernSavingsMenuScreenProps> = ({
                 <View style={styles.summaryItem}>
                   <Text style={styles.summaryLabel}>Total Saved</Text>
                   <Text style={styles.summaryValue}>
-                    {formatCurrency(savingsSummary.totalSaved, tenantTheme.currency, { locale: tenantTheme.locale })}
+                    {formatCurrency(savingsSummary.totalSaved)}
                   </Text>
                 </View>
                 <View style={styles.summaryItem}>
                   <Text style={styles.summaryLabel}>Interest Earned</Text>
                   <Text style={[styles.summaryValue, { color: theme?.colors?.success }]}>
-                    {formatCurrency(savingsSummary.interestEarned, tenantTheme.currency, { locale: tenantTheme.locale })}
+                    {formatCurrency(savingsSummary.interestEarned)}
                   </Text>
                 </View>
                 <View style={styles.summaryItem}>
@@ -616,7 +616,7 @@ const ModernSavingsMenuScreen: React.FC<ModernSavingsMenuScreenProps> = ({
                     <View style={styles.minAmountContainer}>
                       <Text style={styles.minAmountLabel}>Min:</Text>
                       <Text style={styles.minAmountValue}>
-                        {formatCurrency(product.minAmount, tenantTheme.currency, { locale: tenantTheme.locale })}
+                        {formatCurrency(product.minAmount)}
                       </Text>
                     </View>
                   </View>

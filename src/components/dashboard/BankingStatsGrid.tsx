@@ -401,7 +401,7 @@ export const BankingStatsGrid: React.FC<BankingStatsGridProps> = ({
   onNavigateToFeature
 }) => {
   const { theme: tenantTheme } = useTenantTheme();
-  const stats = getRoleBasedStats(userRole, monthlyStats, roleBasedMetrics, tenantTheme.currency, tenantTheme.locale);
+  const stats = getRoleBasedStats(userRole, monthlyStats, roleBasedMetrics, 'NGN', 'en-NG');
 
   return (
     <View style={styles.container}>
@@ -442,7 +442,7 @@ export const BankingStatsGrid: React.FC<BankingStatsGridProps> = ({
           💡 {userRole.replace('_', ' ').toUpperCase()} Insights
         </Text>
         <Text style={styles.insightsText}>
-          {getRoleSpecificInsight(userRole, monthlyStats, roleBasedMetrics, tenantTheme.currency, tenantTheme.locale)}
+          {getRoleSpecificInsight(userRole, monthlyStats, roleBasedMetrics, 'NGN', 'en-NG')}
         </Text>
       </View>
     </View>

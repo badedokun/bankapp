@@ -62,7 +62,7 @@ export const EnhancedButton: React.FC<EnhancedButtonProps> = ({
 }) => {
   const theme = useTheme();
   const { theme: tenantTheme } = useTenantTheme();
-  const currencySymbol = currency ? getCurrencySymbol(currency) : getCurrencySymbol(tenantTheme.currency);
+  const currencySymbol = currency ? getCurrencySymbol(currency) : getCurrencySymbol('NGN');
   const buttonStyles = createButtonStyles(theme, {
     variant,
     size,
@@ -272,7 +272,7 @@ export const TransactionButton: React.FC<{
   style,
 }) => {
   const { theme: tenantTheme } = useTenantTheme();
-  const currencySymbol = currency || getCurrencySymbol(tenantTheme.currency);
+  const currencySymbol = currency || getCurrencySymbol('NGN');
   const getButtonConfig = () => {
     switch (type) {
       case 'transfer':

@@ -27,8 +27,7 @@ export const PersonalLoanScreen: React.FC<PersonalLoanScreenProps> = ({
   onBack,
   onLoanComplete,
 }) => {
-  const theme = useTenantTheme();
-  const tenantTheme = useTenantTheme();
+  const { theme } = useTenantTheme();
   const { showAlert } = useBankingAlert();
   const [amount, setAmount] = useState('');
   const [duration, setDuration] = useState('12');
@@ -91,7 +90,7 @@ export const PersonalLoanScreen: React.FC<PersonalLoanScreenProps> = ({
             <Text style={styles.benefitIcon}>💰</Text>
             <View style={styles.benefitText}>
               <Text style={[styles.benefitTitle, { color: theme.colors.text }]}>
-                Up to {formatCurrency(5000000, tenantTheme.currency, { locale: tenantTheme.locale })}
+                Up to {formatCurrency(5000000)}
               </Text>
               <Text style={[styles.benefitDesc, { color: theme.colors.textSecondary }]}>
                 Borrow what you need for your personal goals
@@ -151,7 +150,7 @@ export const PersonalLoanScreen: React.FC<PersonalLoanScreenProps> = ({
                 color: theme.colors.text,
                 borderColor: theme.colors.border,
               }]}
-              placeholder={`${formatCurrency(50000, tenantTheme.currency, { locale: tenantTheme.locale })} - ${formatCurrency(5000000, tenantTheme.currency, { locale: tenantTheme.locale })}`}
+              placeholder={`${formatCurrency(50000)} - ${formatCurrency(5000000)}`}
               placeholderTextColor={theme.colors.textSecondary}
               value={amount}
               onChangeText={setAmount}
@@ -187,7 +186,7 @@ export const PersonalLoanScreen: React.FC<PersonalLoanScreenProps> = ({
                   Monthly Payment:
                 </Text>
                 <Text style={[styles.calculationValue, { color: theme.colors.info }]}>
-                  {formatCurrency(calculateMonthlyPayment(), tenantTheme.currency, { locale: tenantTheme.locale })}
+                  {formatCurrency(calculateMonthlyPayment())}
                 </Text>
               </View>
               <View style={styles.calculationRow}>
@@ -195,7 +194,7 @@ export const PersonalLoanScreen: React.FC<PersonalLoanScreenProps> = ({
                   Total Repayment:
                 </Text>
                 <Text style={[styles.calculationValue, { color: theme.colors.info }]}>
-                  {formatCurrency(calculateMonthlyPayment() * parseInt(duration || '12'), tenantTheme.currency, { locale: tenantTheme.locale })}
+                  {formatCurrency(calculateMonthlyPayment() * parseInt(duration || '12'))}
                 </Text>
               </View>
             </View>
@@ -230,7 +229,7 @@ export const PersonalLoanScreen: React.FC<PersonalLoanScreenProps> = ({
               Maximum Amount
             </Text>
             <Text style={[styles.eligibilityValue, { color: theme.colors.primary }]}>
-              {formatCurrency(2000000, tenantTheme.currency, { locale: tenantTheme.locale })}
+              {formatCurrency(2000000)}
             </Text>
           </View>
           <View style={styles.eligibilityRow}>
@@ -269,12 +268,12 @@ const styles = StyleSheet.create({
   },
   backArrow: {
     fontSize: 24,
-    color: theme.colors.textInverse,
+    color: '#FFFFFF',
     marginRight: 8,
   },
   backText: {
     fontSize: 16,
-    color: theme.colors.textInverse,
+    color: '#FFFFFF',
     fontWeight: '500',
   },
   title: {

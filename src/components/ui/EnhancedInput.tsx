@@ -307,7 +307,7 @@ export const CurrencyInput: React.FC<BaseInputProps & {
   ...props
 }) => {
   const { theme: tenantTheme } = useTenantTheme();
-  const currencySymbol = currency ? getCurrencySymbol(currency) : getCurrencySymbol(tenantTheme.currency);
+  const currencySymbol = currency ? getCurrencySymbol(currency) : getCurrencySymbol('NGN');
   const formatCurrency = (text: string) => {
     // Remove non-digits and decimal points
     const cleaned = text.replace(/[^0-9.]/g, '');

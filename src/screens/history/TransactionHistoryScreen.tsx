@@ -68,8 +68,7 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
   onTransactionDetails,
 }) => {
   const { currentTenant } = useTenant();
-  const theme = useTenantTheme();
-  const tenantTheme = useTenantTheme();
+  const { theme } = useTenantTheme();
   const { showAlert } = useBankingAlert();
 
   // State
@@ -151,12 +150,12 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
         transactions: detailedTransactions,
         summary: {
           totalTransactions: detailedTransactions.length,
-          totalVolume: `${formatCurrency(totalVolume / 1000000, tenantTheme.currency)}M`,
-          avgFees: formatCurrency(avgFees, tenantTheme.currency),
+          totalVolume: `${formatCurrency(totalVolume / 1000000)}M`,
+          avgFees: formatCurrency(avgFees),
           monthlyChange: '+0%', // Would need historical data to calculate
         },
         aiInsights: {
-          message: `You have ${detailedTransactions.length} transactions with a total volume of ${formatCurrency(totalVolume, tenantTheme.currency)}. Your average transaction fee is ${formatCurrency(avgFees, tenantTheme.currency)}.`,
+          message: `You have ${detailedTransactions.length} transactions with a total volume of ${formatCurrency(totalVolume)}. Your average transaction fee is ${formatCurrency(avgFees)}.`,
           suggestions: ['View spending patterns', 'Download transaction history', 'Set up transfer limits'],
         },
       });
@@ -1431,17 +1430,17 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
                       <Text style={dynamicStyles.metaItem}>📅 {transaction.timestamp}</Text>
                       <Text style={dynamicStyles.metaItem}>🔍 {transaction.referenceNumber}</Text>
                       <Text style={dynamicStyles.metaItem}>
-                        ⚡ {transaction.fees > 0 ? formatCurrency(transaction.fees, tenantTheme.currency) : 'No fee'}
+                        ⚡ {transaction.fees > 0 ? formatCurrency(transaction.fees) : 'No fee'}
                       </Text>
                     </View>
                   </View>
 
                   <View style={dynamicStyles.transactionAmountContainer}>
                     <Text style={[dynamicStyles.transactionAmount, getAmountStyle(transaction.type)]}>
-                      {transaction.amount > 0 ? '+' : ''}{formatCurrency(Math.abs(transaction.amount), tenantTheme.currency)}
+                      {transaction.amount > 0 ? '+' : ''}{formatCurrency(Math.abs(transaction.amount))}
                     </Text>
                     <Text style={dynamicStyles.balanceText}>
-                      Balance: {formatCurrency(transaction.balance, tenantTheme.currency)}
+                      Balance: {formatCurrency(transaction.balance)}
                     </Text>
                   </View>
                 </View>
