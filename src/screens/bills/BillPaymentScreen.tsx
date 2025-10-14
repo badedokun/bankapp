@@ -202,12 +202,12 @@ const styles = StyleSheet.create({
   },
   backArrow: {
     fontSize: 24,
-    color: theme.colors.textInverse,
+    color: '#FFFFFF',
     marginRight: 8,
   },
   backText: {
     fontSize: 16,
-    color: theme.colors.textInverse,
+    color: '#FFFFFF',
     fontWeight: '500',
   },
   title: {
