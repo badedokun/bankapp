@@ -385,7 +385,13 @@ export class ConversationalTransferService {
    * Create transfer record
    */
   private static async createTransfer(userId: string, data: Record<string, any>, tenantId: string): Promise<any> {
+    // Get a database client for transaction
+    const client = await dbManager.getTenantClient(tenantId);
+
     try {
+      // Start transaction
+      await client.query('BEGIN');
+
       // Get tenant's bank code for reference generation
       const tenantResult = await dbManager.queryPlatform(
         'SELECT bank_code FROM platform.tenants WHERE id = $1',
@@ -397,8 +403,54 @@ export class ConversationalTransferService {
       // Generate secure ULID-based reference
       const reference = generateTransferRef(bankCode);
 
-      // Insert transfer record
-      const transferResult = await dbManager.queryTenant(tenantId,
+      // Get wallet FIRST to ensure it exists and has sufficient balance
+      const walletResult = await client.query(
+        `SELECT id, wallet_type, balance FROM tenant.wallets
+         WHERE user_id = $1
+         AND wallet_type IN ('primary', 'main', 'default', 'checking')
+         ORDER BY
+           CASE wallet_type
+             WHEN 'main' THEN 1
+             WHEN 'primary' THEN 2
+             WHEN 'default' THEN 3
+             ELSE 4
+           END
+         LIMIT 1`,
+        [userId]
+      );
+
+      if (walletResult.rows.length === 0) {
+        throw new Error('No wallet found for user');
+      }
+
+      const wallet = walletResult.rows[0];
+      const currentBalance = parseFloat(wallet.balance);
+
+      // Verify sufficient balance (double-check)
+      if (currentBalance < data.amount) {
+        throw new Error(`Insufficient balance: ${currentBalance} < ${data.amount}`);
+      }
+
+      console.error(`💰 Debiting wallet ${wallet.id}: Balance ${currentBalance} -> ${currentBalance - data.amount}`);
+
+      // Debit wallet FIRST (before creating transfer record)
+      const updateResult = await client.query(
+        `UPDATE tenant.wallets
+         SET balance = balance - $1, updated_at = NOW()
+         WHERE id = $2
+         RETURNING balance`,
+        [data.amount, wallet.id]
+      );
+
+      if (updateResult.rowCount === 0) {
+        throw new Error('Failed to debit wallet - no rows updated');
+      }
+
+      const newBalance = parseFloat(updateResult.rows[0].balance);
+      console.error(`✅ Wallet debited successfully. New balance: ${newBalance}`);
+
+      // Now insert transfer record
+      const transferResult = await client.query(
         `INSERT INTO tenant.transfers (
           sender_id, tenant_id, reference, amount, fee, description,
           source_account_number, source_bank_code,
@@ -422,36 +474,10 @@ export class ConversationalTransferService {
         ]
       );
 
-      // Debit user's wallet - use same priority logic as balance check
-      // First get the correct wallet ID
-      const walletResult = await dbManager.queryTenant(tenantId,
-        `SELECT id, wallet_type FROM tenant.wallets
-         WHERE user_id = $1
-         AND wallet_type IN ('primary', 'main', 'default', 'checking')
-         ORDER BY
-           CASE wallet_type
-             WHEN 'main' THEN 1
-             WHEN 'primary' THEN 2
-             WHEN 'default' THEN 3
-             ELSE 4
-           END
-         LIMIT 1`,
-        [userId]
-      );
+      // Commit transaction
+      await client.query('COMMIT');
 
-      if (walletResult.rows.length === 0) {
-        throw new Error('No wallet found for user');
-      }
-
-      const walletId = walletResult.rows[0].id;
-
-      // Now update that specific wallet
-      await dbManager.queryTenant(tenantId,
-        `UPDATE tenant.wallets
-         SET balance = balance - $1, updated_at = NOW()
-         WHERE id = $2`,
-        [data.amount, walletId]
-      );
+      console.error(`✅ Transfer created successfully: ${reference}`);
 
       return {
         success: true,
@@ -460,11 +486,16 @@ export class ConversationalTransferService {
       };
 
     } catch (error) {
-      console.error('Error creating transfer:', error);
+      // Rollback transaction on error
+      await client.query('ROLLBACK');
+      console.error('❌ Error creating transfer (rolled back):', error);
       return {
         success: false,
         error: `Failed to process transfer: ${(error as Error).message}`
       };
+    } finally {
+      // Release client back to pool
+      client.release();
     }
   }
 
