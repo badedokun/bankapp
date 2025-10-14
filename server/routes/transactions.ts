@@ -8,6 +8,7 @@ import express from 'express';
 import { body, query as queryValidator, validationResult } from 'express-validator';
 import bcrypt from 'bcrypt';
 import { query, transaction } from '../config/database';
+import dbManager from '../config/multi-tenant-database';
 import { authenticateToken } from '../middleware/auth';
 import { validateTenantAccess } from '../middleware/tenant';
 import { asyncHandler, errors } from '../middleware/errorHandler';
@@ -602,15 +603,164 @@ async function simulateBillPayment(params: any) {
 async function simulateAirtimePurchase(params: any) {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 1500));
-  
+
   // Simulate 98% success rate for airtime
   const success = Math.random() > 0.02;
-  
+
   return {
     success,
     message: success ? 'Airtime purchase successful' : 'Network provider error. Please try again.',
     providerReference: success ? `${params.network}_${Date.now()}` : null
   };
 }
+
+/**
+ * POST /api/transactions/disputes
+ * Submit a transaction dispute
+ */
+router.post('/disputes', authenticateToken, validateTenantAccess, [
+  body('transactionId').notEmpty().withMessage('Transaction ID is required'),
+  body('transactionReference').notEmpty().withMessage('Transaction reference is required'),
+  body('transactionType').notEmpty().withMessage('Transaction type is required'),
+  body('transactionDetails').isObject().withMessage('Transaction details must be an object'),
+  body('disputeReason').notEmpty().withMessage('Dispute reason is required'),
+  body('disputeCategory').optional().isIn(['unauthorized', 'incorrect_amount', 'service_not_received', 'duplicate', 'fraud', 'other']).withMessage('Invalid dispute category'),
+  body('additionalNotes').optional().isString()
+], asyncHandler(async (req, res) => {
+  const validationErrors = validationResult(req);
+  if (!validationErrors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      error: 'Validation failed',
+      code: 'VALIDATION_ERROR',
+      details: validationErrors.array()
+    });
+  }
+
+  const userId = req.user.id;
+  const tenantId = req.user.tenantId;
+  const {
+    transactionId,
+    transactionReference,
+    transactionType,
+    transactionDetails,
+    disputeReason,
+    disputeCategory,
+    additionalNotes
+  } = req.body;
+
+  try {
+    // Get user details
+    const userResult = await query(
+      'SELECT email, phone_number FROM tenant.users WHERE id = $1',
+      [userId]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found',
+        code: 'USER_NOT_FOUND'
+      });
+    }
+
+    const user = userResult.rows[0];
+
+    // Get tenant configuration for dispute number generation
+    const tenantResult = await query(
+      'SELECT name, branding->>\'locale\' as locale FROM platform.tenants WHERE id = $1',
+      [tenantId]
+    );
+    const tenantCode = tenantResult.rows[0]?.name?.toUpperCase() || 'DFLT';
+    const tenantLocale = tenantResult.rows[0]?.locale || 'en-US';
+
+    // Connect to tenant-specific database
+    const tenantPool = await dbManager.getTenantPool(tenantId);
+    const client = await tenantPool.connect();
+
+    let disputeNumber: string;
+
+    try {
+      // Generate dispute number using tenant-specific database function
+      // This function handles locale-specific date formatting and sequential numbering
+      const disputeNumberResult = await client.query(
+        'SELECT tenant.generate_dispute_number($1, $2) as dispute_number',
+        [tenantCode, tenantLocale]
+      );
+      disputeNumber = disputeNumberResult.rows[0].dispute_number;
+
+      // Insert dispute into tenant database with generated number
+      const disputeResult = await client.query(`
+        INSERT INTO tenant.transaction_disputes (
+          dispute_number,
+          transaction_id,
+          transaction_reference,
+          transaction_type,
+          user_id,
+          user_email,
+          user_phone,
+          transaction_details,
+          dispute_reason,
+          dispute_category,
+          additional_notes,
+          status,
+          priority,
+          created_at,
+          updated_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW(), NOW())
+        RETURNING *
+      `, [
+        disputeNumber,
+        transactionId,
+        transactionReference,
+        transactionType,
+        userId,
+        user.email,
+        user.phone_number,
+        JSON.stringify(transactionDetails),
+        disputeReason,
+        disputeCategory || 'other',
+        additionalNotes || '',
+        'pending',
+        'normal'
+      ]);
+
+      const dispute = disputeResult.rows[0];
+
+      res.json({
+        success: true,
+        message: 'Dispute submitted successfully',
+        data: {
+          dispute: {
+            id: dispute.id,
+            disputeNumber: dispute.dispute_number,
+            transactionReference: dispute.transaction_reference,
+            status: dispute.status,
+            priority: dispute.priority,
+            createdAt: dispute.created_at
+          }
+        }
+      });
+    } catch (error: any) {
+      console.error('Error inserting dispute into tenant database:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to submit dispute',
+        code: 'DISPUTE_SUBMISSION_FAILED',
+        message: error.message
+      });
+    } finally {
+      client.release();
+    }
+  } catch (error: any) {
+    console.error('Error submitting dispute:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to submit dispute',
+      code: 'DISPUTE_SUBMISSION_FAILED',
+      message: error.message
+    });
+  }
+}));
 
 export default router;

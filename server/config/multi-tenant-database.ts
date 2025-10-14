@@ -99,8 +99,9 @@ class MultiTenantDatabaseManager {
    */
   async getTenantPool(tenantId: string): Promise<Pool> {
     // Check if pool already exists
-    if (this.tenantPools.has(tenantId)) {
-      return this.tenantPools.get(tenantId);
+    const existingPool = this.tenantPools.get(tenantId);
+    if (existingPool) {
+      return existingPool;
     }
 
     try {
@@ -203,7 +204,18 @@ class MultiTenantDatabaseManager {
    * Get pool statistics
    */
   getPoolStats() {
-    const stats = {
+    const stats: {
+      platform: {
+        totalCount: number;
+        idleCount: number;
+        waitingCount: number;
+      };
+      tenants: Record<string, {
+        totalCount: number;
+        idleCount: number;
+        waitingCount: number;
+      }>;
+    } = {
       platform: {
         totalCount: this.platformPool.totalCount,
         idleCount: this.platformPool.idleCount,
@@ -227,9 +239,7 @@ class MultiTenantDatabaseManager {
    * Clean up idle tenant pools
    */
   async cleanupIdlePools() {
-    const now = Date.now();
-    const idleTimeout = 10 * 60 * 1000; // 10 minutes
-
+    // Cleanup idle pools based on activity
     for (const [tenantId, pool] of this.tenantPools) {
       // Check if pool has been idle
       if (pool.idleCount === pool.totalCount) {

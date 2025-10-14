@@ -57,6 +57,9 @@ export const CompleteTransferFlowScreen: React.FC<CompleteTransferFlowScreenProp
     errors: {},
   });
 
+  // Loading state for async operations
+  const [isLoading, setIsLoading] = useState(false);
+
   // External transfer verification state
   const [selectedBank, setSelectedBank] = useState<Bank | null>(null);
   const [verificationState, setVerificationState] = useState<{

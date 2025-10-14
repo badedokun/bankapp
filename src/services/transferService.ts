@@ -26,8 +26,31 @@ import {
   BulkTransferRequest,
 } from '../types/transfers';
 
+interface APIResponse<T = any> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
+  code?: string;
+}
+
 class TransferService implements ITransferService {
   private baseUrl = '/api/transfers';
+  private apiService: any;
+
+  constructor() {
+    this.apiService = APIService;
+  }
+
+  /**
+   * Helper to make API requests using the private makeRequest method
+   */
+  private async makeAPIRequest<T = any>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<APIResponse<T>> {
+    return await (this.apiService as any).makeRequest(endpoint, options);
+  }
 
   /**
    * Initiate a transfer of any type
@@ -36,7 +59,7 @@ class TransferService implements ITransferService {
     try {
       // Route to appropriate endpoint based on transfer type
       let endpoint = '';
-      let payload: any = request;
+      const payload: any = request;
 
       switch (request.type) {
         case 'internal':
@@ -55,7 +78,10 @@ class TransferService implements ITransferService {
           throw new ValidationError('Invalid transfer type', 'type');
       }
 
-      const response = await APIService.makeRequest('POST', endpoint, payload);
+      const response = await this.makeAPIRequest<any>(endpoint, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
 
       if (!response.success) {
         throw new TransferError(
@@ -65,34 +91,37 @@ class TransferService implements ITransferService {
         );
       }
 
+      const data = response.data!;
       return {
-        id: response.data.id,
-        reference: response.data.reference,
-        status: response.data.status,
-        amount: response.data.amount,
-        fees: response.data.fees,
-        totalAmount: response.data.totalAmount,
-        recipient: response.data.recipient,
-        scheduledDate: response.data.scheduledDate ? new Date(response.data.scheduledDate) : undefined,
-        processedAt: response.data.processedAt ? new Date(response.data.processedAt) : undefined,
+        id: data.id,
+        reference: data.reference,
+        status: data.status,
+        amount: data.amount,
+        fees: data.fees,
+        totalAmount: data.totalAmount,
+        recipient: data.recipient,
+        scheduledDate: data.scheduledDate ? new Date(data.scheduledDate) : undefined,
+        processedAt: data.processedAt ? new Date(data.processedAt) : undefined,
         message: response.message,
       };
-    } catch (error: any) {
+    } catch (error) {
       if (error instanceof TransferError) {
         throw error;
       }
 
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
       // Handle specific error types
-      if (error.message?.includes('insufficient')) {
+      if (errorMessage.includes('insufficient')) {
         throw new InsufficientFundsError(0, request.amount);
       }
 
-      if (error.message?.includes('limit')) {
+      if (errorMessage.includes('limit')) {
         throw new LimitExceededError(0, request.amount, 'transaction');
       }
 
       throw new TransferError(
-        error.message || 'Transfer failed',
+        errorMessage || 'Transfer failed',
         'UNKNOWN_ERROR',
         error
       );
@@ -108,17 +137,22 @@ class TransferService implements ITransferService {
     limit: number = 20
   ): Promise<TransferRecord[]> {
     try {
-      const response = await APIService.makeRequest('GET', `${this.baseUrl}/history`, {
+      const params = new URLSearchParams({
         accountId,
-        page,
-        limit,
+        page: page.toString(),
+        limit: limit.toString()
+      });
+
+      const response = await this.makeAPIRequest<any[]>(`${this.baseUrl}/history?${params.toString()}`, {
+        method: 'GET'
       });
 
       if (!response.success) {
         throw new TransferError(response.message || 'Failed to fetch transfer history', 'FETCH_FAILED');
       }
 
-      return response.data.map((record: any) => ({
+      const data = response.data || [];
+      return data.map((record: any) => ({
         id: record.id,
         reference: record.reference,
         type: record.type,
@@ -133,9 +167,10 @@ class TransferService implements ITransferService {
         scheduledDate: record.scheduledDate ? new Date(record.scheduledDate) : undefined,
         failureReason: record.failureReason,
       }));
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       throw new TransferError(
-        error.message || 'Failed to fetch transfer history',
+        errorMessage || 'Failed to fetch transfer history',
         'FETCH_FAILED',
         error
       );
@@ -147,13 +182,15 @@ class TransferService implements ITransferService {
    */
   async getTransferDetails(transferId: string): Promise<TransferRecord> {
     try {
-      const response = await APIService.makeRequest('GET', `${this.baseUrl}/${transferId}`);
+      const response = await this.makeAPIRequest<any>(`${this.baseUrl}/${transferId}`, {
+        method: 'GET'
+      });
 
       if (!response.success) {
         throw new TransferError(response.message || 'Transfer not found', 'NOT_FOUND');
       }
 
-      const record = response.data;
+      const record = response.data!;
       return {
         id: record.id,
         reference: record.reference,
@@ -169,9 +206,10 @@ class TransferService implements ITransferService {
         scheduledDate: record.scheduledDate ? new Date(record.scheduledDate) : undefined,
         failureReason: record.failureReason,
       };
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       throw new TransferError(
-        error.message || 'Failed to fetch transfer details',
+        errorMessage || 'Failed to fetch transfer details',
         'FETCH_FAILED',
         error
       );
@@ -183,11 +221,14 @@ class TransferService implements ITransferService {
    */
   async cancelTransfer(transferId: string): Promise<boolean> {
     try {
-      const response = await APIService.makeRequest('POST', `${this.baseUrl}/${transferId}/cancel`);
+      const response = await this.makeAPIRequest(`${this.baseUrl}/${transferId}/cancel`, {
+        method: 'POST'
+      });
       return response.success;
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       throw new TransferError(
-        error.message || 'Failed to cancel transfer',
+        errorMessage || 'Failed to cancel transfer',
         'CANCEL_FAILED',
         error
       );
@@ -199,13 +240,17 @@ class TransferService implements ITransferService {
    */
   async getBeneficiaries(userId: string): Promise<Beneficiary[]> {
     try {
-      const response = await APIService.makeRequest('GET', '/api/beneficiaries', { userId });
+      const params = new URLSearchParams({ userId });
+      const response = await this.makeAPIRequest<any[]>(`/api/beneficiaries?${params.toString()}`, {
+        method: 'GET'
+      });
 
       if (!response.success) {
         throw new TransferError(response.message || 'Failed to fetch beneficiaries', 'FETCH_FAILED');
       }
 
-      return response.data.map((beneficiary: any) => ({
+      const data = response.data || [];
+      return data.map((beneficiary: any) => ({
         id: beneficiary.id,
         name: beneficiary.name,
         accountNumber: beneficiary.accountNumber,
@@ -216,9 +261,10 @@ class TransferService implements ITransferService {
         lastUsed: new Date(beneficiary.lastUsed),
         totalTransfers: beneficiary.totalTransfers,
       }));
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       throw new TransferError(
-        error.message || 'Failed to fetch beneficiaries',
+        errorMessage || 'Failed to fetch beneficiaries',
         'FETCH_FAILED',
         error
       );
@@ -232,13 +278,16 @@ class TransferService implements ITransferService {
     beneficiary: Omit<Beneficiary, 'id' | 'totalTransfers' | 'lastUsed'>
   ): Promise<Beneficiary> {
     try {
-      const response = await APIService.makeRequest('POST', '/api/beneficiaries', beneficiary);
+      const response = await this.makeAPIRequest<any>('/api/beneficiaries', {
+        method: 'POST',
+        body: JSON.stringify(beneficiary)
+      });
 
       if (!response.success) {
         throw new TransferError(response.message || 'Failed to add beneficiary', 'ADD_FAILED');
       }
 
-      const newBeneficiary = response.data;
+      const newBeneficiary = response.data!;
       return {
         id: newBeneficiary.id,
         name: newBeneficiary.name,
@@ -250,9 +299,10 @@ class TransferService implements ITransferService {
         lastUsed: new Date(newBeneficiary.lastUsed),
         totalTransfers: newBeneficiary.totalTransfers,
       };
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       throw new TransferError(
-        error.message || 'Failed to add beneficiary',
+        errorMessage || 'Failed to add beneficiary',
         'ADD_FAILED',
         error
       );
@@ -264,11 +314,14 @@ class TransferService implements ITransferService {
    */
   async deleteBeneficiary(beneficiaryId: string): Promise<boolean> {
     try {
-      const response = await APIService.makeRequest('DELETE', `/api/beneficiaries/${beneficiaryId}`);
+      const response = await this.makeAPIRequest(`/api/beneficiaries/${beneficiaryId}`, {
+        method: 'DELETE'
+      });
       return response.success;
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       throw new TransferError(
-        error.message || 'Failed to delete beneficiary',
+        errorMessage || 'Failed to delete beneficiary',
         'DELETE_FAILED',
         error
       );
@@ -280,21 +333,25 @@ class TransferService implements ITransferService {
    */
   async getTransferLimits(accountId: string): Promise<TransferLimits> {
     try {
-      const response = await APIService.makeRequest('GET', `/api/accounts/${accountId}/limits`);
+      const response = await this.makeAPIRequest<any>(`/api/accounts/${accountId}/limits`, {
+        method: 'GET'
+      });
 
       if (!response.success) {
         throw new TransferError(response.message || 'Failed to fetch transfer limits', 'FETCH_FAILED');
       }
 
+      const data = response.data!;
       return {
-        daily: response.data.daily,
-        monthly: response.data.monthly,
-        perTransaction: response.data.perTransaction,
-        currency: response.data.currency,
+        daily: data.daily,
+        monthly: data.monthly,
+        perTransaction: data.perTransaction,
+        currency: data.currency,
       };
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       throw new TransferError(
-        error.message || 'Failed to fetch transfer limits',
+        errorMessage || 'Failed to fetch transfer limits',
         'FETCH_FAILED',
         error
       );
@@ -309,9 +366,9 @@ class TransferService implements ITransferService {
     bankCode: string
   ): Promise<{ isValid: boolean; accountName?: string; bankName?: string }> {
     try {
-      const response = await APIService.makeRequest('POST', '/api/validation/account', {
-        accountNumber,
-        bankCode,
+      const response = await this.makeAPIRequest<any>('/api/validation/account', {
+        method: 'POST',
+        body: JSON.stringify({ accountNumber, bankCode })
       });
 
       return {
@@ -319,7 +376,7 @@ class TransferService implements ITransferService {
         accountName: response.data?.accountName,
         bankName: response.data?.bankName,
       };
-    } catch (error: any) {
+    } catch {
       return {
         isValid: false,
       };
@@ -331,11 +388,14 @@ class TransferService implements ITransferService {
    */
   async requestOTP(transferId: string): Promise<boolean> {
     try {
-      const response = await APIService.makeRequest('POST', `${this.baseUrl}/${transferId}/otp`);
+      const response = await this.makeAPIRequest(`${this.baseUrl}/${transferId}/otp`, {
+        method: 'POST'
+      });
       return response.success;
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       throw new TransferError(
-        error.message || 'Failed to request OTP',
+        errorMessage || 'Failed to request OTP',
         'OTP_REQUEST_FAILED',
         error
       );
@@ -347,20 +407,22 @@ class TransferService implements ITransferService {
    */
   async verifyOTP(request: OTPRequest): Promise<OTPResponse> {
     try {
-      const response = await APIService.makeRequest('POST', `${this.baseUrl}/${request.transferId}/verify-otp`, {
-        otpCode: request.otpCode,
+      const response = await this.makeAPIRequest<any>(`${this.baseUrl}/${request.transferId}/verify-otp`, {
+        method: 'POST',
+        body: JSON.stringify({ otpCode: request.otpCode })
       });
 
       return {
         isValid: response.success,
-        message: response.message,
+        message: response.message || '',
         attemptsRemaining: response.data?.attemptsRemaining,
       };
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       return {
         isValid: false,
-        message: error.message || 'OTP verification failed',
-        attemptsRemaining: error.data?.attemptsRemaining,
+        message: errorMessage || 'OTP verification failed',
+        attemptsRemaining: undefined,
       };
     }
   }
@@ -370,13 +432,17 @@ class TransferService implements ITransferService {
    */
   async getUserAccounts(userId: string): Promise<UserAccount[]> {
     try {
-      const response = await APIService.makeRequest('GET', '/api/accounts', { userId });
+      const params = new URLSearchParams({ userId });
+      const response = await this.makeAPIRequest<any[]>(`/api/accounts?${params.toString()}`, {
+        method: 'GET'
+      });
 
       if (!response.success) {
         throw new TransferError(response.message || 'Failed to fetch accounts', 'FETCH_FAILED');
       }
 
-      return response.data.map((account: any) => ({
+      const data = response.data || [];
+      return data.map((account: any) => ({
         id: account.id,
         accountNumber: account.accountNumber,
         accountName: account.accountName,
@@ -385,9 +451,10 @@ class TransferService implements ITransferService {
         currency: account.currency,
         isDefault: account.isDefault,
       }));
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       throw new TransferError(
-        error.message || 'Failed to fetch accounts',
+        errorMessage || 'Failed to fetch accounts',
         'FETCH_FAILED',
         error
       );
@@ -399,13 +466,16 @@ class TransferService implements ITransferService {
    */
   async getBanks(): Promise<Bank[]> {
     try {
-      const response = await APIService.makeRequest('GET', '/api/banks');
+      const response = await this.makeAPIRequest<any[]>('/api/banks', {
+        method: 'GET'
+      });
 
       if (!response.success) {
         throw new TransferError(response.message || 'Failed to fetch banks', 'FETCH_FAILED');
       }
 
-      return response.data.map((bank: any) => ({
+      const data = response.data || [];
+      return data.map((bank: any) => ({
         code: bank.code,
         name: bank.name,
         sortCode: bank.sortCode,
@@ -414,9 +484,10 @@ class TransferService implements ITransferService {
         transferFee: bank.transferFee,
         maxTransferLimit: bank.maxTransferLimit,
       }));
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       throw new TransferError(
-        error.message || 'Failed to fetch banks',
+        errorMessage || 'Failed to fetch banks',
         'FETCH_FAILED',
         error
       );
@@ -428,13 +499,17 @@ class TransferService implements ITransferService {
    */
   async processBulkTransfer(request: BulkTransferRequest): Promise<TransferResponse[]> {
     try {
-      const response = await APIService.makeRequest('POST', `${this.baseUrl}/bulk`, request);
+      const response = await this.makeAPIRequest<any[]>(`${this.baseUrl}/bulk`, {
+        method: 'POST',
+        body: JSON.stringify(request)
+      });
 
       if (!response.success) {
         throw new TransferError(response.message || 'Bulk transfer failed', 'BULK_TRANSFER_FAILED');
       }
 
-      return response.data.map((transfer: any) => ({
+      const data = response.data || [];
+      return data.map((transfer: any) => ({
         id: transfer.id,
         reference: transfer.reference,
         status: transfer.status,
@@ -446,9 +521,10 @@ class TransferService implements ITransferService {
         processedAt: transfer.processedAt ? new Date(transfer.processedAt) : undefined,
         message: transfer.message,
       }));
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       throw new TransferError(
-        error.message || 'Bulk transfer failed',
+        errorMessage || 'Bulk transfer failed',
         'BULK_TRANSFER_FAILED',
         error
       );
@@ -464,21 +540,26 @@ class TransferService implements ITransferService {
     bankCode?: string
   ): Promise<{ fee: number; totalAmount: number }> {
     try {
-      const response = await APIService.makeRequest('GET', '/api/fees/calculate', {
+      const params = new URLSearchParams({
         type: transferType,
-        amount,
-        bankCode,
+        amount: amount.toString(),
+        ...(bankCode && { bankCode })
+      });
+
+      const response = await this.makeAPIRequest<any>(`/api/fees/calculate?${params.toString()}`, {
+        method: 'GET'
       });
 
       if (!response.success) {
         throw new TransferError(response.message || 'Failed to calculate fees', 'FEE_CALCULATION_FAILED');
       }
 
+      const data = response.data!;
       return {
-        fee: response.data.fee,
-        totalAmount: response.data.totalAmount,
+        fee: data.fee,
+        totalAmount: data.totalAmount,
       };
-    } catch (error: any) {
+    } catch {
       // Return default fees if calculation fails
       let defaultFee = 0;
 

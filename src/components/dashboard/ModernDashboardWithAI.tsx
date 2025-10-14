@@ -3,7 +3,7 @@
  * Matches the dashboard-modern-with-ai.html mockup exactly
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   View,
   ScrollView,
@@ -21,6 +21,8 @@ import { useTenantTheme } from '../../context/TenantThemeContext';
 import Typography from '../ui/Typography';
 import { TierProgressIndicator } from '../rewards';
 import ReusableHeader from '../ui/ReusableHeader';
+import APIService from '../../services/api';
+import ENV_CONFIG from '../../config/environment';
 
 const { width: screenWidth } = Dimensions.get('window');
 const isWeb = Platform.OS === 'web';
@@ -54,6 +56,26 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
   const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
   const profileMenuRef = useRef<any>(null);
   const profileButtonRef = useRef<any>(null);
+
+  // AI Chat state
+  const [aiMessages, setAIMessages] = useState<Array<{id: string; text: string; sender: 'user' | 'ai'; timestamp: Date}>>([
+    {
+      id: '1',
+      text: 'Hello! I can help you with transfers, account inquiries, bill payments, and financial planning. What would you like to do today?',
+      sender: 'ai',
+      timestamp: new Date()
+    }
+  ]);
+  const [isAITyping, setIsAITyping] = useState(false);
+  const conversationIdRef = useRef(`conv_${Date.now()}`);
+
+  // AI Suggestions state
+  const [aiSuggestions, setAISuggestions] = useState<{
+    savings?: { title: string; description: string; potentialSavings: number; action: string };
+    investment?: { title: string; description: string; action: string };
+    bills?: { title: string; description: string; totalAmount: number; billCount: number; action: string };
+  }>({});
+  const [isSuggestionsLoading, setIsSuggestionsLoading] = useState(false);
 
   // Debug effect to log showProfileMenu state changes
   useEffect(() => {
@@ -112,6 +134,181 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
       };
     }
   }, [showProfileMenu]);
+
+  // AI Chat Functions
+  const sendToAIService = async (text: string) => {
+    try {
+      const token = APIService.getAccessToken();
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+
+      // Get user context
+      let userProfile = null;
+      let recentTransactions = [];
+
+      try {
+        userProfile = await APIService.getProfile();
+      } catch (error) {
+        // Could not fetch user profile
+      }
+
+      try {
+        const transactionsData = await APIService.getTransferHistory({ page: 1, limit: 5 });
+        if (transactionsData?.transactions) {
+          recentTransactions = transactionsData.transactions.slice(0, 3);
+        }
+      } catch (error) {
+        // Could not fetch transactions
+      }
+
+      const response = await fetch(`${ENV_CONFIG.API_BASE_URL}/api/ai/chat`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'X-Tenant-ID': tenantTheme.tenantCode || 'platform',
+        },
+        body: JSON.stringify({
+          message: text,
+          userId: userProfile?.id || 'current-user',
+          context: {
+            conversationId: conversationIdRef.current,
+            page: 'dashboard',
+            userName: userProfile ? `${userProfile.firstName} ${userProfile.lastName}`.trim() : 'User',
+            accountType: userProfile?.role || 'customer',
+            recentTransactions: recentTransactions,
+            timestamp: new Date().toISOString(),
+          }
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`AI service error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      return {
+        message: data.response || data.message || data.text || 'I understand. How can I help you further?',
+        suggestions: data.suggestions || [],
+      };
+    } catch (error) {
+      console.error('Error calling AI service:', error);
+      throw error;
+    }
+  };
+
+  // Fetch AI Smart Suggestions
+  const fetchAISuggestions = async () => {
+    try {
+      setIsSuggestionsLoading(true);
+      const token = APIService.getAccessToken();
+      if (!token) {
+        return;
+      }
+
+      const response = await fetch(`${ENV_CONFIG.API_BASE_URL}/api/ai/suggestions/smart`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'X-Tenant-ID': tenantTheme.tenantCode || 'platform',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch suggestions: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Process suggestions and categorize them
+      const processed: any = {};
+
+      if (data.suggestions && Array.isArray(data.suggestions)) {
+        data.suggestions.forEach((suggestion: any) => {
+          const title = suggestion.title.toLowerCase();
+
+          // Categorize by title keywords
+          if (title.includes('saving') || title.includes('save')) {
+            processed.savings = {
+              title: suggestion.title,
+              description: suggestion.description,
+              potentialSavings: suggestion.metadata?.suggestedAmount || 0,
+              action: 'Set up automatic transfer'
+            };
+          } else if (title.includes('investment') || title.includes('invest') || title.includes('opportunity')) {
+            processed.investment = {
+              title: suggestion.title,
+              description: suggestion.description,
+              action: 'View investment options'
+            };
+          } else if (title.includes('bill') || title.includes('payment') || title.includes('recurring')) {
+            processed.bills = {
+              title: suggestion.title,
+              description: suggestion.description,
+              totalAmount: suggestion.metadata?.totalAmount || 0,
+              billCount: suggestion.metadata?.recurringCount || 0,
+              action: 'View pending bills'
+            };
+          }
+        });
+      }
+
+      setAISuggestions(processed);
+    } catch (error) {
+      console.error('Error fetching AI suggestions:', error);
+    } finally {
+      setIsSuggestionsLoading(false);
+    }
+  };
+
+  // Fetch AI suggestions on component mount
+  useEffect(() => {
+    fetchAISuggestions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleSendMessage = async (text: string) => {
+    if (!text.trim()) return;
+
+    const userMessage = {
+      id: Date.now().toString(),
+      text: text.trim(),
+      sender: 'user' as const,
+      timestamp: new Date(),
+    };
+
+    setAIMessages(prev => [...prev, userMessage]);
+    setAIInput('');
+    setIsAITyping(true);
+
+    try {
+      const response = await sendToAIService(text.trim());
+
+      const aiResponse = {
+        id: (Date.now() + 1).toString(),
+        text: response.message,
+        sender: 'ai' as const,
+        timestamp: new Date(),
+      };
+
+      setAIMessages(prev => [...prev, aiResponse]);
+      setIsAITyping(false);
+    } catch (error) {
+      console.error('Error sending message to AI:', error);
+      setIsAITyping(false);
+
+      const errorResponse = {
+        id: (Date.now() + 1).toString(),
+        text: 'I apologize, but I\'m having trouble connecting to the service. Please try again in a moment.',
+        sender: 'ai' as const,
+        timestamp: new Date(),
+      };
+      setAIMessages(prev => [...prev, errorResponse]);
+    }
+  };
 
   // Use dynamic theme colors
   const primaryColor = theme?.colors?.primary || '#010080';
@@ -461,75 +658,127 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
 
           {/* AI Suggestions Cards */}
           <View style={styles.aiSuggestions}>
-            <TouchableOpacity
-              style={styles.aiSuggestionCard}
-              onPress={() => onFeatureNavigation('savings')}
-            >
-              <Text style={styles.aiSuggestionIcon}>💡</Text>
-              <Text style={styles.aiSuggestionTitle}>Optimize Your Savings</Text>
-              <Text style={styles.aiSuggestionDescription}>
-                Based on your spending patterns, you could save an additional {formatCurrency(50000, tenantTheme.currency, { locale: tenantTheme.locale })} monthly by transferring to high-yield savings.
-              </Text>
-              <View style={styles.aiSuggestionAction}>
-                <Text style={[styles.aiActionText, { color: primaryColor }]}>Set up automatic transfer</Text>
-                <Text style={[styles.aiActionArrow, { color: primaryColor }]}>→</Text>
+            {isSuggestionsLoading ? (
+              <View style={styles.aiSuggestionCard}>
+                <Text style={styles.aiSuggestionDescription}>Loading personalized suggestions...</Text>
               </View>
-            </TouchableOpacity>
+            ) : (
+              <>
+                {/* Savings Optimization Card */}
+                {aiSuggestions.savings && (
+                  <TouchableOpacity
+                    style={styles.aiSuggestionCard}
+                    onPress={() => onFeatureNavigation('savings')}
+                  >
+                    <Text style={styles.aiSuggestionIcon}>💡</Text>
+                    <Text style={styles.aiSuggestionTitle}>{aiSuggestions.savings.title}</Text>
+                    <Text style={styles.aiSuggestionDescription}>
+                      {aiSuggestions.savings.description}
+                    </Text>
+                    <View style={styles.aiSuggestionAction}>
+                      <Text style={[styles.aiActionText, { color: primaryColor }]}>
+                        {aiSuggestions.savings.action}
+                      </Text>
+                      <Text style={[styles.aiActionArrow, { color: primaryColor }]}>→</Text>
+                    </View>
+                  </TouchableOpacity>
+                )}
 
-            <TouchableOpacity
-              style={styles.aiSuggestionCard}
-              onPress={() => onFeatureNavigation('investments')}
-            >
-              <Text style={styles.aiSuggestionIcon}>📈</Text>
-              <Text style={styles.aiSuggestionTitle}>Investment Opportunity</Text>
-              <Text style={styles.aiSuggestionDescription}>
-                Your balance qualifies for our premium investment portfolio with 15% annual returns.
-              </Text>
-              <View style={styles.aiSuggestionAction}>
-                <Text style={[styles.aiActionText, { color: primaryColor }]}>View investment options</Text>
-                <Text style={[styles.aiActionArrow, { color: primaryColor }]}>→</Text>
-              </View>
-            </TouchableOpacity>
+                {/* Investment Opportunity Card */}
+                {aiSuggestions.investment && (
+                  <TouchableOpacity
+                    style={styles.aiSuggestionCard}
+                    onPress={() => onFeatureNavigation('investments')}
+                  >
+                    <Text style={styles.aiSuggestionIcon}>📈</Text>
+                    <Text style={styles.aiSuggestionTitle}>{aiSuggestions.investment.title}</Text>
+                    <Text style={styles.aiSuggestionDescription}>
+                      {aiSuggestions.investment.description}
+                    </Text>
+                    <View style={styles.aiSuggestionAction}>
+                      <Text style={[styles.aiActionText, { color: primaryColor }]}>
+                        {aiSuggestions.investment.action}
+                      </Text>
+                      <Text style={[styles.aiActionArrow, { color: primaryColor }]}>→</Text>
+                    </View>
+                  </TouchableOpacity>
+                )}
 
-            <TouchableOpacity
-              style={styles.aiSuggestionCard}
-              onPress={() => onFeatureNavigation('bills')}
-            >
-              <Text style={styles.aiSuggestionIcon}>🎯</Text>
-              <Text style={styles.aiSuggestionTitle}>Bill Payment Reminder</Text>
-              <Text style={styles.aiSuggestionDescription}>
-                You have 3 upcoming bills totaling {formatCurrency(45000, tenantTheme.currency, { locale: tenantTheme.locale })} due this week. Set up auto-pay to avoid late fees.
-              </Text>
-              <View style={styles.aiSuggestionAction}>
-                <Text style={[styles.aiActionText, { color: primaryColor }]}>Review bills</Text>
-                <Text style={[styles.aiActionArrow, { color: primaryColor }]}>→</Text>
-              </View>
-            </TouchableOpacity>
+                {/* Bill Payment Reminder Card */}
+                {aiSuggestions.bills && (
+                  <TouchableOpacity
+                    style={styles.aiSuggestionCard}
+                    onPress={() => onFeatureNavigation('bills')}
+                  >
+                    <Text style={styles.aiSuggestionIcon}>🎯</Text>
+                    <Text style={styles.aiSuggestionTitle}>{aiSuggestions.bills.title}</Text>
+                    <Text style={styles.aiSuggestionDescription}>
+                      {aiSuggestions.bills.description}
+                    </Text>
+                    <View style={styles.aiSuggestionAction}>
+                      <Text style={[styles.aiActionText, { color: primaryColor }]}>
+                        {aiSuggestions.bills.action}
+                      </Text>
+                      <Text style={[styles.aiActionArrow, { color: primaryColor }]}>→</Text>
+                    </View>
+                  </TouchableOpacity>
+                )}
+
+                {/* Show default message if no suggestions */}
+                {!aiSuggestions.savings && !aiSuggestions.investment && !aiSuggestions.bills && (
+                  <View style={styles.aiSuggestionCard}>
+                    <Text style={styles.aiSuggestionIcon}>💡</Text>
+                    <Text style={styles.aiSuggestionTitle}>No Suggestions Yet</Text>
+                    <Text style={styles.aiSuggestionDescription}>
+                      Start using your account to receive personalized financial insights and recommendations.
+                    </Text>
+                  </View>
+                )}
+              </>
+            )}
           </View>
 
           {/* AI Chat Messages */}
           <View style={styles.aiChatSection}>
-            <View style={styles.aiMessage}>
-              <View style={[styles.aiAvatar, { backgroundColor: primaryColor }]}>
-                <Text style={styles.aiAvatarText}>AI</Text>
-              </View>
-              <View style={styles.aiMessageBubble}>
-                <Text style={styles.aiMessageText}>
-                  Hello! I noticed you frequently transfer to savings on the 25th of each month. Would you like me to automate this for you?
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.aiMessage}>
-              <View style={[styles.aiAvatar, { backgroundColor: primaryColor }]}>
-                <Text style={styles.aiAvatarText}>AI</Text>
-              </View>
-              <View style={styles.aiMessageBubble}>
-                <Text style={styles.aiMessageText}>
-                  I can help you with transfers, account inquiries, bill payments, and financial planning. What would you like to do today?
-                </Text>
-              </View>
-            </View>
+            <ScrollView>
+              {aiMessages.slice(-3).map((message) => (
+                <View key={message.id} style={[
+                  styles.aiMessage,
+                  message.sender === 'user' && { justifyContent: 'flex-end' }
+                ]}>
+                  {message.sender === 'ai' && (
+                    <View style={[styles.aiAvatar, { backgroundColor: primaryColor }]}>
+                      <Text style={styles.aiAvatarText}>AI</Text>
+                    </View>
+                  )}
+                  <View style={[
+                    styles.aiMessageBubble,
+                    message.sender === 'user' && {
+                      backgroundColor: primaryColor,
+                      marginLeft: 'auto',
+                      marginRight: 0
+                    }
+                  ]}>
+                    <Text style={[
+                      styles.aiMessageText,
+                      message.sender === 'user' && { color: '#FFFFFF' }
+                    ]}>
+                      {message.text}
+                    </Text>
+                  </View>
+                </View>
+              ))}
+              {isAITyping && (
+                <View style={styles.aiMessage}>
+                  <View style={[styles.aiAvatar, { backgroundColor: primaryColor }]}>
+                    <Text style={styles.aiAvatarText}>AI</Text>
+                  </View>
+                  <View style={styles.aiMessageBubble}>
+                    <Text style={styles.aiMessageText}>Typing...</Text>
+                  </View>
+                </View>
+              )}
+            </ScrollView>
           </View>
 
           {/* AI Input Field */}
@@ -543,9 +792,13 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
               placeholder="Ask me anything about your banking..."
               value={aiInput}
               onChangeText={setAIInput}
+              onSubmitEditing={() => handleSendMessage(aiInput)}
               placeholderTextColor={`${primaryColor}99`}
             />
-            <TouchableOpacity style={[styles.aiSendButton, { backgroundColor: primaryColor }]}>
+            <TouchableOpacity
+              style={[styles.aiSendButton, { backgroundColor: primaryColor }]}
+              onPress={() => handleSendMessage(aiInput)}
+            >
               <Text style={styles.aiSendIcon}>→</Text>
             </TouchableOpacity>
           </View>

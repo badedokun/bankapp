@@ -303,21 +303,13 @@ export class AIIntelligenceManager {
   async processEnhancedMessage(message: string, context: any, options?: any): Promise<any> {
     // Handle enriched context from AI chat route
     const userId = context.userId || context.user?.id || context.bankingContext?.user?.id;
-    console.log('🔍 AIManager - Processing message:', { message, userId, contextKeys: Object.keys(context) });
 
     const financialData = userId ? await this.getUserFinancialData(userId) : null;
-    console.log('💰 AIManager - Financial data fetched:', {
-      hasData: !!financialData,
-      balance: financialData?.balance,
-      totalExpenses: financialData?.totalExpenses,
-      transactionCount: financialData?.recentTransactions?.length
-    });
 
     const lowerMessage = message.toLowerCase();
 
     // Classify intent
     const classification = this.classifyIntent(message);
-    console.log('🎯 AIManager - Intent classified:', classification);
 
     // Generate contextual response based on intent
     let response = `I can help you with your banking needs. You can ask me about account balances, transfers, transactions, spending analysis, or any other banking services.`;
@@ -327,7 +319,6 @@ export class AIIntelligenceManager {
       // Calculate spending from transactions correctly
       const spendingTotal = financialData.totalExpenses;
       const spendingRate = spendingTotal / (financialData.balance + spendingTotal);
-      console.log('💸 AIManager - Spending analysis:', { spendingTotal, spendingRate, balance: financialData.balance });
 
       if (spendingTotal > 0) {
         const advice = spendingRate > 0.6 ? "Yes, you've spent over 60% of your initial funds. Consider reducing expenses." :
@@ -337,7 +328,6 @@ export class AIIntelligenceManager {
       } else {
         response = `You haven't had any recent spending. Your balance is ₦${financialData.balance.toLocaleString()}.`;
       }
-      console.log('✅ AIManager - Spending response generated:', response);
     } else if (classification.intent === 'transaction_history' && financialData) {
       const recentCount = financialData.recentTransactions.length;
       if (recentCount > 0) {
