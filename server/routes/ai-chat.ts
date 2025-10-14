@@ -144,15 +144,6 @@ async function enrichContextWithUserData(context: any, userId: string, tenantId:
       }
     };
 
-    console.log('📊 Context enriched with comprehensive banking data:', {
-      userId,
-      accountBalance: currentBalance,
-      transactionCount: transactionsResult.rows.length,
-      monthlySpend: totalSpent,
-      topCategory: categorySpendingResult.rows[0]?.category || 'none',
-      dataQuality: 'comprehensive'
-    });
-
     return enrichedContext;
   } catch (error) {
     console.error('❌ Failed to enrich context with user data:', error);
