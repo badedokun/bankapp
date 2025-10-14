@@ -6,6 +6,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const uuid_1 = require("uuid");
 const transfers_1 = require("../../types/transfers");
+const validation_error_1 = require("../../types/validation-error");
 class InternationalTransferService {
     constructor(database) {
         this.db = database;
@@ -27,12 +28,12 @@ class InternationalTransferService {
             // 2. Get sender account details
             const senderAccount = await this.getSenderAccount(request.senderAccountId, client);
             if (!senderAccount) {
-                throw new transfers_1.ValidationError('Invalid sender account', 'senderAccountId');
+                throw new validation_error_1.ValidationError('Invalid sender account', 'senderAccountId');
             }
             // 3. Perform compliance checks
             const complianceResult = await this.performComplianceChecks(request, senderAccount);
             if (!complianceResult.isCompliant) {
-                throw new transfers_1.ValidationError(`Transfer blocked by compliance: ${complianceResult.reason}`, 'compliance');
+                throw new validation_error_1.ValidationError(`Transfer blocked by compliance: ${complianceResult.reason}`, 'compliance');
             }
             // 4. Get exchange rate and calculate amounts
             const exchangeRate = await this.getExchangeRate('NGN', request.recipientCountry);
@@ -431,45 +432,45 @@ class InternationalTransferService {
      */
     async validateTransferRequest(request, userId, client) {
         if (!request.recipientName?.trim()) {
-            throw new transfers_1.ValidationError('Recipient name is required', 'recipientName');
+            throw new validation_error_1.ValidationError('Recipient name is required', 'recipientName');
         }
         if (!request.recipientIban?.trim()) {
-            throw new transfers_1.ValidationError('Recipient IBAN is required', 'recipientIban');
+            throw new validation_error_1.ValidationError('Recipient IBAN is required', 'recipientIban');
         }
         if (!request.recipientSwiftCode?.trim()) {
-            throw new transfers_1.ValidationError('Recipient SWIFT code is required', 'recipientSwiftCode');
+            throw new validation_error_1.ValidationError('Recipient SWIFT code is required', 'recipientSwiftCode');
         }
         if (!request.recipientCountry?.trim()) {
-            throw new transfers_1.ValidationError('Recipient country is required', 'recipientCountry');
+            throw new validation_error_1.ValidationError('Recipient country is required', 'recipientCountry');
         }
         if (!request.recipientCity?.trim()) {
-            throw new transfers_1.ValidationError('Recipient city is required', 'recipientCity');
+            throw new validation_error_1.ValidationError('Recipient city is required', 'recipientCity');
         }
         if (!request.recipientAddress?.trim()) {
-            throw new transfers_1.ValidationError('Recipient address is required', 'recipientAddress');
+            throw new validation_error_1.ValidationError('Recipient address is required', 'recipientAddress');
         }
         if (!request.purpose?.trim()) {
-            throw new transfers_1.ValidationError('Transfer purpose is required', 'purpose');
+            throw new validation_error_1.ValidationError('Transfer purpose is required', 'purpose');
         }
         if (!request.sourceOfFunds?.trim()) {
-            throw new transfers_1.ValidationError('Source of funds is required', 'sourceOfFunds');
+            throw new validation_error_1.ValidationError('Source of funds is required', 'sourceOfFunds');
         }
         if (!request.amount || request.amount <= 0) {
-            throw new transfers_1.ValidationError('Invalid transfer amount', 'amount');
+            throw new validation_error_1.ValidationError('Invalid transfer amount', 'amount');
         }
         if (request.amount < 1000) {
-            throw new transfers_1.ValidationError('Minimum international transfer amount is ₦1,000', 'amount');
+            throw new validation_error_1.ValidationError('Minimum international transfer amount is ₦1,000', 'amount');
         }
         if (request.amount > 10000000) {
-            throw new transfers_1.ValidationError('Maximum international transfer amount is ₦10,000,000', 'amount');
+            throw new validation_error_1.ValidationError('Maximum international transfer amount is ₦10,000,000', 'amount');
         }
         if (!request.pin?.trim()) {
-            throw new transfers_1.ValidationError('Transaction PIN is required', 'pin');
+            throw new validation_error_1.ValidationError('Transaction PIN is required', 'pin');
         }
         // Verify PIN
         const pinResult = await client.query('SELECT id FROM tenant.users WHERE id = $1 AND transaction_pin = $2', [userId, request.pin]);
         if (pinResult.rows.length === 0) {
-            throw new transfers_1.ValidationError('Invalid transaction PIN', 'pin');
+            throw new validation_error_1.ValidationError('Invalid transaction PIN', 'pin');
         }
     }
     async getSenderAccount(accountId, client) {
@@ -495,7 +496,7 @@ class InternationalTransferService {
         const dailyUsed = parseFloat(dailyResult.rows[0].daily_total);
         const dailyLimit = 2000000; // ₦2M daily limit for international
         if (dailyUsed + amount > dailyLimit) {
-            throw new transfers_1.LimitExceededError(dailyLimit, dailyUsed + amount, 'Daily international');
+            throw new transfers_1.LimitExceededError('Daily international', dailyLimit, dailyUsed + amount);
         }
         // Check monthly limit
         const monthlyResult = await client.query(`
@@ -503,12 +504,12 @@ class InternationalTransferService {
       FROM international_transfers
       WHERE sender_account_id = $1
       AND DATE_TRUNC('month', created_at) = $2
-      AND status IN ('completed', 'processing')
+      AND STATUS IN ('completed', 'processing')
     `, [accountId, thisMonth + '-01']);
         const monthlyUsed = parseFloat(monthlyResult.rows[0].monthly_total);
         const monthlyLimit = 50000000; // ₦50M monthly limit
         if (monthlyUsed + amount > monthlyLimit) {
-            throw new transfers_1.LimitExceededError(monthlyLimit, monthlyUsed + amount, 'Monthly international');
+            throw new transfers_1.LimitExceededError('Monthly international', monthlyLimit, monthlyUsed + amount);
         }
     }
     /**

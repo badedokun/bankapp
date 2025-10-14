@@ -94,7 +94,6 @@ export const ModernButton: React.FC<ModernButtonProps> = ({
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } catch (error) {
       // Haptics not available or not installed
-      console.debug('Haptics not available');
     }
   };
 

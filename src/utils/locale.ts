@@ -387,7 +387,6 @@ export const isValidLocale = (locale: string): boolean => {
  *
  * @example
  * const config = getLocaleConfig('en-US');
- * console.log(config.dateFormat); // 'MM/DD/YYYY'
  */
 export const getLocaleConfig = (locale: string): LocaleConfig | null => {
   return SUPPORTED_LOCALES[locale] || null;

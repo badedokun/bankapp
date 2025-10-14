@@ -7,9 +7,9 @@ import { query } from '../config/database';
 
 /**
  * Extract tenant information from various sources
- * Priority order: JWT token > subdomain > header > query param > default
+ * Priority order: JWT token > custom domain > subdomain > header > query param > default
  * @param {Object} req - Express request object
- * @returns {string|null} Tenant identifier
+ * @returns {string|null|Promise<string>} Tenant identifier or 'CUSTOM_DOMAIN' for custom domain lookup
  */
 function extractTenantId(req) {
   // 1. From JWT token (highest priority)
@@ -23,17 +23,25 @@ function extractTenantId(req) {
     return headerTenant;
   }
 
-  // 3. From subdomain (e.g., fmfb.orokii.com)
+  // 3. Check if hostname matches a custom domain pattern
   const host = req.get('host') || '';
+
+  // Special case: Check for custom domains (e.g., fmfb-34-59-143-25.nip.io)
+  // Return special marker to trigger custom domain lookup
+  if (host && !host.includes('localhost') && (host.includes('.nip.io') || host.includes('.orokii.com'))) {
+    return 'CUSTOM_DOMAIN:' + host;
+  }
+
+  // 4. From subdomain (e.g., fmfb.orokii.com)
   const subdomain = host.split('.')[0];
-  
+
   // Map common subdomains to tenant names
   const subdomainToTenant = {
     'fmfb': 'fmfb',
     'localhost': process.env.DEFAULT_TENANT || 'fmfb', // Use env default
     'dev': process.env.DEFAULT_TENANT || 'fmfb',
     'bank-a': 'bank-a',
-    'bank-b': 'bank-b', 
+    'bank-b': 'bank-b',
     'bank-c': 'bank-c',
     'admin': 'system-admin'
   };
@@ -42,28 +50,59 @@ function extractTenantId(req) {
     return subdomainToTenant[subdomain];
   }
 
-  // 4. From query parameter
+  // 5. From query parameter
   const queryTenant = req.query.tenant;
   if (queryTenant) {
     return queryTenant;
   }
 
-  // 5. Default tenant from environment
+  // 6. Default tenant from environment
   return process.env.DEFAULT_TENANT || 'fmfb';
 }
 
 /**
  * Resolve tenant name to tenant UUID
- * @param {string} tenantIdentifier - Tenant name or UUID
+ * @param {string} tenantIdentifier - Tenant name, UUID, or CUSTOM_DOMAIN:hostname
  * @returns {Promise<Object|null>} Tenant information
  */
 async function resolveTenant(tenantIdentifier) {
   try {
+    // Check if this is a custom domain lookup
+    if (tenantIdentifier.startsWith('CUSTOM_DOMAIN:')) {
+      const hostname = tenantIdentifier.replace('CUSTOM_DOMAIN:', '');
+
+      console.log(`🔍 Looking up tenant by custom domain: ${hostname}`);
+
+      // Try to find by custom_domain
+      let result = await query(`
+        SELECT id, name, display_name, status, tier, subdomain, custom_domain,
+               configuration, branding, ai_configuration, security_settings
+        FROM platform.tenants
+        WHERE custom_domain = $1 AND status = 'active'
+      `, [hostname]);
+
+      if (result.rows.length > 0) {
+        console.log(`✅ Found tenant by custom domain: ${result.rows[0].name}`);
+        return result.rows[0];
+      }
+
+      // If not found by custom_domain, try to extract tenant from subdomain
+      // For nip.io format like fmfb-34-59-143-25.nip.io, check if subdomain starts with known tenant
+      const subdomain = hostname.split('.')[0];
+      if (subdomain.startsWith('fmfb')) {
+        console.log(`🔍 Custom domain not found, trying tenant name: fmfb`);
+        tenantIdentifier = 'fmfb';
+      } else {
+        console.log(`❌ No tenant found for custom domain: ${hostname}`);
+        return null;
+      }
+    }
+
     // First try to find by name
     let result = await query(`
       SELECT id, name, display_name, status, tier, subdomain, custom_domain,
              configuration, branding, ai_configuration, security_settings
-      FROM platform.tenants 
+      FROM platform.tenants
       WHERE name = $1 AND status = 'active'
     `, [tenantIdentifier]);
 
@@ -72,9 +111,13 @@ async function resolveTenant(tenantIdentifier) {
       result = await query(`
         SELECT id, name, display_name, status, tier, subdomain, custom_domain,
                configuration, branding, ai_configuration, security_settings
-        FROM platform.tenants 
+        FROM platform.tenants
         WHERE id = $1 AND status = 'active'
       `, [tenantIdentifier]);
+    }
+
+    if (result.rows.length > 0) {
+      console.log(`✅ Resolved tenant: ${result.rows[0].name} (${result.rows[0].id})`);
     }
 
     return result.rows.length > 0 ? result.rows[0] : null;

@@ -5,16 +5,7 @@
  */
 
 import express, { Request, Response, Router } from 'express';
-import { Pool } from 'pg';
-
-// Database connection using existing config
-const pool = new Pool({
-  user: process.env.DB_USER || 'bisiadedokun',
-  host: process.env.DB_HOST || 'localhost',
-  database: process.env.DB_NAME || 'bank_app_platform',
-  password: process.env.DB_PASSWORD || 'orokiipay_secure_banking_2024!@#',
-  port: parseInt(process.env.DB_PORT || '5433'),
-});
+import { pool } from '../config/database';
 
 // Default OrokiiPay Platform Theme (Platform Owner)
 const DEFAULT_THEME = {
@@ -67,7 +58,7 @@ const DEFAULT_THEME = {
 const router: Router = express.Router();
 
 /**
- * GET /api/tenants/:tenantCode/theme
+ * GET /api/theme/:tenantCode
  * Fetch tenant-specific theme configuration
  *
  * @param {string} tenantCode - Tenant identifier (from subdomain, JWT, or env)
@@ -75,7 +66,7 @@ const router: Router = express.Router();
  */
 router.get('/:tenantCode', async (req: Request, res: Response) => {
   try {
-    const { tenantCode } = req.params;
+    const { tenantCode} = req.params;
 
     // Return default theme for platform owner
     if (tenantCode === 'orokiipay' || tenantCode === 'platform') {
@@ -83,6 +74,7 @@ router.get('/:tenantCode', async (req: Request, res: Response) => {
     }
 
     // Query tenant theme configuration from database (including currency, locale, timezone)
+    // Support lookup by name, subdomain, OR custom_domain
     const tenantQuery = `
       SELECT
         t.id as tenant_id,
@@ -99,7 +91,7 @@ router.get('/:tenantCode', async (req: Request, res: Response) => {
         t.brand_typography,
         t.brand_assets
       FROM platform.tenants t
-      WHERE (t.name = $1 OR t.subdomain = $1) AND t.status = 'active'
+      WHERE (t.name = $1 OR t.subdomain = $1 OR t.custom_domain = $1) AND t.status = 'active'
     `;
 
     const result = await pool.query(tenantQuery, [tenantCode]);

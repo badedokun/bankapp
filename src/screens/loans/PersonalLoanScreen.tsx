@@ -29,6 +29,7 @@ export const PersonalLoanScreen: React.FC<PersonalLoanScreenProps> = ({
 }) => {
   const theme = useTenantTheme();
   const tenantTheme = useTenantTheme();
+  const styles = getStyles(theme);
   const { showAlert } = useBankingAlert();
   const [amount, setAmount] = useState('');
   const [duration, setDuration] = useState('12');
@@ -247,7 +248,7 @@ export const PersonalLoanScreen: React.FC<PersonalLoanScreenProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
   container: {
     flex: 1,
   },

@@ -115,10 +115,11 @@ const createEnvironmentConfig = (): EnvironmentConfig => {
   const environment = detectEnvironment();
   const isCloudDeployment = environment !== 'local';
   const baseUrls = getBaseUrls(environment, isCloudDeployment);
-  
+
   const config: EnvironmentConfig = {
     // API Configuration
-    API_BASE_URL: baseUrls.API_BASE_URL,
+    // Force explicit API URL if set in environment
+    API_BASE_URL: process.env.REACT_APP_API_URL || baseUrls.API_BASE_URL,
     API_TIMEOUT: parseInt(process.env.REACT_APP_API_TIMEOUT || '30000'),
     
     // Frontend URLs
@@ -140,16 +141,7 @@ const createEnvironmentConfig = (): EnvironmentConfig => {
     IS_CLOUD_DEPLOYMENT: isCloudDeployment
   };
   
-  // Log configuration in development
-  if (config.ENABLE_LOGGER) {
-    console.log('🔧 Environment Configuration:', {
-      environment: config.ENVIRONMENT,
-      isCloudDeployment: config.IS_CLOUD_DEPLOYMENT,
-      apiBaseUrl: config.API_BASE_URL || 'relative',
-      webUrl: config.WEB_URL,
-      enableDevtools: config.ENABLE_DEVTOOLS
-    });
-  }
+  // Configuration loaded silently in production
   
   return config;
 };
@@ -165,15 +157,15 @@ export const isCloudDeployment = () => ENV_CONFIG.IS_CLOUD_DEPLOYMENT;
 
 // Export URL builders
 export const buildApiUrl = (endpoint: string): string => {
-  if (!ENV_CONFIG.API_BASE_URL) {
+  // Remove leading slash from endpoint
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+
+  // Always use API_BASE_URL if it exists (even if it's a relative URL)
+  if (!ENV_CONFIG.API_BASE_URL || ENV_CONFIG.API_BASE_URL === 'relative') {
     // For relative URLs, ensure endpoint starts with /api/
-    const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
     return `/api/${cleanEndpoint}`;
   }
-  
-  // Remove leading slash from endpoint if base URL exists
-  const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
-  
+
   // Check if API_BASE_URL already includes /api
   if (ENV_CONFIG.API_BASE_URL.endsWith('/api')) {
     return `${ENV_CONFIG.API_BASE_URL}/${cleanEndpoint}`;

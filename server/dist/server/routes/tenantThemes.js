@@ -9,15 +9,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const pg_1 = require("pg");
-// Database connection using existing config
-const pool = new pg_1.Pool({
-    user: process.env.DB_USER || 'bisiadedokun',
-    host: process.env.DB_HOST || 'localhost',
-    database: process.env.DB_NAME || 'bank_app_platform',
-    password: process.env.DB_PASSWORD || 'orokiipay_secure_banking_2024!@#',
-    port: parseInt(process.env.DB_PORT || '5433'),
-});
+const database_1 = require("../config/database");
 // Default OrokiiPay Platform Theme (Platform Owner)
 const DEFAULT_THEME = {
     tenantId: 'platform',
@@ -67,7 +59,7 @@ const DEFAULT_THEME = {
 };
 const router = express_1.default.Router();
 /**
- * GET /api/tenants/:tenantCode/theme
+ * GET /api/theme/:tenantCode
  * Fetch tenant-specific theme configuration
  *
  * @param {string} tenantCode - Tenant identifier (from subdomain, JWT, or env)
@@ -81,6 +73,7 @@ router.get('/:tenantCode', async (req, res) => {
             return res.json(DEFAULT_THEME);
         }
         // Query tenant theme configuration from database (including currency, locale, timezone)
+        // Support lookup by name, subdomain, OR custom_domain
         const tenantQuery = `
       SELECT
         t.id as tenant_id,
@@ -97,9 +90,9 @@ router.get('/:tenantCode', async (req, res) => {
         t.brand_typography,
         t.brand_assets
       FROM platform.tenants t
-      WHERE (t.name = $1 OR t.subdomain = $1) AND t.status = 'active'
+      WHERE (t.name = $1 OR t.subdomain = $1 OR t.custom_domain = $1) AND t.status = 'active'
     `;
-        const result = await pool.query(tenantQuery, [tenantCode]);
+        const result = await database_1.pool.query(tenantQuery, [tenantCode]);
         if (result.rows.length === 0) {
             return res.status(404).json({
                 success: false,
@@ -140,8 +133,8 @@ router.get('/:tenantCode', async (req, res) => {
             },
             colors: {
                 primary: brandColors.primary || branding.primaryColor || DEFAULT_THEME.colors.primary,
-                primaryGradientStart: brandColors.primary || branding.primaryColor || DEFAULT_THEME.colors.primary,
-                primaryGradientEnd: adjustColorBrightness(brandColors.primary || branding.primaryColor || DEFAULT_THEME.colors.primary, 20),
+                primaryGradientStart: brandColors.primaryGradientStart || brandColors.primary || branding.primaryColor || DEFAULT_THEME.colors.primary,
+                primaryGradientEnd: brandColors.primaryGradientEnd || adjustColorBrightness(brandColors.primary || branding.primaryColor || DEFAULT_THEME.colors.primary, 20),
                 secondary: brandColors.secondary || branding.secondaryColor || DEFAULT_THEME.colors.secondary,
                 accent: brandColors.accent || branding.accentColor || DEFAULT_THEME.colors.accent,
                 success: brandColors.success || '#10B981',
@@ -151,6 +144,7 @@ router.get('/:tenantCode', async (req, res) => {
                 text: brandColors.text || branding.textColor || DEFAULT_THEME.colors.text,
                 textSecondary: brandColors.textSecondary || '#6B7280',
                 textLight: '#9CA3AF',
+                textInverse: brandColors.textInverse || '#FFFFFF',
                 background: brandColors.background || branding.backgroundColor || DEFAULT_THEME.colors.background,
                 backgroundGradientStart: adjustColorOpacity(brandColors.background || branding.backgroundColor || DEFAULT_THEME.colors.background, 0.1),
                 backgroundGradientEnd: adjustColorOpacity(brandColors.background || branding.backgroundColor || DEFAULT_THEME.colors.background, 0.05),
@@ -199,7 +193,7 @@ router.get('/', async (req, res) => {
       WHERE is_active = true
       ORDER BY name
     `;
-        const result = await pool.query(tenantsQuery);
+        const result = await database_1.pool.query(tenantsQuery);
         res.json({
             success: true,
             tenants: result.rows,

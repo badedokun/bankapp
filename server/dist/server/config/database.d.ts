@@ -40,6 +40,12 @@ declare function closePool(): Promise<void>;
  * @returns {Promise<boolean>} Connection status
  */
 declare function testConnection(): Promise<boolean>;
+/**
+ * Get tenant pool (currently returns platform pool with tenant isolation)
+ * @param tenantId The tenant ID
+ * @returns Pool instance for the tenant
+ */
+export declare function getTenantPool(tenantId: string): Pool;
 export { query, transaction, pool, getPoolStats, closePool, testConnection };
 declare const _default: {
     query: typeof query;

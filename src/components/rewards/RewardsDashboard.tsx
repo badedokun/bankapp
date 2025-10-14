@@ -224,7 +224,6 @@ export const RewardsDashboard: React.FC<RewardsDashboardProps> = ({
   const handleClaimChallenge = async (challengeCode: string) => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     // TODO: Implement challenge claim API call
-    console.log('Claiming challenge:', challengeCode);
     await loadRewardsData();
   };
 

@@ -36,13 +36,16 @@ export interface InternalTransfer extends BaseTransfer {
 }
 export interface ExternalTransferRequest {
     sourceWalletId: string;
+    senderAccountId?: string;
     recipientAccountNumber: string;
     recipientBankCode: string;
     recipientName?: string;
     amount: number;
     narration: string;
+    description?: string;
     saveBeneficiary?: boolean;
     beneficiaryNickname?: string;
+    pin?: string;
 }
 export interface ExternalTransfer extends BaseTransfer {
     senderId: string;
@@ -102,6 +105,8 @@ export interface BillerInfo {
     tenantId: string;
     billerCode: string;
     billerName: string;
+    name?: string;
+    code?: string;
     category: BillerCategory;
     paymentMethods: string[];
     feeStructure: Record<string, any>;
@@ -110,6 +115,8 @@ export interface BillerInfo {
     isActive: boolean;
     supportsValidation: boolean;
     description?: string;
+    logo?: string;
+    fields?: any;
 }
 export type BillerCategory = 'electricity' | 'telecommunications' | 'cable_tv' | 'internet' | 'government' | 'education' | 'insurance' | 'water' | 'waste_management' | 'transportation' | 'subscription_services' | 'other';
 export interface BillPaymentRequest {
@@ -118,6 +125,9 @@ export interface BillPaymentRequest {
     amount: number;
     walletId: string;
     validateCustomer?: boolean;
+    senderAccountId?: string;
+    description?: string;
+    pin?: string;
 }
 export interface BillPayment extends BaseTransfer {
     walletId: string;
@@ -148,6 +158,8 @@ export interface BillerValidationResponse {
     minimumAmount?: number;
     maximumAmount?: number;
     validationMessage?: string;
+    error?: string;
+    amountDue?: number;
 }
 export interface ScheduledPaymentRequest {
     paymentName: string;
@@ -188,6 +200,7 @@ export interface ScheduledPayment {
     expiresAt?: Date;
 }
 export type ScheduleType = 'one_time' | 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly';
+export type TransferFrequency = 'once' | 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly';
 export type ScheduledPaymentStatus = 'active' | 'paused' | 'cancelled' | 'completed' | 'expired';
 export interface ScheduleConfig {
     interval?: number;
@@ -228,22 +241,29 @@ export interface ScheduledPaymentExecution {
 }
 export interface InternationalTransferRequest {
     sourceWalletId: string;
+    senderAccountId?: string;
     amount: number;
     sourceCurrency: string;
     destinationCurrency: string;
     recipientName: string;
     recipientAddress: string;
     recipientCountry: string;
+    recipientCity?: string;
     recipientBankName: string;
     recipientBankSwift: string;
+    recipientSwiftCode?: string;
     recipientAccountNumber: string;
     recipientIban?: string;
     correspondentBankSwift?: string;
     correspondentBankName?: string;
     transferPurpose: string;
+    purpose?: string;
+    sourceOfFunds?: string;
     purposeCode?: string;
     regulatoryReference?: string;
     complianceDocuments?: string[];
+    description?: string;
+    pin?: string;
 }
 export interface InternationalTransfer extends BaseTransfer {
     sourceWalletId: string;
@@ -346,15 +366,21 @@ export interface TransferValidationResult {
 }
 export interface TransferResult<T = any> {
     success: boolean;
+    id?: string;
     transactionId?: string;
     reference?: string;
     status: TransferStatus;
     message: string;
+    amount?: number;
+    fees?: number;
+    totalAmount?: number;
+    recipient?: any;
     data?: T;
     errors?: string[];
     warnings?: string[];
     estimatedCompletionTime?: Date;
     receiptId?: string;
+    scheduledDate?: Date;
 }
 export interface ProcessingError {
     code: string;

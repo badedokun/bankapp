@@ -40,7 +40,6 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({
 
       // Detect current tenant
       const detectedTenantId = await TenantDetector.detectTenant();
-      console.log('Detected tenant:', detectedTenantId);
 
       // Load tenant configuration
       const tenantConfig = await TenantConfigLoader.loadConfig(detectedTenantId);
@@ -52,12 +51,6 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({
       // Update state
       setCurrentTenant(tenantConfig);
       setTheme(tenantTheme);
-
-      console.log('Tenant initialized:', {
-        id: tenantConfig.id,
-        name: tenantConfig.displayName,
-        primaryColor: tenantConfig.branding.primaryColor,
-      });
     } catch (err) {
       console.error('Error initializing tenant:', err);
       setError(err as Error);
@@ -103,11 +96,6 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({
       // Update state
       setCurrentTenant(newTenantConfig);
       setTheme(newTheme);
-
-      console.log('Switched to tenant:', {
-        id: newTenantConfig.id,
-        name: newTenantConfig.displayName,
-      });
     } catch (err) {
       console.error('Error switching tenant:', err);
       setError(err as Error);

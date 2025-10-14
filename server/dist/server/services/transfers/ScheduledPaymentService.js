@@ -5,7 +5,7 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 const uuid_1 = require("uuid");
-const transfers_1 = require("../../types/transfers");
+const validation_error_1 = require("../../types/validation-error");
 class ScheduledPaymentService {
     constructor(database, internalTransferService, externalTransferService, billPaymentService) {
         this.db = database;
@@ -25,7 +25,7 @@ class ScheduledPaymentService {
             // Get sender account details
             const senderAccount = await this.getSenderAccount(request.senderAccountId, client);
             if (!senderAccount) {
-                throw new transfers_1.ValidationError('Invalid sender account', 'senderAccountId');
+                throw new validation_error_1.ValidationError('Invalid sender account', 'senderAccountId');
             }
             // Calculate next execution date
             const nextExecutionDate = this.calculateNextExecutionDate(request.scheduledDate || new Date(), request.frequency || 'once');
@@ -180,7 +180,7 @@ class ScheduledPaymentService {
      */
     async executeInternalTransfer(request, userId) {
         try {
-            const response = await this.internalTransferService.processTransfer(request, userId);
+            const response = await this.internalTransferService.processTransfer(request);
             return {
                 success: true,
                 transferId: response.id,
@@ -296,7 +296,7 @@ class ScheduledPaymentService {
             // Verify ownership
             const result = await client.query('SELECT id FROM scheduled_payments WHERE id = $1 AND user_id = $2', [scheduledPaymentId, userId]);
             if (result.rows.length === 0) {
-                throw new transfers_1.ValidationError('Scheduled payment not found or access denied', 'scheduledPaymentId');
+                throw new validation_error_1.ValidationError('Scheduled payment not found or access denied', 'scheduledPaymentId');
             }
             // Deactivate the scheduled payment
             await client.query(`
@@ -325,7 +325,7 @@ class ScheduledPaymentService {
             // Verify ownership
             const result = await client.query('SELECT id FROM scheduled_payments WHERE id = $1 AND user_id = $2', [scheduledPaymentId, userId]);
             if (result.rows.length === 0) {
-                throw new transfers_1.ValidationError('Scheduled payment not found or access denied', 'scheduledPaymentId');
+                throw new validation_error_1.ValidationError('Scheduled payment not found or access denied', 'scheduledPaymentId');
             }
             // Build update query
             const updateFields = [];
@@ -352,7 +352,7 @@ class ScheduledPaymentService {
                 updateValues.push(updates.endDate);
             }
             if (updateFields.length === 0) {
-                throw new transfers_1.ValidationError('No fields to update', 'updates');
+                throw new validation_error_1.ValidationError('No fields to update', 'updates');
             }
             updateFields.push(`updated_at = NOW()`);
             updateValues.push(scheduledPaymentId);
@@ -512,16 +512,16 @@ class ScheduledPaymentService {
     }
     async validateScheduledPaymentRequest(request, userId, client) {
         if (!request.scheduledDate) {
-            throw new transfers_1.ValidationError('Scheduled date is required', 'scheduledDate');
+            throw new validation_error_1.ValidationError('Scheduled date is required', 'scheduledDate');
         }
         if (new Date(request.scheduledDate) < new Date()) {
-            throw new transfers_1.ValidationError('Scheduled date cannot be in the past', 'scheduledDate');
+            throw new validation_error_1.ValidationError('Scheduled date cannot be in the past', 'scheduledDate');
         }
         if (request.endDate && new Date(request.endDate) <= new Date(request.scheduledDate)) {
-            throw new transfers_1.ValidationError('End date must be after scheduled date', 'endDate');
+            throw new validation_error_1.ValidationError('End date must be after scheduled date', 'endDate');
         }
         if (!request.amount || request.amount <= 0) {
-            throw new transfers_1.ValidationError('Invalid payment amount', 'amount');
+            throw new validation_error_1.ValidationError('Invalid payment amount', 'amount');
         }
     }
     mapRowToScheduledPayment(row) {

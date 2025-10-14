@@ -279,7 +279,6 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
       try {
         userProfile = await APIService.getProfile();
       } catch (error) {
-        // Could not fetch user profile for AI context
       }
 
       try {
@@ -288,7 +287,6 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
           recentTransactions = transactionsData.transactions.slice(0, 3);
         }
       } catch (error) {
-        // Could not fetch transactions for AI context
       }
 
       const response = await fetch(`${ENV_CONFIG.API_BASE_URL}/api/ai/chat`, {

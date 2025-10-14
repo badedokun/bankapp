@@ -31,6 +31,7 @@ export const BillPaymentScreen: React.FC<BillPaymentScreenProps> = ({
 }) => {
   const theme = useTenantTheme();
   const tenantTheme = useTenantTheme();
+  const styles = getStyles(tenantTheme);
   const { showAlert } = useBankingAlert();
   const [selectedCategory, setSelectedCategory] = useState('utilities');
   const [loading, setLoading] = useState(false);
@@ -181,7 +182,7 @@ export const BillPaymentScreen: React.FC<BillPaymentScreenProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
   container: {
     flex: 1,
   },

@@ -3,7 +3,8 @@
  * Handles cross-border transfers via SWIFT network
  */
 import { Pool } from 'pg';
-import { InternationalTransferRequest, TransferResponse } from '../../types/transfers';
+import { InternationalTransferRequest } from '../../types/transfers';
+import { TransferResponse } from '../../types';
 declare class InternationalTransferService {
     private db;
     private swiftBaseUrl;

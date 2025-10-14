@@ -5,6 +5,7 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.pool = void 0;
+exports.getTenantPool = getTenantPool;
 exports.query = query;
 exports.transaction = transaction;
 exports.getPoolStats = getPoolStats;
@@ -14,7 +15,7 @@ const pg_1 = require("pg");
 // Database configuration
 const dbConfig = {
     host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5433'),
+    port: parseInt(process.env.DB_PORT || '5432'),
     user: process.env.DB_USER || 'bisiadedokun',
     password: process.env.DB_PASSWORD || '',
     database: process.env.DB_NAME || 'bank_app_platform',
@@ -165,6 +166,16 @@ async function testConnection() {
 }
 // Test connection on startup
 testConnection();
+/**
+ * Get tenant pool (currently returns platform pool with tenant isolation)
+ * @param tenantId The tenant ID
+ * @returns Pool instance for the tenant
+ */
+function getTenantPool(tenantId) {
+    // Currently using single database with schema-based tenant isolation
+    // In the future, this could return tenant-specific pools
+    return pool;
+}
 exports.default = {
     query,
     transaction,

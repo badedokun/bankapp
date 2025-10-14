@@ -43,7 +43,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const express_validator_1 = require("express-validator");
-const database_1 = require("../config/database");
+const multi_tenant_database_1 = __importDefault(require("../config/multi-tenant-database"));
 const auth_1 = require("../middleware/auth");
 const tenant_1 = require("../middleware/tenant");
 const errorHandler_1 = require("../middleware/errorHandler");
@@ -76,7 +76,7 @@ router.post('/login', [
     // If tenantId is not a UUID, look it up by name
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(tenantId)) {
-        const tenantResult = await (0, database_1.query)(`
+        const tenantResult = await multi_tenant_database_1.default.queryPlatform(`
       SELECT id FROM platform.tenants WHERE name = $1 OR subdomain = $1
     `, [tenantId]);
         if (tenantResult.rows.length > 0) {
@@ -93,27 +93,35 @@ router.post('/login', [
     }
     // Find user by email and tenant
     console.log('🔍 Looking for user:', { email, tenantId });
-    const userResult = await (0, database_1.query)(`
-    SELECT u.*, tm.tenant_name, t.display_name as tenant_display_name,
-           t.branding, t.security_settings
-    FROM tenant.users u
-    JOIN tenant.tenant_metadata tm ON u.tenant_id = tm.tenant_id
-    JOIN platform.tenants t ON u.tenant_id = t.id
+    const userResult = await multi_tenant_database_1.default.queryTenant(tenantId, `
+    SELECT u.* FROM tenant.users u
     WHERE u.email = $1 AND u.tenant_id = $2
   `, [email, tenantId]);
     console.log('👤 User query result:', { found: userResult.rows.length, email });
     if (userResult.rows.length === 0) {
-        // Check if user exists in any tenant
-        const anyUserResult = await (0, database_1.query)(`
-      SELECT u.email, u.tenant_id, t.name as tenant_name
-      FROM tenant.users u
-      JOIN platform.tenants t ON u.tenant_id = t.id
+        // Check if user exists in any tenant (for better error messages)
+        const anyUserResult = await multi_tenant_database_1.default.queryTenant(tenantId, `
+      SELECT u.email, u.tenant_id FROM tenant.users u
       WHERE u.email = $1
     `, [email]);
-        console.log('🔍 User exists in other tenants:', anyUserResult.rows);
+        console.log('🔍 User exists in current tenant database:', anyUserResult.rows);
         throw errorHandler_1.errors.unauthorized('Invalid credentials', 'INVALID_CREDENTIALS');
     }
     const user = userResult.rows[0];
+    // Get tenant information from platform database
+    const tenantResult = await multi_tenant_database_1.default.queryPlatform(`
+    SELECT name as tenant_name, display_name as tenant_display_name, branding, security_settings, bank_code
+    FROM platform.tenants
+    WHERE id = $1
+  `, [tenantId]);
+    if (tenantResult.rows.length > 0) {
+        const tenantInfo = tenantResult.rows[0];
+        user.tenant_name = tenantInfo.tenant_name;
+        user.tenant_display_name = tenantInfo.tenant_display_name;
+        user.branding = tenantInfo.branding;
+        user.security_settings = tenantInfo.security_settings;
+        user.bank_code = tenantInfo.bank_code;
+    }
     // Check user status
     if (user.status !== 'active') {
         throw errorHandler_1.errors.forbidden(`Account is ${user.status}`, 'ACCOUNT_INACTIVE');
@@ -128,8 +136,8 @@ router.post('/login', [
     console.log('🔓 Password verification result:', { isValidPassword });
     if (!isValidPassword) {
         // Increment failed login attempts
-        await (0, database_1.query)(`
-      UPDATE tenant.users 
+        await multi_tenant_database_1.default.queryTenant(tenantId, `
+      UPDATE tenant.users
       SET failed_login_attempts = failed_login_attempts + 1,
           updated_at = CURRENT_TIMESTAMP
       WHERE id = $1
@@ -145,11 +153,14 @@ router.post('/login', [
     if (user.failed_login_attempts >= maxAttempts) {
         throw errorHandler_1.errors.forbidden('Account locked due to too many failed login attempts', 'ACCOUNT_LOCKED');
     }
-    // Create user session
-    const sessionResult = await (0, database_1.transaction)(async (client) => {
+    // Create user session using tenant database transaction
+    const tenantPool = await multi_tenant_database_1.default.getTenantPool(tenantId);
+    const client = await tenantPool.connect();
+    try {
+        await client.query('BEGIN');
         // Reset failed login attempts and update last login
         await client.query(`
-      UPDATE tenant.users 
+      UPDATE tenant.users
       SET failed_login_attempts = 0,
           last_login_at = CURRENT_TIMESTAMP,
           last_login_ip = $1,
@@ -178,8 +189,17 @@ router.post('/login', [
             req.get('User-Agent') || '',
             new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
         ]);
-        return sessionResult.rows[0];
-    });
+        await client.query('COMMIT');
+        var finalSessionResult = sessionResult.rows[0];
+    }
+    catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+    }
+    finally {
+        client.release();
+    }
+    const sessionResult = finalSessionResult;
     // Generate JWT tokens
     const tokenPayload = {
         userId: user.id,
@@ -210,6 +230,7 @@ router.post('/login', [
             id: user.tenant_id,
             name: user.tenant_name,
             displayName: user.tenant_display_name,
+            bankCode: user.bank_code,
             branding: user.branding
         }
     };
@@ -247,20 +268,28 @@ router.post('/refresh', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     catch (error) {
         throw errorHandler_1.errors.unauthorized('Invalid refresh token', 'INVALID_REFRESH_TOKEN');
     }
-    // Find session and user
-    const sessionResult = await (0, database_1.query)(`
-    SELECT s.*, u.email, u.role, u.status, u.tenant_id,
-           tm.tenant_name, t.display_name as tenant_display_name
+    const tenantId = decoded.tenantId;
+    // Find session and user in tenant database
+    const sessionResult = await multi_tenant_database_1.default.queryTenant(tenantId, `
+    SELECT s.*, u.email, u.role, u.status, u.tenant_id
     FROM tenant.user_sessions s
     JOIN tenant.users u ON s.user_id = u.id
-    JOIN tenant.tenant_metadata tm ON u.tenant_id = tm.tenant_id
-    JOIN platform.tenants t ON u.tenant_id = t.id
     WHERE s.session_token = $1 AND s.expires_at > CURRENT_TIMESTAMP
   `, [refreshToken]);
     if (sessionResult.rows.length === 0) {
         throw errorHandler_1.errors.unauthorized('Invalid or expired refresh token', 'INVALID_REFRESH_TOKEN');
     }
     const session = sessionResult.rows[0];
+    // Get tenant information from platform database
+    const tenantResult = await multi_tenant_database_1.default.queryPlatform(`
+    SELECT name as tenant_name, display_name as tenant_display_name
+    FROM platform.tenants
+    WHERE id = $1
+  `, [tenantId]);
+    if (tenantResult.rows.length > 0) {
+        session.tenant_name = tenantResult.rows[0].tenant_name;
+        session.tenant_display_name = tenantResult.rows[0].tenant_display_name;
+    }
     // Check user status
     if (session.status !== 'active') {
         throw errorHandler_1.errors.forbidden('Account inactive', 'ACCOUNT_INACTIVE');
@@ -276,8 +305,8 @@ router.post('/refresh', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     };
     const accessToken = (0, auth_1.generateToken)(tokenPayload);
     // Update session activity
-    await (0, database_1.query)(`
-    UPDATE tenant.user_sessions 
+    await multi_tenant_database_1.default.queryTenant(tenantId, `
+    UPDATE tenant.user_sessions
     SET last_activity_at = CURRENT_TIMESTAMP
     WHERE id = $1
   `, [session.id]);
@@ -299,9 +328,10 @@ router.post('/refresh', (0, errorHandler_1.asyncHandler)(async (req, res) => {
  */
 router.post('/logout', auth_1.authenticateToken, (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const sessionId = req.token.payload.sessionId;
+    const tenantId = req.user.tenantId;
     // Delete session
-    await (0, database_1.query)(`
-    DELETE FROM tenant.user_sessions 
+    await multi_tenant_database_1.default.queryTenant(tenantId, `
+    DELETE FROM tenant.user_sessions
     WHERE id = $1 AND user_id = $2
   `, [sessionId, req.user.id]);
     res.json({
@@ -314,9 +344,10 @@ router.post('/logout', auth_1.authenticateToken, (0, errorHandler_1.asyncHandler
  * Logout user from all devices
  */
 router.post('/logout-all', auth_1.authenticateToken, (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const tenantId = req.user.tenantId;
     // Delete all user sessions
-    const result = await (0, database_1.query)(`
-    DELETE FROM tenant.user_sessions 
+    const result = await multi_tenant_database_1.default.queryTenant(tenantId, `
+    DELETE FROM tenant.user_sessions
     WHERE user_id = $1
   `, [req.user.id]);
     res.json({
@@ -329,20 +360,31 @@ router.post('/logout-all', auth_1.authenticateToken, (0, errorHandler_1.asyncHan
  * Get current user profile
  */
 router.get('/profile', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
-    // Get detailed user information
-    const userResult = await (0, database_1.query)(`
-    SELECT u.*, w.wallet_number, w.balance, w.available_balance,
-           tm.tenant_name, t.display_name as tenant_display_name, t.branding
+    const tenantId = req.user.tenantId;
+    // Get detailed user information from tenant database
+    const userResult = await multi_tenant_database_1.default.queryTenant(tenantId, `
+    SELECT u.*, w.wallet_number, w.balance, w.available_balance
     FROM tenant.users u
     LEFT JOIN tenant.wallets w ON u.id = w.user_id AND w.wallet_type = 'main'
-    JOIN tenant.tenant_metadata tm ON u.tenant_id = tm.tenant_id
-    JOIN platform.tenants t ON u.tenant_id = t.id
     WHERE u.id = $1
   `, [req.user.id]);
     if (userResult.rows.length === 0) {
         throw errorHandler_1.errors.notFound('User not found', 'USER_NOT_FOUND');
     }
     const user = userResult.rows[0];
+    // Get tenant information from platform database
+    const tenantResult = await multi_tenant_database_1.default.queryPlatform(`
+    SELECT name as tenant_name, display_name as tenant_display_name, branding, bank_code
+    FROM platform.tenants
+    WHERE id = $1
+  `, [tenantId]);
+    if (tenantResult.rows.length > 0) {
+        const tenantInfo = tenantResult.rows[0];
+        user.tenant_name = tenantInfo.tenant_name;
+        user.tenant_display_name = tenantInfo.tenant_display_name;
+        user.branding = tenantInfo.branding;
+        user.bank_code = tenantInfo.bank_code;
+    }
     const profile = {
         id: user.id,
         email: user.email,
@@ -373,6 +415,7 @@ router.get('/profile', auth_1.authenticateToken, tenant_1.validateTenantAccess, 
             id: user.tenant_id,
             name: user.tenant_name,
             displayName: user.tenant_display_name,
+            bankCode: user.bank_code,
             branding: user.branding
         }
     };
@@ -418,12 +461,13 @@ router.put('/profile', auth_1.authenticateToken, tenant_1.validateTenantAccess, 
     updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
     updateValues.push(req.user.id);
     const updateQuery = `
-    UPDATE tenant.users 
+    UPDATE tenant.users
     SET ${updateFields.join(', ')}
     WHERE id = $${updateValues.length}
     RETURNING first_name, last_name, phone_number, profile_data, ai_preferences, updated_at
   `;
-    const result = await (0, database_1.query)(updateQuery, updateValues);
+    const tenantId = req.user.tenantId;
+    const result = await multi_tenant_database_1.default.queryTenant(tenantId, updateQuery, updateValues);
     res.json({
         success: true,
         message: 'Profile updated successfully',
@@ -445,8 +489,9 @@ router.post('/change-password', auth_1.authenticateToken, tenant_1.validateTenan
         throw errorHandler_1.errors.badRequest('Validation failed', 'VALIDATION_ERROR', validationErrors.array());
     }
     const { currentPassword, newPassword } = req.body;
+    const tenantId = req.user.tenantId;
     // Get current password hash
-    const userResult = await (0, database_1.query)(`
+    const userResult = await multi_tenant_database_1.default.queryTenant(tenantId, `
     SELECT password_hash FROM tenant.users WHERE id = $1
   `, [req.user.id]);
     const user = userResult.rows[0];
@@ -459,8 +504,8 @@ router.post('/change-password', auth_1.authenticateToken, tenant_1.validateTenan
     const saltRounds = 12;
     const newPasswordHash = await bcrypt_1.default.hash(newPassword, saltRounds);
     // Update password
-    await (0, database_1.query)(`
-    UPDATE tenant.users 
+    await multi_tenant_database_1.default.queryTenant(tenantId, `
+    UPDATE tenant.users
     SET password_hash = $1,
         password_changed_at = CURRENT_TIMESTAMP,
         updated_at = CURRENT_TIMESTAMP
@@ -476,7 +521,8 @@ router.post('/change-password', auth_1.authenticateToken, tenant_1.validateTenan
  * Get user active sessions
  */
 router.get('/sessions', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
-    const sessionsResult = await (0, database_1.query)(`
+    const tenantId = req.user.tenantId;
+    const sessionsResult = await multi_tenant_database_1.default.queryTenant(tenantId, `
     SELECT id, device_info, ip_address, user_agent, created_at, last_activity_at, expires_at
     FROM tenant.user_sessions
     WHERE user_id = $1 AND expires_at > CURRENT_TIMESTAMP
@@ -593,9 +639,11 @@ router.post('/kyc/submit', auth_1.authenticateToken, tenant_1.validateTenantAcce
     }
     const { documentType, documentNumber, documentImage, selfieImage } = req.body;
     const userId = req.user.id;
+    const tenantId = req.user.tenantId;
     try {
         const { userService } = await Promise.resolve().then(() => __importStar(require('../services/users')));
         const kycResult = await userService.submitKYCDocuments({
+            tenantId,
             userId,
             documentType,
             documentNumber,
@@ -615,74 +663,6 @@ router.post('/kyc/submit', auth_1.authenticateToken, tenant_1.validateTenantAcce
     catch (error) {
         console.error('KYC submission error:', error);
         throw errorHandler_1.errors.internalError('KYC submission failed');
-    }
-}));
-/**
- * GET /api/auth/profile
- * Get complete user profile
- */
-router.get('/profile', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
-    try {
-        const { userService } = await Promise.resolve().then(() => __importStar(require('../services/users')));
-        const profile = await userService.getUserProfile(req.user.id);
-        if (!profile) {
-            return res.status(404).json({
-                success: false,
-                error: 'Profile not found',
-                code: 'PROFILE_NOT_FOUND'
-            });
-        }
-        res.json({
-            success: true,
-            data: { user: profile }
-        });
-    }
-    catch (error) {
-        console.error('Get profile error:', error);
-        throw errorHandler_1.errors.internalError('Failed to fetch profile');
-    }
-}));
-/**
- * PUT /api/auth/profile
- * Update user profile information
- */
-router.put('/profile', auth_1.authenticateToken, tenant_1.validateTenantAccess, [
-    (0, express_validator_1.body)('firstName').optional().isLength({ min: 2, max: 50 }).withMessage('First name must be 2-50 characters'),
-    (0, express_validator_1.body)('lastName').optional().isLength({ min: 2, max: 50 }).withMessage('Last name must be 2-50 characters'),
-    (0, express_validator_1.body)('phone').optional().isMobilePhone('any').withMessage('Valid phone number required'),
-    (0, express_validator_1.body)('address.street').optional().isLength({ min: 5, max: 100 }).withMessage('Street address must be 5-100 characters'),
-    (0, express_validator_1.body)('address.city').optional().isLength({ min: 2, max: 50 }).withMessage('City must be 2-50 characters'),
-    (0, express_validator_1.body)('address.state').optional().isLength({ min: 2, max: 50 }).withMessage('State must be 2-50 characters'),
-    (0, express_validator_1.body)('address.country').optional().isLength({ min: 2, max: 50 }).withMessage('Country must be 2-50 characters'),
-], (0, errorHandler_1.asyncHandler)(async (req, res) => {
-    const validationErrors = (0, express_validator_1.validationResult)(req);
-    if (!validationErrors.isEmpty()) {
-        return res.status(400).json({
-            success: false,
-            error: 'Validation failed',
-            code: 'VALIDATION_ERROR',
-            details: validationErrors.array()
-        });
-    }
-    const { firstName, lastName, phone, address, profileImage } = req.body;
-    const userId = req.user.id;
-    try {
-        const { userService } = await Promise.resolve().then(() => __importStar(require('../services/users')));
-        const updateResult = await userService.updateUserProfile(userId, {
-            firstName,
-            lastName,
-            phone,
-            address,
-            profileImage
-        });
-        res.json({
-            success: updateResult.success,
-            message: updateResult.message
-        });
-    }
-    catch (error) {
-        console.error('Profile update error:', error);
-        throw errorHandler_1.errors.internalError('Profile update failed');
     }
 }));
 exports.default = router;

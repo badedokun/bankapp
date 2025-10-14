@@ -10,7 +10,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const express_validator_1 = require("express-validator");
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const database_1 = require("../config/database");
+const multi_tenant_database_1 = __importDefault(require("../config/multi-tenant-database"));
 const auth_1 = require("../middleware/auth");
 const tenant_1 = require("../middleware/tenant");
 const errorHandler_1 = require("../middleware/errorHandler");
@@ -21,12 +21,13 @@ const router = express_1.default.Router();
  */
 router.get('/balance', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
     try {
-        const walletResult = await (0, database_1.query)(`
+        const tenantId = req.user.tenantId;
+        const walletResult = await multi_tenant_database_1.default.queryTenant(tenantId, `
       SELECT w.*, u.first_name, u.last_name, u.account_number, u.kyc_level,
              u.daily_limit, u.monthly_limit
       FROM tenant.wallets w
       JOIN tenant.users u ON w.user_id = u.id
-      WHERE w.user_id = $1 AND w.tenant_id = $2 AND w.is_primary = true
+      WHERE w.user_id = $1 AND w.tenant_id = $2 AND w.wallet_type = 'main'
     `, [req.user.id, req.user.tenantId]);
         if (walletResult.rowCount === 0) {
             return res.status(404).json({
@@ -39,16 +40,16 @@ router.get('/balance', auth_1.authenticateToken, tenant_1.validateTenantAccess, 
         // Calculate daily and monthly spending
         const today = new Date().toISOString().split('T')[0];
         const currentMonth = new Date().toISOString().substring(0, 7);
-        const spendingResult = await (0, database_1.query)(`
-    SELECT 
+        const spendingResult = await multi_tenant_database_1.default.queryTenant(tenantId, `
+    SELECT
       COALESCE(SUM(CASE WHEN DATE(created_at) = $1 THEN amount ELSE 0 END), 0) as daily_spent,
       COALESCE(SUM(CASE WHEN DATE(created_at) >= $2 THEN amount ELSE 0 END), 0) as monthly_spent
-    FROM tenant.transfers 
+    FROM tenant.transfers
     WHERE sender_id = $3 AND status IN ('pending', 'successful')
   `, [today, currentMonth + '-01', req.user.id]);
         const spending = spendingResult.rows[0];
         // Calculate real-time balance by subtracting completed transfers from wallet balance
-        const transfersResult = await (0, database_1.query)(`
+        const transfersResult = await multi_tenant_database_1.default.queryTenant(tenantId, `
     SELECT
       COALESCE(SUM(amount + COALESCE(fee, 0)), 0) as total_debited
     FROM tenant.transfers
@@ -66,7 +67,7 @@ router.get('/balance', auth_1.authenticateToken, tenant_1.validateTenantAccess, 
                 availableBalance: realTimeBalance, // Real-time balance after transfers
                 currency: wallet.currency || 'NGN',
                 walletType: wallet.wallet_type,
-                status: wallet.status || 'active',
+                status: wallet.is_frozen ? 'frozen' : (wallet.is_active ? 'active' : 'inactive'),
                 owner: {
                     name: `${wallet.first_name} ${wallet.last_name}`,
                     kycLevel: wallet.kyc_level
@@ -98,12 +99,13 @@ router.get('/balance', auth_1.authenticateToken, tenant_1.validateTenantAccess, 
  * Get all user wallets (primary, savings, etc.)
  */
 router.get('/all', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
-    const walletsResult = await (0, database_1.query)(`
+    const tenantId = req.user.tenantId;
+    const walletsResult = await multi_tenant_database_1.default.queryTenant(tenantId, `
     SELECT w.*, u.first_name, u.last_name
     FROM tenant.wallets w
     JOIN tenant.users u ON w.user_id = u.id
     WHERE w.user_id = $1 AND w.tenant_id = $2
-    ORDER BY w.is_primary DESC, w.created_at ASC
+    ORDER BY CASE WHEN w.wallet_type = 'main' THEN 0 ELSE 1 END, w.created_at ASC
   `, [req.user.id, req.user.tenantId]);
     const wallets = walletsResult.rows.map(wallet => ({
         id: wallet.id,
@@ -144,7 +146,7 @@ router.post('/create', auth_1.authenticateToken, tenant_1.validateTenantAccess, 
     const tenantId = req.user.tenantId;
     try {
         // Check wallet limit (max 5 wallets per user)
-        const countResult = await (0, database_1.query)(`
+        const countResult = await multi_tenant_database_1.default.queryTenant(tenantId, `
       SELECT COUNT(*) as wallet_count
       FROM tenant.wallets
       WHERE user_id = $1 AND tenant_id = $2
@@ -157,9 +159,9 @@ router.post('/create', auth_1.authenticateToken, tenant_1.validateTenantAccess, 
             });
         }
         // Create new wallet
-        const walletResult = await (0, database_1.query)(`
+        const walletResult = await multi_tenant_database_1.default.queryTenant(tenantId, `
       INSERT INTO tenant.wallets (
-        user_id, tenant_id, wallet_type, wallet_name, description, 
+        user_id, tenant_id, wallet_type, wallet_name, description,
         target_amount, currency, balance, is_primary, status, created_at
       ) VALUES ($1, $2, $3, $4, $5, $6, 'NGN', 0.00, false, 'active', NOW())
       RETURNING id, wallet_type, wallet_name, balance, created_at
@@ -212,15 +214,18 @@ router.post('/transfer-between', auth_1.authenticateToken, tenant_1.validateTena
             code: 'SAME_WALLET_TRANSFER'
         });
     }
+    const tenantPool = await multi_tenant_database_1.default.getTenantPool(tenantId);
+    const client = await tenantPool.connect();
     try {
-        await (0, database_1.query)('BEGIN');
+        await client.query('BEGIN');
         // Verify PIN
-        const userResult = await (0, database_1.query)(`
+        const userResult = await client.query(`
       SELECT transaction_pin_hash FROM tenant.users WHERE id = $1
     `, [userId]);
         const isPinValid = await bcrypt_1.default.compare(pin, userResult.rows[0].transaction_pin_hash);
         if (!isPinValid) {
-            await (0, database_1.query)('ROLLBACK');
+            await client.query('ROLLBACK');
+            client.release();
             return res.status(401).json({
                 success: false,
                 error: 'Invalid transaction PIN',
@@ -228,13 +233,14 @@ router.post('/transfer-between', auth_1.authenticateToken, tenant_1.validateTena
             });
         }
         // Get both wallets and verify ownership
-        const walletsResult = await (0, database_1.query)(`
+        const walletsResult = await client.query(`
       SELECT id, wallet_type, balance, wallet_name
       FROM tenant.wallets
       WHERE id IN ($1, $2) AND user_id = $3 AND tenant_id = $4
     `, [fromWalletId, toWalletId, userId, tenantId]);
         if (walletsResult.rowCount !== 2) {
-            await (0, database_1.query)('ROLLBACK');
+            await client.query('ROLLBACK');
+            client.release();
             return res.status(404).json({
                 success: false,
                 error: 'One or both wallets not found',
@@ -248,7 +254,8 @@ router.post('/transfer-between', auth_1.authenticateToken, tenant_1.validateTena
         const transferAmount = parseFloat(amount);
         const sourceBalance = parseFloat(fromWallet.balance);
         if (sourceBalance < transferAmount) {
-            await (0, database_1.query)('ROLLBACK');
+            await client.query('ROLLBACK');
+            client.release();
             return res.status(400).json({
                 success: false,
                 error: 'Insufficient balance in source wallet',
@@ -260,25 +267,25 @@ router.post('/transfer-between', auth_1.authenticateToken, tenant_1.validateTena
             });
         }
         // Perform the transfer
-        await (0, database_1.query)(`
-      UPDATE tenant.wallets 
+        await client.query(`
+      UPDATE tenant.wallets
       SET balance = balance - $1, updated_at = NOW()
       WHERE id = $2
     `, [transferAmount, fromWalletId]);
-        await (0, database_1.query)(`
-      UPDATE tenant.wallets 
+        await client.query(`
+      UPDATE tenant.wallets
       SET balance = balance + $1, updated_at = NOW()
       WHERE id = $2
     `, [transferAmount, toWalletId]);
         // Create internal transfer record
-        const transferResult = await (0, database_1.query)(`
+        const transferResult = await client.query(`
       INSERT INTO tenant.internal_transfers (
-        user_id, tenant_id, from_wallet_id, to_wallet_id, amount, 
+        user_id, tenant_id, from_wallet_id, to_wallet_id, amount,
         description, status, created_at
       ) VALUES ($1, $2, $3, $4, $5, $6, 'completed', NOW())
       RETURNING id, created_at
     `, [userId, tenantId, fromWalletId, toWalletId, transferAmount, description]);
-        await (0, database_1.query)('COMMIT');
+        await client.query('COMMIT');
         res.json({
             success: true,
             message: 'Transfer completed successfully',
@@ -301,9 +308,12 @@ router.post('/transfer-between', auth_1.authenticateToken, tenant_1.validateTena
         });
     }
     catch (error) {
-        await (0, database_1.query)('ROLLBACK');
+        await client.query('ROLLBACK');
         console.error('Internal transfer error:', error);
         throw errorHandler_1.errors.internalError('Transfer failed');
+    }
+    finally {
+        client.release();
     }
 }));
 /**
@@ -328,8 +338,10 @@ router.post('/fund', auth_1.authenticateToken, tenant_1.validateTenantAccess, [
     const { walletId, amount, method, reference } = req.body;
     const userId = req.user.id;
     const tenantId = req.user.tenantId;
+    const tenantPool = await multi_tenant_database_1.default.getTenantPool(tenantId);
+    const client = await tenantPool.connect();
     try {
-        await (0, database_1.query)('BEGIN');
+        await client.query('BEGIN');
         // Get target wallet (primary if not specified)
         const targetWalletId = walletId || null;
         const walletQuery = targetWalletId
@@ -338,9 +350,10 @@ router.post('/fund', auth_1.authenticateToken, tenant_1.validateTenantAccess, [
         const params = targetWalletId
             ? [targetWalletId, userId, tenantId]
             : [userId, tenantId];
-        const walletResult = await (0, database_1.query)(walletQuery, params);
+        const walletResult = await client.query(walletQuery, params);
         if (walletResult.rowCount === 0) {
-            await (0, database_1.query)('ROLLBACK');
+            await client.query('ROLLBACK');
+            client.release();
             return res.status(404).json({
                 success: false,
                 error: 'Wallet not found',
@@ -353,7 +366,8 @@ router.post('/fund', auth_1.authenticateToken, tenant_1.validateTenantAccess, [
         // Simulate funding process (would integrate with actual payment processor)
         const fundingResult = await simulateFunding(method, fundingAmount, fundingReference);
         if (!fundingResult.success) {
-            await (0, database_1.query)('ROLLBACK');
+            await client.query('ROLLBACK');
+            client.release();
             return res.status(400).json({
                 success: false,
                 error: fundingResult.message,
@@ -361,20 +375,20 @@ router.post('/fund', auth_1.authenticateToken, tenant_1.validateTenantAccess, [
             });
         }
         // Credit the wallet
-        await (0, database_1.query)(`
-      UPDATE tenant.wallets 
+        await client.query(`
+      UPDATE tenant.wallets
       SET balance = balance + $1, updated_at = NOW()
       WHERE id = $2
     `, [fundingAmount, wallet.id]);
         // Create funding record
-        const fundingRecordResult = await (0, database_1.query)(`
+        const fundingRecordResult = await client.query(`
       INSERT INTO tenant.wallet_fundings (
         user_id, tenant_id, wallet_id, amount, method, reference,
         external_reference, status, created_at
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, 'completed', NOW())
       RETURNING id, created_at
     `, [userId, tenantId, wallet.id, fundingAmount, method, fundingReference, fundingResult.externalReference]);
-        await (0, database_1.query)('COMMIT');
+        await client.query('COMMIT');
         res.json({
             success: true,
             message: 'Wallet funded successfully',
@@ -394,9 +408,12 @@ router.post('/fund', auth_1.authenticateToken, tenant_1.validateTenantAccess, [
         });
     }
     catch (error) {
-        await (0, database_1.query)('ROLLBACK');
+        await client.query('ROLLBACK');
         console.error('Wallet funding error:', error);
         throw errorHandler_1.errors.internalError('Wallet funding failed');
+    }
+    finally {
+        client.release();
     }
 }));
 /**
@@ -405,6 +422,7 @@ router.post('/fund', auth_1.authenticateToken, tenant_1.validateTenantAccess, [
  */
 router.get('/transactions', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const userId = req.user.id;
+    const tenantId = req.user.tenantId;
     const page = parseInt(req.query.page) || 1;
     const limit = Math.min(parseInt(req.query.limit) || 20, 100);
     const offset = (page - 1) * limit;
@@ -417,8 +435,8 @@ router.get('/transactions', auth_1.authenticateToken, tenant_1.validateTenantAcc
         whereClause += ' AND EXISTS (SELECT 1 FROM tenant.wallets w WHERE w.id = $2 AND w.user_id = $1)';
         params.push(walletId);
     }
-    const transactionsResult = await (0, database_1.query)(`
-    SELECT 
+    const transactionsResult = await multi_tenant_database_1.default.queryTenant(tenantId, `
+    SELECT
       t.id, t.reference, t.amount, t.status, t.description, t.created_at,
       t.recipient_account_number, t.recipient_name, t.recipient_bank_code,
       CASE WHEN t.sender_id = $1 THEN 'debit' ELSE 'credit' END as type,
@@ -426,21 +444,21 @@ router.get('/transactions', auth_1.authenticateToken, tenant_1.validateTenantAcc
       'transfer' as transaction_type
     FROM tenant.transfers t
     ${whereClause}
-    
+
     UNION ALL
-    
-    SELECT 
-      wf.id, wf.reference, wf.amount, wf.status, 
-      CONCAT('Wallet funding via ', wf.method) as description, wf.created_at,
+
+    SELECT
+      wf.id, wf.reference_number as reference, wf.amount, wf.status,
+      CONCAT('Wallet funding via ', wf.funding_source) as description, wf.created_at,
       NULL as recipient_account_number, NULL as recipient_name, NULL as recipient_bank_code,
       'credit' as type, 'funding' as direction, 'funding' as transaction_type
     FROM tenant.wallet_fundings wf
     WHERE wf.user_id = $1 ${walletId ? 'AND wf.wallet_id = $2' : ''}
-    
+
     ORDER BY created_at DESC
     LIMIT ${limit} OFFSET ${offset}
   `, params);
-    const countResult = await (0, database_1.query)(`
+    const countResult = await multi_tenant_database_1.default.queryTenant(tenantId, `
     SELECT COUNT(*) as total FROM (
       SELECT id FROM tenant.transfers t ${whereClause}
       UNION ALL
@@ -508,11 +526,11 @@ router.get('/statement', auth_1.authenticateToken, tenant_1.validateTenantAccess
     }
     try {
         // Get wallet details
-        const walletResult = await (0, database_1.query)(`
+        const walletResult = await multi_tenant_database_1.default.queryTenant(tenantId, `
       SELECT w.id, w.wallet_number, w.balance, u.first_name, u.last_name
       FROM tenant.wallets w
       JOIN tenant.users u ON w.user_id = u.id
-      WHERE w.user_id = $1 AND w.tenant_id = $2 AND w.is_primary = true
+      WHERE w.user_id = $1 AND w.tenant_id = $2 AND w.wallet_type = 'main'
     `, [userId, tenantId]);
         if (walletResult.rowCount === 0) {
             return res.status(404).json({
@@ -523,17 +541,17 @@ router.get('/statement', auth_1.authenticateToken, tenant_1.validateTenantAccess
         }
         const wallet = walletResult.rows[0];
         // Get opening balance (balance at start date)
-        const openingBalanceResult = await (0, database_1.query)(`
+        const openingBalanceResult = await multi_tenant_database_1.default.queryTenant(tenantId, `
       SELECT COALESCE(
-        (SELECT balance FROM tenant.wallet_balance_snapshots 
+        (SELECT balance FROM tenant.wallet_balance_snapshots
          WHERE wallet_id = $1 AND snapshot_date = $2),
         $3
       ) as opening_balance
     `, [wallet.id, startDate, wallet.balance]);
         const openingBalance = parseFloat(openingBalanceResult.rows[0]?.opening_balance || '0');
         // Get transactions for the period
-        const transactionsResult = await (0, database_1.query)(`
-      SELECT 
+        const transactionsResult = await multi_tenant_database_1.default.queryTenant(tenantId, `
+      SELECT
         t.id, t.reference, t.amount, t.status, t.description, t.created_at,
         t.recipient_account_number, t.recipient_name, t.recipient_bank_code,
         CASE WHEN t.sender_id = $1 THEN 'debit' ELSE 'credit' END as type,
@@ -542,18 +560,18 @@ router.get('/statement', auth_1.authenticateToken, tenant_1.validateTenantAccess
       WHERE (t.sender_id = $1 OR t.recipient_id = $1)
         AND DATE(t.created_at) BETWEEN $2 AND $3
         AND t.status IN ('successful', 'completed')
-      
+
       UNION ALL
-      
-      SELECT 
-        wf.id, wf.reference, wf.amount, wf.status,
-        CONCAT('Wallet funding via ', wf.method) as description, wf.created_at,
+
+      SELECT
+        wf.id, wf.reference_number as reference, wf.amount, wf.status,
+        CONCAT('Wallet funding via ', wf.funding_source) as description, wf.created_at,
         NULL, NULL, NULL, 'credit' as type, 'funding' as transaction_type
       FROM tenant.wallet_fundings wf
-      WHERE wf.user_id = $1 
+      WHERE wf.user_id = $1
         AND DATE(wf.created_at) BETWEEN $2 AND $3
         AND wf.status = 'completed'
-        
+
       ORDER BY created_at ASC
     `, [userId, startDate, endDate]);
         const transactions = transactionsResult.rows.map(t => ({
@@ -629,9 +647,10 @@ router.put('/set-pin', auth_1.authenticateToken, tenant_1.validateTenantAccess, 
             code: 'PIN_MISMATCH'
         });
     }
+    const tenantId = req.user.tenantId;
     try {
         // Get current PIN hash
-        const userResult = await (0, database_1.query)(`
+        const userResult = await multi_tenant_database_1.default.queryTenant(tenantId, `
       SELECT transaction_pin_hash FROM tenant.users WHERE id = $1
     `, [userId]);
         const user = userResult.rows[0];
@@ -657,8 +676,8 @@ router.put('/set-pin', auth_1.authenticateToken, tenant_1.validateTenantAccess, 
         const saltRounds = 12;
         const pinHash = await bcrypt_1.default.hash(pin, saltRounds);
         // Update PIN
-        await (0, database_1.query)(`
-      UPDATE tenant.users 
+        await multi_tenant_database_1.default.queryTenant(tenantId, `
+      UPDATE tenant.users
       SET transaction_pin_hash = $1, updated_at = NOW()
       WHERE id = $2
     `, [pinHash, userId]);
@@ -690,9 +709,10 @@ router.post('/verify-pin', auth_1.authenticateToken, tenant_1.validateTenantAcce
     }
     const { pin } = req.body;
     const userId = req.user.id;
+    const tenantId = req.user.tenantId;
     try {
         // Get PIN hash
-        const userResult = await (0, database_1.query)(`
+        const userResult = await multi_tenant_database_1.default.queryTenant(tenantId, `
       SELECT transaction_pin_hash FROM tenant.users WHERE id = $1
     `, [userId]);
         const user = userResult.rows[0];
@@ -731,7 +751,7 @@ router.get('/limits', auth_1.authenticateToken, tenant_1.validateTenantAccess, (
     const tenantId = req.user.tenantId;
     try {
         // Get user limits
-        const userResult = await (0, database_1.query)(`
+        const userResult = await multi_tenant_database_1.default.queryTenant(tenantId, `
       SELECT u.daily_limit, u.monthly_limit, u.kyc_level,
              w.balance
       FROM tenant.users u
@@ -749,11 +769,11 @@ router.get('/limits', auth_1.authenticateToken, tenant_1.validateTenantAccess, (
         // Calculate current spending
         const today = new Date().toISOString().split('T')[0];
         const currentMonth = new Date().toISOString().substring(0, 7);
-        const spendingResult = await (0, database_1.query)(`
-      SELECT 
+        const spendingResult = await multi_tenant_database_1.default.queryTenant(tenantId, `
+      SELECT
         COALESCE(SUM(CASE WHEN DATE(created_at) = $1 THEN amount ELSE 0 END), 0) as daily_spent,
         COALESCE(SUM(CASE WHEN DATE(created_at) >= $2 THEN amount ELSE 0 END), 0) as monthly_spent
-      FROM tenant.transfers 
+      FROM tenant.transfers
       WHERE sender_id = $3 AND status IN ('pending', 'successful')
     `, [today, currentMonth + '-01', userId]);
         const spending = spendingResult.rows[0];

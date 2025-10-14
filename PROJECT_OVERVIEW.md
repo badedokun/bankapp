@@ -4,6 +4,185 @@
 
 > **⚠️ CRITICAL: This section contains the established technology stack and architecture patterns that MUST be followed. Do NOT deviate from these patterns without explicit architectural review and approval.**
 
+---
+
+## 🏛️ **CRITICAL MULTI-TENANT PRINCIPLE - NEVER HARDCODE TENANT DATA**
+
+### ⚠️ **THIS IS A MULTI-TENANT PLATFORM - ALL TENANT DATA MUST BE DYNAMIC**
+
+**❌ NEVER HARDCODE TENANT-SPECIFIC VALUES IN THE CODEBASE ❌**
+
+This platform serves **multiple banks/financial institutions** using a **single codebase**. Hardcoding tenant data breaks the entire multi-tenant architecture and makes the platform unusable for other tenants.
+
+### ✅ **CORRECT: Always Load Tenant Data Dynamically**
+
+**Approved Sources for Tenant Data (in order of preference):**
+
+1. **JWT Token** (Primary Source)
+   ```typescript
+   const userProfile = await APIService.getProfile();
+   const tenantCode = userProfile.tenant.name;        // e.g., 'fmfb', 'gtb', 'access'
+   const tenantName = userProfile.tenant.displayName; // e.g., 'Firstmidas Microfinance Bank Limited'
+   ```
+
+2. **Theme Context** (Loaded from API)
+   ```typescript
+   const { theme } = useTenantTheme();
+   const tenantCode = theme.tenantCode;    // From API
+   const tenantName = theme.brandName;     // From API
+   const tenantColors = theme.colors;      // From API
+   ```
+
+3. **Subdomain** (For initial tenant resolution)
+   ```typescript
+   const subdomain = window.location.hostname.split('.')[0]; // 'fmfb' from 'fmfb.orokii.com'
+   ```
+
+4. **Environment Variables** (For defaults/fallback ONLY)
+   ```typescript
+   const defaultTenant = process.env.REACT_APP_DEFAULT_TENANT || 'platform';
+   ```
+
+### ❌ **WRONG: Examples of What NOT to Do**
+
+```typescript
+// ❌ WRONG - Hardcoded tenant bank code
+const bank = 'FMFB';
+const bankCode = 'fmfb';
+
+// ❌ WRONG - Hardcoded tenant bank name
+const bankName = 'Firstmidas Microfinance Bank Limited';
+
+// ❌ WRONG - Hardcoded tenant colors
+const primaryColor = '#010080'; // FMFB's color
+
+// ❌ WRONG - Hardcoded tenant logo
+const logo = '/assets/fmfb-logo.png';
+
+// ❌ WRONG - Tenant-specific business logic
+if (tenantCode === 'fmfb') {
+  // Special FMFB logic - THIS BREAKS OTHER TENANTS
+}
+```
+
+### ✅ **CORRECT: Examples of Multi-Tenant Code**
+
+```typescript
+// ✅ CORRECT - Dynamic tenant from JWT
+const userProfile = await APIService.getProfile();
+const bank = userProfile.tenant.name;
+const bankName = userProfile.tenant.displayName;
+
+// ✅ CORRECT - Dynamic tenant from theme context
+const { theme } = useTenantTheme();
+const primaryColor = theme.colors.primary;
+const logo = theme.brandLogo;
+const bankName = theme.brandName;
+
+// ✅ CORRECT - Tenant-agnostic business logic
+const transferFee = calculateFee(amount, transferType); // Same logic for all tenants
+```
+
+### 📋 **Examples of Tenant-Specific Data (NEVER HARDCODE)**
+
+- ✘ Tenant/Bank codes: `'fmfb'`, `'gtb'`, `'access'`, `'zenith'`, etc.
+- ✘ Bank names: `'Firstmidas Microfinance Bank'`, `'Guaranty Trust Bank'`, etc.
+- ✘ Bank logos, colors, typography, branding
+- ✘ Tenant-specific URLs, endpoints, or configurations
+- ✘ Tenant-specific business rules or workflows
+
+### 🎯 **Why This Matters**
+
+1. **Platform Scalability**: Enables onboarding new banks without code changes
+2. **Maintenance**: Single codebase serves all tenants
+3. **White-Label**: Each bank gets their own branded experience
+4. **Cost Efficiency**: One deployment serves multiple institutions
+5. **Security**: Proper tenant isolation prevents data leakage
+
+### 🔍 **How to Check Your Code**
+
+Before committing, search for hardcoded tenant references:
+```bash
+# Search for hardcoded tenant names
+grep -r "FMFB\|'fmfb'\|GTB\|'gtb'" src/ --include="*.tsx" --include="*.ts"
+
+# Ensure theme colors are used instead of hex codes
+grep -r "#010080\|#FFD700" src/ --include="*.tsx" --include="*.ts"
+```
+
+**If you find hardcoded tenant data in your code, REFACTOR IMMEDIATELY before committing.**
+
+---
+
+## 🗄️ **CRITICAL DATABASE ARCHITECTURE - MUST READ BEFORE ANY DATABASE QUERIES**
+
+### ⚠️ **READ THIS DOCUMENT FIRST: [DATABASE_ARCHITECTURE.md](./docs/DATABASE_ARCHITECTURE.md)**
+
+**This platform uses a database-per-tenant isolation model with TWO distinct database layers:**
+
+1. **Platform Database** (`bank_app_platform`) - Tenant registry and platform-wide data ONLY
+2. **Tenant Databases** (`tenant_fmfb_db`, `tenant_acme_db`, etc.) - ALL tenant-specific data
+
+### 🚨 **CRITICAL DATABASE RULES**
+
+#### **Rule 1: Know Which Database to Use**
+
+| Data Type | Database | Connection Method |
+|-----------|----------|-------------------|
+| Tenant registry | `bank_app_platform` | `dbManager.queryPlatform()` |
+| Users | `tenant_{slug}_db` | `dbManager.queryTenant(tenant.id, ...)` |
+| Wallets | `tenant_{slug}_db` | `dbManager.queryTenant(tenant.id, ...)` |
+| Transactions | `tenant_{slug}_db` | `dbManager.queryTenant(tenant.id, ...)` |
+| Transfers | `tenant_{slug}_db` | `dbManager.queryTenant(tenant.id, ...)` |
+| Disputes | `tenant_{slug}_db` | `dbManager.queryTenant(tenant.id, ...)` |
+
+#### **Rule 2: NEVER Store Tenant Data in Platform Database**
+
+```typescript
+// ❌ WRONG - Breaks regulatory compliance
+await dbManager.queryPlatform('INSERT INTO platform.transactions ...');
+
+// ✅ CORRECT - Maintains tenant isolation
+await dbManager.queryTenant(tenant.id, 'INSERT INTO tenant.transactions ...');
+```
+
+#### **Rule 3: ALWAYS Use dbManager for Multi-Tenant Queries**
+
+```typescript
+// ❌ WRONG - Bypasses multi-tenant routing
+import { query } from '../config/database';
+await query('SELECT * FROM tenant.users');
+
+// ✅ CORRECT - Properly routes to tenant database
+import dbManager from '../config/multi-tenant-database';
+const tenant = (req as any).tenant;
+await dbManager.queryTenant(tenant.id, 'SELECT * FROM tenant.users WHERE id = $1', [userId]);
+```
+
+#### **Why Database Architecture Matters**
+
+1. **Banking Regulations**: CBN and PCI DSS require complete data isolation between tenants
+2. **Data Security**: Physical database separation prevents cross-tenant data leakage
+3. **Compliance**: Each tenant's data must be queryable and auditable independently
+4. **Performance**: Dedicated database per tenant enables better resource allocation
+
+### 📚 **REQUIRED READING**
+
+Before writing ANY database queries, you MUST read:
+- **[Database Architecture Guide](./docs/DATABASE_ARCHITECTURE.md)** - Complete database architecture reference
+  - Explains platform vs tenant databases
+  - Shows correct connection methods
+  - Lists all common mistakes and how to avoid them
+  - Provides troubleshooting guide
+
+**Failure to follow database architecture will result in:**
+- ❌ Regulatory compliance violations
+- ❌ Data isolation breaches
+- ❌ Security vulnerabilities
+- ❌ Code that doesn't work for other tenants
+
+---
+
 ### **🎨 MANDATORY UI DESIGN SYSTEM**
 > **ALL UI DEVELOPMENT MUST FOLLOW THE MODERN DESIGN SYSTEM**
 >
@@ -833,12 +1012,15 @@ npm run design-system:showcase # Start showcase server locally
 ### **Key Environment Variables**
 ```bash
 # Database
-DATABASE_URL=postgresql://user:password@localhost:5432/bank_app_platform
+DATABASE_URL=postgresql://bisiadedokun:orokiipay_secure_banking_2024!@#@localhost:5432/bank_app_platform
 DB_HOST=localhost
-DB_PORT=5432  
+DB_PORT=5432
 DB_NAME=bank_app_platform
-DB_USER=postgres
-DB_PASSWORD=yourpassword
+DB_USER=bisiadedokun
+DB_PASSWORD=orokiipay_secure_banking_2024!@#
+
+# NOTE: Using Homebrew PostgreSQL 14 (not PostgreSQL 17)
+# The postgres user doesn't exist - use 'bisiadedokun' (Mac username) as superuser
 
 # JWT Configuration
 JWT_SECRET=your-super-secret-jwt-key-change-in-production

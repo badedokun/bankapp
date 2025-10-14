@@ -15,6 +15,7 @@ export interface UserRegistrationData {
     referralCode?: string;
 }
 export interface KYCDocumentData {
+    tenantId: string;
     userId: string;
     documentType: 'nin' | 'passport' | 'drivers_license' | 'voters_card';
     documentNumber: string;
@@ -70,11 +71,11 @@ export declare class UserService {
     /**
      * Get user profile with complete information
      */
-    getUserProfile(userId: string): Promise<UserProfile | null>;
+    getUserProfile(tenantId: string, userId: string): Promise<UserProfile | null>;
     /**
      * Update user profile information
      */
-    updateUserProfile(userId: string, updates: {
+    updateUserProfile(tenantId: string, userId: string, updates: {
         firstName?: string;
         lastName?: string;
         phone?: string;

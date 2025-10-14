@@ -98,6 +98,7 @@ class ExternalTransferService {
                 console.error('NIBSS transfer processing failed:', error);
             });
             return {
+                success: true,
                 id: transferId,
                 reference,
                 status: 'processing',
@@ -142,7 +143,7 @@ class ExternalTransferService {
             if (!response.ok) {
                 throw new Error(`NIBSS API error: ${response.status}`);
             }
-            const result = await response.json();
+            const result = await response.json() || {};
             // NIBSS response codes: 00 = success
             if (result.responseCode === '00') {
                 // Get bank name
@@ -200,7 +201,7 @@ class ExternalTransferService {
                 },
                 body: JSON.stringify(nibssRequest),
             });
-            const result = await response.json();
+            const result = await response.json() || {};
             let status;
             let failureReason = null;
             if (result.responseCode === '00') {
@@ -396,7 +397,7 @@ class ExternalTransferService {
         const dailyUsed = parseFloat(dailyResult.rows[0].daily_total);
         const dailyLimit = 5000000; // ₦5M daily limit
         if (dailyUsed + amount > dailyLimit) {
-            throw new transfers_1.LimitExceededError(dailyLimit, dailyUsed + amount, 'Daily');
+            throw new transfers_1.LimitExceededError('Daily', dailyLimit, dailyUsed + amount);
         }
         // Check monthly limit
         const monthlyResult = await client.query(`
@@ -409,7 +410,7 @@ class ExternalTransferService {
         const monthlyUsed = parseFloat(monthlyResult.rows[0].monthly_total);
         const monthlyLimit = 20000000; // ₦20M monthly limit
         if (monthlyUsed + amount > monthlyLimit) {
-            throw new transfers_1.LimitExceededError(monthlyLimit, monthlyUsed + amount, 'Monthly');
+            throw new transfers_1.LimitExceededError('Monthly', monthlyLimit, monthlyUsed + amount);
         }
     }
     /**

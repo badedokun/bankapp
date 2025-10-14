@@ -18,6 +18,10 @@ import {
   Platform,
   Modal,
 } from 'react-native';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import { GlassCard } from '../../components/ui/GlassCard';
+import ModernBackButton from '../../components/ui/ModernBackButton';
+import { triggerHaptic } from '../../utils/haptics';
 import { useTenant, useTenantTheme } from '../../tenants/TenantContext';
 import { useBankingAlert } from '../../services/AlertService';
 import APIService from '../../services/api';
@@ -26,6 +30,7 @@ import TransactionAnalyticsScreen from '../analytics/TransactionAnalyticsScreen'
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 const { width: screenWidth } = Dimensions.get('window');
 
 interface TransactionHistoryData {
@@ -90,7 +95,6 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
   // Load transaction history
   const loadHistoryData = useCallback(async () => {
     try {
-      console.log('🔍 Loading transfer history data...');
       const [transactionsData, walletData] = await Promise.all([
         APIService.getTransferHistory({ 
           page: 1, 
@@ -101,8 +105,6 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
         APIService.getWalletBalance()
       ]);
 
-      console.log('📊 Transfer history response:', transactionsData);
-      console.log('📋 Transactions array:', transactionsData.transactions);
 
       // Calculate progressive balances starting from current balance
       let runningBalance = walletData.balance;
@@ -263,7 +265,6 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
         showAlert('Export Successful', `${filteredTransactions.length} transactions exported to CSV`, [{ text: 'OK' }]);
       } else {
         // For mobile, show the content (in real app, would use Share API)
-        console.log('CSV Content:', csvContent);
         showAlert(
           'Export Ready',
           `${filteredTransactions.length} transactions ready for export. In a production app, this would share the CSV file.`,
@@ -434,71 +435,78 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       flex: 1,
       backgroundColor: theme.colors.background,
     },
-    header: {
-      backgroundColor: theme.colors.primary,
-      marginLeft: 20,
-      marginRight: 20,
-      marginTop: 0,
-      marginBottom: 0,
-      borderRadius: 12,
-      paddingTop: theme.spacing.lg,
-      paddingBottom: theme.spacing.lg,
-    },
-    headerContent: {
+    simpleHeader: {
+      backgroundColor: tenantTheme.colors.primary,
+      paddingHorizontal: 20,
+      paddingVertical: 16,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
+      ...Platform.select({
+        ios: {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+        },
+        android: {
+          elevation: 4,
+        },
+        web: {
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+        },
+      }),
     },
-    backButton: {
-      backgroundColor: 'rgba(255, 255, 255, 0.2)',
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.sm,
+    simpleHeaderTitle: {
+      fontSize: 20,
+      fontWeight: '600',
+      color: tenantTheme.colors.textInverse,
+    },
+    headerSpacer: {
+      width: 40,
+    },
+    actionButtonsContainer: {
+      flexDirection: 'row',
+      gap: 12,
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+      backgroundColor: tenantTheme.colors.surface,
+    },
+    actionButton: {
+      flex: 1,
+      backgroundColor: tenantTheme.colors.primary,
+      paddingVertical: 12,
       borderRadius: 12,
       flexDirection: 'row',
       alignItems: 'center',
+      justifyContent: 'center',
       gap: 8,
+      ...Platform.select({
+        web: {
+          cursor: 'pointer',
+        },
+        ios: {
+          shadowColor: tenantTheme.colors.primary,
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.2,
+          shadowRadius: 4,
+        },
+        android: {
+          elevation: 3,
+        },
+      }),
     },
-    backButtonText: {
-      color: tenantTheme.colors.textInverse,
+    actionButtonIcon: {
       fontSize: 16,
-      fontWeight: '600',
-      letterSpacing: 0.2,
     },
-    headerTitle: {
-      flex: 1,
-      alignItems: 'center',
-    },
-    headerTitleText: {
-      fontSize: 30,
-      fontWeight: '700',
-      color: tenantTheme.colors.textInverse,
-      marginBottom: 5,
-      letterSpacing: 0.3,
-    },
-    headerSubtitle: {
-      fontSize: 16,
-      fontWeight: '400',
-      color: 'rgba(255, 255, 255, 0.9)',
-      letterSpacing: 0.2,
-    },
-    headerActions: {
-      flexDirection: 'row',
-      gap: 10,
-    },
-    headerButton: {
-      backgroundColor: 'rgba(255, 255, 255, 0.2)',
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.sm,
-      borderRadius: 20,
-    },
-    headerButtonText: {
+    actionButtonText: {
       color: tenantTheme.colors.textInverse,
       fontSize: 14,
       fontWeight: '600',
-      letterSpacing: 0.2,
     },
     filtersSection: {
       backgroundColor: tenantTheme.colors.surface,
+      borderRadius: 20,
       padding: theme.spacing.lg,
       overflow: 'visible',
       position: 'relative',
@@ -1143,30 +1151,22 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
   };
 
   return (
-    <SafeAreaView style={dynamicStyles.container}>
+    <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={theme.colors.primary} />
-      
-      {/* Header */}
-      <View style={dynamicStyles.header}>
-        <View style={dynamicStyles.headerContent}>
-          <TouchableOpacity style={dynamicStyles.backButton} onPress={onBack}>
-            <Text style={dynamicStyles.backButtonText}>←</Text>
-          </TouchableOpacity>
-          
-          <View style={dynamicStyles.headerTitle}>
-            <Text style={dynamicStyles.headerTitleText}>Transaction History</Text>
-            <Text style={dynamicStyles.headerSubtitle}>All your financial activities</Text>
-          </View>
 
-          <View style={dynamicStyles.headerActions}>
-            <TouchableOpacity style={dynamicStyles.headerButton} onPress={handleAnalytics}>
-              <Text style={dynamicStyles.headerButtonText}>📊 Analytics</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={dynamicStyles.headerButton} onPress={() => setShowExportDropdown(!showExportDropdown)}>
-              <Text style={dynamicStyles.headerButtonText}>📄 Export</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+      {/* Simple Header */}
+      <View style={dynamicStyles.simpleHeader}>
+        <ModernBackButton
+          variant="glass"
+          size="medium"
+          color="light"
+          onPress={() => {
+            triggerHaptic('impactLight');
+            onBack?.();
+          }}
+        />
+        <Text style={dynamicStyles.simpleHeaderTitle}>Transaction History</Text>
+        <View style={dynamicStyles.headerSpacer} />
       </View>
 
       <ScrollView
@@ -1180,11 +1180,40 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
           />
         }
       >
-        {/* Filters Section */}
-        <View style={dynamicStyles.filtersSection}>
+        {/* Action Buttons */}
+        <View style={dynamicStyles.actionButtonsContainer}>
+          <TouchableOpacity
+            style={dynamicStyles.actionButton}
+            onPress={() => {
+              triggerHaptic('impactMedium');
+              handleAnalytics();
+                  }}
+                >
+                  <Text style={dynamicStyles.actionButtonIcon}>📊</Text>
+                  <Text style={dynamicStyles.actionButtonText}>Analytics</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={dynamicStyles.actionButton}
+                  onPress={() => {
+                    triggerHaptic('impactMedium');
+                    setShowExportDropdown(!showExportDropdown);
+                  }}
+                >
+                  <Text style={dynamicStyles.actionButtonIcon}>📄</Text>
+                  <Text style={dynamicStyles.actionButtonText}>Export</Text>
+                </TouchableOpacity>
+              </View>
+
+            {/* Filters Section */}
+        <Animated.View entering={FadeInDown.delay(200).springify()} style={dynamicStyles.filtersSection}>
           <View style={dynamicStyles.filtersHeader}>
-            <Text style={dynamicStyles.filtersTitle}>🔍 Filters & Search</Text>
-            <TouchableOpacity onPress={clearAllFilters}>
+            <Text style={[dynamicStyles.filtersTitle, { fontFamily: theme.typography?.fontFamily?.primary }]}>🔍 Filters & Search</Text>
+            <TouchableOpacity
+              onPress={() => {
+                triggerHaptic('impactLight');
+                clearAllFilters();
+              }}
+            >
               <Text style={dynamicStyles.clearFilters}>Clear All</Text>
             </TouchableOpacity>
           </View>
@@ -1312,7 +1341,7 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
               </View>
             </View>
           </View>
-        </View>
+        </Animated.View>
 
         {/* Summary Cards */}
         {historyData && (
@@ -1407,11 +1436,15 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
             </View>
           ) : (
             <View testID="transaction-list">
-              {filteredTransactions.map((transaction) => (
-                <TouchableOpacity
+              {filteredTransactions.map((transaction, index) => (
+                <AnimatedTouchable
                   key={transaction.id}
+                  entering={FadeInDown.delay(index * 50).springify()}
                   style={dynamicStyles.transactionItem}
-                  onPress={() => onTransactionDetails?.(transaction.id, transaction.originalTransaction)}
+                  onPress={() => {
+                    triggerHaptic('selection');
+                    onTransactionDetails?.(transaction.id, transaction.originalTransaction);
+                  }}
                   testID="transaction-item"
                 >
                 <View style={dynamicStyles.transactionMain}>
@@ -1421,12 +1454,12 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
 
                   <View style={dynamicStyles.transactionDetails}>
                     <View style={dynamicStyles.transactionPrimary}>
-                      <Text style={dynamicStyles.transactionTitle}>{transaction.title}</Text>
+                      <Text style={[dynamicStyles.transactionTitle, { fontFamily: theme.typography?.fontFamily?.primary }]}>{transaction.title}</Text>
                       <Text style={[dynamicStyles.transactionStatus, getStatusStyle(transaction.status)]}>
                         {transaction.status}
                       </Text>
                     </View>
-                    <Text style={dynamicStyles.transactionSecondary}>{transaction.subtitle}</Text>
+                    <Text style={[dynamicStyles.transactionSecondary, { fontFamily: theme.typography?.fontFamily?.primary }]}>{transaction.subtitle}</Text>
                     <View style={dynamicStyles.transactionMeta}>
                       <Text style={dynamicStyles.metaItem}>📅 {transaction.timestamp}</Text>
                       <Text style={dynamicStyles.metaItem}>🔍 {transaction.referenceNumber}</Text>
@@ -1445,7 +1478,7 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
                     </Text>
                   </View>
                 </View>
-                </TouchableOpacity>
+                </AnimatedTouchable>
               ))}
             </View>
           )}
@@ -1532,6 +1565,7 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f8fafc',
   },
   loadingContainer: {
     flex: 1,

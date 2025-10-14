@@ -3,7 +3,10 @@
  * Backend API Server with Authentication
  */
 
-import 'dotenv/config';
+import dotenv from 'dotenv';
+// Override environment variables with .env file values to ensure correct database configuration
+dotenv.config({ override: true });
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -38,6 +41,7 @@ import banksRoutes from './routes/banks';
 import tenantThemesRoutes from './routes/tenantThemes';
 import rewardsRoutes from './routes/rewards';
 import referralRoutes from './routes/referrals';
+import disputesRoutes from './routes/disputes';
 
 // Import middleware
 import { errorHandler, notFound } from './middleware/errorHandler';
@@ -147,12 +151,13 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Public theme endpoint - completely separate path to avoid auth middleware
+app.use('/api/theme', tenantThemesRoutes);
+
 // API routes
 app.use('/api/auth', authLimiter, tenantMiddleware, authRoutes);
 app.use('/api/registration', authLimiter, tenantMiddleware, registrationRoutes); // Public registration - no auth required
 app.use('/api/tenants', assetRoutes); // Public asset serving - no auth required
-app.use('/api/tenants/theme', tenantThemesRoutes); // Public tenant theme API - no auth required (moved up to avoid auth)
-app.use('/api/tenants', publicTenantRoutes); // Public tenant lookup - no auth required (must be before authenticated routes)
 app.use('/api/tenants', authenticateToken, tenantRoutes);
 app.use('/api/users', authenticateToken, tenantMiddleware, userRoutes);
 app.use('/api/transfers', authenticateToken, tenantMiddleware, transferRoutes);
@@ -174,6 +179,7 @@ app.use('/api/loans', authenticateToken, tenantMiddleware, loansRoutes);
 app.use('/api/banks', authenticateToken, tenantMiddleware, banksRoutes);
 app.use('/api/rewards', authenticateToken, tenantMiddleware, rewardsRoutes);
 app.use('/api/referrals', tenantMiddleware, referralRoutes); // Mixed auth (some endpoints public)
+app.use('/api/disputes', authenticateToken, tenantMiddleware, disputesRoutes);
 
 // Error handling
 app.use(notFound);

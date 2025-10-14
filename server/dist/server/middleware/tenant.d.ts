@@ -4,14 +4,14 @@
  */
 /**
  * Extract tenant information from various sources
- * Priority order: JWT token > subdomain > header > query param > default
+ * Priority order: JWT token > custom domain > subdomain > header > query param > default
  * @param {Object} req - Express request object
- * @returns {string|null} Tenant identifier
+ * @returns {string|null|Promise<string>} Tenant identifier or 'CUSTOM_DOMAIN' for custom domain lookup
  */
 declare function extractTenantId(req: any): any;
 /**
  * Resolve tenant name to tenant UUID
- * @param {string} tenantIdentifier - Tenant name or UUID
+ * @param {string} tenantIdentifier - Tenant name, UUID, or CUSTOM_DOMAIN:hostname
  * @returns {Promise<Object|null>} Tenant information
  */
 declare function resolveTenant(tenantIdentifier: any): Promise<any>;

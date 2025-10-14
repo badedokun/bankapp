@@ -55,7 +55,6 @@ export const BankSelector: React.FC<BankSelectorProps> = ({
       setIsLoading(true);
       setError(null);
 
-      console.log('🏛️ Loading banks for tenant:', currentTenant?.id);
 
       const response = await APIService.getBanks();
 
@@ -66,7 +65,6 @@ export const BankSelector: React.FC<BankSelectorProps> = ({
           .sort((a: Bank, b: Bank) => a.name.localeCompare(b.name));
 
         setBanks(activeBanks);
-        console.log(`✅ Loaded ${activeBanks.length} banks successfully`);
       } else {
         throw new Error('Invalid response format');
       }
@@ -102,7 +100,6 @@ export const BankSelector: React.FC<BankSelectorProps> = ({
    * Handle bank selection
    */
   const handleBankSelect = useCallback((bank: Bank) => {
-    console.log('🏦 Bank selected:', { code: bank.code, name: bank.name });
     onBankSelect(bank);
     setIsModalVisible(false);
     setSearchQuery(''); // Reset search when closing

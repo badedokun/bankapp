@@ -55,6 +55,9 @@ export {
 // Glass Card
 export { GlassCard } from './GlassCard';
 
+// Reusable Header Container
+export { default as ReusableHeader } from './ReusableHeader';
+
 // Modern Input Components
 export {
   ModernTextInput,

@@ -158,6 +158,7 @@ class BillPaymentService {
                 console.error('Bill payment processing failed:', error);
             });
             return {
+                success: true,
                 id: paymentId,
                 reference,
                 status: 'processing',
@@ -165,9 +166,9 @@ class BillPaymentService {
                 fees: fee,
                 totalAmount,
                 recipient: {
-                    name: validation.customerName || biller.name,
+                    name: validation.customerName || biller.billerName || biller.name,
                     accountNumber: request.customerReference,
-                    bankName: biller.name,
+                    bankName: biller.billerName || biller.name,
                 },
                 message: 'Bill payment is being processed. You will receive a notification once completed.',
             };
@@ -207,7 +208,7 @@ class BillPaymentService {
             if (!response.ok) {
                 throw new Error(`Biller API error: ${response.status}`);
             }
-            const result = await response.json();
+            const result = await response.json() || { isValid: false, error: 'Invalid response from biller' };
             return result;
         }
         catch (error) {
@@ -237,7 +238,7 @@ class BillPaymentService {
                 accountStatus: 'Active',
                 lastPaymentDate: new Date(Date.now() - 86400000 * 30), // 30 days ago
             },
-            amountDue: biller.category === 'airtime' ? undefined : request.amount,
+            amountDue: biller.category === 'telecommunications' ? undefined : request.amount,
         };
     }
     /**
@@ -369,16 +370,21 @@ class BillPaymentService {
             const result = await this.db.query(query, params);
             return result.rows.map(row => ({
                 id: row.id,
+                tenantId: row.tenant_id || '',
+                billerCode: row.code,
+                billerName: row.name,
                 name: row.name,
                 code: row.code,
                 category: row.category,
+                paymentMethods: [],
+                feeStructure: {},
+                minimumAmount: row.min_amount,
+                maximumAmount: row.max_amount,
+                isActive: row.is_active,
+                supportsValidation: true,
                 description: row.description,
                 logo: row.logo,
-                isActive: row.is_active,
                 fields: JSON.parse(row.fields || '[]'),
-                minAmount: row.min_amount,
-                maxAmount: row.max_amount,
-                fee: row.fee,
             }));
         }
         catch (error) {
@@ -399,16 +405,21 @@ class BillPaymentService {
             const row = result.rows[0];
             return {
                 id: row.id,
+                tenantId: row.tenant_id || '',
+                billerCode: row.code,
+                billerName: row.name,
                 name: row.name,
                 code: row.code,
                 category: row.category,
+                paymentMethods: [],
+                feeStructure: {},
+                minimumAmount: row.min_amount,
+                maximumAmount: row.max_amount,
+                isActive: row.is_active,
+                supportsValidation: true,
                 description: row.description,
                 logo: row.logo,
-                isActive: row.is_active,
                 fields: JSON.parse(row.fields || '[]'),
-                minAmount: row.min_amount,
-                maxAmount: row.max_amount,
-                fee: row.fee,
             };
         }
         catch (error) {

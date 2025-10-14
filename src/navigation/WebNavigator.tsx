@@ -43,8 +43,20 @@ interface WebNavigatorProps {
 }
 
 const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin }) => {
-  // SECURITY: Always default to login page for security
-  const [currentScreen, setCurrentScreen] = useState<Screen>('Login');
+  // Initialize currentScreen from localStorage if authenticated, otherwise default to Login
+  const getInitialScreen = (): Screen => {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const token = localStorage.getItem('access_token');
+      const savedScreen = localStorage.getItem('currentScreen') as Screen;
+      // Only restore saved screen if we have a valid token
+      if (token && savedScreen && savedScreen !== 'Login') {
+        return savedScreen;
+      }
+    }
+    return 'Login';
+  };
+
+  const [currentScreen, setCurrentScreen] = useState<Screen>(getInitialScreen());
   const [selectedTransactionId, setSelectedTransactionId] = useState<string>('');
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
   const [transactionCache, setTransactionCache] = useState<Record<string, any>>({});
@@ -54,12 +66,23 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
   // Dashboard refresh function ref
   const dashboardRefreshRef = React.useRef<(() => Promise<void>) | null>(null);
 
+  // Save current screen to localStorage for persistence across refreshes
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem('currentScreen', currentScreen);
+    }
+  }, [currentScreen]);
+
   // Update currentScreen when isAuthenticated prop changes
   useEffect(() => {
     if (isAuthenticated && currentScreen === 'Login') {
       setCurrentScreen('Dashboard');
     } else if (!isAuthenticated && currentScreen !== 'Login') {
       setCurrentScreen('Login');
+      // Clear saved screen when user logs out
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.removeItem('currentScreen');
+      }
     }
   }, [isAuthenticated]);
 
@@ -135,6 +158,9 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
                   break;
                 case 'bill_payments':
                   navigate('BillPayment');
+                  break;
+                case 'transaction_history':
+                  navigate('History');
                   break;
                 case 'operations_management':
                   // TODO: Create OperationsManagementScreen for consolidated operations
@@ -328,6 +354,9 @@ const WebNavigator: React.FC<WebNavigatorProps> = ({ isAuthenticated, onLogin })
                   break;
                 case 'bill_payments':
                   navigate('BillPayment');
+                  break;
+                case 'transaction_history':
+                  navigate('History');
                   break;
                 case 'operations_management':
                   // TODO: Create OperationsManagementScreen for consolidated operations

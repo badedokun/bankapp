@@ -34,7 +34,8 @@ class CBNComplianceService {
         }
         catch (error) {
             console.error('❌ Failed to initialize CBN compliance framework:', error);
-            throw error;
+            console.warn('⚠️  CBN compliance monitoring will be disabled. Server will continue without CBN compliance tracking.');
+            // Don't throw error - allow server to continue without CBN compliance
         }
     }
     /**

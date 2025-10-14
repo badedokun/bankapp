@@ -229,7 +229,6 @@ export const AchievementUnlockModal: React.FC<AchievementUnlockModalProps> = ({
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 // TODO: Implement share functionality
-                console.log('Share achievement');
               }}
               activeOpacity={0.7}
             >

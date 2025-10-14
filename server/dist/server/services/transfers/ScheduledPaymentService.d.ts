@@ -3,10 +3,11 @@
  * Handles future-dated and recurring transfers/payments
  */
 import { Pool } from 'pg';
-import { TransferRequest, TransferResponse, TransferStatus, TransferFrequency } from '../../types/transfers';
-import InternalTransferService from './InternalTransferService';
-import ExternalTransferService from './ExternalTransferService';
-import BillPaymentService from './BillPaymentService';
+import { TransferStatus, TransferFrequency } from '../../types/transfers';
+import { TransferRequest, TransferResponse } from '../../types';
+import { InternalTransferService } from './InternalTransferService';
+import { ExternalTransferService } from './ExternalTransferService';
+import { BillPaymentService } from './BillPaymentService';
 interface ScheduledPayment {
     id: string;
     tenantId: string;

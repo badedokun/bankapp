@@ -71,6 +71,7 @@ const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 const ReferralScreen: React.FC = () => {
   const { theme } = useTenantTheme();
+  const styles = getStyles(theme);
   const [referralCode, setReferralCode] = useState<string>('');
   const [stats, setStats] = useState<ReferralStats | null>(null);
   const [referrals, setReferrals] = useState<Referral[]>([]);
@@ -551,7 +552,7 @@ const ReferralScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (theme: any) => StyleSheet.create({
   container: {
     flex: 1,
   },

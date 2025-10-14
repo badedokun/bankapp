@@ -4,7 +4,7 @@
  */
 
 import bcrypt from 'bcrypt';
-import { query } from '../config/database';
+import dbManager from '../config/multi-tenant-database';
 
 export interface UserRegistrationData {
   email: string;
@@ -20,6 +20,7 @@ export interface UserRegistrationData {
 }
 
 export interface KYCDocumentData {
+  tenantId: string;
   userId: string;
   documentType: 'nin' | 'passport' | 'drivers_license' | 'voters_card';
   documentNumber: string;
@@ -71,18 +72,21 @@ export class UserService {
     accountNumber?: string;
     message: string;
   }> {
+    const tenantId = userData.tenantId;
+    const tenantPool = await dbManager.getTenantPool(tenantId);
+    const client = await tenantPool.connect();
+
     try {
-      // Start transaction
-      await query('BEGIN');
+      await client.query('BEGIN');
 
       // Check if user already exists
-      const existingUser = await query(`
-        SELECT id FROM users 
+      const existingUser = await client.query(`
+        SELECT id FROM tenant.users
         WHERE email = $1 OR phone_number = $2
       `, [userData.email, userData.phone]);
 
       if (existingUser.rowCount > 0) {
-        await query('ROLLBACK');
+        await client.query('ROLLBACK');
         return {
           success: false,
           message: 'User with this email or phone number already exists'
@@ -94,18 +98,18 @@ export class UserService {
       const transactionPinHash = await bcrypt.hash(userData.transactionPin, 12);
 
       // Generate unique account number
-      const accountNumber = await this.generateAccountNumber(userData.tenantId);
+      const accountNumber = await this.generateAccountNumber(tenantId, client);
 
       // Create user
-      const userResult = await query(`
-        INSERT INTO users (
+      const userResult = await client.query(`
+        INSERT INTO tenant.users (
           tenant_id, email, phone_number, first_name, last_name, date_of_birth,
           gender, password_hash, transaction_pin_hash, account_number,
-          kyc_status, kyc_level, daily_limit, monthly_limit, is_active, created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'pending', 1, 100000, 500000, true, NOW())
+          kyc_status, kyc_level, daily_limit, monthly_limit, status, created_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'pending', 1, 100000, 500000, 'active', CURRENT_TIMESTAMP)
         RETURNING id
       `, [
-        userData.tenantId, userData.email, userData.phone, userData.firstName,
+        tenantId, userData.email, userData.phone, userData.firstName,
         userData.lastName, userData.dateOfBirth, userData.gender, passwordHash,
         transactionPinHash, accountNumber
       ]);
@@ -113,24 +117,24 @@ export class UserService {
       const userId = userResult.rows[0].id;
 
       // Create primary wallet
-      await query(`
-        INSERT INTO wallets (
-          user_id, tenant_id, wallet_type, currency, balance, is_primary, created_at
-        ) VALUES ($1, $2, 'primary', 'NGN', 0.00, true, NOW())
-      `, [userId, userData.tenantId]);
+      await client.query(`
+        INSERT INTO tenant.wallets (
+          user_id, tenant_id, wallet_type, currency, balance, wallet_number, created_at
+        ) VALUES ($1, $2, 'main', 'NGN', 0.00, $3, CURRENT_TIMESTAMP)
+      `, [userId, tenantId, accountNumber]);
 
       // Handle referral if provided
       if (userData.referralCode) {
-        await this.processReferral(userId, userData.referralCode);
+        await this.processReferral(tenantId, userId, userData.referralCode, client);
       }
 
       // Log registration event
-      await query(`
-        INSERT INTO user_activity_logs (user_id, activity_type, description, ip_address, created_at)
-        VALUES ($1, 'REGISTRATION', 'User registered successfully', '127.0.0.1', NOW())
+      await client.query(`
+        INSERT INTO tenant.user_activity_logs (user_id, activity_type, description, ip_address, created_at)
+        VALUES ($1, 'REGISTRATION', 'User registered successfully', '127.0.0.1', CURRENT_TIMESTAMP)
       `, [userId]);
 
-      await query('COMMIT');
+      await client.query('COMMIT');
 
       return {
         success: true,
@@ -140,12 +144,14 @@ export class UserService {
       };
 
     } catch (error) {
-      await query('ROLLBACK');
+      await client.query('ROLLBACK');
       console.error('User registration error:', error);
       return {
         success: false,
         message: 'Registration failed. Please try again.'
       };
+    } finally {
+      client.release();
     }
   }
 
@@ -153,17 +159,20 @@ export class UserService {
    * Submit KYC documents for verification
    */
   async submitKYCDocuments(kycData: KYCDocumentData): Promise<KYCVerificationResult> {
+    const tenantId = kycData.tenantId;
+    const tenantPool = await dbManager.getTenantPool(tenantId);
+    const client = await tenantPool.connect();
+
     try {
-      // Start transaction
-      await query('BEGIN');
+      await client.query('BEGIN');
 
       // Check if user exists and current KYC status
-      const userResult = await query(`
-        SELECT id, kyc_status, kyc_level FROM users WHERE id = $1
+      const userResult = await client.query(`
+        SELECT id, kyc_status, kyc_level FROM tenant.users WHERE id = $1
       `, [kycData.userId]);
 
       if (userResult.rowCount === 0) {
-        await query('ROLLBACK');
+        await client.query('ROLLBACK');
         return {
           success: false,
           kycLevel: 0,
@@ -174,11 +183,11 @@ export class UserService {
       const user = userResult.rows[0];
 
       // Save KYC documents
-      const kycResult = await query(`
-        INSERT INTO kyc_documents (
+      const kycResult = await client.query(`
+        INSERT INTO tenant.kyc_documents (
           user_id, document_type, document_number, document_image_url,
           selfie_image_url, status, submitted_at
-        ) VALUES ($1, $2, $3, $4, $5, 'pending', NOW())
+        ) VALUES ($1, $2, $3, $4, $5, 'pending', CURRENT_TIMESTAMP)
         RETURNING id
       `, [
         kycData.userId, kycData.documentType, kycData.documentNumber,
@@ -191,9 +200,9 @@ export class UserService {
       const verificationResult = await this.performKYCVerification(kycData);
 
       // Update KYC document status
-      await query(`
-        UPDATE kyc_documents 
-        SET status = $1, verification_response = $2, processed_at = NOW()
+      await client.query(`
+        UPDATE tenant.kyc_documents
+        SET status = $1, verification_response = $2, processed_at = CURRENT_TIMESTAMP
         WHERE id = $3
       `, [
         verificationResult.success ? 'approved' : 'rejected',
@@ -207,55 +216,57 @@ export class UserService {
         const kycStatus = this.getKycStatusFromLevel(newKycLevel);
         const { dailyLimit, monthlyLimit } = this.getLimitsForKycLevel(newKycLevel);
 
-        await query(`
-          UPDATE users 
-          SET kyc_status = $1, kyc_level = $2, daily_limit = $3, monthly_limit = $4, updated_at = NOW()
+        await client.query(`
+          UPDATE tenant.users
+          SET kyc_status = $1, kyc_level = $2, daily_limit = $3, monthly_limit = $4, updated_at = CURRENT_TIMESTAMP
           WHERE id = $5
         `, [kycStatus, newKycLevel, dailyLimit, monthlyLimit, kycData.userId]);
 
         // Log KYC approval
-        await query(`
-          INSERT INTO user_activity_logs (user_id, activity_type, description, created_at)
-          VALUES ($1, 'KYC_APPROVED', $2, NOW())
+        await client.query(`
+          INSERT INTO tenant.user_activity_logs (user_id, activity_type, description, created_at)
+          VALUES ($1, 'KYC_APPROVED', $2, CURRENT_TIMESTAMP)
         `, [kycData.userId, `KYC upgraded to level ${newKycLevel}`]);
 
         verificationResult.kycLevel = newKycLevel;
       } else {
         // Log KYC rejection
-        await query(`
-          INSERT INTO user_activity_logs (user_id, activity_type, description, created_at)
-          VALUES ($1, 'KYC_REJECTED', $2, NOW())
+        await client.query(`
+          INSERT INTO tenant.user_activity_logs (user_id, activity_type, description, created_at)
+          VALUES ($1, 'KYC_REJECTED', $2, CURRENT_TIMESTAMP)
         `, [kycData.userId, verificationResult.message]);
       }
 
-      await query('COMMIT');
+      await client.query('COMMIT');
       return verificationResult;
 
     } catch (error) {
-      await query('ROLLBACK');
+      await client.query('ROLLBACK');
       console.error('KYC submission error:', error);
       return {
         success: false,
         kycLevel: 0,
         message: 'KYC submission failed. Please try again.'
       };
+    } finally {
+      client.release();
     }
   }
 
   /**
    * Get user profile with complete information
    */
-  async getUserProfile(userId: string): Promise<UserProfile | null> {
+  async getUserProfile(tenantId: string, userId: string): Promise<UserProfile | null> {
     try {
-      const result = await query(`
+      const result = await dbManager.queryTenant(tenantId, `
         SELECT u.*, w.balance as wallet_balance,
-               CASE 
-                 WHEN u.profile_address IS NOT NULL 
-                 THEN u.profile_address::json 
-                 ELSE NULL 
+               CASE
+                 WHEN u.profile_address IS NOT NULL
+                 THEN u.profile_address::json
+                 ELSE NULL
                END as address
-        FROM users u
-        LEFT JOIN wallets w ON u.id = w.user_id AND w.is_primary = true
+        FROM tenant.users u
+        LEFT JOIN tenant.wallets w ON u.id = w.user_id AND w.wallet_type = 'main'
         WHERE u.id = $1
       `, [userId]);
 
@@ -295,7 +306,7 @@ export class UserService {
   /**
    * Update user profile information
    */
-  async updateUserProfile(userId: string, updates: {
+  async updateUserProfile(tenantId: string, userId: string, updates: {
     firstName?: string;
     lastName?: string;
     phone?: string;
@@ -349,21 +360,21 @@ export class UserService {
         };
       }
 
-      updateFields.push('updated_at = NOW()');
+      updateFields.push('updated_at = CURRENT_TIMESTAMP');
       updateValues.push(userId);
 
       const query_text = `
-        UPDATE users 
+        UPDATE tenant.users
         SET ${updateFields.join(', ')}
         WHERE id = $${paramCount}
       `;
 
-      await query(query_text, updateValues);
+      await dbManager.queryTenant(tenantId, query_text, updateValues);
 
       // Log profile update
-      await query(`
-        INSERT INTO user_activity_logs (user_id, activity_type, description, created_at)
-        VALUES ($1, 'PROFILE_UPDATED', 'Profile information updated', NOW())
+      await dbManager.queryTenant(tenantId, `
+        INSERT INTO tenant.user_activity_logs (user_id, activity_type, description, created_at)
+        VALUES ($1, 'PROFILE_UPDATED', 'Profile information updated', CURRENT_TIMESTAMP)
       `, [userId]);
 
       return {
@@ -382,10 +393,10 @@ export class UserService {
 
   // Private helper methods
 
-  private async generateAccountNumber(tenantId: string): Promise<string> {
+  private async generateAccountNumber(tenantId: string, client: any): Promise<string> {
     // Get tenant bank code for account number generation
-    const tenantResult = await query(`
-      SELECT bank_code FROM tenants WHERE id = $1
+    const tenantResult = await dbManager.queryPlatform(`
+      SELECT bank_code FROM platform.tenants WHERE id = $1
     `, [tenantId]);
 
     if (tenantResult.rowCount === 0) {
@@ -393,7 +404,7 @@ export class UserService {
     }
 
     const bankCode = tenantResult.rows[0].bank_code;
-    
+
     // Generate unique 10-digit account number with bank code prefix
     let accountNumber: string;
     let isUnique = false;
@@ -403,8 +414,8 @@ export class UserService {
       accountNumber = bankCode + randomSuffix;
 
       // Check if account number already exists
-      const existingResult = await query(`
-        SELECT id FROM users WHERE account_number = $1
+      const existingResult = await client.query(`
+        SELECT id FROM tenant.users WHERE account_number = $1
       `, [accountNumber]);
 
       isUnique = existingResult.rowCount === 0;
@@ -413,26 +424,26 @@ export class UserService {
     return accountNumber!;
   }
 
-  private async processReferral(userId: string, referralCode: string): Promise<void> {
+  private async processReferral(tenantId: string, userId: string, referralCode: string, client: any): Promise<void> {
     // Find referrer by referral code
-    const referrerResult = await query(`
-      SELECT id FROM users WHERE referral_code = $1
+    const referrerResult = await client.query(`
+      SELECT id FROM tenant.users WHERE referral_code = $1
     `, [referralCode]);
 
     if (referrerResult.rowCount > 0) {
       const referrerId = referrerResult.rows[0].id;
 
       // Create referral record
-      await query(`
-        INSERT INTO referrals (referrer_id, referee_id, referral_code, created_at)
-        VALUES ($1, $2, $3, NOW())
+      await client.query(`
+        INSERT INTO tenant.referrals (referrer_id, referee_id, referral_code, created_at)
+        VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
       `, [referrerId, userId, referralCode]);
 
       // Award referral bonus (₦100 to both)
-      await query(`
-        UPDATE wallets 
+      await client.query(`
+        UPDATE tenant.wallets
         SET balance = balance + 100.00
-        WHERE user_id IN ($1, $2) AND is_primary = true
+        WHERE user_id IN ($1, $2) AND wallet_type = 'main'
       `, [referrerId, userId]);
     }
   }

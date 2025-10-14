@@ -49,7 +49,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
   theme,
 }) => {
   const { theme: tenantTheme } = useTenantTheme();
-  const styles = useMemo(() => getStyles(tenantTheme), [tenantTheme]);
+  const styles = getStyles(tenantTheme);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [aiInput, setAIInput] = useState('');
@@ -79,7 +79,6 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
 
   // Debug effect to log showProfileMenu state changes
   useEffect(() => {
-    console.log('🟢 showProfileMenu state changed to:', showProfileMenu);
   }, [showProfileMenu]);
 
   // Update screen width on resize
@@ -120,7 +119,6 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
       const isClickOnButton = profileButtonRef.current && (profileButtonRef.current as any).contains?.(target);
 
       if (!isClickInsideMenu && !isClickOnButton) {
-        console.log('🔴 Click outside detected, closing menu');
         setShowProfileMenu(false);
       }
     };
@@ -416,9 +414,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                     } catch (e) {
                       // Haptics not available on web
                     }
-                    console.log('🔴 PROFILE CLICKED - Current state:', showProfileMenu);
                     setShowProfileMenu(!showProfileMenu);
-                    console.log('🔴 PROFILE CLICKED - New state will be:', !showProfileMenu);
                   }}
                 >
                   <Text style={styles.profileIcon}>👤</Text>
@@ -433,7 +429,6 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                     <TouchableOpacity
                       style={styles.menuItem}
                       onPress={() => {
-                        console.log('Profile menu item clicked');
                         setShowProfileMenu(false);
                       }}
                     >
@@ -444,7 +439,6 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                     <TouchableOpacity
                       style={styles.menuItem}
                       onPress={() => {
-                        console.log('Settings menu item clicked');
                         setShowProfileMenu(false);
                         onSettings?.();
                       }}
@@ -456,7 +450,6 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                     <TouchableOpacity
                       style={styles.menuItem}
                       onPress={() => {
-                        console.log('Logout menu item clicked');
                         setShowProfileMenu(false);
                         onLogout?.();
                       }}

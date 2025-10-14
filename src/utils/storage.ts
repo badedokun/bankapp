@@ -121,9 +121,4 @@ export const Storage = {
 };
 
 // Export default for compatibility with AsyncStorage imports
-export default Storage.getItem ? Storage : {
-  getItem: Storage.getItem.bind(Storage),
-  setItem: Storage.setItem.bind(Storage),
-  removeItem: Storage.removeItem.bind(Storage),
-  clear: Storage.clear.bind(Storage)
-};
+export default Storage;

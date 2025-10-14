@@ -110,7 +110,6 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
 
   // Initialize Web Speech API
   useEffect(() => {
-    console.log('Initializing speech recognition', { 
       isWeb: Platform.OS === 'web', 
       hasWindow: typeof window !== 'undefined',
       hasSpeechRecognition: typeof window !== 'undefined' && !!(window.SpeechRecognition || window.webkitSpeechRecognition)
@@ -118,7 +117,6 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
     
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      console.log('SpeechRecognition API available:', !!SpeechRecognition);
       
       if (SpeechRecognition) {
         try {
@@ -128,7 +126,6 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
           recognition.lang = 'en-US';
           
           recognition.onresult = (event: any) => {
-            console.log('Speech recognition result:', event.results[0][0].transcript);
             const transcript = event.results[0][0].transcript;
             handleSendMessage(transcript);
             setIsRecording(false);
@@ -141,21 +138,17 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
           };
           
           recognition.onstart = () => {
-            console.log('Speech recognition started');
           };
           
           recognition.onend = () => {
-            console.log('Speech recognition ended');
             setIsRecording(false);
           };
           
           setSpeechRecognition(recognition);
-          console.log('Speech recognition initialized successfully');
         } catch (error) {
           console.error('Failed to initialize speech recognition:', error);
         }
       } else {
-        console.log('Speech recognition not supported in this browser');
       }
     }
   }, []);
@@ -314,7 +307,6 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
           }
         }
       } catch (error) {
-        console.log('Could not fetch user transaction data:', error);
         // Continue without transaction data
       }
 
@@ -439,19 +431,14 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
 
   const fetchTransactions = async () => {
     try {
-      console.log('🔍 Starting fetchTransactions using APIService.getTransferHistory...');
       
       // Use the same working API call that Dashboard uses successfully
       const data = await APIService.getTransferHistory({ page: 1, limit: 5 });
-      console.log('📊 API Response Data:', JSON.stringify(data, null, 2));
       
       if (data.transactions && data.transactions.length > 0) {
-        console.log('✅ Found transactions, processing...');
         const transactions = data.transactions;
-        console.log('📋 Processing', transactions.length, 'transactions');
         
         const transactionList = transactions.map((tx: any, index: number) => {
-          console.log(`🔄 Processing transaction ${index + 1}:`, tx);
           
           const amount = tx.amount ? Math.abs(tx.amount).toLocaleString() : '0';
           const date = tx.createdAt ? new Date(tx.createdAt).toLocaleDateString() : 'Unknown';
@@ -460,18 +447,15 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
           const recipient = tx.recipient?.accountName || 'Unknown';
           
           const formatted = `${index + 1}) ${description} ${direction} ${recipient} - ${formatCurrency(parseFloat(amount.replace(/,/g, '')), tenantTheme.currency, { locale: tenantTheme.locale })} (${date})`;
-          console.log(`✅ Formatted transaction ${index + 1}:`, formatted);
           return formatted;
         }).join(', ');
 
-        console.log('🎯 Final transaction list:', transactionList);
         return {
           message: `Here are your recent transactions: ${transactionList}`,
           intent: 'transaction_history',
           actions: ['Download Statement', 'Filter Transactions', 'View Details']
         };
       } else {
-        console.log('⚠️ No transactions found');
         
         return {
           message: 'You don\'t have any recent transactions to display.',
@@ -684,11 +668,9 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
     try {
       const token = APIService.getAccessToken();
       if (token) {
-        console.log('🔐 Using access token from APIService');
         return token;
       }
     } catch (error) {
-      console.log('⚠️ Could not get token from APIService:', error);
     }
 
     throw new Error('No valid authentication token available. Please log in again.');
@@ -699,7 +681,6 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
       const profile = await APIService.getProfile();
       return profile.id || 'current-user';
     } catch (error) {
-      console.log('⚠️ Could not get user profile from APIService:', error);
       return 'current-user';
     }
   };
@@ -714,7 +695,6 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
         tier: profile.kycLevel
       };
     } catch (error) {
-      console.log('⚠️ Could not get user profile from APIService:', error);
       return null;
     }
   };
@@ -743,12 +723,10 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
   };
 
   const handleVoicePress = () => {
-    console.log('Voice button pressed', { isWeb: Platform.OS === 'web', speechRecognition, isRecording, voiceMode });
     
     if (Platform.OS === 'web') {
       if (!speechRecognition) {
         showNotification('Voice input not available. Please use a modern browser like Chrome, Firefox, or Safari.', 'error');
-        console.log('Browser does not support speech recognition');
         return;
       }
 
@@ -760,13 +738,11 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
       if (voiceMode === 'continuous') {
         if (isRecording) {
           // Stop recording
-          console.log('Stopping voice recording');
           speechRecognition.stop();
           setIsRecording(false);
           showNotification('Voice recording stopped.', 'info');
         } else {
           // Start recording
-          console.log('Starting voice recording');
           setIsRecording(true);
           showNotification('Voice recording started. Speak your banking request.', 'success');
           try {
@@ -786,7 +762,6 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
 
   const handleVoicePressIn = () => {
     if (Platform.OS === 'web' && voiceMode === 'push-to-talk' && speechRecognition && !isRecording) {
-      console.log('Starting push-to-talk recording');
       setIsRecording(true);
       showNotification('Recording... Release to send.', 'info');
       try {
@@ -801,7 +776,6 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
 
   const handleVoicePressOut = () => {
     if (Platform.OS === 'web' && voiceMode === 'push-to-talk' && speechRecognition && isRecording) {
-      console.log('Stopping push-to-talk recording');
       speechRecognition.stop();
       setIsRecording(false);
       showNotification('Processing voice input...', 'info');

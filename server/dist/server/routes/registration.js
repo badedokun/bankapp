@@ -30,6 +30,7 @@ router.post('/start', tenant_1.validateTenantAccess, [
     (0, express_validator_1.body)('middleName').optional().isLength({ max: 100 }).withMessage('Middle name too long'),
     (0, express_validator_1.body)('dateOfBirth').isISO8601().withMessage('Valid date of birth required'),
     (0, express_validator_1.body)('agreeToTerms').equals('true').withMessage('Must agree to terms and conditions'),
+    (0, express_validator_1.body)('referralCode').optional().isLength({ min: 6, max: 8 }).withMessage('Invalid referral code format'),
 ], (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const validationErrors = (0, express_validator_1.validationResult)(req);
     if (!validationErrors.isEmpty()) {
@@ -40,9 +41,13 @@ router.post('/start', tenant_1.validateTenantAccess, [
             details: validationErrors.array()
         });
     }
-    const { email, phoneNumber, password, firstName, lastName, middleName, dateOfBirth, agreeToTerms } = req.body;
+    const { email, phoneNumber, password, firstName, lastName, middleName, dateOfBirth, 
+    // agreeToTerms is validated but not stored
+    referralCode } = req.body;
     const tenantId = req.tenant.id;
     try {
+        // TODO: Validate referral code if provided
+        // Referral validation will be added in future update
         // Start database transaction
         await (0, database_1.transaction)(async (client) => {
             // Check if user already exists
@@ -88,6 +93,9 @@ router.post('/start', tenant_1.validateTenantAccess, [
                 phoneVerificationCode, req.ip
             ]);
             const newUser = userResult.rows[0];
+            // TODO: Create referral record if referral code was provided
+            // Referral creation will be added in future update
+            const referralBonus = 0;
             // Log registration activity
             await client.query(`
         INSERT INTO tenant.user_activity_logs (
@@ -95,13 +103,21 @@ router.post('/start', tenant_1.validateTenantAccess, [
         ) VALUES ($1, 'registration_started', 'User started registration process', $2, $3, $4)
       `, [
                 newUser.id, req.ip, req.get('User-Agent'),
-                JSON.stringify({ step: 'basic_info', email_verified: false, phone_verified: false })
+                JSON.stringify({
+                    step: 'basic_info',
+                    email_verified: false,
+                    phone_verified: false,
+                    referral_code: referralCode || null,
+                    referral_bonus: referralBonus
+                })
             ]);
             // TODO: Send email verification (integrate with email service)
             // TODO: Send SMS verification (integrate with SMS service)
             res.status(201).json({
                 success: true,
-                message: 'Registration started successfully',
+                message: referralCode
+                    ? `Registration started successfully! You'll receive ${referralBonus} points after verification.`
+                    : 'Registration started successfully',
                 data: {
                     userId: newUser.id,
                     email: newUser.email,
@@ -110,13 +126,14 @@ router.post('/start', tenant_1.validateTenantAccess, [
                     verificationRequired: {
                         email: true,
                         phone: true
-                    }
+                    },
+                    referralBonus: referralBonus > 0 ? referralBonus : undefined,
                 }
             });
         });
     }
     catch (error) {
-        if (error.message.includes('already exists')) {
+        if (error?.message?.includes('already exists')) {
             return res.status(409).json({
                 success: false,
                 error: error.message,

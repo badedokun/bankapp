@@ -83,6 +83,14 @@
         }
     </style>
     <script>
+        // Set deployment configuration from webpack build-time injection
+        window.__WEBPACK_ENV__ = {
+            DEPLOYMENT_TYPE: '<%= DEPLOYMENT_TYPE %>',
+            NODE_ENV: '<%= NODE_ENV %>',
+            REACT_APP_API_URL: '<%= REACT_APP_API_URL %>'
+        };
+    </script>
+    <script>
         // Dynamic tenant detection using deployment configuration
         window.detectTenant = function() {
             // Get deployment type from window.__WEBPACK_ENV__ set by webpack or fallback to 'development'

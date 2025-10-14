@@ -212,7 +212,7 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
       flex: 1,
     },
     header: {
-      
+
       marginLeft: 20,
       marginRight: 20,
       marginTop: 0,
@@ -268,25 +268,26 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
       textAlign: 'center',
     },
     optionsContainer: {
-      marginLeft: 20,
-      marginRight: 20,
+      paddingHorizontal: 20,
       paddingTop: 8,
     },
-    optionRow: {
+    optionsGrid: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
+      flexWrap: 'wrap',
+      marginHorizontal: -8,
+    },
+    optionCardWrapper: {
+      width: screenWidth >= 768 ? '50%' : '100%', // 2 columns on desktop/tablet, 1 on mobile
+      paddingHorizontal: 8,
       marginBottom: 16,
     },
     optionCard: {
-      flex: screenWidth >= 768 ? 1 : undefined,
-      width: screenWidth < 768 ? '100%' : undefined,
       backgroundColor: `${theme.colors.surface}F2`, // 95% opacity
       borderRadius: 20,
-      padding: 20,
-      marginHorizontal: screenWidth >= 768 ? 8 : 0,
-      minHeight: 180,
+      padding: 24, // Increased from 20 to match Savings
       borderWidth: 1,
       borderColor: `${theme.colors.textInverse}4D`, // 30% opacity
+      minHeight: 200, // Increased from 180 for better mobile appearance
       ...Platform.select({
         web: {
           backdropFilter: 'blur(20px)',
@@ -317,15 +318,23 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'flex-start',
-      marginBottom: 12,
+      marginBottom: 16, // Increased spacing
+    },
+    optionIconContainer: {
+      width: 48, // Larger icon container
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: 'rgba(0, 0, 0, 0.05)',
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     optionIcon: {
-      fontSize: 32,
+      fontSize: 28, // Slightly larger icon
     },
     badge: {
       backgroundColor: theme.colors.primary,
-      paddingHorizontal: 8,
-      paddingVertical: 4,
+      paddingHorizontal: 10,
+      paddingVertical: 5,
       borderRadius: 12,
     },
     badgeText: {
@@ -337,12 +346,14 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
       fontSize: 18,
       fontWeight: '600',
       color: theme.colors.text,
-      marginBottom: 4,
+      marginBottom: 6, // Increased spacing
     },
     optionDescription: {
       fontSize: 14,
       color: theme.colors.textSecondary,
-      marginBottom: 12,
+      marginBottom: 16, // Increased spacing
+      lineHeight: 20,
+      minHeight: 40, // Ensure consistent height like Savings
     },
     optionFooter: {
       flexDirection: 'row',
@@ -419,13 +430,6 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
     },
   });
 
-  // Group options into rows - 1 per row on mobile, 2 per row on desktop
-  const optionsPerRow = screenWidth >= 768 ? 2 : 1;
-  const optionRows: TransferOption[][] = [];
-  for (let i = 0; i < transferOptions.length; i += optionsPerRow) {
-    optionRows.push(transferOptions.slice(i, i + optionsPerRow));
-  }
-
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -463,24 +467,25 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
 
             {/* Transfer Options Grid */}
             <View style={styles.optionsContainer}>
-              {optionRows.map((row, rowIndex) => (
-                <View key={rowIndex} style={styles.optionRow}>
-                  {row.map((option, optionIndex) => (
-                    <Animated.View
-                      key={option.id}
-                      entering={FadeInDown.delay((rowIndex * row.length + optionIndex) * 100).springify()}
-                      style={{ flex: 1 }}
+              <View style={styles.optionsGrid}>
+                {transferOptions.map((option, index) => (
+                  <Animated.View
+                    key={option.id}
+                    entering={FadeInDown.delay(index * 100).springify()}
+                    style={styles.optionCardWrapper}
+                  >
+                    <AnimatedTouchable
+                      style={[
+                        styles.optionCard,
+                        selectedOption === option.id && styles.optionCardSelected,
+                      ]}
+                      onPress={() => handleTransferSelect(option.id)}
+                      activeOpacity={0.8}
                     >
-                      <AnimatedTouchable
-                        style={[
-                          styles.optionCard,
-                          selectedOption === option.id && styles.optionCardSelected,
-                        ]}
-                        onPress={() => handleTransferSelect(option.id)}
-                        activeOpacity={0.8}
-                      >
                       <View style={styles.optionHeader}>
-                        <Text style={styles.optionIcon}>{option.icon}</Text>
+                        <View style={styles.optionIconContainer}>
+                          <Text style={styles.optionIcon}>{option.icon}</Text>
+                        </View>
                         {option.badge && (
                           <View style={[
                             styles.badge,
@@ -504,11 +509,9 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
                         <Text style={styles.arrow}>→</Text>
                       </View>
                     </AnimatedTouchable>
-                    </Animated.View>
-                  ))}
-                  {row.length === 1 && <View style={{ flex: 1, marginHorizontal: 8 }} />}
-                </View>
-              ))}
+                  </Animated.View>
+                ))}
+              </View>
             </View>
 
             {/* Info Card */}

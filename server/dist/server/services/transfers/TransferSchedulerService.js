@@ -92,7 +92,7 @@ class TransferSchedulerService {
                  SET status = 'processing', updated_at = CURRENT_TIMESTAMP
                  WHERE id = $1`, [scheduledTransfer.id]);
             // Execute the transfer
-            const transferService = new InternalTransferService_1.InternalTransferService();
+            const transferService = new InternalTransferService_1.InternalTransferService(database_1.default);
             const transferRequest = {
                 walletId: scheduledTransfer.from_wallet_id,
                 recipientWalletNumber: scheduledTransfer.to_wallet_number,
@@ -102,7 +102,7 @@ class TransferSchedulerService {
                 reference: scheduledTransfer.reference,
                 pin: '' // PIN was already validated when scheduling
             };
-            const result = await transferService.initiateTransfer(transferRequest);
+            const result = await transferService.processTransfer(transferRequest, scheduledTransfer.user_id);
             // Update scheduled transfer status
             if (result.success) {
                 await client.query(`UPDATE tenant.scheduled_transfers
@@ -178,7 +178,7 @@ class TransferSchedulerService {
             await client.query('BEGIN');
             console.log(`🔄 Executing recurring transfer: ${recurringTransfer.id}`);
             // Execute the transfer
-            const transferService = new InternalTransferService_1.InternalTransferService();
+            const transferService = new InternalTransferService_1.InternalTransferService(database_1.default);
             const transferRequest = {
                 walletId: recurringTransfer.from_wallet_id,
                 recipientWalletNumber: recurringTransfer.to_wallet_number,
@@ -188,7 +188,7 @@ class TransferSchedulerService {
                 reference: `${recurringTransfer.reference}-${Date.now()}`,
                 pin: '' // PIN was already validated when setting up recurring
             };
-            const result = await transferService.initiateTransfer(transferRequest);
+            const result = await transferService.processTransfer(transferRequest, recurringTransfer.user_id);
             if (result.success) {
                 // Calculate next execution date
                 const nextDate = this.calculateNextExecutionDate(new Date(recurringTransfer.next_execution_date), recurringTransfer.frequency);
