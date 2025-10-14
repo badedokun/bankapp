@@ -296,7 +296,7 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
-          'X-Tenant-ID': 'fmfb', // Add tenant header
+          'X-Tenant-ID': theme.tenantCode || 'platform',
         },
         body: JSON.stringify({
           message: text,

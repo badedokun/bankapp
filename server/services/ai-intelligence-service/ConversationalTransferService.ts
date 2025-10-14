@@ -405,7 +405,7 @@ export class ConversationalTransferService {
 
       // Get wallet FIRST to ensure it exists and has sufficient balance
       const walletResult = await client.query(
-        `SELECT id, wallet_type, balance FROM tenant.wallets
+        `SELECT id, wallet_type, balance, wallet_number FROM tenant.wallets
          WHERE user_id = $1
          AND wallet_type IN ('primary', 'main', 'default', 'checking')
          ORDER BY
@@ -449,7 +449,8 @@ export class ConversationalTransferService {
       const newBalance = parseFloat(updateResult.rows[0].balance);
       console.error(`✅ Wallet debited successfully. New balance: ${newBalance}`);
 
-      // Now insert transfer record
+      // Now insert transfer record using wallet information
+      const sourceAccountNumber = wallet.wallet_number || '0000000000';
       const transferResult = await client.query(
         `INSERT INTO tenant.transfers (
           sender_id, tenant_id, reference, amount, fee, description,
@@ -465,8 +466,8 @@ export class ConversationalTransferService {
           data.amount,
           0, // Fee
           data.description || 'AI-initiated transfer',
-          '0000000000', // Source account - would get from user's wallet
-          '000003', // Source bank code - OrokiiPay
+          sourceAccountNumber, // Use actual wallet number
+          bankCode, // Use tenant's bank code from earlier query
           data.accountNumber,
           data.bankCode,
           data.accountName,

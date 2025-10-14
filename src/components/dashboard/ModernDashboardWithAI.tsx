@@ -169,7 +169,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
-          'X-Tenant-ID': 'fmfb',
+          'X-Tenant-ID': tenantTheme.tenantCode || 'platform',
         },
         body: JSON.stringify({
           message: text,
@@ -215,7 +215,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
-          'X-Tenant-ID': 'fmfb',
+          'X-Tenant-ID': tenantTheme.tenantCode || 'platform',
         },
       });
 
