@@ -129,9 +129,9 @@ export class CustomerDataService {
   /**
    * Get recent transactions with natural language response
    */
-  static async getRecentTransactions(userId: string, limit: number = 5): Promise<CustomerDataResponse> {
+  static async getRecentTransactions(userId: string, tenantId: string, limit: number = 5): Promise<CustomerDataResponse> {
     try {
-      const result = await query(
+      const result = await dbManager.queryTenant(tenantId,
         `SELECT
           id,
           reference,
@@ -214,10 +214,10 @@ export class CustomerDataService {
   /**
    * Analyze spending patterns with real data
    */
-  static async analyzeSpending(userId: string, days: number = 30): Promise<CustomerDataResponse> {
+  static async analyzeSpending(userId: string, tenantId: string, days: number = 30): Promise<CustomerDataResponse> {
     try {
       // Get spending by category
-      const categoryResult = await query(
+      const categoryResult = await dbManager.queryTenant(tenantId,
         `SELECT
           LOWER(description) as category,
           SUM(amount) as total_amount,
@@ -235,7 +235,7 @@ export class CustomerDataService {
       );
 
       // Get overall spending stats
-      const statsResult = await query(
+      const statsResult = await dbManager.queryTenant(tenantId,
         `SELECT
           COUNT(*) as total_transactions,
           SUM(CASE WHEN type = 'debit' THEN amount ELSE 0 END) as total_spent,
@@ -340,9 +340,9 @@ export class CustomerDataService {
   /**
    * Get savings information
    */
-  static async getSavingsInfo(userId: string): Promise<CustomerDataResponse> {
+  static async getSavingsInfo(userId: string, tenantId: string): Promise<CustomerDataResponse> {
     try {
-      const result = await query(
+      const result = await dbManager.queryTenant(tenantId,
         `SELECT
           id,
           goal_name,
@@ -446,13 +446,13 @@ export class CustomerDataService {
         return await this.getBalance(userId, tenantId);
 
       case 'transactions':
-        return await this.getRecentTransactions(userId);
+        return await this.getRecentTransactions(userId, tenantId);
 
       case 'spending':
-        return await this.analyzeSpending(userId);
+        return await this.analyzeSpending(userId, tenantId);
 
       case 'savings':
-        return await this.getSavingsInfo(userId);
+        return await this.getSavingsInfo(userId, tenantId);
 
       case 'transfers':
       case 'bills':
