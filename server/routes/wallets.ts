@@ -7,6 +7,7 @@ import express from 'express';
 import { body, validationResult } from 'express-validator';
 import bcrypt from 'bcrypt';
 import { query } from '../config/database';
+import dbManager from '../config/multi-tenant-database';
 import { authenticateToken } from '../middleware/auth';
 import { validateTenantAccess } from '../middleware/tenant';
 import { asyncHandler, errors } from '../middleware/errorHandler';
@@ -19,13 +20,25 @@ const router = express.Router();
  */
 router.get('/balance', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
   try {
-    const walletResult = await query(`
+    const tenantId = req.user.tenantId;
+    const userId = req.user.id;
+
+    // Get wallet from tenant database
+    const walletResult = await dbManager.queryTenant(tenantId, `
       SELECT w.*, u.first_name, u.last_name, u.account_number, u.kyc_level,
              u.daily_limit, u.monthly_limit
       FROM tenant.wallets w
       JOIN tenant.users u ON w.user_id = u.id
-      WHERE w.user_id = $1 AND w.tenant_id = $2 AND w.is_primary = true
-    `, [req.user.id, req.user.tenantId]);
+      WHERE w.user_id = $1 AND w.tenant_id = $2
+      ORDER BY
+        CASE w.wallet_type
+          WHEN 'main' THEN 1
+          WHEN 'primary' THEN 2
+          WHEN 'default' THEN 3
+          ELSE 4
+        END
+      LIMIT 1
+    `, [userId, tenantId]);
 
     if (walletResult.rowCount === 0) {
       return res.status(404).json({
@@ -37,40 +50,31 @@ router.get('/balance', authenticateToken, validateTenantAccess, asyncHandler(asy
 
   const wallet = walletResult.rows[0];
 
-  // Calculate daily and monthly spending
+  // Calculate daily and monthly spending from tenant database
   const today = new Date().toISOString().split('T')[0];
   const currentMonth = new Date().toISOString().substring(0, 7);
 
-  const spendingResult = await query(`
-    SELECT 
+  const spendingResult = await dbManager.queryTenant(tenantId, `
+    SELECT
       COALESCE(SUM(CASE WHEN DATE(created_at) = $1 THEN amount ELSE 0 END), 0) as daily_spent,
       COALESCE(SUM(CASE WHEN DATE(created_at) >= $2 THEN amount ELSE 0 END), 0) as monthly_spent
-    FROM tenant.transfers 
+    FROM tenant.transfers
     WHERE sender_id = $3 AND status IN ('pending', 'successful')
-  `, [today, currentMonth + '-01', req.user.id]);
+  `, [today, currentMonth + '-01', userId]);
 
   const spending = spendingResult.rows[0];
 
-  // Calculate real-time balance by subtracting completed transfers from wallet balance
-  const transfersResult = await query(`
-    SELECT
-      COALESCE(SUM(amount + COALESCE(fee, 0)), 0) as total_debited
-    FROM tenant.transfers
-    WHERE sender_id = $1 AND status IN ('completed', 'successful')
-  `, [req.user.id]);
-
-  const totalDebited = parseFloat(transfersResult.rows[0]?.total_debited || '0');
+  // Wallet balance is already accurate (debits are applied in real-time)
   const walletBalance = parseFloat(wallet.balance);
-  const realTimeBalance = walletBalance - totalDebited;
 
-  console.log(`💰 WALLET BALANCE CALCULATION: User ${req.user.id} | Wallet: ${walletBalance} | Debited: ${totalDebited} | Real-time: ${realTimeBalance} | Account: ${wallet.account_number}`);
+  console.error(`💰 WALLET BALANCE: User ${userId} | Tenant: ${tenantId} | Balance: ${walletBalance} | Account: ${wallet.account_number}`);
 
   res.json({
     success: true,
     data: {
       accountNumber: wallet.account_number,
-      balance: realTimeBalance,
-      availableBalance: realTimeBalance, // Real-time balance after transfers
+      balance: walletBalance,
+      availableBalance: walletBalance, // Balance is already accurate with real-time debits
       currency: wallet.currency || 'NGN',
       walletType: wallet.wallet_type,
       status: wallet.status || 'active',
