@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="theme-color" content="#007bff"><meta name="description" content="Multi-Tenant Banking Platform"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="Banking Platform"><link rel="manifest" href="/manifest.json"><title>Banking Platform</title><style>* {
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="theme-color" content="#007bff"><meta name="description" content="Multi-Tenant Banking Platform"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="Banking Platform"><link rel="manifest" href="/manifest.json"><title>Banking Platform</title><style>* {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -67,12 +67,7 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
-        }</style><script>// Set deployment configuration from webpack build-time injection
-        window.__WEBPACK_ENV__ = {
-            DEPLOYMENT_TYPE: 'fmfb_production',
-            NODE_ENV: 'production',
-            REACT_APP_API_URL: 'http://localhost:3001/api'
-        };</script><script>// Dynamic tenant detection using deployment configuration
+        }</style><script>// Dynamic tenant detection using deployment configuration
         window.detectTenant = function() {
             // Get deployment type from window.__WEBPACK_ENV__ set by webpack or fallback to 'development'
             const deploymentType = (window.__WEBPACK_ENV__ && window.__WEBPACK_ENV__.DEPLOYMENT_TYPE) || 'development';
@@ -86,8 +81,6 @@
 
             const config = deploymentConfigs[deploymentType] || deploymentConfigs.development;
             const tenant = config.defaultTenant;
-
-            console.log('🏦 HTML Template: Using deployment config', deploymentType, '-> tenant:', tenant);
 
             // Clear any existing tenant data and use deployment config
             localStorage.removeItem('currentTenant');
@@ -124,4 +117,4 @@
                     }, 300);
                 }
             }, 500);
-        });</script><script defer="defer" src="/main.a519b100767a89e16b9a.bundle.js"></script></body></html>
+        });</script><script defer="defer" src="/main.10c280763ace228a6061.bundle.js"></script></body></html>
