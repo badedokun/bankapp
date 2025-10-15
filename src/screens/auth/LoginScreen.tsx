@@ -700,10 +700,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
               )}
             </View>
             <Text style={styles.tenantName}>
-              {currentTenant?.displayName || theme.brandName || deploymentBranding.loginPageTitle}
+              {theme.brandName || currentTenant?.displayName || deploymentBranding.loginPageTitle}
             </Text>
             <Text style={styles.tenantSubtitle}>
-              {currentTenant ? 'Secure Banking App' : theme.brandTagline || 'AI-Enhanced Banking Platform'}
+              {theme.brandTagline || 'Secure Banking Platform'}
             </Text>
           </View>
 
