@@ -6,6 +6,7 @@
 import { Storage } from '../utils/storage';
 import JWTManager from '../utils/jwt';
 import { ENV_CONFIG, buildApiUrl } from '../config/environment';
+import TenantDetector from '../tenants/TenantDetector';
 
 /**
  * React Native Compatibility Check
@@ -86,9 +87,7 @@ class APIService {
   private refreshToken: string | null = null;
   private currentUser: LoginResponse['user'] | null = null;
 
-  // Tenant lookup cache (client-side)
-  private tenantCache: Map<string, { tenantId: string; timestamp: number }> = new Map();
-  private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+  // Tenant resolution (delegated to TenantDetector)
   private resolvedTenantId: string | null = null;
 
   private constructor() {
@@ -145,54 +144,23 @@ class APIService {
   }
 
   /**
-   * Lookup tenant ID from subdomain using backend API
-   * Includes client-side caching for performance
+   * Get tenant ID using centralized TenantDetector
+   * This eliminates duplicate tenant detection logic and ensures consistency
    */
-  private async lookupTenantBySubdomain(subdomain: string): Promise<string | null> {
-    // Parse nip.io domain format: tenant-ip-address.nip.io -> tenant
-    let parsedSubdomain = subdomain;
-    if (typeof window !== 'undefined' && window.location.hostname.includes('.nip.io')) {
-      const parts = subdomain.split('-');
-      parsedSubdomain = parts[0]; // Extract tenant name (first part before IP)
-      console.log(`🌐 Parsed nip.io subdomain: ${subdomain} -> ${parsedSubdomain}`);
-    }
-
-    // Check cache first
-    const cached = this.tenantCache.get(parsedSubdomain);
-    if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
-      return cached.tenantId;
-    }
-
+  private async getTenantIdFromDetector(): Promise<string> {
     try {
-      // Call backend tenant lookup API (no auth required)
-      const response = await fetch(`${this.baseURL}/tenants/lookup?subdomain=${encodeURIComponent(parsedSubdomain)}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      });
-
-      if (!response.ok) {
-        return null;
-      }
-
-      const data = await response.json();
-      if (data.success && data.data?.tenantId) {
-        // Cache the result using parsed subdomain
-        this.tenantCache.set(parsedSubdomain, {
-          tenantId: data.data.tenantId,
-          timestamp: Date.now()
-        });
-        return data.data.tenantId;
-      }
+      const tenantId = await TenantDetector.detectTenant();
+      return tenantId;
     } catch (error) {
-      console.error('Failed to lookup tenant:', error);
+      console.error('Failed to detect tenant:', error);
+      // Fallback to platform if detection fails
+      return 'platform';
     }
-
-    return null;
   }
 
   /**
-   * Get current tenant ID from JWT token, resolved tenant, or domain
-   * Uses dynamic database lookup instead of hardcoded mapping
+   * Get current tenant ID from JWT token or TenantDetector
+   * Uses centralized tenant detection - no duplication
    */
   private getTenantId(): string {
     // 1. Try to get from current access token (most authoritative)
@@ -207,35 +175,15 @@ class APIService {
       }
     }
 
-    // 2. Try to get from previously resolved tenant ID (from async lookup)
+    // 2. Try to get from previously resolved tenant ID (from TenantDetector)
     if (this.resolvedTenantId) {
       return this.resolvedTenantId;
     }
 
-    // 3. Try to get from current domain (only if not React Native)
-    if (!isReactNative() && typeof window !== 'undefined') {
-      const hostname = window.location.hostname;
-      const subdomain = hostname.split('.')[0];
-
-      // Check for localhost development - use environment variable
-      if (subdomain === 'localhost' || hostname === 'localhost') {
-        return process.env.REACT_APP_TENANT_CODE || 'platform';
-      }
-
-      // For non-localhost, check if we have a cached lookup
-      const cached = this.tenantCache.get(subdomain);
-      if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
-        return cached.tenantId;
-      }
-
-      // If no cache, we'll need to wait for initialization
-      // Return subdomain as temporary fallback (will be resolved to tenant ID by backend)
-      return subdomain;
-    }
-
-    // 4. Check for environment variable (React Native and fallback)
-    if (typeof process !== 'undefined' && process.env) {
-      return process.env.REACT_APP_TENANT_CODE || 'platform';
+    // 3. Use TenantDetector's current tenant as fallback
+    const currentTenant = TenantDetector.getCurrentTenantId();
+    if (currentTenant) {
+      return currentTenant;
     }
 
     // Final fallback to platform
@@ -244,36 +192,19 @@ class APIService {
 
   /**
    * Initialize tenant context (call this early in app lifecycle)
-   * Performs async tenant lookup and caches result
+   * Uses centralized TenantDetector for consistency
    */
   async initializeTenantContext(): Promise<string | null> {
-    if (!isReactNative() && typeof window !== 'undefined') {
-      const hostname = window.location.hostname;
-      const subdomain = hostname.split('.')[0];
-
-      // Skip localhost
-      if (subdomain === 'localhost' || hostname === 'localhost') {
-        const tenantId = process.env.REACT_APP_TENANT_CODE || 'platform';
-        this.resolvedTenantId = tenantId;
-        return tenantId;
-      }
-
-      // Perform async tenant lookup
-      const tenantId = await this.lookupTenantBySubdomain(subdomain);
-      if (tenantId) {
-        this.resolvedTenantId = tenantId;
-      }
-      return tenantId;
-    }
-
-    // For React Native, use environment variable
-    if (typeof process !== 'undefined' && process.env) {
-      const tenantId = process.env.REACT_APP_TENANT_CODE || 'platform';
+    try {
+      // Use centralized TenantDetector instead of duplicate logic
+      const tenantId = await this.getTenantIdFromDetector();
       this.resolvedTenantId = tenantId;
+      console.log(`📦 API Service: Tenant initialized as '${tenantId}'`);
       return tenantId;
+    } catch (error) {
+      console.error('Failed to initialize tenant context:', error);
+      return null;
     }
-
-    return null;
   }
 
   /**
