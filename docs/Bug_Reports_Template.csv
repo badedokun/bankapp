@@ -1,0 +1,18 @@
+Bug ID,Reported Date,Reported By,App Version,Platform,Bug Title,Severity,Frequency,Steps to Reproduce,Expected Result,Actual Result,Error Messages,Console Logs,Screenshot/Video,Reproducible,Workaround,Root Cause,Fix Description,Fixed In Version,Status,Verified By,Verified Date
+BUG-2025-001,2025-10-12 09:00,John Doe,v2.1.0-beta,iOS,AI Assistant timeout on transfer requests,Major,Always,"1. Open AI chat screen
+2. Type: ""Send ₦5000 to John""
+3. Press send
+4. Wait",AI should respond within 2-3 seconds with follow-up questions,AI shows typing indicator indefinitely (30+ seconds) then times out,None visible to user,See attached console.log,screen_recording_001.mp4,Yes,Use transfer menu instead of AI,AI service timeout set too low (5 seconds),Increased timeout to 15 seconds and added retry logic with exponential backoff,v2.1.1,Fixed,QA Team,2025-10-14
+BUG-2025-002,2025-10-12 10:30,Jane Smith,v2.1.0-beta,Android,App crashes when viewing transaction history,Blocker,Often,"1. Go to Transaction History screen
+2. Scroll down to load more
+3. App crashes",App should load older transactions smoothly,App freezes then crashes after scrolling past 50 transactions,""App has stopped responding"",Memory spike to 800MB,crash_video.mp4,Yes,View only recent 20 transactions,Memory leak in infinite scroll pagination,Fixed pagination logic and added virtual list rendering,v2.1.1,Fixed,QA Team,2025-10-15
+BUG-2025-003,2025-10-12 11:45,Mike Williams,v2.1.0-beta,Web,Glassmorphism not working on Safari,Minor,Always,"1. Open app in Safari browser
+2. Navigate to Dashboard
+3. Observe glass cards",Glass cards should have blur effect and transparency,Cards appear solid white with no blur effect,None,Safari doesn't support backdrop-filter,safari_screenshot.png,Yes,Use Chrome instead,Safari requires -webkit-backdrop-filter prefix,"Added Safari-specific CSS prefix and fallback styles",v2.1.1,Fixed,Design Team,2025-10-13
+BUG-2025-004,2025-10-12 14:00,Peace Ada,v2.1.0-beta,iOS,Reward points not updating after transfer,Major,Sometimes,"1. Complete a transfer (should earn 25 points)
+2. Go to Rewards screen
+3. Check points balance",Points should increase by 25,Points don't update until app is closed and reopened,None,Race condition in points sync,,Intermittent,Force close app and reopen,Race condition between transaction completion and rewards service,Added event queue and proper state synchronization,v2.2.0,In Progress,,
+BUG-2025-005,2025-10-12 15:30,Samuel Okon,v2.1.0-beta,Android,Profile image upload fails,Minor,Rarely,"1. Go to Settings > Profile
+2. Tap profile image
+3. Select image from gallery
+4. Upload","Image should upload and display as profile picture","Upload fails with ""Network error"" even on good WiFi","""Upload failed: Network error""",CORS issue on image upload endpoint,error_screenshot.png,Yes,Skip profile image for now,CORS policy blocking uploads from mobile app,Updated API CORS policy to allow mobile origins,v2.1.1,Fixed,DevOps,2025-10-14

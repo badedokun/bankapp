@@ -131,6 +131,22 @@ DEPLOYMENT_TYPE=development
 - **Based on real experience achieving 14/14 test pass rate**
 
 ### For Mobile Development (Android & iOS) ⭐ **NEW**
+
+**🗺️ [Mobile Development Index](./MOBILE_DEVELOPMENT_INDEX.md)** ⭐ **START HERE**
+- Master navigation guide for ALL mobile development
+- Explains how cross-platform, Android, and iOS guides work together
+- Quick reference for common issues
+- Learning path for new developers
+- Industry best practices from Revolut, N26, and leading fintechs
+
+**🌐 [Cross-Platform Development Guide](./CROSS_PLATFORM_DEVELOPMENT_GUIDE.md)**
+- Prevent web/mobile code conflicts (THE CRITICAL PATTERN)
+- Platform abstraction patterns (GradientView, ShadowCard, GlassCard)
+- File strategy (.web.tsx / .native.tsx)
+- Separation of business logic from UI
+- Code review checklist for cross-platform development
+- The 10 Commandments (proven patterns from Revolut/N26)
+
 **📱 [Android Development Guide](./ANDROID_DEVELOPMENT_GUIDE.md)**
 - Complete Android APK build process with JDK 21
 - StatusBar overlap patterns and fixes

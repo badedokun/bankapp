@@ -1,0 +1,61 @@
+Category,Values,Description
+User Type,Beta Tester,Users invited to test pre-release versions
+User Type,Early Adopter,First users who signed up at launch
+User Type,Regular User,Standard user accounts
+User Type,VIP,High-value customers or special partners
+User Type,Internal Team,OrokiiPay employees testing the app
+Platform,iOS,Apple iPhone or iPad
+Platform,Android,Android smartphones and tablets
+Platform,Web,Web browser application
+Platform,All Platforms,Issue affects all platforms
+Feature/Module,Dashboard,Main dashboard screen
+Feature/Module,Transfers,Money transfer functionality
+Feature/Module,AI Assistant,Oroki AI chat assistant
+Feature/Module,Savings,Savings goals and products
+Feature/Module,Loans,Loan applications and management
+Feature/Module,Bills,Bill payment features
+Feature/Module,Rewards,Gamification and rewards system
+Feature/Module,Settings,App settings and preferences
+Feature/Module,Onboarding,Account creation and KYC
+Feature/Module,Security,Authentication and security features
+Feature/Module,History,Transaction history
+Feature/Module,Referrals,Referral program
+Feature/Module,Profile,User profile management
+Feature/Module,Other,Other features not listed
+Feedback Type,Bug,Software defect or error
+Feedback Type,Feature Request,Request for new functionality
+Feedback Type,UI/UX Improvement,Design or usability improvement
+Feedback Type,Performance Issue,Speed or resource usage problem
+Feedback Type,Content/Copy,Text or messaging feedback
+Feedback Type,AI Assistant,Specific to AI assistant
+Feedback Type,Gamification,Rewards and achievements
+Feedback Type,Security Concern,Security-related feedback
+Feedback Type,General Comment,General feedback or praise
+Priority,Critical,Blocking users from core functions
+Priority,High,Important but workaround exists
+Priority,Medium,Should fix but not urgent
+Priority,Low,Nice to have improvement
+Severity,Blocker,Prevents app usage
+Severity,Major,Significant impact on experience
+Severity,Minor,Small impact or edge case
+Severity,Cosmetic,Visual issue only
+AI Personality,Friendly,Warm and supportive tone
+AI Personality,Professional,Formal and analytical tone
+AI Personality,Playful,Fun and casual with slang
+AI Personality,Roast Mode,Playful roasting of spending habits
+AI Personality,Not Applicable,Feedback not AI-related
+Status,New,Just submitted - not reviewed
+Status,Under Review,Being evaluated by team
+Status,In Progress,Actively being worked on
+Status,Resolved,Issue fixed or request completed
+Status,Won't Fix,Not planned for implementation
+Status,Duplicate,Same as another feedback item
+Status,Need More Info,Requires additional details from user
+Status,Deferred,Postponed to future release
+Assigned To,Development Team,Software engineering team
+Assigned To,Design Team,UI/UX designers
+Assigned To,AI Team,AI/ML specialists
+Assigned To,Product Manager,Product management
+Assigned To,QA Team,Quality assurance testers
+Assigned To,DevOps,Infrastructure and deployment
+Assigned To,Unassigned,Not yet assigned to anyone

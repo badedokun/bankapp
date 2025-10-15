@@ -648,6 +648,7 @@ router.post('/kyc/submit', authenticateToken, validateTenantAccess, [
     
     const kycResult = await userService.submitKYCDocuments({
       userId,
+      tenantId: req.user?.tenantId || 'default',
       documentType,
       documentNumber,
       documentImage,
@@ -678,7 +679,7 @@ router.get('/profile', authenticateToken, validateTenantAccess, asyncHandler(asy
   try {
     const { userService } = await import('../services/users');
 
-    const profile = await userService.getUserProfile(req.user?.id);
+    const profile = await userService.getUserProfile(req.user?.id, req.user?.tenantId || 'default');
 
     if (!profile) {
       res.status(404).json({
@@ -730,13 +731,17 @@ router.put('/profile', authenticateToken, validateTenantAccess, [
   try {
     const { userService } = await import('../services/users');
     
-    const updateResult = await userService.updateUserProfile(userId, {
-      firstName,
-      lastName,
-      phone,
-      address,
-      profileImage
-    });
+    const updateResult = await userService.updateUserProfile(
+      userId,
+      req.user?.tenantId || 'default',
+      {
+        firstName,
+        lastName,
+        phone,
+        address,
+        profileImage
+      }
+    );
 
     res.json({
       success: updateResult.success,

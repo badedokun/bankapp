@@ -1,0 +1,4 @@
+# Requirements for User Feedback Template Generator
+# Install with: pip install -r requirements-feedback.txt
+
+openpyxl>=3.1.0

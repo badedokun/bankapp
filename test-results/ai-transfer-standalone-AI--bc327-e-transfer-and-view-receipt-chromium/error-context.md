@@ -1,0 +1,190 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e5]:
+  - generic [ref=e8]:
+    - generic [ref=e10]:
+      - generic [ref=e13]:
+        - generic [ref=e14]:
+          - generic [ref=e16]: 🏦
+          - generic [ref=e17]: OrokiiPay
+        - generic [ref=e18]:
+          - generic [ref=e19]:
+            - generic [ref=e20]: 🔍
+            - textbox "Search..." [ref=e21]
+          - generic [ref=e22] [cursor=pointer]:
+            - generic [ref=e23] [cursor=pointer]: 🔔
+            - generic [ref=e25] [cursor=pointer]: "3"
+          - generic [ref=e28] [cursor=pointer]: 👤
+      - generic [ref=e29]:
+        - generic [ref=e30]:
+          - generic [ref=e31]: Good evening! Welcome back,
+          - generic [ref=e32]: Admin User
+          - generic [ref=e34]: CEO / Platform Admin
+        - generic [ref=e35]:
+          - generic [ref=e36]:
+            - generic [ref=e38]: 💰
+            - generic [ref=e39]: Total Balance
+            - generic [ref=e40]: ₦4,147,000.00
+            - generic [ref=e41]: ↑ 12.5%
+          - generic [ref=e42]:
+            - generic [ref=e44]: 💳
+            - generic [ref=e45]: Available Balance
+            - generic [ref=e46]: ₦1,850,000.00
+            - generic [ref=e47]: ↑ 8.2%
+          - generic [ref=e48]:
+            - generic [ref=e50]: 📊
+            - generic [ref=e51]: Monthly Activity
+            - generic [ref=e52]: "247"
+            - generic [ref=e53]: ↓ 3.1%
+          - generic [ref=e54] [cursor=pointer]:
+            - generic [ref=e56] [cursor=pointer]: 🥈
+            - generic [ref=e57] [cursor=pointer]: Your Tier
+            - generic [ref=e58] [cursor=pointer]: Silver
+            - generic [ref=e59] [cursor=pointer]: 1,500 points 🎉
+        - generic [ref=e60] [cursor=pointer]:
+          - generic [ref=e61] [cursor=pointer]:
+            - generic [ref=e62] [cursor=pointer]: 🎮 Rewards & Achievements
+            - generic [ref=e63] [cursor=pointer]: View All →
+          - generic [ref=e64] [cursor=pointer]:
+            - generic [ref=e65] [cursor=pointer]:
+              - generic [ref=e67] [cursor=pointer]: 🥈
+              - generic [ref=e68] [cursor=pointer]: Silver
+            - generic [ref=e71] [cursor=pointer]: 3,500 to Gold
+          - generic [ref=e72] [cursor=pointer]:
+            - generic [ref=e74] [cursor=pointer]: 💸
+            - generic [ref=e76] [cursor=pointer]: 🌱
+            - generic [ref=e78] [cursor=pointer]: 🚀
+            - generic [ref=e80] [cursor=pointer]: 2/9 unlocked
+      - generic [ref=e81]:
+        - generic [ref=e82]:
+          - generic [ref=e83]:
+            - generic [ref=e85]: 🤖
+            - generic [ref=e86]:
+              - generic [ref=e87]: AI Banking Assistant
+              - generic [ref=e88]: Your intelligent banking companion
+          - generic [ref=e91]: Online
+        - generic [ref=e92]:
+          - generic [ref=e93] [cursor=pointer]:
+            - generic [ref=e94] [cursor=pointer]: 💡
+            - generic [ref=e95] [cursor=pointer]: Optimize Your Savings
+            - generic [ref=e96] [cursor=pointer]: Based on your spending patterns, you could save an additional ₦50,000.00 monthly by transferring to high-yield savings.
+            - generic [ref=e97] [cursor=pointer]:
+              - generic [ref=e98] [cursor=pointer]: Set up automatic transfer
+              - generic [ref=e99] [cursor=pointer]: →
+          - generic [ref=e100] [cursor=pointer]:
+            - generic [ref=e101] [cursor=pointer]: 📈
+            - generic [ref=e102] [cursor=pointer]: Investment Opportunity
+            - generic [ref=e103] [cursor=pointer]: Your balance qualifies for our premium investment portfolio with 15% annual returns.
+            - generic [ref=e104] [cursor=pointer]:
+              - generic [ref=e105] [cursor=pointer]: View investment options
+              - generic [ref=e106] [cursor=pointer]: →
+          - generic [ref=e107] [cursor=pointer]:
+            - generic [ref=e108] [cursor=pointer]: 🎯
+            - generic [ref=e109] [cursor=pointer]: Bill Payment Reminder
+            - generic [ref=e110] [cursor=pointer]: You have 3 upcoming bills totaling ₦45,000.00 due this week. Set up auto-pay to avoid late fees.
+            - generic [ref=e111] [cursor=pointer]:
+              - generic [ref=e112] [cursor=pointer]: Review bills
+              - generic [ref=e113] [cursor=pointer]: →
+        - generic [ref=e114]:
+          - generic [ref=e115]:
+            - generic [ref=e117]: AI
+            - generic [ref=e119]: Hello! I noticed you frequently transfer to savings on the 25th of each month. Would you like me to automate this for you?
+          - generic [ref=e120]:
+            - generic [ref=e122]: AI
+            - generic [ref=e124]: I can help you with transfers, account inquiries, bill payments, and financial planning. What would you like to do today?
+        - generic [ref=e125]:
+          - textbox "Ask me anything about your banking..." [ref=e126]
+          - generic [ref=e128] [cursor=pointer]: →
+      - generic [ref=e129]:
+        - generic [ref=e130]: Quick Actions
+        - generic [ref=e131]:
+          - generic [ref=e133] [cursor=pointer]:
+            - generic [ref=e134] [cursor=pointer]:
+              - generic [ref=e135] [cursor=pointer]: 💸
+              - generic [ref=e136] [cursor=pointer]: →
+            - generic [ref=e137] [cursor=pointer]: Money Transfer
+            - generic [ref=e138] [cursor=pointer]: Send & receive money instantly. All transfer services in one place.
+          - generic [ref=e140] [cursor=pointer]:
+            - generic [ref=e141] [cursor=pointer]:
+              - generic [ref=e142] [cursor=pointer]: 💰
+              - generic [ref=e143] [cursor=pointer]: →
+            - generic [ref=e144] [cursor=pointer]: Savings Products
+            - generic [ref=e145] [cursor=pointer]: Grow your money with flexible savings options.
+          - generic [ref=e147] [cursor=pointer]:
+            - generic [ref=e148] [cursor=pointer]:
+              - generic [ref=e149] [cursor=pointer]: 💳
+              - generic [ref=e150] [cursor=pointer]: →
+            - generic [ref=e151] [cursor=pointer]: Loan Products
+            - generic [ref=e152] [cursor=pointer]: Quick credit access with competitive rates.
+          - generic [ref=e154] [cursor=pointer]:
+            - generic [ref=e155] [cursor=pointer]:
+              - generic [ref=e156] [cursor=pointer]: ⚙️
+              - generic [ref=e157] [cursor=pointer]: →
+            - generic [ref=e158] [cursor=pointer]: Operations
+            - generic [ref=e159] [cursor=pointer]: Banking operations & compliance management.
+          - generic [ref=e161] [cursor=pointer]:
+            - generic [ref=e162] [cursor=pointer]:
+              - generic [ref=e163] [cursor=pointer]: 📊
+              - generic [ref=e164] [cursor=pointer]: →
+            - generic [ref=e165] [cursor=pointer]: Reports & Analytics
+            - generic [ref=e166] [cursor=pointer]: Insights, analytics and management reports.
+          - generic [ref=e168] [cursor=pointer]:
+            - generic [ref=e169] [cursor=pointer]:
+              - generic [ref=e170] [cursor=pointer]: 🛡️
+              - generic [ref=e171] [cursor=pointer]: →
+            - generic [ref=e172] [cursor=pointer]: RBAC Management
+            - generic [ref=e173] [cursor=pointer]: Manage roles and permissions.
+      - generic [ref=e174]:
+        - generic [ref=e175]:
+          - generic [ref=e176]: Recent Activity
+          - generic [ref=e178] [cursor=pointer]: View All →
+        - generic [ref=e179]:
+          - generic [ref=e180] [cursor=pointer]:
+            - generic [ref=e182] [cursor=pointer]: 💸
+            - generic [ref=e183] [cursor=pointer]:
+              - generic [ref=e184] [cursor=pointer]: Transfer to Self
+              - generic [ref=e185] [cursor=pointer]: 13 Oct 2025, 01:40
+            - generic [ref=e186] [cursor=pointer]: "-₦5,000.00"
+          - generic [ref=e187] [cursor=pointer]:
+            - generic [ref=e189] [cursor=pointer]: 💸
+            - generic [ref=e190] [cursor=pointer]:
+              - generic [ref=e191] [cursor=pointer]: Transfer to Funmi
+              - generic [ref=e192] [cursor=pointer]: 13 Oct 2025, 01:39
+            - generic [ref=e193] [cursor=pointer]: "-₦10,000.00"
+          - generic [ref=e194] [cursor=pointer]:
+            - generic [ref=e196] [cursor=pointer]: 💸
+            - generic [ref=e197] [cursor=pointer]:
+              - generic [ref=e198] [cursor=pointer]: Transfer to BJ
+              - generic [ref=e199] [cursor=pointer]: 13 Oct 2025, 01:36
+            - generic [ref=e200] [cursor=pointer]: "-₦10,000.00"
+          - generic [ref=e201] [cursor=pointer]:
+            - generic [ref=e203] [cursor=pointer]: 💸
+            - generic [ref=e204] [cursor=pointer]:
+              - generic [ref=e205] [cursor=pointer]: Transfer to Nutod
+              - generic [ref=e206] [cursor=pointer]: 13 Oct 2025, 01:35
+            - generic [ref=e207] [cursor=pointer]: "-₦5,000.00"
+          - generic [ref=e208] [cursor=pointer]:
+            - generic [ref=e210] [cursor=pointer]: 💸
+            - generic [ref=e211] [cursor=pointer]:
+              - generic [ref=e212] [cursor=pointer]: Transfer to Damola
+              - generic [ref=e213] [cursor=pointer]: 13 Oct 2025, 01:30
+            - generic [ref=e214] [cursor=pointer]: "-₦10,000.00"
+    - generic [ref=e216] [cursor=pointer]: 🤖
+  - generic [ref=e218]:
+    - generic [ref=e219] [cursor=pointer]:
+      - generic [ref=e220] [cursor=pointer]: 🏠
+      - generic [ref=e221] [cursor=pointer]: Home
+    - generic [ref=e222] [cursor=pointer]:
+      - generic [ref=e223] [cursor=pointer]: 💸
+      - generic [ref=e224] [cursor=pointer]: Send Money
+    - generic [ref=e225] [cursor=pointer]:
+      - generic [ref=e226] [cursor=pointer]: 📊
+      - generic [ref=e227] [cursor=pointer]: History
+    - generic [ref=e228] [cursor=pointer]:
+      - generic [ref=e229] [cursor=pointer]: 🤖
+      - generic [ref=e230] [cursor=pointer]: AI Assistant
+    - generic [ref=e231] [cursor=pointer]:
+      - generic [ref=e232] [cursor=pointer]: ⚙️
+      - generic [ref=e233] [cursor=pointer]: Settings
+```

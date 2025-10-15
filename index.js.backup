@@ -1,0 +1,19 @@
+/**
+ * @format
+ */
+
+// Import global polyfills FIRST, before any other imports
+import './src/utils/global-polyfills';
+
+import { AppRegistry, Platform } from 'react-native';
+
+// TODO: Re-enable i18n for mobile once browser-only package issue is resolved
+// For now, mobile app works without i18n (translations are inline in components)
+// if (Platform.OS === 'web') {
+//   require('./src/i18n/config');
+// }
+
+import App from './App';
+import { name as appName } from './app.json';
+
+AppRegistry.registerComponent(appName, () => App);

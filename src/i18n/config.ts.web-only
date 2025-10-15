@@ -1,0 +1,105 @@
+/**
+ * i18n Configuration for Multi-Language Support
+ * Supports English (en), French (fr), German (de), Spanish (es)
+ * Integrates with TenantThemeContext for locale detection
+ * Platform-safe: Works on both Web and React Native
+ */
+
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import { Platform } from 'react-native';
+
+// Platform-specific imports
+let Backend: any;
+let LanguageDetector: any;
+
+// Only load browser plugins on web platform
+// Use Platform.OS check BEFORE any requires to prevent module loading errors
+const shouldLoadWebPlugins = Platform.OS === 'web';
+
+if (shouldLoadWebPlugins) {
+  try {
+    const httpBackend = require('i18next-http-backend');
+    const browserDetector = require('i18next-browser-languagedetector');
+    Backend = httpBackend.default || httpBackend;
+    LanguageDetector = browserDetector.default || browserDetector;
+  } catch (e) {
+    console.warn('i18n web plugins not available:', e);
+  }
+}
+
+// Initialize i18n instance
+const i18nInstance = i18n
+  // Pass i18n instance to react-i18next
+  .use(initReactI18next);
+
+// Add platform-specific plugins
+if (Platform.OS === 'web' && Backend) {
+  i18nInstance.use(Backend);
+}
+
+if (Platform.OS === 'web' && LanguageDetector) {
+  i18nInstance.use(LanguageDetector);
+}
+
+// Initialize configuration
+const config: any = {
+  // Fallback language if translation not found
+  fallbackLng: 'en',
+
+  // Enable debug mode in development (disable for mobile to reduce logs)
+  debug: false,
+
+  // Supported languages
+  supportedLngs: ['en', 'fr', 'de', 'es'],
+
+  // Namespaces for organizing translations
+  ns: ['common', 'auth', 'dashboard', 'transfers', 'transactions', 'savings', 'loans', 'settings', 'errors'],
+  defaultNS: 'common',
+
+  // Interpolation settings
+  interpolation: {
+    escapeValue: false, // React already escapes values
+  },
+
+  // React specific options
+  react: {
+    useSuspense: false, // Disable suspense for compatibility
+  },
+
+  // Basic inline resources for mobile (fallback if backend fails)
+  resources: {
+    en: {
+      common: {
+        welcome: 'Welcome',
+        loading: 'Loading...',
+        error: 'An error occurred',
+        success: 'Success',
+        cancel: 'Cancel',
+        confirm: 'Confirm',
+        save: 'Save',
+        delete: 'Delete',
+        edit: 'Edit',
+        submit: 'Submit',
+        back: 'Back',
+      },
+    },
+  },
+};
+
+// Web-specific configuration
+if (Platform.OS === 'web') {
+  config.backend = {
+    loadPath: '/locales/{{lng}}/{{ns}}.json',
+  };
+
+  config.detection = {
+    order: ['querystring', 'cookie', 'localStorage', 'navigator', 'htmlTag'],
+    caches: ['localStorage', 'cookie'],
+  };
+}
+
+// Initialize with configuration
+i18nInstance.init(config);
+
+export default i18n;

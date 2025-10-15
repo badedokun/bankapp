@@ -181,6 +181,12 @@ If you're having issues getting the above steps to work, see the [Troubleshootin
 - **[docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md)** - Project architecture and overview
 - **[docs/ENVIRONMENT_VARIABLES_CHANGELOG.md](docs/ENVIRONMENT_VARIABLES_CHANGELOG.md)** - Complete environment variables reference
 
+### Mobile Development Documentation
+- **[docs/MOBILE_DEVELOPMENT_INDEX.md](docs/MOBILE_DEVELOPMENT_INDEX.md)** ⭐ **START HERE** - Master navigation guide for all mobile development
+- **[docs/CROSS_PLATFORM_DEVELOPMENT_GUIDE.md](docs/CROSS_PLATFORM_DEVELOPMENT_GUIDE.md)** - Prevent web/mobile code conflicts, platform abstraction patterns
+- **[docs/ANDROID_DEVELOPMENT_GUIDE.md](docs/ANDROID_DEVELOPMENT_GUIDE.md)** - Android APK builds, StatusBar patterns, Gradle troubleshooting
+- **[docs/IOS_DEVELOPMENT_GUIDE.md](docs/IOS_DEVELOPMENT_GUIDE.md)** - iOS builds, Xcode setup, App Store submission
+
 ### Environment Configuration Files
 - **`.env.local.example`** - Local development environment template
 - **`.env.cloud.example`** - Cloud deployment environment template

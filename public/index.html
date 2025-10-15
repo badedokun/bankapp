@@ -84,10 +84,10 @@
     </style>
     <script>
         // Set deployment configuration from webpack build-time injection
-        window.__WEBPACK_ENV__ = {
-            DEPLOYMENT_TYPE: '<%= DEPLOYMENT_TYPE %>',
-            NODE_ENV: '<%= NODE_ENV %>',
-            REACT_APP_API_URL: '<%= REACT_APP_API_URL %>'
+        // These values are injected by webpack DefinePlugin
+        window.__WEBPACK_ENV__ = window.__WEBPACK_ENV__ || {
+            DEPLOYMENT_TYPE: 'development',
+            NODE_ENV: 'development'
         };
     </script>
     <script>

@@ -229,26 +229,31 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
 
       if (data.suggestions && Array.isArray(data.suggestions)) {
         data.suggestions.forEach((suggestion: any) => {
+          // Validate suggestion has required properties
+          if (!suggestion || !suggestion.title || typeof suggestion.title !== 'string') {
+            return; // Skip invalid suggestions
+          }
+
           const title = suggestion.title.toLowerCase();
 
           // Categorize by title keywords
           if (title.includes('saving') || title.includes('save')) {
             processed.savings = {
               title: suggestion.title,
-              description: suggestion.description,
+              description: suggestion.description || '',
               potentialSavings: suggestion.metadata?.suggestedAmount || 0,
               action: 'Set up automatic transfer'
             };
           } else if (title.includes('investment') || title.includes('invest') || title.includes('opportunity')) {
             processed.investment = {
               title: suggestion.title,
-              description: suggestion.description,
+              description: suggestion.description || '',
               action: 'View investment options'
             };
           } else if (title.includes('bill') || title.includes('payment') || title.includes('recurring')) {
             processed.bills = {
               title: suggestion.title,
-              description: suggestion.description,
+              description: suggestion.description || '',
               totalAmount: suggestion.metadata?.totalAmount || 0,
               billCount: suggestion.metadata?.recurringCount || 0,
               action: 'View pending bills'
@@ -321,7 +326,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
     <View style={[styles.container, {
       ...Platform.select({
         web: {
-          background: `linear-gradient(135deg, ${gradientStart} 0%, ${gradientEnd} 100%)`,
+          backgroundImage: `linear-gradient(135deg, ${gradientStart} 0%, ${gradientEnd} 100%)`,
         },
         default: {
           backgroundColor: primaryColor,
@@ -349,7 +354,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                   <View style={[styles.logo, {
                     ...Platform.select({
                       web: {
-                        background: `linear-gradient(135deg, ${gradientStart}, ${gradientEnd})`,
+                        backgroundImage: `linear-gradient(135deg, ${gradientStart}, ${gradientEnd})`,
                       },
                       default: {
                         backgroundColor: primaryColor,
@@ -363,7 +368,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                   <Text style={[styles.bankName, {
                     ...Platform.select({
                       web: {
-                        background: `linear-gradient(135deg, ${gradientStart}, ${gradientEnd})`,
+                        backgroundImage: `linear-gradient(135deg, ${gradientStart}, ${gradientEnd})`,
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
                       },
@@ -460,7 +465,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                         onLogout?.();
                       }}
                     >
-                      <Text style={styles.menuIcon}>↗</Text>
+                      <Text style={[styles.menuIcon, styles.logoutText]}>↗</Text>
                       <Text style={[styles.menuText, styles.logoutText]}>Logout</Text>
                     </TouchableOpacity>
                   </View>
@@ -495,7 +500,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
               style={{
                 ...Platform.select({
                   web: {
-                    background: `linear-gradient(135deg, ${gradientStart}, ${gradientEnd})`,
+                    backgroundImage: `linear-gradient(135deg, ${gradientStart}, ${gradientEnd})`,
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                   },
@@ -511,7 +516,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
             <View style={[styles.roleBadge, {
               ...Platform.select({
                 web: {
-                  background: `linear-gradient(135deg, ${gradientStart}, ${gradientEnd})`,
+                  backgroundImage: `linear-gradient(135deg, ${gradientStart}, ${gradientEnd})`,
                 },
                 default: {
                   backgroundColor: primaryColor,
@@ -1143,7 +1148,7 @@ const getStyles = (theme: any) => StyleSheet.create({
     borderRadius: 9,
     ...Platform.select({
       web: {
-        background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+        backgroundImage: 'linear-gradient(135deg, #ef4444, #dc2626)',
       },
       default: {
         backgroundColor: theme.colors.error,
@@ -1213,7 +1218,8 @@ const getStyles = (theme: any) => StyleSheet.create({
     color: theme.colors.text,
   },
   logoutText: {
-    color: theme.colors.error,
+    color: theme.colors.danger || theme.colors.error,
+    fontWeight: '600',
   },
   menuDivider: {
     height: 1,

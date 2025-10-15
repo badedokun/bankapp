@@ -1,0 +1,59 @@
+/**
+ * i18n Configuration for React Native (Mobile)
+ * Simplified version without browser-only plugins
+ * This file is automatically used for iOS/Android builds
+ */
+
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+
+// Initialize i18n instance (mobile-only, no browser plugins)
+i18n
+  // Pass i18n instance to react-i18next
+  .use(initReactI18next)
+  // Initialize configuration
+  .init({
+    // Fallback language if translation not found
+    fallbackLng: 'en',
+
+    // Disable debug mode for mobile
+    debug: false,
+
+    // Supported languages
+    supportedLngs: ['en', 'fr', 'de', 'es'],
+
+    // Namespaces for organizing translations
+    ns: ['common', 'auth', 'dashboard', 'transfers', 'transactions', 'savings', 'loans', 'settings', 'errors'],
+    defaultNS: 'common',
+
+    // Interpolation settings
+    interpolation: {
+      escapeValue: false, // React already escapes values
+    },
+
+    // React specific options
+    react: {
+      useSuspense: false, // Disable suspense for compatibility
+    },
+
+    // Inline resources for mobile (no HTTP backend needed)
+    resources: {
+      en: {
+        common: {
+          welcome: 'Welcome',
+          loading: 'Loading...',
+          error: 'An error occurred',
+          success: 'Success',
+          cancel: 'Cancel',
+          confirm: 'Confirm',
+          save: 'Save',
+          delete: 'Delete',
+          edit: 'Edit',
+          submit: 'Submit',
+          back: 'Back',
+        },
+      },
+    },
+  });
+
+export default i18n;
