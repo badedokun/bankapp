@@ -14,12 +14,21 @@ export interface DeploymentConfig {
 // Different deployment configurations
 // Use environment variables for tenant-specific deployments
 const deploymentConfigs: Record<string, DeploymentConfig> = {
-  // Single-tenant production deployment
+  // Single-tenant production deployment (generic)
   single_tenant_production: {
     defaultTenant: process.env.DEFAULT_TENANT || 'default',
     allowTenantSwitching: false,
     customDomain: process.env.CUSTOM_DOMAIN || null,
     whitelistedTenants: process.env.WHITELISTED_TENANTS?.split(',') || [process.env.DEFAULT_TENANT || 'default'],
+    environment: 'production'
+  },
+
+  // FMFB-specific production deployment (backwards compatibility)
+  fmfb_production: {
+    defaultTenant: process.env.DEFAULT_TENANT || 'fmfb',
+    allowTenantSwitching: false,
+    customDomain: process.env.CUSTOM_DOMAIN || null,
+    whitelistedTenants: process.env.WHITELISTED_TENANTS?.split(',') || ['fmfb'],
     environment: 'production'
   },
 
@@ -34,7 +43,7 @@ const deploymentConfigs: Record<string, DeploymentConfig> = {
 
   // Development Environment
   development: {
-    defaultTenant: process.env.DEFAULT_TENANT || 'default',
+    defaultTenant: process.env.DEFAULT_TENANT || 'fmfb',
     allowTenantSwitching: true,
     customDomain: null,
     whitelistedTenants: process.env.WHITELISTED_TENANTS?.split(',') || [],
@@ -109,6 +118,10 @@ class DeploymentManager {
    * Check if tenant is allowed in this deployment
    */
   isTenantAllowed(tenantId: string): boolean {
+    // If no whitelist is configured, allow all tenants
+    if (!this.config.whitelistedTenants || this.config.whitelistedTenants.length === 0) {
+      return true;
+    }
     return this.config.whitelistedTenants.includes(tenantId);
   }
 

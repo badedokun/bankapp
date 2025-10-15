@@ -134,6 +134,21 @@ module.exports = {
     new webpack.DefinePlugin({
       __DEV__: JSON.stringify(true),
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+      'process.env.DEFAULT_TENANT': JSON.stringify(
+        process.env.DEFAULT_TENANT || 'fmfb'
+      ),
+      'process.env.CUSTOM_DOMAIN': JSON.stringify(
+        process.env.CUSTOM_DOMAIN || ''
+      ),
+      'process.env.WHITELISTED_TENANTS': JSON.stringify(
+        process.env.WHITELISTED_TENANTS || ''
+      ),
+      'process.env.APP_LOGIN_TITLE': JSON.stringify(
+        process.env.APP_LOGIN_TITLE || ''
+      ),
+      'process.env.APP_TITLE': JSON.stringify(
+        process.env.APP_TITLE || ''
+      ),
       'process.env.REACT_APP_TENANT_CODE': JSON.stringify(
         process.env.REACT_APP_TENANT_CODE || ''
       ),
@@ -147,7 +162,10 @@ module.exports = {
         DEPLOYMENT_TYPE: process.env.DEPLOYMENT_TYPE || 'development',
         NODE_ENV: process.env.NODE_ENV || 'development',
         TENANT_DETECTION_METHOD: process.env.TENANT_DETECTION_METHOD || 'subdomain',
-        REACT_APP_TENANT_CODE: process.env.REACT_APP_TENANT_CODE || ''
+        REACT_APP_TENANT_CODE: process.env.REACT_APP_TENANT_CODE || '',
+        DEFAULT_TENANT: process.env.DEFAULT_TENANT || 'fmfb',
+        CUSTOM_DOMAIN: process.env.CUSTOM_DOMAIN || '',
+        WHITELISTED_TENANTS: process.env.WHITELISTED_TENANTS || ''
       }),
     }),
     new webpack.ProvidePlugin({
