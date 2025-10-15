@@ -4,6 +4,7 @@
  */
 
 import express from 'express';
+import { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import { query } from '../config/database';
 import { authenticateToken } from '../middleware/auth';
@@ -52,7 +53,7 @@ const BILL_PROVIDERS = [
  * GET /api/bills/providers
  * Get available bill payment providers
  */
-router.get('/providers', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
+router.get('/providers', authenticateToken, validateTenantAccess, asyncHandler(async (_req: Request, res: Response) => {
   res.json({
     success: true,
     data: { providers: BILL_PROVIDERS }
@@ -63,7 +64,7 @@ router.get('/providers', authenticateToken, validateTenantAccess, asyncHandler(a
  * GET /api/bills/providers/:category
  * Get bill providers by category
  */
-router.get('/providers/:category', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
+router.get('/providers/:category', authenticateToken, validateTenantAccess, asyncHandler(async (req: Request, res: Response)=> {
   const { category } = req.params;
 
   const categoryProviders = BILL_PROVIDERS.filter(p => p.category === category);
@@ -81,14 +82,15 @@ router.get('/providers/:category', authenticateToken, validateTenantAccess, asyn
 router.post('/validate', authenticateToken, validateTenantAccess, [
   body('provider').notEmpty().withMessage('Provider is required'),
   body('accountNumber').notEmpty().withMessage('Account number is required'),
-], asyncHandler(async (req, res) => {
+], asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       error: 'Validation failed',
       details: errors.array()
     });
+    return;
   }
 
   const { provider, accountNumber } = req.body;
@@ -131,23 +133,24 @@ router.post('/pay', authenticateToken, validateTenantAccess, [
   body('accountNumber').notEmpty().withMessage('Account number is required'),
   body('amount').isNumeric().withMessage('Amount must be a number'),
   body('pin').isLength({ min: 4, max: 6 }).withMessage('PIN must be 4-6 digits'),
-], asyncHandler(async (req, res) => {
+], asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       error: 'Validation failed',
       details: errors.array()
     });
+    return;
   }
 
-  const { provider, accountNumber, amount, pin, customerName } = req.body;
+  const { provider, accountNumber, amount, customerName } = req.body;
 
   // Verify user has sufficient balance
   const balanceResult = await query(`
     SELECT balance FROM tenant.wallets
     WHERE user_id = $1 AND tenant_id = $2 AND is_primary = true
-  `, [req.user.id, req.user.tenantId]);
+  `, [req.user?.id, req.user?.tenantId]);
 
   if (balanceResult.rows.length === 0) {
     throw apiErrors.notFound('Wallet not found', 'WALLET_NOT_FOUND');
@@ -159,10 +162,11 @@ router.post('/pay', authenticateToken, validateTenantAccess, [
   const totalAmount = paymentAmount + fees;
 
   if (currentBalance < totalAmount) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       error: 'Insufficient balance'
     });
+    return;
   }
 
   // Generate payment reference
@@ -177,7 +181,7 @@ router.post('/pay', authenticateToken, validateTenantAccess, [
       UPDATE tenant.wallets
       SET balance = balance - $1, updated_at = NOW()
       WHERE user_id = $2 AND tenant_id = $3 AND is_primary = true
-    `, [totalAmount, req.user.id, req.user.tenantId]);
+    `, [totalAmount, req.user?.id, req.user?.tenantId]);
 
     // Record transaction
     await query(`
@@ -186,8 +190,8 @@ router.post('/pay', authenticateToken, validateTenantAccess, [
         reference, status, metadata, created_at
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
     `, [
-      req.user.id,
-      req.user.tenantId,
+      req.user?.id,
+      req.user?.tenantId,
       'bill_payment',
       paymentAmount,
       fees,
@@ -231,7 +235,7 @@ router.post('/pay', authenticateToken, validateTenantAccess, [
  * GET /api/bills/history
  * Get user's bill payment history
  */
-router.get('/history', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
+router.get('/history', authenticateToken, validateTenantAccess, asyncHandler(async (req: Request, res: Response)=> {
   const { limit = 20, offset = 0 } = req.query;
 
   const historyResult = await query(`
@@ -247,7 +251,7 @@ router.get('/history', authenticateToken, validateTenantAccess, asyncHandler(asy
     WHERE user_id = $1 AND tenant_id = $2 AND type = 'bill_payment'
     ORDER BY created_at DESC
     LIMIT $3 OFFSET $4
-  `, [req.user.id, req.user.tenantId, limit, offset]);
+  `, [req.user?.id, req.user?.tenantId, limit, offset]);
 
   const payments = historyResult.rows.map(row => ({
     reference: row.reference,

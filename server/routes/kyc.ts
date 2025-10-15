@@ -4,7 +4,7 @@
  */
 
 import { Router } from 'express';
-import { body, param, query } from 'express-validator';
+import { body, param } from 'express-validator';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs/promises';
@@ -17,7 +17,7 @@ const router = Router();
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
-  destination: async (req, file, cb) => {
+  destination: async (req, _file, cb) => {
     const user = (req as any).user;
     const tenant = (req as any).tenant;
     
@@ -28,7 +28,7 @@ const storage = multer.diskStorage({
       await fs.mkdir(uploadDir, { recursive: true });
       cb(null, uploadDir);
     } catch (error) {
-      cb(error, uploadDir);
+      cb(error as Error | null, uploadDir);
     }
   },
   filename: (req, file, cb) => {
@@ -41,7 +41,7 @@ const storage = multer.diskStorage({
   }
 });
 
-const fileFilter = (req: any, file: Express.Multer.File, cb: any) => {
+const fileFilter = (_req: any, file: Express.Multer.File, cb: any) => {
   // Accept images and PDFs only
   const allowedTypes = /jpeg|jpg|png|pdf/;
   const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
@@ -86,7 +86,7 @@ router.post('/documents/:documentType/upload',
   upload.single('document'),
   
   async (req: any, res: any) => {
-    const client = await dbQuery('BEGIN');
+    await dbQuery('BEGIN');
     
     try {
       const { documentType } = req.params;

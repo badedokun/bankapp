@@ -11,7 +11,7 @@ const router = express.Router();
  * GET /api/tenants/:tenantId/assets/:assetType/:assetName
  * Serve tenant asset by converting Base64 back to binary
  */
-router.get('/:tenantId/assets/:assetType/:assetName', async (req, res) => {
+router.get('/:tenantId/assets/:assetType/:assetName', async (req, res): Promise<void> => {
   try {
     const { tenantId, assetType, assetName = 'default' } = req.params;
     
@@ -62,10 +62,10 @@ router.get('/:tenantId/assets/:assetType/:assetName', async (req, res) => {
     res.send(binaryData);
     
   } catch (error) {
-    console.error('Error serving tenant asset:', error);
+    console.error('Error serving tenant asset:', (error as Error).message || error);
     res.status(500).json({ 
       error: 'Failed to serve asset',
-      message: error.message 
+      message: (error as Error).message 
     });
   }
 });
@@ -74,7 +74,7 @@ router.get('/:tenantId/assets/:assetType/:assetName', async (req, res) => {
  * GET /api/tenants/:tenantName/assets/:assetType/:assetName
  * Serve tenant asset by tenant name instead of ID
  */
-router.get('/by-name/:tenantName/assets/:assetType/:assetName', async (req, res) => {
+router.get('/by-name/:tenantName/assets/:assetType/:assetName', async (req, res): Promise<void> => {
   try {
     const { tenantName, assetType, assetName = 'default' } = req.params;
     
@@ -119,10 +119,10 @@ router.get('/by-name/:tenantName/assets/:assetType/:assetName', async (req, res)
     res.send(binaryData);
     
   } catch (error) {
-    console.error('Error serving tenant asset by name:', error);
+    console.error('Error serving tenant asset by name:', (error as Error).message || error);
     res.status(500).json({ 
       error: 'Failed to serve asset',
-      message: error.message 
+      message: (error as Error).message 
     });
   }
 });
@@ -131,7 +131,7 @@ router.get('/by-name/:tenantName/assets/:assetType/:assetName', async (req, res)
  * POST /api/tenants/:tenantId/assets
  * Upload new asset (admin only)
  */
-router.post('/:tenantId/assets', async (req, res) => {
+router.post('/:tenantId/assets', async (req, res): Promise<void> => {
   try {
     const { tenantId } = req.params;
     const { assetType, assetName, assetData, mimeType, dimensions, metadata } = req.body;
@@ -169,10 +169,10 @@ router.post('/:tenantId/assets', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error uploading tenant asset:', error);
+    console.error('Error uploading tenant asset:', (error as Error).message || error);
     res.status(500).json({ 
       error: 'Failed to upload asset',
-      message: error.message 
+      message: (error as Error).message 
     });
   }
 });

@@ -98,7 +98,7 @@ export const ModernNotificationProvider: React.FC<{ children: ReactNode }> = ({ 
       case 'success':
         return { icon: '✅', color: theme?.colors?.success || '#10b981' };
       case 'error':
-        return { icon: '❌', color: theme?.colors?.error || '#ef4444' };
+        return { icon: '❌', color: (theme?.colors as any)?.error || '#ef4444' };
       case 'warning':
         return { icon: '⚠️', color: theme?.colors?.warning || '#f59e0b' };
       case 'info':
@@ -354,7 +354,7 @@ export const ModernNotificationProvider: React.FC<{ children: ReactNode }> = ({ 
                     backgroundColor: theme?.colors?.primary || '#667eea',
                   },
                   action.style === 'destructive' && {
-                    backgroundColor: theme?.colors?.error || '#ef4444',
+                    backgroundColor: (theme?.colors as any)?.error || '#ef4444',
                   },
                   action.style === 'cancel' && styles.modalCancelButton,
                 ]}

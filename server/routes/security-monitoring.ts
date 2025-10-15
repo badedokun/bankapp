@@ -4,6 +4,7 @@
  */
 
 import express from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { body, param, query, validationResult } from 'express-validator';
 import { authenticateToken, requireRole } from '../middleware/auth';
 import { validateRequest } from '../middleware/validation';
@@ -64,7 +65,7 @@ router.post('/events',
   authenticateToken,
   requireRole(['admin', 'security_officer', 'system']),
   validateSIEMEvent,
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
       const { tenantId } = (req as any).user;
       const eventData = {
@@ -140,7 +141,7 @@ router.get('/events',
       .withMessage('Limit must be between 1 and 1000'),
     validateRequest
   ],
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
       const { tenantId } = (req as any).user;
       const filters: any = {};
@@ -195,7 +196,7 @@ router.post('/alerts',
   authenticateToken,
   requireRole(['admin', 'security_officer', 'system']),
   validateSecurityAlert,
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
       const { tenantId } = (req as any).user;
       const { alertType, title, description, severity, triggerEvents, ruleName } = req.body;
@@ -261,7 +262,7 @@ router.get('/alerts',
       .withMessage('Invalid alert type'),
     validateRequest
   ],
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
       const { tenantId } = (req as any).user;
       
@@ -312,7 +313,7 @@ router.get('/alerts',
 router.get('/dashboard',
   authenticateToken,
   requireRole(['admin', 'security_officer', 'auditor']),
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
       const { tenantId } = (req as any).user;
 
@@ -368,7 +369,7 @@ router.post('/pci-dss/assessment',
       .withMessage('Invalid assessment type'),
     validateRequest
   ],
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
       const { tenantId } = (req as any).user;
       const { merchantLevel = 1, assessmentType = 'self_assessment' } = req.body;
@@ -416,7 +417,7 @@ router.post('/pci-dss/assessment',
 router.post('/pci-dss/network-segmentation',
   authenticateToken,
   requireRole(['admin', 'security_officer', 'compliance_officer']),
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
       const { tenantId } = (req as any).user;
 
@@ -457,7 +458,7 @@ router.post('/pci-dss/network-segmentation',
 router.get('/pci-dss/dashboard',
   authenticateToken,
   requireRole(['admin', 'compliance_officer', 'auditor']),
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
       const { tenantId } = (req as any).user;
 
@@ -507,7 +508,7 @@ router.get('/forensics/:eventId',
     param('eventId').isUUID().withMessage('Invalid event ID format'),
     validateRequest
   ],
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
       const { tenantId } = (req as any).user;
       const { eventId } = req.params;
@@ -583,7 +584,7 @@ router.get('/audit-trail',
       .withMessage('Invalid event type'),
     validateRequest
   ],
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
       const { tenantId } = (req as any).user;
       
@@ -648,7 +649,7 @@ router.get('/audit-trail',
 router.get('/network/segments',
   authenticateToken,
   requireRole(['admin', 'security_officer', 'network_admin']),
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
       const { tenantId } = (req as any).user;
 
@@ -773,7 +774,7 @@ router.get('/compliance/audit-trail',
       .withMessage('Invalid compliance type'),
     validateRequest
   ],
-  async (req, res) => {
+  async (req: Request, res: Response)=> {
     try {
       const { tenantId } = (req as any).user;
       

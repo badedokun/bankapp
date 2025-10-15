@@ -24,7 +24,7 @@ export interface EmptyStateProps {
   // Content
   title: string;
   description?: string;
-  illustration?: 'transactions' | 'search' | 'notifications' | 'savings' | 'cards' | 'custom';
+  illustration?: 'transactions' | 'search' | 'notifications' | 'savings' | 'cards' | 'custom' | 'bills' | 'rewards' | 'referrals' | 'analytics';
   customIllustration?: React.ReactNode;
 
   // Actions
@@ -94,7 +94,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   style,
   compact = false,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
 
   const containerPadding = compact ? 24 : 40;
   const illustrationSize = compact ? 60 : 80;

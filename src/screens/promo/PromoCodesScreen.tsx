@@ -24,7 +24,7 @@ import {
   Alert,
   RefreshControl,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import LinearGradient from '../../components/common/LinearGradient';
 import Animated, {
   FadeInDown,
   FadeInUp,
@@ -83,7 +83,7 @@ export const PromoCodesScreen: React.FC<PromoCodesScreenProps> = ({
   navigation,
   userId,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   const [activeTab, setActiveTab] = useState<'browse' | 'redeem' | 'history'>('browse');
   const [campaigns, setCampaigns] = useState<PromotionalCampaign[]>([]);
   const [redemptions, setRedemptions] = useState<PromoCodeRedemption[]>([]);
@@ -109,8 +109,8 @@ export const PromoCodesScreen: React.FC<PromoCodesScreenProps> = ({
 
     try {
       const response = await APIService.get('/api/promo-codes/active');
-      if (response.data.success) {
-        setCampaigns(response.data.data);
+      if ((response as any).data.success) {
+        setCampaigns((response as any).data.data);
       }
     } catch (error: any) {
       console.error('Failed to load campaigns:', error);
@@ -125,8 +125,8 @@ export const PromoCodesScreen: React.FC<PromoCodesScreenProps> = ({
   const loadRedemptions = useCallback(async () => {
     try {
       const response = await APIService.get(`/api/promo-codes/redemptions/${userId}`);
-      if (response.data.success) {
-        setRedemptions(response.data.data);
+      if ((response as any).data.success) {
+        setRedemptions((response as any).data.data);
       }
     } catch (error: any) {
       console.error('Failed to load redemptions:', error);
@@ -147,7 +147,7 @@ export const PromoCodesScreen: React.FC<PromoCodesScreenProps> = ({
     }
 
     setIsValidating(true);
-    triggerHaptic('impactLight');
+    triggerHaptic('light');
 
     try {
       const response = await APIService.post('/api/promo-codes/validate', {
@@ -155,27 +155,27 @@ export const PromoCodesScreen: React.FC<PromoCodesScreenProps> = ({
         userId,
       });
 
-      if (response.data.success && response.data.data.isValid) {
+      if ((response as any).data.success && (response as any).data.data.isValid) {
         setValidationResult({
           isValid: true,
-          campaign: response.data.data.campaign,
-          message: response.data.data.message,
+          campaign: (response as any).data.data.campaign,
+          message: (response as any).data.data.message,
         });
-        triggerHaptic('notificationSuccess');
+        triggerHaptic('medium');
       } else {
         setValidationResult({
           isValid: false,
-          message: response.data.data.message || 'Invalid promo code',
+          message: (response as any).data.data.message || 'Invalid promo code',
         });
-        triggerHaptic('notificationError');
+        triggerHaptic('heavy');
       }
     } catch (error: any) {
       console.error('Promo validation error:', error);
       setValidationResult({
         isValid: false,
-        message: error.response?.data?.error || 'Unable to validate promo code',
+        message: (error as any).response?.data?.error || 'Unable to validate promo code',
       });
-      triggerHaptic('notificationError');
+      triggerHaptic('heavy');
     } finally {
       setIsValidating(false);
     }
@@ -214,7 +214,7 @@ export const PromoCodesScreen: React.FC<PromoCodesScreenProps> = ({
     }
 
     setIsRedeeming(true);
-    triggerHaptic('impactHeavy');
+    triggerHaptic('heavy');
 
     try {
       const response = await APIService.post('/api/promo-codes/redeem', {
@@ -223,11 +223,11 @@ export const PromoCodesScreen: React.FC<PromoCodesScreenProps> = ({
         depositAmount: depositAmount ? parseFloat(depositAmount) : undefined,
       });
 
-      if (response.data.success) {
-        triggerHaptic('notificationSuccess');
+      if ((response as any).data.success) {
+        triggerHaptic('medium');
         Alert.alert(
           '🎉 Promo Code Redeemed!',
-          response.data.message || 'Your bonus has been applied successfully!',
+          (response as any).data.message || 'Your bonus has been applied successfully!',
           [
             {
               text: 'View History',
@@ -248,10 +248,10 @@ export const PromoCodesScreen: React.FC<PromoCodesScreenProps> = ({
         );
       }
     } catch (error: any) {
-      triggerHaptic('notificationError');
+      triggerHaptic('heavy');
       Alert.alert(
         'Redemption Failed',
-        error.response?.data?.error || 'Failed to redeem promo code. Please try again.'
+        (error as any).response?.data?.error || 'Failed to redeem promo code. Please try again.'
       );
     } finally {
       setIsRedeeming(false);
@@ -260,7 +260,7 @@ export const PromoCodesScreen: React.FC<PromoCodesScreenProps> = ({
 
   // Handle tab change
   const handleTabChange = useCallback((tab: 'browse' | 'redeem' | 'history') => {
-    triggerHaptic('impactLight');
+    triggerHaptic('light');
     tabScale.value = withSpring(0.95, {}, () => {
       tabScale.value = withSpring(1);
     });
@@ -292,7 +292,7 @@ export const PromoCodesScreen: React.FC<PromoCodesScreenProps> = ({
       >
         <AnimatedTouchable
           onPress={() => {
-            triggerHaptic('impactMedium');
+            triggerHaptic('medium');
             setSelectedCampaign(campaign);
           }}
           activeOpacity={0.9}
@@ -408,7 +408,9 @@ export const PromoCodesScreen: React.FC<PromoCodesScreenProps> = ({
     if (isLoading) {
       return (
         <View style={styles.loadingContainer}>
-          <SkeletonLoader count={3} height={150} style={{ marginBottom: 16 }} />
+          <View style={{ height: 150, marginBottom: 16, backgroundColor: '#f0f0f0', borderRadius: 12 }} />
+          <View style={{ height: 150, marginBottom: 16, backgroundColor: '#f0f0f0', borderRadius: 12 }} />
+          <View style={{ height: 150, marginBottom: 16, backgroundColor: '#f0f0f0', borderRadius: 12 }} />
         </View>
       );
     }
@@ -427,11 +429,14 @@ export const PromoCodesScreen: React.FC<PromoCodesScreenProps> = ({
           </ScrollView>
         ) : (
           <EmptyState
-            icon="🎫"
             title="No Active Campaigns"
-            message="There are no promotional campaigns available at the moment. Check back soon!"
-            actionLabel="Refresh"
-            onAction={() => loadCampaigns(true)}
+            description="There are no promotional campaigns available at the moment. Check back soon!"
+            illustration="custom"
+            customIllustration={<Text style={{ fontSize: 64 }}>🎫</Text>}
+            primaryAction={{
+              label: "Refresh",
+              onPress: () => loadCampaigns(true),
+            }}
           />
         );
 
@@ -467,7 +472,7 @@ export const PromoCodesScreen: React.FC<PromoCodesScreenProps> = ({
                       style={[
                         styles.validationCard,
                         validationResult.isValid ? styles.validCard : styles.invalidCard,
-                      ]}
+                      ] as any}
                     >
                       <Text style={styles.validationIcon}>
                         {validationResult.isValid ? '✅' : '❌'}
@@ -525,11 +530,14 @@ export const PromoCodesScreen: React.FC<PromoCodesScreenProps> = ({
           </ScrollView>
         ) : (
           <EmptyState
-            icon="📜"
             title="No Redemptions Yet"
-            message="You haven't redeemed any promo codes yet. Browse available campaigns to get started!"
-            actionLabel="Browse Campaigns"
-            onAction={() => handleTabChange('browse')}
+            description="You haven't redeemed any promo codes yet. Browse available campaigns to get started!"
+            illustration="custom"
+            customIllustration={<Text style={{ fontSize: 64 }}>📜</Text>}
+            primaryAction={{
+              label: "Browse Campaigns",
+              onPress: () => handleTabChange('browse'),
+            }}
           />
         );
 

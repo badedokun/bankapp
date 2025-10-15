@@ -37,7 +37,7 @@ export interface NavigationStyles {
 }
 
 // Header/Top Navigation styles
-export function createHeaderNavigationStyles(theme: OrokiiPayTheme, props: NavigationStyleProps = {}): NavigationStyles {
+export function createHeaderNavigationStyles(theme: OrokiiPayTheme, props: NavigationStyleProps = {}): any {
   const { variant = 'horizontal', size = 'md', elevated = true, sticky = false } = props;
   
   const baseContainer = {
@@ -169,7 +169,7 @@ export function createHeaderNavigationStyles(theme: OrokiiPayTheme, props: Navig
 }
 
 // Sidebar Navigation styles
-export function createSidebarNavigationStyles(theme: OrokiiPayTheme, props: NavigationStyleProps = {}): NavigationStyles {
+export function createSidebarNavigationStyles(theme: OrokiiPayTheme, props: NavigationStyleProps = {}): any {
   const { collapsed = false, elevated = true } = props;
   
   const sidebarWidth = collapsed ? 64 : 240;
@@ -328,7 +328,7 @@ export function createSidebarNavigationStyles(theme: OrokiiPayTheme, props: Navi
 }
 
 // Bottom Navigation styles (for mobile)
-export function createBottomNavigationStyles(theme: OrokiiPayTheme, props: NavigationStyleProps = {}): NavigationStyles {
+export function createBottomNavigationStyles(theme: OrokiiPayTheme, props: NavigationStyleProps = {}): any {
   const { elevated = true } = props;
   
   return {
@@ -401,7 +401,7 @@ export function createBottomNavigationStyles(theme: OrokiiPayTheme, props: Navig
 }
 
 // Breadcrumb styles
-export function createBreadcrumbStyles(theme: OrokiiPayTheme): NavigationStyles {
+export function createBreadcrumbStyles(theme: OrokiiPayTheme): any {
   return {
     container: {
       display: 'flex',
@@ -435,7 +435,7 @@ export function createBreadcrumbStyles(theme: OrokiiPayTheme): NavigationStyles 
 }
 
 // Tab Navigation styles
-export function createTabNavigationStyles(theme: OrokiiPayTheme, props: { variant?: 'line' | 'pill' | 'card' } = {}): NavigationStyles {
+export function createTabNavigationStyles(theme: OrokiiPayTheme, props: { variant?: 'line' | 'pill' | 'card' } = {}): any {
   const { variant = 'line' } = props;
   
   const baseContainer = {

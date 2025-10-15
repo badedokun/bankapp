@@ -61,7 +61,7 @@ router.get('/accounts',
   validateTenantAccess,
   asyncHandler(async (req: any, res: any) => {
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
 
     const accounts = await dbQuery(`
       SELECT
@@ -107,7 +107,7 @@ router.post('/flexible/create',
 
     const { accountName, initialDeposit, targetAmount } = req.body;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
 
     await transaction(async (client: any) => {
       // Check wallet balance
@@ -172,7 +172,7 @@ router.post('/flexible/deposit',
   asyncHandler(async (req: any, res: any) => {
     const { accountId, amount } = req.body;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
 
     await transaction(async (client: any) => {
       // Verify account ownership
@@ -242,7 +242,7 @@ router.post('/target/create',
   asyncHandler(async (req: any, res: any) => {
     const { goalName, targetAmount, targetDate, initialDeposit } = req.body;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
 
     await transaction(async (client: any) => {
       // Create target savings account
@@ -294,7 +294,7 @@ router.get('/target/goals',
   validateTenantAccess,
   asyncHandler(async (req: any, res: any) => {
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
 
     const goals = await dbQuery(`
       SELECT
@@ -327,7 +327,7 @@ router.post('/target/contribute',
   asyncHandler(async (req: any, res: any) => {
     const { goalId, amount } = req.body;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
 
     await transaction(async (client: any) => {
       // Similar to flexible deposit logic
@@ -376,7 +376,7 @@ router.post('/locked/create',
   asyncHandler(async (req: any, res: any) => {
     const { accountName, amount, lockPeriod } = req.body;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
 
     await transaction(async (client: any) => {
       const maturityDate = new Date();
@@ -416,7 +416,7 @@ router.post('/locked/create',
  */
 router.get('/locked/terms',
   authenticateToken,
-  asyncHandler(async (req: any, res: any) => {
+  asyncHandler(async (_req: any, res: any) => {
     const terms = SAVINGS_CONFIG.locked.lockPeriods.map(days => ({
       days,
       months: days / 30,
@@ -442,7 +442,7 @@ router.get('/locked/maturity',
   validateTenantAccess,
   asyncHandler(async (req: any, res: any) => {
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
 
     const accounts = await dbQuery(`
       SELECT
@@ -484,7 +484,7 @@ router.post('/group/create',
   asyncHandler(async (req: any, res: any) => {
     const { groupName, description, targetAmount, contributionAmount, frequency } = req.body;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
 
     await transaction(async (client: any) => {
       // Create group savings account
@@ -614,7 +614,7 @@ router.post('/auto/enable',
   asyncHandler(async (req: any, res: any) => {
     const { percentage, savingsAccountId } = req.body;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
 
     await transaction(async (client: any) => {
       // Create or update SAYT settings
@@ -661,7 +661,7 @@ router.put('/auto/settings',
   asyncHandler(async (req: any, res: any) => {
     const { percentage, isActive } = req.body;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
 
     const updates = [];
     const values = [];
@@ -704,7 +704,7 @@ router.get('/auto/history',
   validateTenantAccess,
   asyncHandler(async (req: any, res: any) => {
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
     const { limit = 50, offset = 0 } = req.query;
 
     const history = await dbQuery(`

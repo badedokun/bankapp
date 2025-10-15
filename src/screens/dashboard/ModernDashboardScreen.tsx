@@ -35,7 +35,7 @@ const ModernDashboardScreen: React.FC<ModernDashboardScreenProps> = ({
   onNavigateToFeature,
   onDashboardRefresh,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   const [userContext, setUserContext] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState<any>(null);
@@ -119,7 +119,7 @@ const ModernDashboardScreen: React.FC<ModernDashboardScreenProps> = ({
       const transactions = transactionsData.transactions || [];
 
       setDashboardData({
-        totalBalance: parseFloat(balance),
+        totalBalance: parseFloat(balance.toString()),
         accountNumber: accountNumber,
         currency: walletData.currency || 'NGN',
         recentTransactions: transactions.slice(0, 5).map((t: any) => ({

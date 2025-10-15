@@ -40,7 +40,7 @@ export const ModernQuickStats: React.FC<ModernQuickStatsProps> = ({
   loanBalance = 0,
   currency,
 }) => {
-  const { theme, tenantInfo } = useTenantTheme();
+  const { theme, tenantInfo } = useTenantTheme() as any;
   const formatCurrency = (amount: number) => {
     return `${currency} ${amount.toLocaleString('en-US', {
       minimumFractionDigits: 2,
@@ -198,7 +198,7 @@ export const ModernQuickStats: React.FC<ModernQuickStatsProps> = ({
             <View key={index} style={dynamicStyles.chartBarContainer}>
               <LinearGradient
                 colors={[theme.colors.primaryGradientStart, theme.colors.primaryGradientEnd]}
-                style={[dynamicStyles.chartBar, { height: `${height}%` }]}
+                style={[dynamicStyles.chartBar, { height: `${height}%` }] as any}
               />
             </View>
           ))}

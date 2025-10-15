@@ -37,7 +37,7 @@ export const TransactionLimitsPanel: React.FC<TransactionLimitsPanelProps> = ({
   onLimitPress,
   onRequestIncrease,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   // CBN-compliant transaction limits based on role
   const getRoleLimits = (): TransactionLimit[] => {
     const baseLimits: Record<string, TransactionLimit[]> = {

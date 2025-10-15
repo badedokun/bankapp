@@ -41,7 +41,7 @@ export const AchievementBadge: React.FC<AchievementBadgeProps> = ({
   compact = false,
   onPress,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
 
   const getCategoryLabel = (category: string): string => {
     const labels: Record<string, string> = {

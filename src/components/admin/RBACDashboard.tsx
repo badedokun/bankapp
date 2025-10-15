@@ -1,21 +1,5 @@
 import React, { useState, useEffect } from 'react';
-// Icons replaced with React Native compatible emoji/text - no lucide-react
-const Icons = {
-  Shield: () => '🛡️',
-  Users: () => '👥',
-  Key: () => '🔑',
-  Settings: () => '⚙️',
-  UserPlus: () => '👤+',
-  Plus: () => '➕',
-  Eye: () => '👁️',
-  Edit: () => '✏️',
-  Trash2: () => '🗑️',
-  Search: () => '🔍',
-  Filter: () => '🔽',
-  Clock: () => '🕐',
-  AlertCircle: () => '⚠️',
-  CheckCircle: () => '✅'
-};
+import { Shield, Users, Key, Settings, UserPlus, Plus, Eye, Edit, Trash2, Search, Filter, Clock, AlertCircle, CheckCircle } from 'lucide-react';
 import apiService from '../../services/api';
 
 interface RBACDashboardData {

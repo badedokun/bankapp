@@ -90,7 +90,7 @@ export const PCIDSSComplianceScreen: React.FC<PCIDSSComplianceScreenProps> = ({
   onNavigateToScans,
 }) => {
   const { currentTenant } = useTenant();
-  const theme = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   const { showAlert } = useBankingAlert();
   
   // State

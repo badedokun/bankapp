@@ -17,7 +17,6 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { createButtonStyles } from '../../design-system';
-import { useTheme } from '../../hooks/useTheme';
 import { getCurrencySymbol } from '../../utils/currency';
 import { useTenantTheme } from '../../tenants/TenantContext';
 
@@ -60,16 +59,15 @@ export const EnhancedButton: React.FC<EnhancedButtonProps> = ({
   currency,
   requiresConfirmation = false,
 }) => {
-  const theme = useTheme();
-  const { theme: tenantTheme } = useTenantTheme();
-  const currencySymbol = currency ? getCurrencySymbol(currency) : getCurrencySymbol(tenantTheme.currency);
-  const buttonStyles = createButtonStyles(theme, {
-    variant,
-    size,
+  const { theme } = useTenantTheme() as any;
+  const currencySymbol = currency ? getCurrencySymbol(currency) : getCurrencySymbol('NGN');
+  const buttonStyles = createButtonStyles(theme as any, {
+    variant: variant as any,
+    size: size as any,
     disabled: disabled || loading,
     fullWidth,
     secure,
-  });
+  } as any);
 
   const getLoadingColor = () => {
     switch (variant) {
@@ -178,13 +176,13 @@ export const IconButton: React.FC<{
   disabled = false,
   style,
 }) => {
-  const theme = useTheme();
-  const buttonStyles = createButtonStyles(theme, {
-    variant,
-    size,
+  const { theme } = useTenantTheme() as any;
+  const buttonStyles = createButtonStyles(theme as any, {
+    variant: variant as any,
+    size: size as any,
     disabled,
     iconOnly: true,
-  });
+  } as any);
 
   return (
     <TouchableOpacity
@@ -216,7 +214,7 @@ export const FloatingActionButton: React.FC<{
   size = 'md',
   style,
 }) => {
-  const theme = useTheme();
+  const { theme } = useTenantTheme() as any;
   
   const getBackgroundColor = () => {
     switch (variant) {
@@ -271,8 +269,8 @@ export const TransactionButton: React.FC<{
   disabled = false,
   style,
 }) => {
-  const { theme: tenantTheme } = useTenantTheme();
-  const currencySymbol = currency || getCurrencySymbol(tenantTheme.currency);
+  const { theme: tenantTheme } = useTenantTheme() as any;
+  const currencySymbol = currency || getCurrencySymbol('NGN');
   const getButtonConfig = () => {
     switch (type) {
       case 'transfer':
@@ -359,9 +357,9 @@ export const ButtonGroup: React.FC<{
           title={button.title}
           variant={button.variant || 'outline'}
           disabled={button.disabled}
-          style={[
-            orientation === 'horizontal' && { flex: button.flex || 1 },
-          ]}
+          style={
+            orientation === 'horizontal' ? { flex: button.flex || 1 } : undefined
+          }
         />
       ))}
     </View>
@@ -384,7 +382,7 @@ export const QuickActionButton: React.FC<{
   badge,
   style,
 }) => {
-  const theme = useTheme();
+  const { theme } = useTenantTheme() as any;
 
   return (
     <TouchableOpacity

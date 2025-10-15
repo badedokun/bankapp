@@ -18,7 +18,7 @@ const bankingTheme: MD3Theme = {
     primary: '#1e3a8a', // Professional blue
     secondary: '#64748b',
     error: '#dc2626',
-    success: '#16a34a',
+    // success: '#16a34a', // Not in MD3Colors
     warning: '#f59e0b',
     info: '#0891b2',
     surface: '#ffffff',
@@ -28,7 +28,7 @@ const bankingTheme: MD3Theme = {
     onError: '#ffffff',
     onBackground: '#1e293b',
     onSurface: '#1e293b',
-  },
+  } as any,
   roundness: 2,
 };
 
@@ -173,7 +173,7 @@ const ModernAlertDialog: React.FC<{ alertState: AlertState; onDismiss: () => voi
       }),
     },
     destructiveButton: {
-      backgroundColor: theme.colors.danger,
+      backgroundColor: (theme.colors as any).danger,
     },
     buttonText: {
       fontSize: 16,

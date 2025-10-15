@@ -38,6 +38,7 @@ export interface UserReward {
 export interface Achievement {
   id: number;
   achievementCode: string;
+  code: string;  // Alias for achievementCode
   achievementName: string;
   description: string;
   category: 'savings' | 'spending' | 'loyalty' | 'transactions' | 'referral' | 'special';
@@ -320,8 +321,9 @@ export class RewardService {
       [userId]
     );
 
-    return result.rows.map(row => ({
+    return result.rows.map((row): Achievement => ({
       id: row.id,
+      code: row.achievement_code, // Required by Achievement interface
       achievementCode: row.achievement_code,
       achievementName: row.achievement_name,
       description: row.description,

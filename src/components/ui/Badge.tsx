@@ -13,7 +13,7 @@ import {
   Platform,
 } from 'react-native';
 import { createBadgeStyles } from '../../design-system';
-import { useTheme } from '../../hooks/useTheme';
+import { useTenantTheme } from '../../context/TenantThemeContext';
 
 interface BadgeProps {
   variant?: 'default' | 'primary' | 'success' | 'warning' | 'error' | 'info';
@@ -44,13 +44,13 @@ export const Badge: React.FC<BadgeProps> = ({
   status,
   kycLevel,
 }) => {
-  const theme = useTheme();
-  const badgeStyles = createBadgeStyles(theme, {
-    variant,
-    size,
+  const { theme } = useTenantTheme() as any;
+  const badgeStyles = createBadgeStyles(theme as any, {
+    variant: variant as any,
+    size: size as any,
     rounded,
     dot,
-  });
+  } as any);
 
   // Handle count display
   const displayCount = count && count > maxCount ? `${maxCount}+` : count;
@@ -117,15 +117,15 @@ export const Badge: React.FC<BadgeProps> = ({
   }
 
   const actualVariant = status ? getStatusVariant() : variant;
-  const styles = createBadgeStyles(theme, {
-    variant: actualVariant,
-    size,
+  const badgeStylesFinal = createBadgeStyles(theme as any, {
+    variant: actualVariant as any,
+    size: size as any,
     rounded,
-  });
+  } as any);
 
   return (
-    <View style={[styles.container, badgeStyles.container, style]}>
-      <Text style={[styles.text, badgeStyles.text, textStyle]}>
+    <View style={[badgeStylesFinal.container, badgeStyles.container, style]}>
+      <Text style={[badgeStylesFinal.text, badgeStyles.text, textStyle]}>
         {status ? status.toUpperCase() : displayCount || children}
       </Text>
     </View>

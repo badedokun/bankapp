@@ -12,12 +12,12 @@ import { ModernNotificationProvider } from './src/services/ModernNotificationSer
 import LoadingScreen from './src/components/common/LoadingScreen';
 import WebNavigator from './src/navigation/WebNavigator';
 import APIService from './src/services/api';
-import DemoAuthManager from './src/utils/demoAuth';
-import DeploymentManager from './src/config/deployment';
+// import DemoAuthManager from './src/utils/demoAuth'; // Not used
+// import DeploymentManager from './src/config/deployment'; // Not used
 import './src/utils/authTestHelper'; // Import test helper for development
 
 const AppContent: React.FC = () => {
-  const { currentTenant, isLoading, error } = useTenant();
+  const { isLoading, error } = useTenant();
   const { theme } = useTenantTheme();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -50,7 +50,7 @@ const AppContent: React.FC = () => {
     window.addEventListener('storage', handleStorageChange);
 
     // Also listen for custom auth events
-    const handleAuthChange = (e: CustomEvent) => {
+    const handleAuthChange = (_e: CustomEvent) => {
       checkAuthStatus();
     };
 
@@ -88,15 +88,16 @@ const AppContent: React.FC = () => {
     setIsAuthenticated(true);
   }, []);
 
-  const handleLogout = useCallback(async () => {
-    try {
-      await APIService.logout();
-      await DemoAuthManager.clearDemoAuth();
-      setIsAuthenticated(false);
-    } catch (error) {
-      setIsAuthenticated(false);
-    }
-  }, []);
+  // Logout handler (currently unused but kept for future use)
+  // const handleLogout = useCallback(async () => {
+  //   try {
+  //     await APIService.logout();
+  //     await DemoAuthManager.clearDemoAuth();
+  //     setIsAuthenticated(false);
+  //   } catch (error) {
+  //     setIsAuthenticated(false);
+  //   }
+  // }, []);
 
   if (isLoading) {
     return <LoadingScreen />;

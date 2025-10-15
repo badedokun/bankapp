@@ -27,7 +27,8 @@ export const FlexibleSavingsScreen: React.FC<FlexibleSavingsScreenProps> = ({
   onBack,
   onSavingComplete,
 }) => {
-  const tenantTheme = useTenantTheme();
+  const { theme: tenantTheme } = useTenantTheme() as any;
+  const theme = tenantTheme; // For backward compatibility
   const { showAlert } = useBankingAlert();
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
@@ -111,7 +112,7 @@ export const FlexibleSavingsScreen: React.FC<FlexibleSavingsScreenProps> = ({
                 NDIC Insured
               </RNText>
               <RNText style={[styles.benefitDesc, { color: tenantTheme.colors.textSecondary }]}>
-                Your savings are protected up to {formatCurrency(500000, tenantTheme.currency, { locale: tenantTheme.locale })}
+                Your savings are protected up to {formatCurrency(500000)}
               </RNText>
             </View>
           </View>
@@ -132,7 +133,7 @@ export const FlexibleSavingsScreen: React.FC<FlexibleSavingsScreenProps> = ({
                 color: tenantTheme.colors.text,
                 borderColor: tenantTheme.colors.border,
               }]}
-              placeholder={`${formatCurrency(1000, tenantTheme.currency, { locale: tenantTheme.locale })} minimum`}
+              placeholder={`${formatCurrency(1000)} minimum`}
               placeholderTextColor={tenantTheme.colors.textSecondary}
               value={amount}
               onChangeText={setAmount}
@@ -140,12 +141,12 @@ export const FlexibleSavingsScreen: React.FC<FlexibleSavingsScreenProps> = ({
             />
           </View>
 
-          <View style={[styles.infoCard, { backgroundColor: tenantTheme.colors.surface }]}>
-            <RNText style={[styles.infoTitle, { color: tenantTheme.colors.info }]}>
+          <View style={[styles.infoCard, { backgroundColor: theme.colors.surface }]}>
+            <RNText style={[styles.infoTitle, { color: theme.colors.info }]}>
               💡 Did you know?
             </RNText>
-            <RNText style={[styles.infoText, { color: tenantTheme.colors.text }]}>
-              You can start saving with as little as {formatCurrency(1000, tenantTheme.currency, { locale: tenantTheme.locale })} and add more funds whenever you want!
+            <RNText style={[styles.infoText, { color: theme.colors.text }]}>
+              You can start saving with as little as {formatCurrency(1000)} and add more funds whenever you want!
             </RNText>
           </View>
 

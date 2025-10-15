@@ -703,7 +703,7 @@ Thank you for using ${tenantName}!
         : transaction.status.toLowerCase() === 'pending'
         ? [251, 191, 36] // Yellow
         : [239, 68, 68]; // Red
-      doc.setTextColor(...statusColor);
+      doc.setTextColor(statusColor[0], statusColor[1], statusColor[2]);
       doc.text(transaction.status.toUpperCase(), pageWidth / 2, yPos, { align: 'center' });
       doc.setTextColor(0, 0, 0); // Reset to black
       yPos += 10;

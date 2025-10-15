@@ -31,7 +31,7 @@ export const ModernScreenHeader: React.FC<ModernScreenHeaderProps> = ({
   backgroundColor,
   children,
 }) => {
-  const tenantTheme = useTenantTheme();
+  const tenantTheme = useTenantTheme() as any;
   const isDesktop = screenWidth > 600;
 
   const styles = StyleSheet.create({

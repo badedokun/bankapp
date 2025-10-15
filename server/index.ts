@@ -98,7 +98,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan('combined'));
 
 // Environment-based rate limiting configuration
-const isProduction = process.env.NODE_ENV === 'production';
+// const _isProduction = process.env.NODE_ENV === 'production'; // Not used
 const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
 
 // Rate limiting - Relaxed for development, strict for production
@@ -141,7 +141,7 @@ app.use('/mockups', express.static(path.join(__dirname, '../public/mockups')));
 app.use('/design-system', express.static(path.join(__dirname, '../public/design-system')));
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),

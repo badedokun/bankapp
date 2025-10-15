@@ -1,4 +1,5 @@
 import express from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { authenticateToken } from '../middleware/auth';
 import { validateTenantAccess } from '../middleware/tenant';
 import { query } from '../config/database';
@@ -10,9 +11,9 @@ const router = express.Router();
  * GET /api/transaction-limits
  * Get user's transaction limits and current spending
  */
-router.get('/', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
-  const userId = req.user.id;
-  const tenantId = req.user.tenantId;
+router.get('/', authenticateToken, validateTenantAccess, asyncHandler(async (req: Request, res: Response)=> {
+  const userId = req.user?.id;
+  const tenantId = req.user?.tenantId;
 
   // Get user's wallet with limits
   const walletResult = await query(`
@@ -86,12 +87,12 @@ router.get('/', authenticateToken, validateTenantAccess, asyncHandler(async (req
  * PUT /api/transaction-limits
  * Update user's transaction limits (admin only)
  */
-router.put('/', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
+router.put('/', authenticateToken, validateTenantAccess, asyncHandler(async (req: Request, res: Response)=> {
   const { userId, userEmail, dailyLimit, monthlyLimit } = req.body;
-  const tenantId = req.user.tenantId;
+  const tenantId = req.user?.tenantId;
   
   // Admin role check
-  if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
+  if (req.user?.role !== 'admin' && req.user?.role !== 'super_admin') {
     return res.status(403).json({
       success: false,
       error: 'Admin privileges required',
@@ -130,7 +131,7 @@ router.put('/', authenticateToken, validateTenantAccess, asyncHandler(async (req
   
   // Use current user if no target specified (self-update)
   if (!targetUserId) {
-    targetUserId = req.user.id;
+    targetUserId = req.user?.id;
   }
 
   // Update user limits in users table

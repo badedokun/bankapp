@@ -209,31 +209,20 @@ class APIService {
       const hostname = window.location.hostname;
       const subdomain = hostname.split('.')[0];
 
-      // Map subdomains to tenant names - no hardcoded defaults
-      const subdomainMap: Record<string, string> = {
-        'fmfb': 'fmfb',
-        'dev': 'development'
-      };
-
       // Check for localhost development - use environment variable
       if (subdomain === 'localhost' || hostname === 'localhost') {
         return process.env.REACT_APP_TENANT_CODE || 'platform';
       }
 
-      // Check for exact match first
-      if (subdomainMap[subdomain]) {
-        return subdomainMap[subdomain];
+      // For non-localhost, check if we have a cached lookup
+      const cached = this.tenantCache.get(subdomain);
+      if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
+        return cached.tenantId;
       }
 
-      // For nip.io and other deployment domains (e.g., fmfb-34-59-143-25.nip.io)
-      // Check if subdomain starts with a known tenant prefix
-      for (const [prefix, tenantId] of Object.entries(subdomainMap)) {
-        if (subdomain.startsWith(prefix + '-') || subdomain === prefix) {
-          return tenantId;
-        }
-      }
-
-      return 'platform';
+      // If no cache, we'll need to wait for initialization
+      // Return subdomain as temporary fallback (will be resolved to tenant ID by backend)
+      return subdomain;
     }
 
     // 4. Check for environment variable (React Native and fallback)
@@ -277,6 +266,50 @@ class APIService {
     }
 
     return null;
+  }
+
+  /**
+   * Public request method for external use
+   */
+  async request<T>(
+    endpoint: string,
+    options?: RequestInit
+  ): Promise<APIResponse<T>> {
+    return this.makeRequest<T>(endpoint, options);
+  }
+
+  /**
+   * HTTP GET request
+   */
+  async get<T>(endpoint: string): Promise<APIResponse<T>> {
+    return this.makeRequest<T>(endpoint, { method: 'GET' });
+  }
+
+  /**
+   * HTTP POST request
+   */
+  async post<T>(endpoint: string, data?: any): Promise<APIResponse<T>> {
+    return this.makeRequest<T>(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * HTTP PUT request
+   */
+  async put<T>(endpoint: string, data?: any): Promise<APIResponse<T>> {
+    return this.makeRequest<T>(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * HTTP DELETE request
+   */
+  async delete<T>(endpoint: string): Promise<APIResponse<T>> {
+    return this.makeRequest<T>(endpoint, { method: 'DELETE' });
   }
 
   /**
@@ -640,7 +673,7 @@ class APIService {
   }
 
   /**
-   * Get transfer details by ID or reference number
+   * Get transfer details by ID
    */
   async getTransferDetails(transactionId: string): Promise<any> {
     const response = await this.makeRequest<any>(`transfers/${transactionId}`);
@@ -650,45 +683,6 @@ class APIService {
     }
 
     throw new Error(response.error || 'Failed to fetch transfer details');
-  }
-
-  /**
-   * Get transfer by reference number (for receipt generation)
-   * Returns transaction data formatted for PDF receipt
-   */
-  async getTransferByReference(reference: string): Promise<{
-    id: string;
-    reference: string;
-    type: 'debit' | 'credit';
-    status: string;
-    amount: number;
-    currency: string;
-    fees: number;
-    totalAmount: number;
-    sender: {
-      name: string;
-      accountNumber: string;
-      bankName: string;
-      bankCode: string;
-    };
-    recipient: {
-      name: string;
-      accountNumber: string;
-      bankName: string;
-      bankCode: string;
-    };
-    description: string;
-    transactionHash: string;
-    initiatedAt: string;
-    completedAt?: string;
-  }> {
-    const response = await this.makeRequest<any>(`transfers/${reference}`);
-
-    if (response.success && response.data) {
-      return response.data;
-    }
-
-    throw new Error(response.error || 'Transfer not found');
   }
 
   /**
@@ -1351,9 +1345,12 @@ class APIService {
       hasPermission: boolean;
       permissionLevel: string;
       permissionCode: string;
-    }>('rbac/check-permission', 'POST', {
-      permissionCode,
-      resourceId
+    }>('rbac/check-permission', {
+      method: 'POST',
+      body: JSON.stringify({
+        permissionCode,
+        resourceId
+      })
     });
 
     if (response.success && response.data) {
@@ -1436,9 +1433,12 @@ class APIService {
     roleCode: string;
     permissionsUpdated: number;
   }> {
-    const response = await this.makeRequest<any>(`rbac/admin/role-permissions/${roleCode}`, 'PUT', {
-      permissions,
-      level
+    const response = await this.makeRequest<any>(`rbac/admin/role-permissions/${roleCode}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        permissions,
+        level
+      })
     });
 
     if (response.success && response.data) {
@@ -1470,12 +1470,15 @@ class APIService {
    * Assign role to user
    */
   async assignUserRole(userId: string, roleCode: string, reason?: string, effectiveFrom?: string, effectiveTo?: string): Promise<void> {
-    const response = await this.makeRequest<any>('rbac/assign-role', 'POST', {
-      userId,
-      roleCode,
-      reason,
-      effectiveFrom,
-      effectiveTo
+    const response = await this.makeRequest<any>('rbac/assign-role', {
+      method: 'POST',
+      body: JSON.stringify({
+        userId,
+        roleCode,
+        reason,
+        effectiveFrom,
+        effectiveTo
+      })
     });
 
     if (!response.success) {
@@ -1524,9 +1527,12 @@ class APIService {
    * Remove role from user
    */
   async removeUserRole(userId: string, roleCode: string): Promise<void> {
-    const response = await this.makeRequest<any>('rbac/remove-role', 'DELETE', {
-      userId,
-      roleCode
+    const response = await this.makeRequest<any>('rbac/remove-role', {
+      method: 'DELETE',
+      body: JSON.stringify({
+        userId,
+        roleCode
+      })
     });
 
     if (!response.success) {
@@ -1547,7 +1553,10 @@ class APIService {
     role: any;
     permissionsAssigned: number;
   }> {
-    const response = await this.makeRequest<any>('rbac/admin/create-role', 'POST', role);
+    const response = await this.makeRequest<any>('rbac/admin/create-role', {
+      method: 'POST',
+      body: JSON.stringify(role)
+    });
 
     if (response.success && response.data) {
       return response.data;
@@ -1621,10 +1630,6 @@ class APIService {
     throw new Error(response.error || 'Failed to get enhanced dashboard data');
   }
 
-  // ============================================================================
-  // Dispute Management
-  // ============================================================================
-
   /**
    * Submit a transaction dispute
    */
@@ -1637,70 +1642,81 @@ class APIService {
     disputeCategory?: string;
     additionalNotes?: string;
   }): Promise<{
-    success: boolean;
     dispute: {
       id: string;
       disputeNumber: string;
+      transactionReference: string;
       status: string;
+      priority: string;
       createdAt: string;
     };
-    message: string;
   }> {
-    const response = await this.makeRequest<any>('disputes', {
+    const response = await this.makeRequest<any>('transactions/disputes', {
       method: 'POST',
-      body: JSON.stringify(disputeData),
+      body: JSON.stringify(disputeData)
     });
 
-    if (response.success) {
-      return response;
+    if (response.success && response.data) {
+      return response.data;
     }
+
     throw new Error(response.error || 'Failed to submit dispute');
   }
 
   /**
-   * Get user's disputes
+   * Get RBAC stats
    */
-  async getDisputes(params?: {
-    status?: string;
-    limit?: number;
-    offset?: number;
-  }): Promise<{
-    disputes: any[];
-    pagination: {
-      total: number;
-      limit: number;
-      offset: number;
-      hasMore: boolean;
-    };
-  }> {
-    const queryParams = new URLSearchParams();
-    if (params?.status) queryParams.append('status', params.status);
-    if (params?.limit) queryParams.append('limit', params.limit.toString());
-    if (params?.offset) queryParams.append('offset', params.offset.toString());
+  async getRBACStats(): Promise<any> {
+    const response = await this.makeRequest<any>('admin/rbac/stats', {
+      method: 'GET',
+    });
 
-    const endpoint = `disputes${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
-    const response = await this.makeRequest<any>(endpoint);
-
-    if (response.success || response.disputes) {
-      return response;
+    if (response.success && response.data) {
+      return response.data;
     }
-    throw new Error(response.error || 'Failed to fetch disputes');
+
+    throw new Error(response.error || 'Failed to get RBAC stats');
   }
 
   /**
-   * Get dispute details
+   * Get loan eligibility
    */
-  async getDisputeDetails(disputeId: string): Promise<{
-    dispute: any;
-    activityLog: any[];
-  }> {
-    const response = await this.makeRequest<any>(`disputes/${disputeId}`);
+  async getLoanEligibility(): Promise<any> {
+    const response = await this.makeRequest<any>('loans/eligibility', {
+      method: 'GET',
+    });
 
-    if (response.success || response.dispute) {
-      return response;
+    if (response.success && response.data) {
+      return response.data;
     }
-    throw new Error(response.error || 'Failed to fetch dispute details');
+
+    throw new Error(response.error || 'Failed to get loan eligibility');
+  }
+
+  /**
+   * Get savings summary
+   */
+  async getSavingsSummary(): Promise<any> {
+    const response = await this.makeRequest<any>('savings/summary', {
+      method: 'GET',
+    });
+
+    if (response.success && response.data) {
+      return response.data;
+    }
+
+    throw new Error(response.error || 'Failed to get savings summary');
   }
 }
+
+// Named exports for compatibility
+export const APIClient = APIService;
+export const apiRequest = async <T = any>(
+  endpoint: string,
+  options?: RequestInit
+): Promise<APIResponse<T>> => {
+  const api = APIService.getInstance();
+  return api.request<T>(endpoint, options);
+};
 
 export default APIService.getInstance();

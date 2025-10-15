@@ -3,12 +3,12 @@
  * Processes scheduled and recurring transfers
  */
 
-import pool from '../../config/database';
+import { pool } from '../../config/database';
 import { InternalTransferService } from './InternalTransferService';
 
 export class TransferSchedulerService {
     private static instance: TransferSchedulerService;
-    private intervalId: NodeJS.Timeout | null = null;
+    private intervalId: ReturnType<typeof setInterval> | null = null;
     private isRunning = false;
 
     private constructor() {}
@@ -121,7 +121,7 @@ export class TransferSchedulerService {
                 pin: '' // PIN was already validated when scheduling
             };
 
-            const result = await transferService.processTransfer(transferRequest, scheduledTransfer.user_id);
+            const result = await transferService.processTransfer(transferRequest as any);
 
             // Update scheduled transfer status
             if (result.success) {
@@ -226,7 +226,7 @@ export class TransferSchedulerService {
                 pin: '' // PIN was already validated when setting up recurring
             };
 
-            const result = await transferService.processTransfer(transferRequest, recurringTransfer.user_id);
+            const result = await transferService.processTransfer(transferRequest as any);
 
             if (result.success) {
                 // Calculate next execution date

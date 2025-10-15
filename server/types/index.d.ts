@@ -8,6 +8,7 @@ declare global {
       tenant?: TenantInfo;
       tenantContext?: string;
       sessionId?: string;
+      token?: any;
     }
   }
 }

@@ -26,7 +26,7 @@ interface CustomError extends Error {
  * Not Found middleware
  * Handles 404 errors for undefined routes
  */
-function notFound(req: Request, res: Response, next: NextFunction): void {
+function notFound(req: Request, _res: Response, next: NextFunction): void {
   const error = new Error(`Route not found: ${req.originalUrl}`) as any;
   error.status = 404;
   error.code = 'ROUTE_NOT_FOUND';
@@ -37,7 +37,7 @@ function notFound(req: Request, res: Response, next: NextFunction): void {
  * Global error handler middleware
  * Handles all errors and returns standardized error responses
  */
-function errorHandler(err: CustomError, req: CustomRequest, res: Response, next: NextFunction): void {
+function errorHandler(err: CustomError, req: CustomRequest, res: Response, _next: NextFunction): void {
   let error = { ...err };
   error.message = err.message;
 

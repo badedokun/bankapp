@@ -38,10 +38,10 @@ export interface SmartSuggestion {
 }
 
 class ModernDashboardService {
-  private apiClient: APIClient;
+  private apiClient: any;
 
   constructor() {
-    this.apiClient = new APIClient();
+    this.apiClient = APIClient.getInstance();
   }
 
   /**

@@ -51,7 +51,7 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
   onBack,
   onSelectTransfer,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   const notify = useNotification();
   const [isLoading, setIsLoading] = useState(false);
   const [userPermissions, setUserPermissions] = useState<any>({});
@@ -152,7 +152,7 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
   };
 
   const handleTransferSelect = async (transferType: string) => {
-    triggerHaptic('impactMedium');
+    triggerHaptic('medium');
     setSelectedOption(transferType);
     setIsLoading(true);
 
@@ -161,7 +161,7 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
       const option = transferOptions.find(opt => opt.id === transferType);
 
       if (option?.requiresVerification) {
-        triggerHaptic('impactLight');
+        triggerHaptic('light');
         notify.info(
           'International transfers require additional verification',
           'Verification Required'
@@ -195,7 +195,7 @@ const ModernTransferMenuScreen: React.FC<ModernTransferMenuScreenProps> = ({
       }, 500);
     } catch (error) {
       setIsLoading(false);
-      triggerHaptic('notificationError');
+      triggerHaptic('heavy');
       notify.error('Unable to proceed with transfer', 'Error');
     }
   };

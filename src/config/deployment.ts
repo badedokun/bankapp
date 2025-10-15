@@ -12,31 +12,41 @@ export interface DeploymentConfig {
 }
 
 // Different deployment configurations
+// Use environment variables for tenant-specific deployments
 const deploymentConfigs: Record<string, DeploymentConfig> = {
-  // FMFB Production Deployment
-  fmfb_production: {
-    defaultTenant: 'fmfb',
+  // Single-tenant production deployment (generic)
+  single_tenant_production: {
+    defaultTenant: process.env.DEFAULT_TENANT || 'default',
     allowTenantSwitching: false,
-    customDomain: 'fmfb.orokii.com',
-    whitelistedTenants: ['fmfb'],
+    customDomain: process.env.CUSTOM_DOMAIN || null,
+    whitelistedTenants: process.env.WHITELISTED_TENANTS?.split(',') || [process.env.DEFAULT_TENANT || 'default'],
+    environment: 'production'
+  },
+
+  // FMFB-specific production deployment (backwards compatibility)
+  fmfb_production: {
+    defaultTenant: process.env.DEFAULT_TENANT || 'fmfb',
+    allowTenantSwitching: false,
+    customDomain: process.env.CUSTOM_DOMAIN || null,
+    whitelistedTenants: process.env.WHITELISTED_TENANTS?.split(',') || ['fmfb'],
     environment: 'production'
   },
 
   // Multi-tenant SaaS Production
   saas_production: {
-    defaultTenant: 'default',
+    defaultTenant: process.env.DEFAULT_TENANT || 'default',
     allowTenantSwitching: true,
-    customDomain: 'orokii.com',
-    whitelistedTenants: ['fmfb', 'bank-a', 'bank-b', 'bank-c', 'default'],
+    customDomain: process.env.CUSTOM_DOMAIN || null,
+    whitelistedTenants: process.env.WHITELISTED_TENANTS?.split(',') || [],
     environment: 'production'
   },
 
   // Development Environment
   development: {
-    defaultTenant: 'fmfb',
+    defaultTenant: process.env.DEFAULT_TENANT || 'fmfb',
     allowTenantSwitching: true,
     customDomain: null,
-    whitelistedTenants: ['fmfb', 'bank-a', 'bank-b', 'bank-c', 'default'],
+    whitelistedTenants: process.env.WHITELISTED_TENANTS?.split(',') || [],
     environment: 'development'
   }
 };
@@ -63,23 +73,19 @@ class DeploymentManager {
     const nodeEnv = process.env.NODE_ENV || 'development';
     const deploymentType = process.env.DEPLOYMENT_TYPE || 'development';
 
-    // Check domain-based detection
+    // Check domain-based detection if CUSTOM_DOMAIN is configured
     if (typeof window !== 'undefined' && window.location && window.location.hostname) {
       const hostname = window.location.hostname;
-      
-      // FMFB subdomain detection
-      if (hostname === 'fmfb.orokii.com' || hostname.includes('fmfb.orokii')) {
-        return deploymentConfigs.fmfb_production;
-      }
-      
-      // Main domain detection
-      if (hostname === 'orokii.com' || hostname.includes('orokii.com')) {
-        return deploymentConfigs.saas_production;
+      const customDomain = process.env.CUSTOM_DOMAIN;
+
+      // If custom domain matches, use single tenant production config
+      if (customDomain && hostname.includes(customDomain)) {
+        return deploymentConfigs.single_tenant_production;
       }
 
-      // Legacy/alternative domain detection
-      if (hostname.includes('firstmidas') || hostname.includes('fmfb')) {
-        return deploymentConfigs.fmfb_production;
+      // If hostname indicates production (not localhost/dev), use SaaS production
+      if (!hostname.includes('localhost') && !hostname.includes('127.0.0.1') && !hostname.includes('dev')) {
+        return deploymentConfigs.saas_production;
       }
     }
 
@@ -112,27 +118,27 @@ class DeploymentManager {
    * Check if tenant is allowed in this deployment
    */
   isTenantAllowed(tenantId: string): boolean {
+    // If no whitelist is configured, allow all tenants
+    if (!this.config.whitelistedTenants || this.config.whitelistedTenants.length === 0) {
+      return true;
+    }
     return this.config.whitelistedTenants.includes(tenantId);
   }
 
   /**
    * Get deployment-specific branding
+   * Falls back to generic branding for multi-tenant deployments
    */
   getDeploymentBranding() {
-    if (this.config.defaultTenant === 'fmfb') {
-      return {
-        showTenantSwitching: this.config.allowTenantSwitching,
-        showMultiTenantFeatures: this.config.allowTenantSwitching,
-        loginPageTitle: 'Firstmidas Microfinance Bank',
-        appTitle: 'FMFB Banking Platform'
-      };
-    }
+    // Use environment variables for deployment-specific branding
+    const loginPageTitle = process.env.APP_LOGIN_TITLE || 'Banking Platform';
+    const appTitle = process.env.APP_TITLE || 'Multi-Tenant Banking';
 
     return {
-      showTenantSwitching: true,
-      showMultiTenantFeatures: true,
-      loginPageTitle: 'Banking Platform',
-      appTitle: 'Multi-Tenant Banking'
+      showTenantSwitching: this.config.allowTenantSwitching,
+      showMultiTenantFeatures: this.config.allowTenantSwitching,
+      loginPageTitle,
+      appTitle
     };
   }
 }

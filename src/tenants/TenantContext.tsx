@@ -163,4 +163,7 @@ export const useTenantBranding = () => {
   return currentTenant?.branding || null;
 };
 
+// Alias for backward compatibility
+export const useTenantContext = useTenant;
+
 export default TenantContext;

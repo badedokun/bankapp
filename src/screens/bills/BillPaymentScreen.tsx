@@ -29,9 +29,7 @@ export const BillPaymentScreen: React.FC<BillPaymentScreenProps> = ({
   onBack,
   onPaymentComplete,
 }) => {
-  const theme = useTenantTheme();
-  const tenantTheme = useTenantTheme();
-  const styles = getStyles(tenantTheme);
+  const { theme } = useTenantTheme() as any;
   const { showAlert } = useBankingAlert();
   const [selectedCategory, setSelectedCategory] = useState('utilities');
   const [loading, setLoading] = useState(false);
@@ -139,7 +137,7 @@ export const BillPaymentScreen: React.FC<BillPaymentScreenProps> = ({
                 color: theme.colors.text,
                 borderColor: theme.colors.border,
               }]}
-              placeholder={`${getCurrencySymbol(tenantTheme.currency)}0.00`}
+              placeholder={`${getCurrencySymbol('NGN')}0.00`}
               placeholderTextColor={theme.colors.textSecondary}
               keyboardType="numeric"
             />
@@ -167,7 +165,7 @@ export const BillPaymentScreen: React.FC<BillPaymentScreenProps> = ({
               </Text>
             </View>
             <Text style={[styles.billAmount, { color: theme.colors.primary }]}>
-              {formatCurrency(15000, tenantTheme.currency, { locale: tenantTheme.locale })}
+              {formatCurrency(15000)}
             </Text>
           </View>
         </View>
@@ -182,7 +180,7 @@ export const BillPaymentScreen: React.FC<BillPaymentScreenProps> = ({
   );
 };
 
-const getStyles = (theme: any) => StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
@@ -204,12 +202,12 @@ const getStyles = (theme: any) => StyleSheet.create({
   },
   backArrow: {
     fontSize: 24,
-    color: theme.colors.textInverse,
+    color: '#FFFFFF',
     marginRight: 8,
   },
   backText: {
     fontSize: 16,
-    color: theme.colors.textInverse,
+    color: '#FFFFFF',
     fontWeight: '500',
   },
   title: {

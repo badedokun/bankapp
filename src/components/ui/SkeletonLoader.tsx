@@ -51,7 +51,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   variant = 'rectangle',
   animated = true,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   const shimmerValue = useRef(new Animated.Value(0)).current;
 
   // Shimmer animation
@@ -98,15 +98,15 @@ export const Skeleton: React.FC<SkeletonProps> = ({
         };
       case 'text':
         return {
-          width,
-          height: typeof height === 'number' ? height : 16,
+          width: width as any,
+          height: (typeof height === 'number' ? height : 16) as any,
           borderRadius: 4,
         };
       case 'rectangle':
       default:
         return {
-          width,
-          height,
+          width: width as any,
+          height: height as any,
           borderRadius,
         };
     }
@@ -143,7 +143,7 @@ export const SkeletonCard: React.FC<SkeletonCardProps> = ({
   style,
   showAvatar = false,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
 
   return (
     <View
@@ -190,7 +190,7 @@ export const SkeletonCard: React.FC<SkeletonCardProps> = ({
 // ============================================================================
 
 export const SkeletonTransaction: React.FC = () => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
 
   return (
     <View
@@ -239,7 +239,7 @@ export const SkeletonTransactionList: React.FC<SkeletonTransactionProps> = ({
 // ============================================================================
 
 export const SkeletonDashboard: React.FC<{ style?: ViewStyle }> = ({ style }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
 
   return (
     <View style={[{ padding: 20 }, style]}>
@@ -307,7 +307,7 @@ export const SkeletonForm: React.FC<{ fields?: number; style?: ViewStyle }> = ({
   fields = 4,
   style,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
 
   return (
     <View style={[{ padding: 20 }, style]}>
@@ -340,7 +340,7 @@ export const SkeletonForm: React.FC<{ fields?: number; style?: ViewStyle }> = ({
 // ============================================================================
 
 export const SkeletonProfile: React.FC<{ style?: ViewStyle }> = ({ style }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
 
   return (
     <View style={[{ padding: 20, alignItems: 'center' }, style]}>
@@ -379,7 +379,7 @@ export const SkeletonProfile: React.FC<{ style?: ViewStyle }> = ({ style }) => {
 // ============================================================================
 
 export const SkeletonChart: React.FC<{ style?: ViewStyle }> = ({ style }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
 
   return (
     <View
@@ -426,10 +426,10 @@ export const SkeletonChart: React.FC<{ style?: ViewStyle }> = ({ style }) => {
 };
 
 // ============================================================================
-// Default Export
+// Default Export & Named Export for SkeletonLoader
 // ============================================================================
 
-export default {
+export const SkeletonLoader = {
   Skeleton,
   SkeletonCard,
   SkeletonTransaction,
@@ -439,3 +439,5 @@ export default {
   SkeletonProfile,
   SkeletonChart,
 };
+
+export default SkeletonLoader;

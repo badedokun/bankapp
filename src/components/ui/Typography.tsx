@@ -104,7 +104,7 @@ const BaseTypography: React.FC<BaseTypographyProps & { baseStyle: TextStyle }> =
   testID,
   accessibilityLabel,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
 
   const textStyle: TextStyle = {
     ...baseStyle,
@@ -180,7 +180,7 @@ export const TitleSmall: React.FC<BaseTypographyProps> = (props) => (
 // ============================================================================
 
 export const BodyLarge: React.FC<BaseTypographyProps> = (props) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   return (
     <BaseTypography
       baseStyle={{
@@ -193,7 +193,7 @@ export const BodyLarge: React.FC<BaseTypographyProps> = (props) => {
 };
 
 export const BodyMedium: React.FC<BaseTypographyProps> = (props) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   return (
     <BaseTypography
       baseStyle={{
@@ -206,7 +206,7 @@ export const BodyMedium: React.FC<BaseTypographyProps> = (props) => {
 };
 
 export const BodySmall: React.FC<BaseTypographyProps> = (props) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   return (
     <BaseTypography
       baseStyle={{
@@ -223,7 +223,7 @@ export const BodySmall: React.FC<BaseTypographyProps> = (props) => {
 // ============================================================================
 
 export const LabelLarge: React.FC<BaseTypographyProps> = (props) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   return (
     <BaseTypography
       baseStyle={{
@@ -236,7 +236,7 @@ export const LabelLarge: React.FC<BaseTypographyProps> = (props) => {
 };
 
 export const LabelMedium: React.FC<BaseTypographyProps> = (props) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   return (
     <BaseTypography
       baseStyle={{
@@ -249,7 +249,7 @@ export const LabelMedium: React.FC<BaseTypographyProps> = (props) => {
 };
 
 export const LabelSmall: React.FC<BaseTypographyProps> = (props) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   return (
     <BaseTypography
       baseStyle={{
@@ -277,7 +277,7 @@ export const Amount: React.FC<AmountProps> = ({
   style,
   ...props
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
 
   // Format the amount
   const formatAmount = (val: number | string): string => {
@@ -345,7 +345,7 @@ export const Amount: React.FC<AmountProps> = ({
  * Caption - Helper text, timestamps, metadata
  */
 export const Caption: React.FC<BaseTypographyProps> = (props) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   return (
     <BaseTypography
       baseStyle={{
@@ -363,7 +363,7 @@ export const Caption: React.FC<BaseTypographyProps> = (props) => {
  * Overline - Small uppercase labels
  */
 export const Overline: React.FC<BaseTypographyProps> = (props) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   return (
     <BaseTypography
       baseStyle={{
@@ -383,7 +383,7 @@ export const Overline: React.FC<BaseTypographyProps> = (props) => {
  * Link - Clickable text
  */
 export const Link: React.FC<BaseTypographyProps> = (props) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   return (
     <BaseTypography
       baseStyle={{
@@ -402,7 +402,7 @@ export const Link: React.FC<BaseTypographyProps> = (props) => {
  * ErrorText - Error messages
  */
 export const ErrorText: React.FC<BaseTypographyProps> = (props) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   return (
     <BaseTypography
       baseStyle={{
@@ -420,7 +420,7 @@ export const ErrorText: React.FC<BaseTypographyProps> = (props) => {
  * SuccessText - Success messages
  */
 export const SuccessText: React.FC<BaseTypographyProps> = (props) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   return (
     <BaseTypography
       baseStyle={{

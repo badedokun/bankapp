@@ -20,7 +20,6 @@ import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
 import { useTenantTheme } from '../../context/TenantThemeContext';
 import Typography from '../ui/Typography';
 import { TierProgressIndicator } from '../rewards';
-import ReusableHeader from '../ui/ReusableHeader';
 import APIService from '../../services/api';
 import ENV_CONFIG from '../../config/environment';
 
@@ -48,8 +47,8 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
   onSettings,
   theme,
 }) => {
-  const { theme: tenantTheme } = useTenantTheme();
-  const styles = getStyles(tenantTheme);
+  const { theme: tenantTheme, currentTenant } = useTenantTheme() as any;
+  const styles = useMemo(() => getStyles(tenantTheme), [tenantTheme]);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [aiInput, setAIInput] = useState('');
@@ -79,6 +78,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
 
   // Debug effect to log showProfileMenu state changes
   useEffect(() => {
+    console.log('🟢 showProfileMenu state changed to:', showProfileMenu);
   }, [showProfileMenu]);
 
   // Update screen width on resize
@@ -119,6 +119,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
       const isClickOnButton = profileButtonRef.current && (profileButtonRef.current as any).contains?.(target);
 
       if (!isClickInsideMenu && !isClickOnButton) {
+        console.log('🔴 Click outside detected, closing menu');
         setShowProfileMenu(false);
       }
     };
@@ -341,7 +342,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                 {theme?.brandLogo ? (
                   <Image
                     source={{ uri: theme.brandLogo }}
-                    style={styles.logoImage}
+                    style={styles.logoImage as any}
                     resizeMode="contain"
                   />
                 ) : (
@@ -355,7 +356,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                       },
                     }),
                   }]}>
-                    <Text style={styles.logoText}>{theme?.brandCode || tenantTheme?.branding?.code || '🏦'}</Text>
+                    <Text style={styles.logoText}>{theme?.brandCode || currentTenant?.branding?.code || '🏦'}</Text>
                   </View>
                 )}
                 {screenWidth >= 540 && (
@@ -370,7 +371,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                         color: primaryColor,
                       },
                     }),
-                  }]} numberOfLines={1} ellipsizeMode="tail">{theme?.brandName || tenantTheme?.branding?.appTitle || ''}</Text>
+                  }]} numberOfLines={1} ellipsizeMode="tail">{theme?.brandName || currentTenant?.branding?.appTitle || ''}</Text>
                 )}
               </View>
 
@@ -414,7 +415,9 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                     } catch (e) {
                       // Haptics not available on web
                     }
+                    console.log('🔴 PROFILE CLICKED - Current state:', showProfileMenu);
                     setShowProfileMenu(!showProfileMenu);
+                    console.log('🔴 PROFILE CLICKED - New state will be:', !showProfileMenu);
                   }}
                 >
                   <Text style={styles.profileIcon}>👤</Text>
@@ -429,6 +432,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                     <TouchableOpacity
                       style={styles.menuItem}
                       onPress={() => {
+                        console.log('Profile menu item clicked');
                         setShowProfileMenu(false);
                       }}
                     >
@@ -439,6 +443,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                     <TouchableOpacity
                       style={styles.menuItem}
                       onPress={() => {
+                        console.log('Settings menu item clicked');
                         setShowProfileMenu(false);
                         onSettings?.();
                       }}
@@ -450,6 +455,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                     <TouchableOpacity
                       style={styles.menuItem}
                       onPress={() => {
+                        console.log('Logout menu item clicked');
                         setShowProfileMenu(false);
                         onLogout?.();
                       }}
@@ -527,7 +533,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
               <Typography.LabelMedium>Total Balance</Typography.LabelMedium>
               <Typography.Amount
                 value={dashboardData.totalBalance || 2450000}
-                currency={tenantTheme.currency}
+                currency={'NGN'}
                 variant="small"
                 style={{ marginVertical: 4 }}
               />
@@ -543,7 +549,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
               <Typography.LabelMedium>Available Balance</Typography.LabelMedium>
               <Typography.Amount
                 value={1850000}
-                currency={tenantTheme.currency}
+                currency={'NGN'}
                 variant="small"
                 style={{ marginVertical: 4 }}
               />
@@ -947,7 +953,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                       const date = new Date(dateValue);
                       return isNaN(date.getTime())
                         ? 'Date unavailable'
-                        : date.toLocaleString(tenantTheme.locale || 'en-US', {
+                        : date.toLocaleString('en-NG', {
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric',
@@ -961,7 +967,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                   styles.activityAmount,
                   transaction.type === 'deposit' ? styles.creditAmount : styles.debitAmount
                 ]}>
-                  {transaction.type === 'deposit' ? '+' : '-'}{formatCurrency(Number(transaction.amount), tenantTheme.currency, { locale: tenantTheme.locale })}
+                  {transaction.type === 'deposit' ? '+' : '-'}{formatCurrency(Number(transaction.amount), 'NGN', { locale: 'en-NG' })}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -1524,7 +1530,7 @@ const getStyles = (theme: any) => StyleSheet.create({
     justifyContent: 'space-between',
   },
   quickActionCard: {
-    width: screenWidth > 768 ? 'calc(33.33% - 11px)' : screenWidth > 480 ? 'calc(50% - 8px)' : '100%',
+    width: (screenWidth > 768 ? 'calc(33.33% - 11px)' : screenWidth > 480 ? 'calc(50% - 8px)' : '100%') as any,
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 16,
     padding: screenWidth > 768 ? 24 : 16,

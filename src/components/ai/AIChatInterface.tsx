@@ -78,7 +78,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const { currentTenant } = useTenant();
-  const { theme: tenantTheme } = useTenantTheme();
+  const { theme: tenantTheme } = useTenantTheme() as any;
 
   useEffect(() => {
     if (isVisible) {
@@ -100,7 +100,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
     scrollToBottom();
   }, [messages]);
 
-  const showNotificationRef = useRef<(message: string, type?: 'info' | 'error' | 'success') => void>();
+  const showNotificationRef = useRef<((message: string, type?: 'info' | 'error' | 'success') => void) | undefined>(undefined);
   
   showNotificationRef.current = (message: string, type: 'info' | 'error' | 'success' = 'info') => {
     setNotification({ message, type });
@@ -110,6 +110,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
 
   // Initialize Web Speech API
   useEffect(() => {
+    console.log('Initializing speech recognition', { 
       isWeb: Platform.OS === 'web', 
       hasWindow: typeof window !== 'undefined',
       hasSpeechRecognition: typeof window !== 'undefined' && !!(window.SpeechRecognition || window.webkitSpeechRecognition)
@@ -117,6 +118,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
     
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      console.log('SpeechRecognition API available:', !!SpeechRecognition);
       
       if (SpeechRecognition) {
         try {
@@ -126,6 +128,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
           recognition.lang = 'en-US';
           
           recognition.onresult = (event: any) => {
+            console.log('Speech recognition result:', event.results[0][0].transcript);
             const transcript = event.results[0][0].transcript;
             handleSendMessage(transcript);
             setIsRecording(false);
@@ -138,17 +141,21 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
           };
           
           recognition.onstart = () => {
+            console.log('Speech recognition started');
           };
           
           recognition.onend = () => {
+            console.log('Speech recognition ended');
             setIsRecording(false);
           };
           
           setSpeechRecognition(recognition);
+          console.log('Speech recognition initialized successfully');
         } catch (error) {
           console.error('Failed to initialize speech recognition:', error);
         }
       } else {
+        console.log('Speech recognition not supported in this browser');
       }
     }
   }, []);
@@ -307,6 +314,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
           }
         }
       } catch (error) {
+        console.log('Could not fetch user transaction data:', error);
         // Continue without transaction data
       }
 
@@ -416,7 +424,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
       if (data.success) {
         const { balance, currency, accountNumber, owner } = data.data;
         return {
-          message: `Your current account balance is ${formatCurrency(balance, currency || tenantTheme.currency, { locale: tenantTheme.locale })}. Account: ${accountNumber}. Account holder: ${owner.name}. You have sufficient funds for transactions.`,
+          message: `Your current account balance is ${formatCurrency(balance, currency || 'NGN', { locale: 'en-NG' })}. Account: ${accountNumber}. Account holder: ${owner.name}. You have sufficient funds for transactions.`,
           intent: 'balance_inquiry',
           actions: ['Send Money', 'View Transactions', 'Transfer Funds']
         };
@@ -431,14 +439,19 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
 
   const fetchTransactions = async () => {
     try {
+      console.log('🔍 Starting fetchTransactions using APIService.getTransferHistory...');
       
       // Use the same working API call that Dashboard uses successfully
       const data = await APIService.getTransferHistory({ page: 1, limit: 5 });
+      console.log('📊 API Response Data:', JSON.stringify(data, null, 2));
       
       if (data.transactions && data.transactions.length > 0) {
+        console.log('✅ Found transactions, processing...');
         const transactions = data.transactions;
+        console.log('📋 Processing', transactions.length, 'transactions');
         
         const transactionList = transactions.map((tx: any, index: number) => {
+          console.log(`🔄 Processing transaction ${index + 1}:`, tx);
           
           const amount = tx.amount ? Math.abs(tx.amount).toLocaleString() : '0';
           const date = tx.createdAt ? new Date(tx.createdAt).toLocaleDateString() : 'Unknown';
@@ -446,16 +459,19 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
           const direction = tx.direction === 'sent' ? 'to' : 'from';
           const recipient = tx.recipient?.accountName || 'Unknown';
           
-          const formatted = `${index + 1}) ${description} ${direction} ${recipient} - ${formatCurrency(parseFloat(amount.replace(/,/g, '')), tenantTheme.currency, { locale: tenantTheme.locale })} (${date})`;
+          const formatted = `${index + 1}) ${description} ${direction} ${recipient} - ${formatCurrency(parseFloat(amount.replace(/,/g, '')), 'NGN', { locale: 'en-NG' })} (${date})`;
+          console.log(`✅ Formatted transaction ${index + 1}:`, formatted);
           return formatted;
         }).join(', ');
 
+        console.log('🎯 Final transaction list:', transactionList);
         return {
           message: `Here are your recent transactions: ${transactionList}`,
           intent: 'transaction_history',
           actions: ['Download Statement', 'Filter Transactions', 'View Details']
         };
       } else {
+        console.log('⚠️ No transactions found');
         
         return {
           message: 'You don\'t have any recent transactions to display.',
@@ -534,7 +550,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
         }
         setTransferData(prev => prev ? { ...prev, recipientName: cleanInput, step: 'amount' } : null);
         return {
-          message: `Recipient: ${cleanInput}\n\nPlease enter the amount you want to send (minimum ${formatCurrency(100, tenantTheme.currency, { locale: tenantTheme.locale })}):`,
+          message: `Recipient: ${cleanInput}\n\nPlease enter the amount you want to send (minimum ${formatCurrency(100)}):`,
           intent: 'money_transfer_amount_step',
           actions: ['Cancel Transfer']
         };
@@ -543,14 +559,14 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
         const amount = parseFloat(cleanInput.replace(/[^\d.]/g, ''));
         if (isNaN(amount) || amount < 100) {
           return {
-            message: `Please enter a valid amount (minimum ${formatCurrency(100, tenantTheme.currency, { locale: tenantTheme.locale })}):`,
+            message: `Please enter a valid amount (minimum ${formatCurrency(100)}):`,
             intent: 'money_transfer_validation_error',
             actions: ['Cancel Transfer']
           };
         }
         setTransferData(prev => prev ? { ...prev, amount, step: 'pin' } : null);
         return {
-          message: `Amount: ${formatCurrency(amount, tenantTheme.currency, { locale: tenantTheme.locale })}\n\nPlease enter your 4-digit transaction PIN to authorize this transfer:`,
+          message: `Amount: ${formatCurrency(amount)}\n\nPlease enter your 4-digit transaction PIN to authorize this transfer:`,
           intent: 'money_transfer_pin_step',
           actions: ['Cancel Transfer']
         };
@@ -579,7 +595,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
           step: 'confirm'
         };
         return {
-          message: `Please confirm your transfer details:\n\n📋 Transfer Summary\n• Account: ${transferSummary.recipientAccountNumber}\n• Bank Code: ${transferSummary.recipientBankCode}\n• Recipient: ${transferSummary.recipientName}\n• Amount: ${formatCurrency(transferSummary.amount || 0, tenantTheme.currency, { locale: tenantTheme.locale })}\n• Description: ${transferSummary.description || 'None'}\n\nType "confirm" to proceed or "cancel" to abort:`,
+          message: `Please confirm your transfer details:\n\n📋 Transfer Summary\n• Account: ${transferSummary.recipientAccountNumber}\n• Bank Code: ${transferSummary.recipientBankCode}\n• Recipient: ${transferSummary.recipientName}\n• Amount: ${formatCurrency(transferSummary.amount || 0)}\n• Description: ${transferSummary.description || 'None'}\n\nType "confirm" to proceed or "cancel" to abort:`,
           intent: 'money_transfer_confirm_step',
           actions: ['Confirm Transfer', 'Cancel Transfer']
         };
@@ -642,7 +658,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
       
       if (response.ok && data.success) {
         return {
-          message: `✅ Transfer successful!\n\nTransfer ID: ${data.data.reference}\nAmount: ${formatCurrency(transferData.amount || 0, tenantTheme.currency, { locale: tenantTheme.locale })}\nRecipient: ${transferData.recipientName}\nStatus: Completed\n\nYour transfer has been processed successfully.`,
+          message: `✅ Transfer successful!\n\nTransfer ID: ${data.data.reference}\nAmount: ${formatCurrency(transferData.amount || 0)}\nRecipient: ${transferData.recipientName}\nStatus: Completed\n\nYour transfer has been processed successfully.`,
           intent: 'transfer_success',
           actions: ['Check Balance', 'Send Another', 'View Transactions']
         };
@@ -668,9 +684,11 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
     try {
       const token = APIService.getAccessToken();
       if (token) {
+        console.log('🔐 Using access token from APIService');
         return token;
       }
     } catch (error) {
+      console.log('⚠️ Could not get token from APIService:', error);
     }
 
     throw new Error('No valid authentication token available. Please log in again.');
@@ -681,6 +699,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
       const profile = await APIService.getProfile();
       return profile.id || 'current-user';
     } catch (error) {
+      console.log('⚠️ Could not get user profile from APIService:', error);
       return 'current-user';
     }
   };
@@ -695,6 +714,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
         tier: profile.kycLevel
       };
     } catch (error) {
+      console.log('⚠️ Could not get user profile from APIService:', error);
       return null;
     }
   };
@@ -723,10 +743,12 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
   };
 
   const handleVoicePress = () => {
+    console.log('Voice button pressed', { isWeb: Platform.OS === 'web', speechRecognition, isRecording, voiceMode });
     
     if (Platform.OS === 'web') {
       if (!speechRecognition) {
         showNotification('Voice input not available. Please use a modern browser like Chrome, Firefox, or Safari.', 'error');
+        console.log('Browser does not support speech recognition');
         return;
       }
 
@@ -738,11 +760,13 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
       if (voiceMode === 'continuous') {
         if (isRecording) {
           // Stop recording
+          console.log('Stopping voice recording');
           speechRecognition.stop();
           setIsRecording(false);
           showNotification('Voice recording stopped.', 'info');
         } else {
           // Start recording
+          console.log('Starting voice recording');
           setIsRecording(true);
           showNotification('Voice recording started. Speak your banking request.', 'success');
           try {
@@ -762,6 +786,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
 
   const handleVoicePressIn = () => {
     if (Platform.OS === 'web' && voiceMode === 'push-to-talk' && speechRecognition && !isRecording) {
+      console.log('Starting push-to-talk recording');
       setIsRecording(true);
       showNotification('Recording... Release to send.', 'info');
       try {
@@ -776,6 +801,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
 
   const handleVoicePressOut = () => {
     if (Platform.OS === 'web' && voiceMode === 'push-to-talk' && speechRecognition && isRecording) {
+      console.log('Stopping push-to-talk recording');
       speechRecognition.stop();
       setIsRecording(false);
       showNotification('Processing voice input...', 'info');
@@ -1023,11 +1049,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f9fa',
     ...Platform.select({
       web: {
-        maxHeight: '100vh',
+        maxHeight: '100vh' as any,
         width: '100%'
       }
     })
-  },
+  } as any,
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1209,7 +1235,7 @@ const styles = StyleSheet.create({
   },
   voiceButtonRecording: {
     backgroundColor: '#dc3545',
-    animation: 'pulse 1s infinite',
+    // animation: 'pulse 1s infinite', // CSS animation not supported in React Native
   },
   voiceIcon: {
     fontSize: 16,

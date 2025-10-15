@@ -5,6 +5,7 @@
  */
 
 import express from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { body, query as queryValidator, validationResult } from 'express-validator';
 import bcrypt from 'bcrypt';
 import { query, transaction } from '../config/database';
@@ -23,7 +24,7 @@ router.get('/history', authenticateToken, validateTenantAccess, [
   queryValidator('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
   queryValidator('offset').optional().isInt({ min: 0 }).withMessage('Offset must be 0 or greater'),
   queryValidator('type').optional().isIn(['all', 'debit', 'credit', 'transfer', 'bill_payment', 'airtime', 'data']).withMessage('Invalid transaction type')
-], asyncHandler(async (req, res) => {
+], asyncHandler(async (req: Request, res: Response)=> {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
     return res.status(400).json({
@@ -34,8 +35,8 @@ router.get('/history', authenticateToken, validateTenantAccess, [
     });
   }
 
-  const userId = req.user.id;
-  const tenantId = req.user.tenantId;
+  const userId = req.user?.id;
+  const tenantId = req.user?.tenantId;
   const limit = parseInt(req.query.limit as string) || 20;
   const offset = parseInt(req.query.offset as string) || 0;
   const type = req.query.type as string || 'all';
@@ -134,7 +135,7 @@ router.post('/bill-payment', authenticateToken, validateTenantAccess, [
   body('amount').isFloat({ min: 100 }).withMessage('Amount must be at least ₦100'),
   body('pin').isLength({ min: 4, max: 4 }).withMessage('Transaction PIN required'),
   body('description').optional().isLength({ max: 200 }).withMessage('Description too long')
-], asyncHandler(async (req, res) => {
+], asyncHandler(async (req: Request, res: Response)=> {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
     return res.status(400).json({
@@ -146,8 +147,8 @@ router.post('/bill-payment', authenticateToken, validateTenantAccess, [
   }
 
   const { billType, providerId, customerNumber, amount, pin, description } = req.body;
-  const userId = req.user.id;
-  const tenantId = req.user.tenantId;
+  const userId = req.user?.id;
+  const tenantId = req.user?.tenantId;
 
   try {
     await query('BEGIN');
@@ -347,7 +348,7 @@ router.post('/airtime-purchase', authenticateToken, validateTenantAccess, [
   body('phoneNumber').isMobilePhone('en-NG').withMessage('Invalid Nigerian phone number'),
   body('amount').isInt({ min: 100, max: 50000 }).withMessage('Amount must be between ₦100 and ₦50,000'),
   body('pin').isLength({ min: 4, max: 4 }).withMessage('Transaction PIN required')
-], asyncHandler(async (req, res) => {
+], asyncHandler(async (req: Request, res: Response)=> {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
     return res.status(400).json({
@@ -359,8 +360,8 @@ router.post('/airtime-purchase', authenticateToken, validateTenantAccess, [
   }
 
   const { network, phoneNumber, amount, pin } = req.body;
-  const userId = req.user.id;
-  const tenantId = req.user.tenantId;
+  const userId = req.user?.id;
+  const tenantId = req.user?.tenantId;
 
   try {
     await query('BEGIN');
@@ -493,10 +494,10 @@ router.post('/airtime-purchase', authenticateToken, validateTenantAccess, [
  * GET /api/transactions/:reference/status
  * Get detailed transaction status and information
  */
-router.get('/:reference/status', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
+router.get('/:reference/status', authenticateToken, validateTenantAccess, asyncHandler(async (req: Request, res: Response)=> {
   const { reference } = req.params;
-  const userId = req.user.id;
-  const tenantId = req.user.tenantId;
+  const userId = req.user?.id;
+  const tenantId = req.user?.tenantId;
 
   const transactionResult = await query(`
     SELECT * FROM transactions 
@@ -538,7 +539,7 @@ router.get('/:reference/status', authenticateToken, validateTenantAccess, asyncH
  */
 router.get('/bill-providers', authenticateToken, validateTenantAccess, [
   queryValidator('type').optional().isIn(['electricity', 'water', 'cable_tv', 'internet', 'education', 'insurance']).withMessage('Invalid bill type')
-], asyncHandler(async (req, res) => {
+], asyncHandler(async (req: Request, res: Response)=> {
   const filters = ['status = $1'];
   const params = ['active'];
   
@@ -572,7 +573,7 @@ router.get('/bill-providers', authenticateToken, validateTenantAccess, [
 
 // Helper functions for simulation (replace with real API integrations in production)
 
-async function simulateBillPayment(params: any) {
+async function simulateBillPayment(_params: any) {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 2000));
   
@@ -626,7 +627,7 @@ router.post('/disputes', authenticateToken, validateTenantAccess, [
   body('disputeReason').notEmpty().withMessage('Dispute reason is required'),
   body('disputeCategory').optional().isIn(['unauthorized', 'incorrect_amount', 'service_not_received', 'duplicate', 'fraud', 'other']).withMessage('Invalid dispute category'),
   body('additionalNotes').optional().isString()
-], asyncHandler(async (req, res) => {
+], asyncHandler(async (req: Request, res: Response)=> {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
     return res.status(400).json({
@@ -637,8 +638,8 @@ router.post('/disputes', authenticateToken, validateTenantAccess, [
     });
   }
 
-  const userId = req.user.id;
-  const tenantId = req.user.tenantId;
+  const userId = req.user?.id;
+  const tenantId = req.user?.tenantId;
   const {
     transactionId,
     transactionReference,

@@ -33,7 +33,7 @@ async function setupDatabase() {
       await client.query(`CREATE DATABASE ${TARGET_DB}`);
       console.log(`✅ Created database: ${TARGET_DB}`);
     } catch (error) {
-      if (error.code === '42P04') {
+      if ((error as any).code === '42P04') {
         console.log(`ℹ️  Database ${TARGET_DB} already exists`);
       } else {
         throw error;
@@ -58,10 +58,10 @@ async function setupDatabase() {
     console.log('🎉 Database setup completed successfully!');
     
   } catch (error) {
-    console.error('❌ Database setup failed:', error.message);
-    
+    console.error('❌ Database setup failed:', (error as Error).message);
+
     // Check if PostgreSQL is running
-    if (error.code === 'ECONNREFUSED') {
+    if ((error as any).code === 'ECONNREFUSED') {
       console.log('\n📝 Setup Instructions:');
       console.log('1. Install PostgreSQL: brew install postgresql (macOS)');
       console.log('2. Start PostgreSQL: brew services start postgresql');
@@ -74,7 +74,7 @@ async function setupDatabase() {
   }
 }
 
-async function runMigrations(client) {
+async function runMigrations(client: Client) {
   console.log('📦 Running database migrations...');
   
   const migrationsDir = path.join(__dirname, '../database/migrations');
@@ -112,7 +112,7 @@ async function runMigrations(client) {
       }
       console.log(`✅ Migration completed: ${file}`);
     } catch (error) {
-      console.error(`❌ Migration failed: ${file}`, error.message);
+      console.error(`❌ Migration failed: ${file}`, (error as Error).message);
       throw error;
     }
   }
@@ -228,7 +228,7 @@ async function seedData() {
     console.log('✅ Seed data inserted');
     
   } catch (error) {
-    console.error('❌ Seeding failed:', error.message);
+    console.error('❌ Seeding failed:', (error as Error).message);
     throw error;
   } finally {
     await client.end();
@@ -241,7 +241,7 @@ async function main() {
     await seedData();
     console.log('🎉 Database is ready for use!');
   } catch (error) {
-    console.error('❌ Setup failed:', error.message);
+    console.error('❌ Setup failed:', (error as Error).message);
     process.exit(1);
   }
 }

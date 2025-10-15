@@ -30,7 +30,7 @@ export interface ColorPalette {
     800: string;
     900: string;
   };
-  
+
   // Neutral Colors (consistent across tenants)
   neutral: {
     0: string;    // Pure white
@@ -46,7 +46,7 @@ export interface ColorPalette {
     900: string;
     1000: string; // Pure black
   };
-  
+
   // Semantic Colors (consistent across tenants)
   semantic: {
     success: {
@@ -70,6 +70,33 @@ export interface ColorPalette {
       700: string;
     };
   };
+
+  // Direct semantic color access (for backward compatibility)
+  error?: {
+    50: string;
+    500: string;
+    700: string;
+  };
+  success?: {
+    50: string;
+    500: string;
+    700: string;
+  };
+  warning?: {
+    50: string;
+    500: string;
+    700: string;
+  };
+  info?: {
+    50: string;
+    500: string;
+    700: string;
+  };
+  danger?: {
+    50: string;
+    500: string;
+    700: string;
+  };
 }
 
 export interface Typography {
@@ -77,6 +104,7 @@ export interface Typography {
     primary: string;
     secondary: string;
     mono: string;
+    body?: string;  // Backward compatibility
   };
   fontSize: {
     xs: number;
@@ -122,6 +150,14 @@ export interface Spacing {
   20: number;  // 80px
   24: number;  // 96px
   32: number;  // 128px
+
+  // Named spacing (for backward compatibility)
+  xs?: number;  // Extra small (4px)
+  sm?: number;  // Small (8px)
+  md?: number;  // Medium (16px)
+  lg?: number;  // Large (24px)
+  xl?: number;  // Extra large (32px)
+  xxl?: number; // Extra extra large (48px)
 }
 
 export interface BorderRadius {

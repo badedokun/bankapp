@@ -4,14 +4,15 @@
  */
 
 import { query } from '../config/database';
+import { Request, Response, NextFunction } from 'express';
 
 /**
  * Extract tenant information from various sources
- * Priority order: JWT token > custom domain > subdomain > header > query param > default
+ * Priority order: JWT token > subdomain > header > query param > default
  * @param {Object} req - Express request object
- * @returns {string|null|Promise<string>} Tenant identifier or 'CUSTOM_DOMAIN' for custom domain lookup
+ * @returns {string|null} Tenant identifier
  */
-function extractTenantId(req) {
+function extractTenantId(req: any): string {
   // 1. From JWT token (highest priority)
   if (req.user && req.user.tenantId) {
     return req.user.tenantId;
@@ -23,81 +24,42 @@ function extractTenantId(req) {
     return headerTenant;
   }
 
-  // 3. Check if hostname matches a custom domain pattern
+  // 3. From subdomain (e.g., fmfb.orokii.com)
   const host = req.get('host') || '';
-
-  // Special case: Check for custom domains (e.g., fmfb-34-59-143-25.nip.io)
-  // Return special marker to trigger custom domain lookup
-  if (host && !host.includes('localhost') && (host.includes('.nip.io') || host.includes('.orokii.com'))) {
-    return 'CUSTOM_DOMAIN:' + host;
-  }
-
-  // 4. From subdomain (e.g., fmfb.orokii.com)
   const subdomain = host.split('.')[0];
 
-  // Map common subdomains to tenant names
-  const subdomainToTenant = {
-    'fmfb': 'fmfb',
-    'localhost': process.env.DEFAULT_TENANT || 'fmfb', // Use env default
-    'dev': process.env.DEFAULT_TENANT || 'fmfb',
-    'bank-a': 'bank-a',
-    'bank-b': 'bank-b',
-    'bank-c': 'bank-c',
-    'admin': 'system-admin'
-  };
+  // Use subdomain directly as tenant identifier if not localhost/dev
+  // For localhost and dev environments, use DEFAULT_TENANT from environment
+  const localDevSubdomains = ['localhost', 'dev', '127', '0'];
 
-  if (subdomainToTenant[subdomain]) {
-    return subdomainToTenant[subdomain];
+  if (localDevSubdomains.some(local => subdomain.startsWith(local))) {
+    const defaultTenant = process.env.DEFAULT_TENANT;
+    if (defaultTenant) {
+      return defaultTenant;
+    }
+  } else if (subdomain && subdomain !== 'www') {
+    // Use subdomain directly as tenant identifier
+    return subdomain;
   }
 
-  // 5. From query parameter
+  // 4. From query parameter
   const queryTenant = req.query.tenant;
   if (queryTenant) {
-    return queryTenant;
+    return queryTenant as string;
   }
 
-  // 6. Default tenant from environment
-  return process.env.DEFAULT_TENANT || 'fmfb';
+  // 5. Default tenant from environment (no hardcoded fallback)
+  // If DEFAULT_TENANT is not set, return empty string to trigger proper error handling
+  return process.env.DEFAULT_TENANT || '';
 }
 
 /**
  * Resolve tenant name to tenant UUID
- * @param {string} tenantIdentifier - Tenant name, UUID, or CUSTOM_DOMAIN:hostname
+ * @param {string} tenantIdentifier - Tenant name or UUID
  * @returns {Promise<Object|null>} Tenant information
  */
-async function resolveTenant(tenantIdentifier) {
+async function resolveTenant(tenantIdentifier: string): Promise<any> {
   try {
-    // Check if this is a custom domain lookup
-    if (tenantIdentifier.startsWith('CUSTOM_DOMAIN:')) {
-      const hostname = tenantIdentifier.replace('CUSTOM_DOMAIN:', '');
-
-      console.log(`🔍 Looking up tenant by custom domain: ${hostname}`);
-
-      // Try to find by custom_domain
-      let result = await query(`
-        SELECT id, name, display_name, status, tier, subdomain, custom_domain,
-               configuration, branding, ai_configuration, security_settings
-        FROM platform.tenants
-        WHERE custom_domain = $1 AND status = 'active'
-      `, [hostname]);
-
-      if (result.rows.length > 0) {
-        console.log(`✅ Found tenant by custom domain: ${result.rows[0].name}`);
-        return result.rows[0];
-      }
-
-      // If not found by custom_domain, try to extract tenant from subdomain
-      // For nip.io format like fmfb-34-59-143-25.nip.io, check if subdomain starts with known tenant
-      const subdomain = hostname.split('.')[0];
-      if (subdomain.startsWith('fmfb')) {
-        console.log(`🔍 Custom domain not found, trying tenant name: fmfb`);
-        tenantIdentifier = 'fmfb';
-      } else {
-        console.log(`❌ No tenant found for custom domain: ${hostname}`);
-        return null;
-      }
-    }
-
     // First try to find by name
     let result = await query(`
       SELECT id, name, display_name, status, tier, subdomain, custom_domain,
@@ -116,13 +78,9 @@ async function resolveTenant(tenantIdentifier) {
       `, [tenantIdentifier]);
     }
 
-    if (result.rows.length > 0) {
-      console.log(`✅ Resolved tenant: ${result.rows[0].name} (${result.rows[0].id})`);
-    }
-
     return result.rows.length > 0 ? result.rows[0] : null;
   } catch (error) {
-    console.error('Error resolving tenant:', error.message);
+    console.error('Error resolving tenant:', (error as Error).message);
     return null;
   }
 }
@@ -131,10 +89,10 @@ async function resolveTenant(tenantIdentifier) {
  * Multi-tenant middleware
  * Detects tenant context and adds tenant information to request
  */
-async function tenantMiddleware(req, res, next) {
+async function tenantMiddleware(req: any, res: any, next: any) {
   try {
     const tenantIdentifier = extractTenantId(req);
-    
+
     if (!tenantIdentifier) {
       return res.status(400).json({
         error: 'Tenant identifier required',
@@ -145,7 +103,7 @@ async function tenantMiddleware(req, res, next) {
 
     // Resolve tenant information
     const tenant = await resolveTenant(tenantIdentifier);
-    
+
     if (!tenant) {
       return res.status(404).json({
         error: 'Tenant not found or inactive',
@@ -174,7 +132,7 @@ async function tenantMiddleware(req, res, next) {
 
     next();
   } catch (error) {
-    console.error('Tenant middleware error:', error.message);
+    console.error('Tenant middleware error:', (error as Error).message);
     return res.status(500).json({
       error: 'Tenant resolution failed',
       code: 'TENANT_SERVICE_ERROR'
@@ -186,7 +144,7 @@ async function tenantMiddleware(req, res, next) {
  * Tenant validation middleware
  * Ensures user belongs to the current tenant context
  */
-function validateTenantAccess(req, res, next) {
+function validateTenantAccess(req: any, res: any, next: any) {
   if (!req.user || !req.tenant) {
     return res.status(401).json({
       error: 'Authentication and tenant context required',
@@ -212,10 +170,10 @@ function validateTenantAccess(req, res, next) {
  * @param {Array|string} requiredTiers - Required tenant tiers
  * @returns {Function} Middleware function
  */
-function requireTenantTier(requiredTiers) {
+function requireTenantTier(requiredTiers: string | string[]) {
   const tiers = Array.isArray(requiredTiers) ? requiredTiers : [requiredTiers];
-  
-  return (req, res, next) => {
+
+  return (req: Request, res: Response, next: NextFunction) => {
     if (!req.tenant) {
       return res.status(400).json({
         error: 'Tenant context required',
@@ -232,7 +190,7 @@ function requireTenantTier(requiredTiers) {
       });
     }
 
-    next();
+    return next();
   };
 }
 
@@ -241,8 +199,8 @@ function requireTenantTier(requiredTiers) {
  * @param {string} featureName - Feature flag name to check
  * @returns {Function} Middleware function
  */
-function requireFeature(featureName) {
-  return (req, res, next) => {
+function requireFeature(featureName: string) {
+  return (req: Request, res: Response, next: NextFunction) => {
     if (!req.tenant) {
       return res.status(400).json({
         error: 'Tenant context required',
@@ -251,7 +209,7 @@ function requireFeature(featureName) {
     }
 
     const featureFlags = req.tenant.configuration?.featureFlags || {};
-    
+
     if (!featureFlags[featureName]) {
       return res.status(403).json({
         error: `Feature '${featureName}' is not enabled for your tenant`,
@@ -261,7 +219,7 @@ function requireFeature(featureName) {
       });
     }
 
-    next();
+    return next();
   };
 }
 
@@ -272,13 +230,13 @@ function requireFeature(featureName) {
  * @param {any} defaultValue - Default value if not found
  * @returns {any} Configuration value
  */
-function getTenantConfig(req, configPath, defaultValue = null) {
+function getTenantConfig(req: any, configPath: string, defaultValue: any = null): any {
   if (!req.tenant) {
     return defaultValue;
   }
 
   const paths = configPath.split('.');
-  let current = req.tenant;
+  let current: any = req.tenant;
 
   for (const path of paths) {
     if (current && typeof current === 'object' && path in current) {

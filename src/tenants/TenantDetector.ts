@@ -155,16 +155,22 @@ class TenantDetector {
       // Check subdomain
       const hostname = window.location.hostname;
       const subdomain = hostname.split('.')[0];
-      
+
+      // Use subdomain directly as tenant identifier if valid
       if (subdomain && subdomain !== 'localhost' && subdomain !== 'www') {
         if (this.isValidTenantId(subdomain)) {
           return subdomain as TenantID;
         }
       }
 
-      // Special case for FMFB production deployment
-      if (hostname.includes('firstmidas') || hostname.includes('fmfb') || hostname === 'fmfb.orokii.com') {
-        return 'fmfb';
+      // Check for custom domain configuration from environment
+      const customDomain = process.env.CUSTOM_DOMAIN;
+      if (customDomain && hostname.includes(customDomain)) {
+        // Extract tenant from subdomain of custom domain
+        const parts = hostname.split('.');
+        if (parts[0] && parts[0] !== 'www' && this.isValidTenantId(parts[0])) {
+          return parts[0] as TenantID;
+        }
       }
 
       // Check path
@@ -226,10 +232,13 @@ class TenantDetector {
 
   /**
    * Validate if a tenant ID is valid
+   * Basic validation - actual tenant existence is verified by the API
+   * Allows any non-empty alphanumeric string with hyphens
    */
   private isValidTenantId(tenantId: string): boolean {
-    const validTenants: TenantID[] = ['fmfb', 'bank-a', 'bank-b', 'bank-c', 'default'];
-    return validTenants.includes(tenantId as TenantID);
+    // Basic format validation only
+    // Actual tenant existence will be validated by the backend API
+    return tenantId && tenantId.length > 0 && /^[a-z0-9-]+$/.test(tenantId);
   }
 
   /**

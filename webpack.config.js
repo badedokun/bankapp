@@ -15,9 +15,6 @@ const babelLoaderConfiguration = {
     path.resolve(appDirectory, 'node_modules/react-native-uncompiled'),
     path.resolve(appDirectory, 'node_modules/react-native-vector-icons'),
   ],
-  exclude: [
-    path.resolve(appDirectory, 'node_modules/expo-haptics'),
-  ],
   use: {
     loader: 'babel-loader',
     options: {
@@ -65,11 +62,9 @@ module.exports = {
     publicPath: '/',
   },
   resolve: {
-    extensions: ['.web.tsx', '.web.ts', '.tsx', '.ts', '.web.jsx', '.web.js', '.jsx', '.js', '.mjs'],
+    extensions: ['.web.tsx', '.web.ts', '.tsx', '.ts', '.web.jsx', '.web.js', '.jsx', '.js'],
     alias: {
       'react-native$': 'react-native-web',
-      'react-native-reanimated': path.resolve(appDirectory, 'src/utils/reanimated-web-mock.ts'),
-      'expo-haptics': path.resolve(appDirectory, 'src/utils/haptics.ts'),
       '@react-native-async-storage/async-storage': path.resolve(appDirectory, 'src/utils/storage.ts'),
       '@': path.resolve(appDirectory, 'src'),
       '@ai': path.resolve(appDirectory, 'src/ai'),
@@ -88,33 +83,30 @@ module.exports = {
       '@expo/vector-icons/MaterialCommunityIcons': false,
       '@expo/vector-icons': false,
       'react-native-vector-icons/MaterialCommunityIcons': false,
-      'canvg': false,
+      // Mobile-specific modules - web stubs
+      'expo-haptics': path.resolve(appDirectory, 'src/utils/haptics.ts'),
+      'react-native-reanimated': path.resolve(appDirectory, 'src/utils/reanimated-web-mock.ts'),
     },
     fallback: {
       "crypto": false,
       "fs": false,
       "path": require.resolve("path-browserify"),
       "process": require.resolve("process/browser"),
-      "canvas": false,
-      "stream": false,
-      "dompurify": false,
-      "html2canvas": false,
     }
   },
   module: {
     rules: [
-      {
-        test: /\.mjs$/,
-        include: /node_modules/,
-        type: 'javascript/auto',
-        resolve: {
-          fullySpecified: false
-        }
-      },
       babelLoaderConfiguration,
       imageLoaderConfiguration,
       svgLoaderConfiguration,
       fontLoaderConfiguration,
+      // Fix for canvg/jspdf ES module imports
+      {
+        test: /\.m?js$/,
+        resolve: {
+          fullySpecified: false,
+        },
+      },
     ],
   },
   plugins: [
@@ -122,34 +114,40 @@ module.exports = {
       template: path.join(__dirname, 'public', 'index.html'),
       filename: 'index.html',
       inject: 'body',
-      templateParameters: {
-        DEPLOYMENT_TYPE: process.env.DEPLOYMENT_TYPE || 'development',
-        NODE_ENV: process.env.NODE_ENV || 'development',
-        REACT_APP_API_URL: process.env.REACT_APP_API_URL || '/api',
+    }),
+    new ForkTsCheckerWebpackPlugin({
+      async: false,
+      typescript: {
+        configFile: path.resolve(__dirname, 'tsconfig.json'),
+        diagnosticOptions: {
+          semantic: true,
+          syntactic: true,
+        },
+        mode: 'write-references',
+      },
+      logger: {
+        infrastructure: 'console',
+        issues: 'console',
       },
     }),
-    // TEMP: Disabled TypeScript checking to allow build with type errors
-    // new ForkTsCheckerWebpackPlugin({
-    //   async: false,
-    //   typescript: {
-    //     configFile: path.resolve(__dirname, 'tsconfig.json'),
-    //     diagnosticOptions: {
-    //       semantic: true,
-    //       syntactic: true,
-    //     },
-    //     mode: 'write-references',
-    //   },
-    //   logger: {
-    //     infrastructure: 'console',
-    //     issues: 'console',
-    //   },
-    // }),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.DefinePlugin({
       __DEV__: JSON.stringify(true),
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
-      'process.env.REACT_APP_API_URL': JSON.stringify(
-        process.env.REACT_APP_API_URL || 'http://localhost:3001'
+      'process.env.DEFAULT_TENANT': JSON.stringify(
+        process.env.DEFAULT_TENANT || 'fmfb'
+      ),
+      'process.env.CUSTOM_DOMAIN': JSON.stringify(
+        process.env.CUSTOM_DOMAIN || ''
+      ),
+      'process.env.WHITELISTED_TENANTS': JSON.stringify(
+        process.env.WHITELISTED_TENANTS || ''
+      ),
+      'process.env.APP_LOGIN_TITLE': JSON.stringify(
+        process.env.APP_LOGIN_TITLE || ''
+      ),
+      'process.env.APP_TITLE': JSON.stringify(
+        process.env.APP_TITLE || ''
       ),
       'process.env.REACT_APP_TENANT_CODE': JSON.stringify(
         process.env.REACT_APP_TENANT_CODE || ''
@@ -165,7 +163,9 @@ module.exports = {
         NODE_ENV: process.env.NODE_ENV || 'development',
         TENANT_DETECTION_METHOD: process.env.TENANT_DETECTION_METHOD || 'subdomain',
         REACT_APP_TENANT_CODE: process.env.REACT_APP_TENANT_CODE || '',
-        REACT_APP_API_URL: process.env.REACT_APP_API_URL || 'http://localhost:3001'
+        DEFAULT_TENANT: process.env.DEFAULT_TENANT || 'fmfb',
+        CUSTOM_DOMAIN: process.env.CUSTOM_DOMAIN || '',
+        WHITELISTED_TENANTS: process.env.WHITELISTED_TENANTS || ''
       }),
     }),
     new webpack.ProvidePlugin({
@@ -183,13 +183,6 @@ module.exports = {
     new webpack.IgnorePlugin({
       resourceRegExp: /^react-native-vector-icons\/MaterialCommunityIcons$/,
     }),
-    new webpack.IgnorePlugin({
-      resourceRegExp: /^canvg$/,
-    }),
-    new webpack.NormalModuleReplacementPlugin(
-      /canvg/,
-      require.resolve('./src/utils/canvg-stub.js')
-    ),
   ],
   devServer: {
     static: {

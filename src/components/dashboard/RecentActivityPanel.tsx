@@ -105,7 +105,7 @@ export const RecentActivityPanel: React.FC<RecentActivityPanelProps> = ({
     const amount = Math.abs(transaction.amount || 0);
     const sign = transaction.type === 'received' ? '+' : transaction.type === 'sent' ? '-' : '';
 
-    return `${sign}${formatCurrency(amount, tenantTheme.currency, { locale: tenantTheme.locale })}`;
+    return `${sign}${formatCurrency(amount)}`;
   };
 
   const getRoleSpecificLabel = (transaction: Transaction) => {
@@ -235,7 +235,7 @@ export const RecentActivityPanel: React.FC<RecentActivityPanelProps> = ({
           📊 Activity Summary
         </Text>
         <Text style={[styles.summaryText, { color: theme.colors.textSecondary }]}>
-          {getRoleSpecificSummary(userRole, filteredTransactions, tenantTheme.currency, tenantTheme.locale)}
+          {getRoleSpecificSummary(userRole, filteredTransactions, 'NGN', 'en-NG')}
         </Text>
       </View>
     </View>

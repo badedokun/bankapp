@@ -19,7 +19,7 @@ export interface RBACRequest extends Request {
 export function loadRBACPermissions(pool: Pool) {
   const rbacService = new RBACService(pool);
 
-  return async (req: RBACRequest, res: Response, next: NextFunction) => {
+  return async (req: RBACRequest, _res: Response, next: NextFunction) => {
     try {
       if (!req.user || !req.tenant) {
         return next();
@@ -225,10 +225,10 @@ export function requireRole(roleCodes: string | string[]) {
         });
       }
 
-      next();
+      return next();
     } catch (error) {
       console.error('Role check error:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Role check failed'
       });
@@ -264,10 +264,10 @@ export function requireAdmin() {
         });
       }
 
-      next();
+      return next();
     } catch (error) {
       console.error('Admin check error:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Admin check failed'
       });

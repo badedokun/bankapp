@@ -19,8 +19,9 @@ import {
   TouchableOpacity,
   Linking,
   Clipboard,
+  Text as RNText,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import LinearGradient from '../../components/common/LinearGradient';
 import Animated, {
   FadeInDown,
   FadeInUp,
@@ -29,7 +30,8 @@ import Animated, {
   withSpring,
   useSharedValue,
 } from 'react-native-reanimated';
-import { Text } from '../../components/ui';
+// import { Text } from '../../components/ui'; // Disabled to avoid type issues
+const Text: any = RNText; // Use React Native's Text with any cast
 import { GlassCard } from '../../components/ui/GlassCard';
 import { SkeletonLoader } from '../../components/ui/SkeletonLoader';
 import { EmptyState } from '../../components/ui/EmptyState';
@@ -70,8 +72,9 @@ interface ShareAnalytics {
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 const ReferralScreen: React.FC = () => {
-  const { theme } = useTenantTheme();
-  const styles = getStyles(theme);
+  const { theme: tenantTheme } = useTenantTheme() as any;
+  const theme = tenantTheme; // For backward compatibility
+  const styles = getStyles(theme); // Create styles with theme
   const [referralCode, setReferralCode] = useState<string>('');
   const [stats, setStats] = useState<ReferralStats | null>(null);
   const [referrals, setReferrals] = useState<Referral[]>([]);
@@ -97,10 +100,10 @@ const ReferralScreen: React.FC = () => {
         apiRequest(`/referrals/share-analytics/${userId}`),
       ]);
 
-      setReferralCode(referralData.code);
-      setStats(referralData.stats);
-      setReferrals(referralData.referrals);
-      setShareAnalytics(analytics);
+      setReferralCode((referralData as any).code);
+      setStats((referralData as any).stats);
+      setReferrals((referralData as any).referrals);
+      setShareAnalytics(analytics as any);
     } catch (error) {
       console.error('Error loading referral data:', error);
       Alert.alert('Error', 'Failed to load referral data');
@@ -111,7 +114,7 @@ const ReferralScreen: React.FC = () => {
 
   const handleCopyCode = async () => {
     // Haptic feedback
-    triggerHaptic('impactMedium');
+    triggerHaptic('medium');
 
     // Scale animation
     codeScale.value = withSpring(0.95, {}, () => {
@@ -137,7 +140,7 @@ const ReferralScreen: React.FC = () => {
   };
 
   const handleShareVia = async (method: string) => {
-    triggerHaptic('impactLight');
+    triggerHaptic('light');
 
     try {
       const response = await apiRequest('/referrals/share', {
@@ -149,7 +152,7 @@ const ReferralScreen: React.FC = () => {
         }),
       });
 
-      const { trackingUrl } = response;
+      const { trackingUrl } = response as any;
 
       const message = `Join ${theme.branding.appTitle} using my referral code ${referralCode} and get ${stats?.totalPointsEarned || 100} points! ${trackingUrl}`;
 
@@ -224,7 +227,7 @@ const ReferralScreen: React.FC = () => {
           style={styles.heroGradient}
         >
           <GlassCard style={styles.heroCard}>
-            <Text style={[styles.heroTitle, { fontFamily: theme.typography.fontFamily.primary }]}>
+            <Text style={[styles.heroTitle, { fontFamily: theme.typography?.fontFamily?.primary }]}>
               Your Referral Code
             </Text>
             <AnimatedTouchable
@@ -232,7 +235,7 @@ const ReferralScreen: React.FC = () => {
               onPress={handleCopyCode}
               activeOpacity={0.9}
             >
-              <Text style={[styles.referralCode, { fontFamily: theme.typography.fontFamily.mono }]}>
+              <Text style={[styles.referralCode, { fontFamily: theme.typography?.fontFamily?.mono || theme.typography?.fontFamily?.primary }]}>
                 {referralCode}
               </Text>
             </AnimatedTouchable>
@@ -240,7 +243,7 @@ const ReferralScreen: React.FC = () => {
               style={[styles.copyButton, { backgroundColor: 'rgba(255,255,255,0.25)' }]}
               onPress={handleCopyCode}
             >
-              <Text style={[styles.copyButtonText, { fontFamily: theme.typography.fontFamily.primary }]}>
+              <Text style={[styles.copyButtonText, { fontFamily: theme.typography?.fontFamily?.primary }]}>
                 📋 Tap to Copy
               </Text>
             </TouchableOpacity>
@@ -252,7 +255,7 @@ const ReferralScreen: React.FC = () => {
       <Animated.View entering={FadeInUp.delay(200).springify()}>
         <View style={styles.statsGrid}>
           <GlassCard style={styles.statCard}>
-            <Text style={[styles.statValue, { color: theme.colors.primary, fontFamily: theme.typography.fontFamily.mono }]}>
+            <Text style={[styles.statValue, { color: theme.colors.primary, fontFamily: theme.typography?.fontFamily?.mono || theme.typography?.fontFamily?.primary }]}>
               {stats?.totalReferrals || 0}
             </Text>
             <Text style={[styles.statLabel, { color: theme.colors.text.secondary }]}>
@@ -261,7 +264,7 @@ const ReferralScreen: React.FC = () => {
           </GlassCard>
 
           <GlassCard style={styles.statCard}>
-            <Text style={[styles.statValue, { color: theme.colors.success, fontFamily: theme.typography.fontFamily.mono }]}>
+            <Text style={[styles.statValue, { color: theme.colors.success, fontFamily: theme.typography?.fontFamily?.mono || theme.typography?.fontFamily?.primary }]}>
               {stats?.awardedReferrals || 0}
             </Text>
             <Text style={[styles.statLabel, { color: theme.colors.text.secondary }]}>
@@ -270,7 +273,7 @@ const ReferralScreen: React.FC = () => {
           </GlassCard>
 
           <GlassCard style={styles.statCard}>
-            <Text style={[styles.statValue, { color: theme.colors.warning, fontFamily: theme.typography.fontFamily.mono }]}>
+            <Text style={[styles.statValue, { color: theme.colors.warning, fontFamily: theme.typography?.fontFamily?.mono || theme.typography?.fontFamily?.primary }]}>
               {stats?.pendingReferrals || 0}
             </Text>
             <Text style={[styles.statLabel, { color: theme.colors.text.secondary }]}>
@@ -279,7 +282,7 @@ const ReferralScreen: React.FC = () => {
           </GlassCard>
 
           <GlassCard style={styles.statCard}>
-            <Text style={[styles.statValue, { color: theme.colors.reward?.gold || theme.colors.primary, fontFamily: theme.typography.fontFamily.mono }]}>
+            <Text style={[styles.statValue, { color: theme.colors.reward?.gold || theme.colors.primary, fontFamily: theme.typography?.fontFamily?.mono || theme.typography?.fontFamily?.primary }]}>
               {stats?.totalPointsEarned || 0}
             </Text>
             <Text style={[styles.statLabel, { color: theme.colors.text.secondary }]}>
@@ -292,7 +295,7 @@ const ReferralScreen: React.FC = () => {
       {/* Share Options */}
       <Animated.View entering={FadeInUp.delay(300).springify()}>
         <GlassCard>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text.primary, fontFamily: theme.typography.fontFamily.primary }]}>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text.primary, fontFamily: theme.typography?.fontFamily?.primary }]}>
             Share Your Code
           </Text>
           <View style={styles.shareButtons}>
@@ -301,7 +304,7 @@ const ReferralScreen: React.FC = () => {
               onPress={() => handleShareVia('whatsapp')}
             >
               <Text style={styles.shareButtonEmoji}>💬</Text>
-              <Text style={[styles.shareButtonText, { fontFamily: theme.typography.fontFamily.primary }]}>
+              <Text style={[styles.shareButtonText, { fontFamily: theme.typography?.fontFamily?.primary }]}>
                 WhatsApp
               </Text>
             </TouchableOpacity>
@@ -311,7 +314,7 @@ const ReferralScreen: React.FC = () => {
               onPress={() => handleShareVia('sms')}
             >
               <Text style={styles.shareButtonEmoji}>💬</Text>
-              <Text style={[styles.shareButtonText, { fontFamily: theme.typography.fontFamily.primary }]}>
+              <Text style={[styles.shareButtonText, { fontFamily: theme.typography?.fontFamily?.primary }]}>
                 SMS
               </Text>
             </TouchableOpacity>
@@ -321,7 +324,7 @@ const ReferralScreen: React.FC = () => {
               onPress={() => handleShareVia('email')}
             >
               <Text style={styles.shareButtonEmoji}>📧</Text>
-              <Text style={[styles.shareButtonText, { fontFamily: theme.typography.fontFamily.primary }]}>
+              <Text style={[styles.shareButtonText, { fontFamily: theme.typography?.fontFamily?.primary }]}>
                 Email
               </Text>
             </TouchableOpacity>
@@ -331,7 +334,7 @@ const ReferralScreen: React.FC = () => {
               onPress={() => handleShareVia('social')}
             >
               <Text style={styles.shareButtonEmoji}>📱</Text>
-              <Text style={[styles.shareButtonText, { fontFamily: theme.typography.fontFamily.primary }]}>
+              <Text style={[styles.shareButtonText, { fontFamily: theme.typography?.fontFamily?.primary }]}>
                 More
               </Text>
             </TouchableOpacity>
@@ -342,7 +345,7 @@ const ReferralScreen: React.FC = () => {
       {/* How It Works */}
       <Animated.View entering={FadeInUp.delay(400).springify()}>
         <GlassCard>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text.primary, fontFamily: theme.typography.fontFamily.primary }]}>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text.primary, fontFamily: theme.typography?.fontFamily?.primary }]}>
             How It Works
           </Text>
           <View style={styles.stepsList}>
@@ -354,7 +357,7 @@ const ReferralScreen: React.FC = () => {
             ].map((step, index) => (
               <View key={index} style={styles.step}>
                 <Text style={styles.stepEmoji}>{step.emoji}</Text>
-                <Text style={[styles.stepText, { color: theme.colors.text.primary, fontFamily: theme.typography.fontFamily.primary }]}>
+                <Text style={[styles.stepText, { color: theme.colors.text.primary, fontFamily: theme.typography?.fontFamily?.primary }]}>
                   {step.text}
                 </Text>
               </View>
@@ -369,11 +372,14 @@ const ReferralScreen: React.FC = () => {
     <View style={styles.tabContent}>
       {referrals.length === 0 ? (
         <EmptyState
-          icon="🤝"
           title="No referrals yet"
-          message="Start sharing your code to see your referrals here!"
-          actionLabel="Copy Code"
-          onAction={handleCopyCode}
+          description="Start sharing your code to see your referrals here!"
+          illustration="custom"
+          customIllustration={<Text style={{ fontSize: 64 }}>🤝</Text>}
+          primaryAction={{
+            label: "Copy Code",
+            onPress: handleCopyCode,
+          }}
         />
       ) : (
         referrals.map((referral, index) => (
@@ -383,11 +389,11 @@ const ReferralScreen: React.FC = () => {
           >
             <GlassCard style={styles.referralCard}>
               <View style={styles.referralHeader}>
-                <Text style={[styles.referralId, { color: theme.colors.text.primary, fontFamily: theme.typography.fontFamily.primary }]}>
+                <Text style={[styles.referralId, { color: theme.colors.text.primary, fontFamily: theme.typography?.fontFamily?.primary }]}>
                   Referral #{referral.id.substring(0, 8)}
                 </Text>
                 <View style={[styles.statusBadge, { backgroundColor: getBonusStatusColor(referral.bonusStatus) }]}>
-                  <Text style={[styles.statusText, { fontFamily: theme.typography.fontFamily.primary }]}>
+                  <Text style={[styles.statusText, { fontFamily: theme.typography?.fontFamily?.primary }]}>
                     {getBonusStatusText(referral.bonusStatus)}
                   </Text>
                 </View>
@@ -430,13 +436,13 @@ const ReferralScreen: React.FC = () => {
     <View style={styles.tabContent}>
       <Animated.View entering={FadeInUp.delay(100).springify()}>
         <GlassCard>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text.primary, fontFamily: theme.typography.fontFamily.primary }]}>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text.primary, fontFamily: theme.typography?.fontFamily?.primary }]}>
             📊 Share Performance
           </Text>
 
           <View style={styles.analyticsGrid}>
             <View style={styles.analyticsItem}>
-              <Text style={[styles.analyticsValue, { color: theme.colors.primary, fontFamily: theme.typography.fontFamily.mono }]}>
+              <Text style={[styles.analyticsValue, { color: theme.colors.primary, fontFamily: theme.typography?.fontFamily?.mono || theme.typography?.fontFamily?.primary }]}>
                 {shareAnalytics?.totalShares || 0}
               </Text>
               <Text style={[styles.analyticsLabel, { color: theme.colors.text.secondary }]}>
@@ -445,7 +451,7 @@ const ReferralScreen: React.FC = () => {
             </View>
 
             <View style={styles.analyticsItem}>
-              <Text style={[styles.analyticsValue, { color: theme.colors.info, fontFamily: theme.typography.fontFamily.mono }]}>
+              <Text style={[styles.analyticsValue, { color: theme.colors.info, fontFamily: theme.typography?.fontFamily?.mono || theme.typography?.fontFamily?.primary }]}>
                 {shareAnalytics?.totalClicks || 0}
               </Text>
               <Text style={[styles.analyticsLabel, { color: theme.colors.text.secondary }]}>
@@ -454,7 +460,7 @@ const ReferralScreen: React.FC = () => {
             </View>
 
             <View style={styles.analyticsItem}>
-              <Text style={[styles.analyticsValue, { color: theme.colors.success, fontFamily: theme.typography.fontFamily.mono }]}>
+              <Text style={[styles.analyticsValue, { color: theme.colors.success, fontFamily: theme.typography?.fontFamily?.mono || theme.typography?.fontFamily?.primary }]}>
                 {shareAnalytics?.totalConversions || 0}
               </Text>
               <Text style={[styles.analyticsLabel, { color: theme.colors.text.secondary }]}>
@@ -463,7 +469,7 @@ const ReferralScreen: React.FC = () => {
             </View>
 
             <View style={styles.analyticsItem}>
-              <Text style={[styles.analyticsValue, { color: theme.colors.warning, fontFamily: theme.typography.fontFamily.mono }]}>
+              <Text style={[styles.analyticsValue, { color: theme.colors.warning, fontFamily: theme.typography?.fontFamily?.mono || theme.typography?.fontFamily?.primary }]}>
                 {shareAnalytics?.conversionRate.toFixed(1) || 0}%
               </Text>
               <Text style={[styles.analyticsLabel, { color: theme.colors.text.secondary }]}>
@@ -480,7 +486,7 @@ const ReferralScreen: React.FC = () => {
                   <Text style={[styles.topMethodLabel, { color: theme.colors.text.secondary }]}>
                     Top Channel
                   </Text>
-                  <Text style={[styles.topMethodValue, { color: theme.colors.primary, fontFamily: theme.typography.fontFamily.primary }]}>
+                  <Text style={[styles.topMethodValue, { color: theme.colors.primary, fontFamily: theme.typography?.fontFamily?.primary }]}>
                     {shareAnalytics.topShareMethod}
                   </Text>
                 </View>
@@ -498,7 +504,9 @@ const ReferralScreen: React.FC = () => {
         colors={[theme.colors.background.primary, theme.colors.background.secondary]}
         style={styles.container}
       >
-        <SkeletonLoader count={5} height={120} style={{ marginBottom: 16 }} />
+        {Array.from({ length: 5 }).map((_, i) => (
+          <View key={i} style={{ height: 120, marginBottom: 16, backgroundColor: '#f0f0f0', borderRadius: 12 }} />
+        ))}
       </LinearGradient>
     );
   }
@@ -518,7 +526,7 @@ const ReferralScreen: React.FC = () => {
               selectedTab === tab && { borderBottomColor: theme.colors.primary, borderBottomWidth: 3 },
             ]}
             onPress={() => {
-              triggerHaptic('impactLight');
+              triggerHaptic('light');
               setSelectedTab(tab);
             }}
           >
@@ -527,7 +535,7 @@ const ReferralScreen: React.FC = () => {
                 styles.tabText,
                 {
                   color: selectedTab === tab ? theme.colors.primary : theme.colors.text.secondary,
-                  fontFamily: theme.typography.fontFamily.primary,
+                  fontFamily: theme.typography?.fontFamily?.primary,
                   fontWeight: selectedTab === tab ? '600' : '400',
                 },
               ]}
@@ -552,7 +560,8 @@ const ReferralScreen: React.FC = () => {
   );
 };
 
-const getStyles = (theme: any) => StyleSheet.create({
+function getStyles(theme: any) {
+  return StyleSheet.create({
   container: {
     flex: 1,
   },
@@ -762,5 +771,6 @@ const getStyles = (theme: any) => StyleSheet.create({
     textTransform: 'capitalize',
   },
 });
+}
 
 export default ReferralScreen;

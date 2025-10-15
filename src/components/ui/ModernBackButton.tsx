@@ -31,7 +31,7 @@ const ModernBackButton: React.FC<ModernBackButtonProps> = ({
   style,
   ...props
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
 
   // Size configurations
   const sizeConfig = {
@@ -154,7 +154,7 @@ const ModernBackButton: React.FC<ModernBackButtonProps> = ({
 
   return (
     <TouchableOpacity
-      {...props}
+      {...props as any}
       style={[
         styles.button,
         isPressed && styles.buttonPressed,
@@ -164,8 +164,10 @@ const ModernBackButton: React.FC<ModernBackButtonProps> = ({
       onPress={onPress}
       onPressIn={() => setIsPressed(true)}
       onPressOut={() => setIsPressed(false)}
-      onMouseEnter={() => Platform.OS === 'web' && setIsHovered(true)}
-      onMouseLeave={() => Platform.OS === 'web' && setIsHovered(false)}
+      {...(Platform.OS === 'web' ? {
+        onMouseEnter: () => setIsHovered(true),
+        onMouseLeave: () => setIsHovered(false)
+      } : {}) as any}
       activeOpacity={0.8}
       accessible={true}
       accessibilityRole="button"

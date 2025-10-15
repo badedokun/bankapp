@@ -1,4 +1,5 @@
 import express from 'express';
+import { Request, Response } from 'express';
 import { Pool } from 'pg';
 import { RBACService } from '../services/rbac';
 import { authenticateToken } from '../middleware/auth';
@@ -25,8 +26,8 @@ export function createRBACRouter(pool: Pool): express.Router {
         });
       }
 
-      const permissions = await rbacService.getUserPermissions(req.tenant.id, req.user.id);
-      const roles = await rbacService.getUserRoles(req.tenant.id, req.user.id);
+      const permissions = await rbacService.getUserPermissions(req.tenant.id, req.user?.id);
+      const roles = await rbacService.getUserRoles(req.tenant.id, req.user?.id);
 
       res.json({
         success: true,
@@ -57,7 +58,7 @@ export function createRBACRouter(pool: Pool): express.Router {
         });
       }
 
-      const availableFeatures = await rbacService.getUserAvailableFeatures(req.tenant.id, req.user.id);
+      const availableFeatures = await rbacService.getUserAvailableFeatures(req.tenant.id, req.user?.id);
 
       res.json({
         success: true,
@@ -84,7 +85,7 @@ export function createRBACRouter(pool: Pool): express.Router {
         });
       }
 
-      const metrics = await rbacService.getRoleBasedMetrics(req.tenant.id, req.user.id);
+      const metrics = await rbacService.getRoleBasedMetrics(req.tenant.id, req.user?.id);
 
       res.json({
         success: true,
@@ -122,14 +123,14 @@ export function createRBACRouter(pool: Pool): express.Router {
 
       const hasPermission = await rbacService.checkUserPermission(
         req.tenant.id,
-        req.user.id,
+        req.user?.id,
         permissionCode,
         resourceId
       );
 
       const permissionLevel = await rbacService.getUserPermissionLevel(
         req.tenant.id,
-        req.user.id,
+        req.user?.id,
         permissionCode
       );
 
@@ -209,7 +210,7 @@ export function createRBACRouter(pool: Pool): express.Router {
         req.tenant.id,
         userId,
         roleCode,
-        req.user.id,
+        req.user?.id,
         reason,
         effectiveFrom ? new Date(effectiveFrom) : undefined,
         effectiveTo ? new Date(effectiveTo) : undefined
@@ -346,7 +347,7 @@ export function createRBACRouter(pool: Pool): express.Router {
   /**
    * GET /api/rbac/admin/platform-roles - Get all platform roles (platform admin only)
    */
-  router.get('/admin/platform-roles', requirePermission('platform_administration', 'read'), async (req: RBACRequest, res) => {
+  router.get('/admin/platform-roles', requirePermission('platform_administration', 'read'), async (_req: RBACRequest, res) => {
     try {
       const query = `
         SELECT
@@ -374,7 +375,7 @@ export function createRBACRouter(pool: Pool): express.Router {
   /**
    * GET /api/rbac/admin/platform-permissions - Get all platform permissions (platform admin only)
    */
-  router.get('/admin/platform-permissions', requirePermission('platform_administration', 'read'), async (req: RBACRequest, res) => {
+  router.get('/admin/platform-permissions', requirePermission('platform_administration', 'read'), async (_req: RBACRequest, res) => {
     try {
       const query = `
         SELECT
@@ -661,7 +662,7 @@ export function createRBACRouter(pool: Pool): express.Router {
         `;
 
         const roleResult = await client.query(roleQuery, [
-          req.tenant.id, code, name, description || '', level || 3, req.user.id
+          req.tenant.id, code, name, description || '', level || 3, req.user?.id
         ]);
 
         const roleId = roleResult.rows[0].id;
@@ -802,10 +803,10 @@ export function createRBACRouter(pool: Pool): express.Router {
         availableFeatures,
         roleBasedMetrics
       ] = await Promise.all([
-        rbacService.getUserPermissions(req.tenant.id, req.user.id),
-        rbacService.getUserRoles(req.tenant.id, req.user.id),
-        rbacService.getUserAvailableFeatures(req.tenant.id, req.user.id),
-        rbacService.getRoleBasedMetrics(req.tenant.id, req.user.id)
+        rbacService.getUserPermissions(req.tenant.id, req.user?.id),
+        rbacService.getUserRoles(req.tenant.id, req.user?.id),
+        rbacService.getUserAvailableFeatures(req.tenant.id, req.user?.id),
+        rbacService.getRoleBasedMetrics(req.tenant.id, req.user?.id)
       ]);
 
       // Get enhanced user profile
@@ -820,7 +821,7 @@ export function createRBACRouter(pool: Pool): express.Router {
         FROM tenant.users
         WHERE id = $1 AND tenant_id = $2
       `;
-      const userResult = await pool.query(userQuery, [req.user.id, req.tenant.id]);
+      const userResult = await pool.query(userQuery, [req.user?.id, req.tenant.id]);
 
       if (userResult.rows.length === 0) {
         return res.status(404).json({
@@ -835,7 +836,7 @@ export function createRBACRouter(pool: Pool): express.Router {
       const aiSuggestions = generateRoleBasedAISuggestions(user.role, userPermissions);
 
       // Get pending approvals for this user's role
-      const pendingApprovals = await getPendingApprovalsForUser(pool, req.tenant.id, req.user.id, user.role);
+      const pendingApprovals = await getPendingApprovalsForUser(pool, req.tenant.id, req.user?.id, user.role);
 
       // Combine all data for enhanced dashboard
       const enhancedDashboardData = {
@@ -963,7 +964,7 @@ function generateRoleBasedAISuggestions(role: string, permissions: Record<string
 }
 
 // Helper function to get pending approvals for user's role
-async function getPendingApprovalsForUser(pool: any, tenantId: string, userId: string, role: string) {
+async function getPendingApprovalsForUser(pool: any, tenantId: string, _userId: string, role: string) {
   // Only certain roles should see approval workflows
   const approvalRoles = ['admin', 'ceo', 'deputy_md', 'branch_manager', 'operations_manager', 'credit_manager'];
 
