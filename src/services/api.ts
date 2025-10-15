@@ -149,15 +149,23 @@ class APIService {
    * Includes client-side caching for performance
    */
   private async lookupTenantBySubdomain(subdomain: string): Promise<string | null> {
+    // Parse nip.io domain format: tenant-ip-address.nip.io -> tenant
+    let parsedSubdomain = subdomain;
+    if (typeof window !== 'undefined' && window.location.hostname.includes('.nip.io')) {
+      const parts = subdomain.split('-');
+      parsedSubdomain = parts[0]; // Extract tenant name (first part before IP)
+      console.log(`🌐 Parsed nip.io subdomain: ${subdomain} -> ${parsedSubdomain}`);
+    }
+
     // Check cache first
-    const cached = this.tenantCache.get(subdomain);
+    const cached = this.tenantCache.get(parsedSubdomain);
     if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
       return cached.tenantId;
     }
 
     try {
       // Call backend tenant lookup API (no auth required)
-      const response = await fetch(`${this.baseURL}/tenants/lookup?subdomain=${encodeURIComponent(subdomain)}`, {
+      const response = await fetch(`${this.baseURL}/tenants/lookup?subdomain=${encodeURIComponent(parsedSubdomain)}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -168,8 +176,8 @@ class APIService {
 
       const data = await response.json();
       if (data.success && data.data?.tenantId) {
-        // Cache the result
-        this.tenantCache.set(subdomain, {
+        // Cache the result using parsed subdomain
+        this.tenantCache.set(parsedSubdomain, {
           tenantId: data.data.tenantId,
           timestamp: Date.now()
         });
