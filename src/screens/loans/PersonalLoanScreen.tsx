@@ -27,7 +27,7 @@ export const PersonalLoanScreen: React.FC<PersonalLoanScreenProps> = ({
   onBack,
   onLoanComplete,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   const { showAlert } = useBankingAlert();
   const [amount, setAmount] = useState('');
   const [duration, setDuration] = useState('12');

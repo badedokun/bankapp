@@ -36,7 +36,7 @@ export const Button: React.FC<ButtonProps> = ({
   style,
   ...props
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
 
   const getBackgroundColor = () => {
     if (disabled) return '#e0e0e0';

@@ -25,7 +25,7 @@ const convertStyleToWeb = (rnStyle: ViewStyle): React.CSSProperties => {
         case 'backgroundColor':
         case 'borderColor':
         case 'color':
-          webStyle[key as keyof React.CSSProperties] = value as string;
+          (webStyle as any)[key] = value;
           break;
         case 'borderRadius':
         case 'borderWidth':
@@ -45,7 +45,7 @@ const convertStyleToWeb = (rnStyle: ViewStyle): React.CSSProperties => {
         case 'bottom':
         case 'left':
         case 'right':
-          webStyle[key as keyof React.CSSProperties] = typeof value === 'number' ? `${value}px` : value as string;
+          (webStyle as any)[key] = typeof value === 'number' ? `${value}px` : value;
           break;
         case 'flex':
         case 'flexDirection':

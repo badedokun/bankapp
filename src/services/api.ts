@@ -269,6 +269,50 @@ class APIService {
   }
 
   /**
+   * Public request method for external use
+   */
+  async request<T>(
+    endpoint: string,
+    options?: RequestInit
+  ): Promise<APIResponse<T>> {
+    return this.makeRequest<T>(endpoint, options);
+  }
+
+  /**
+   * HTTP GET request
+   */
+  async get<T>(endpoint: string): Promise<APIResponse<T>> {
+    return this.makeRequest<T>(endpoint, { method: 'GET' });
+  }
+
+  /**
+   * HTTP POST request
+   */
+  async post<T>(endpoint: string, data?: any): Promise<APIResponse<T>> {
+    return this.makeRequest<T>(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * HTTP PUT request
+   */
+  async put<T>(endpoint: string, data?: any): Promise<APIResponse<T>> {
+    return this.makeRequest<T>(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * HTTP DELETE request
+   */
+  async delete<T>(endpoint: string): Promise<APIResponse<T>> {
+    return this.makeRequest<T>(endpoint, { method: 'DELETE' });
+  }
+
+  /**
    * Make HTTP request with automatic token refresh
    */
   private async makeRequest<T>(
@@ -1301,9 +1345,12 @@ class APIService {
       hasPermission: boolean;
       permissionLevel: string;
       permissionCode: string;
-    }>('rbac/check-permission', 'POST', {
-      permissionCode,
-      resourceId
+    }>('rbac/check-permission', {
+      method: 'POST',
+      body: JSON.stringify({
+        permissionCode,
+        resourceId
+      })
     });
 
     if (response.success && response.data) {
@@ -1386,9 +1433,12 @@ class APIService {
     roleCode: string;
     permissionsUpdated: number;
   }> {
-    const response = await this.makeRequest<any>(`rbac/admin/role-permissions/${roleCode}`, 'PUT', {
-      permissions,
-      level
+    const response = await this.makeRequest<any>(`rbac/admin/role-permissions/${roleCode}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        permissions,
+        level
+      })
     });
 
     if (response.success && response.data) {
@@ -1420,12 +1470,15 @@ class APIService {
    * Assign role to user
    */
   async assignUserRole(userId: string, roleCode: string, reason?: string, effectiveFrom?: string, effectiveTo?: string): Promise<void> {
-    const response = await this.makeRequest<any>('rbac/assign-role', 'POST', {
-      userId,
-      roleCode,
-      reason,
-      effectiveFrom,
-      effectiveTo
+    const response = await this.makeRequest<any>('rbac/assign-role', {
+      method: 'POST',
+      body: JSON.stringify({
+        userId,
+        roleCode,
+        reason,
+        effectiveFrom,
+        effectiveTo
+      })
     });
 
     if (!response.success) {
@@ -1474,9 +1527,12 @@ class APIService {
    * Remove role from user
    */
   async removeUserRole(userId: string, roleCode: string): Promise<void> {
-    const response = await this.makeRequest<any>('rbac/remove-role', 'DELETE', {
-      userId,
-      roleCode
+    const response = await this.makeRequest<any>('rbac/remove-role', {
+      method: 'DELETE',
+      body: JSON.stringify({
+        userId,
+        roleCode
+      })
     });
 
     if (!response.success) {
@@ -1497,7 +1553,10 @@ class APIService {
     role: any;
     permissionsAssigned: number;
   }> {
-    const response = await this.makeRequest<any>('rbac/admin/create-role', 'POST', role);
+    const response = await this.makeRequest<any>('rbac/admin/create-role', {
+      method: 'POST',
+      body: JSON.stringify(role)
+    });
 
     if (response.success && response.data) {
       return response.data;
@@ -1603,6 +1662,61 @@ class APIService {
 
     throw new Error(response.error || 'Failed to submit dispute');
   }
+
+  /**
+   * Get RBAC stats
+   */
+  async getRBACStats(): Promise<any> {
+    const response = await this.makeRequest<any>('admin/rbac/stats', {
+      method: 'GET',
+    });
+
+    if (response.success && response.data) {
+      return response.data;
+    }
+
+    throw new Error(response.error || 'Failed to get RBAC stats');
+  }
+
+  /**
+   * Get loan eligibility
+   */
+  async getLoanEligibility(): Promise<any> {
+    const response = await this.makeRequest<any>('loans/eligibility', {
+      method: 'GET',
+    });
+
+    if (response.success && response.data) {
+      return response.data;
+    }
+
+    throw new Error(response.error || 'Failed to get loan eligibility');
+  }
+
+  /**
+   * Get savings summary
+   */
+  async getSavingsSummary(): Promise<any> {
+    const response = await this.makeRequest<any>('savings/summary', {
+      method: 'GET',
+    });
+
+    if (response.success && response.data) {
+      return response.data;
+    }
+
+    throw new Error(response.error || 'Failed to get savings summary');
+  }
 }
+
+// Named exports for compatibility
+export const APIClient = APIService;
+export const apiRequest = async <T = any>(
+  endpoint: string,
+  options?: RequestInit
+): Promise<APIResponse<T>> => {
+  const api = APIService.getInstance();
+  return api.request<T>(endpoint, options);
+};
 
 export default APIService.getInstance();

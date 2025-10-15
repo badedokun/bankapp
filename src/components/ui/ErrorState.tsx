@@ -139,7 +139,7 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
   style,
   compact = false,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   const [isRetrying, setIsRetrying] = useState(false);
 
   // Get error config

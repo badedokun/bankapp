@@ -44,7 +44,7 @@ export const DailyChallengeCard: React.FC<DailyChallengeCardProps> = ({
   onClaim,
   compact = false,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
 
   const progressPercentage = Math.min((progress / maxProgress) * 100, 100);
   const isCompleted = status === 'completed';

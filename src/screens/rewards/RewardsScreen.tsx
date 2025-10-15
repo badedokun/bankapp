@@ -31,7 +31,7 @@ const RewardsScreen: React.FC<RewardsScreenProps> = ({
   route,
   onNavigateBack,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   const [userId, setUserId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

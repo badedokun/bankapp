@@ -16,7 +16,6 @@ import {
 } from 'react-native';
 import { parsePhoneNumber, isValidPhoneNumber, CountryCode } from 'libphonenumber-js';
 import { createInputStyles } from '../../design-system';
-import { useTheme } from '../../hooks/useTheme';
 import { getCurrencySymbol } from '../../utils/currency';
 import { useTenantTheme } from '../../tenants/TenantContext';
 
@@ -68,14 +67,14 @@ export const EnhancedInput: React.FC<BaseInputProps & {
   multiline = false,
   numberOfLines = 1,
 }) => {
-  const theme = useTheme();
-  const inputStyles = createInputStyles(theme, {
+  const { theme } = useTenantTheme() as any;
+  const inputStyles = createInputStyles(theme as any, {
     size,
     variant,
     error: !!error,
     disabled,
     focused: false,
-  });
+  } as any);
 
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -125,7 +124,7 @@ export const EnhancedInput: React.FC<BaseInputProps & {
           secureTextEntry={secureTextEntry && !showPassword}
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
-          autoComplete={autoComplete}
+          autoComplete={autoComplete as any}
           maxLength={maxLength}
           multiline={multiline}
           numberOfLines={numberOfLines}
@@ -306,7 +305,7 @@ export const CurrencyInput: React.FC<BaseInputProps & {
   onAmountChange,
   ...props
 }) => {
-  const { theme: tenantTheme } = useTenantTheme();
+  const { theme: tenantTheme } = useTenantTheme() as any;
   const currencySymbol = currency ? getCurrencySymbol(currency) : getCurrencySymbol('NGN');
   const formatCurrency = (text: string) => {
     // Remove non-digits and decimal points
@@ -448,7 +447,7 @@ export const PINInput: React.FC<{
   error,
   masked = true,
 }) => {
-  const theme = useTheme();
+  const { theme } = useTenantTheme() as any;
   const inputRefs = useRef<Array<TextInput | null>>([]);
 
   const handleChange = (text: string, index: number) => {
@@ -487,7 +486,7 @@ export const PINInput: React.FC<{
         {Array.from({ length }).map((_, index) => (
           <TextInput
             key={index}
-            ref={ref => inputRefs.current[index] = ref}
+            ref={ref => { inputRefs.current[index] = ref; }}
             style={[
               styles.pinInput,
               {
@@ -533,7 +532,7 @@ export const OTPInput: React.FC<{
   resendOTP,
   countdown,
 }) => {
-  const theme = useTheme();
+  const { theme } = useTenantTheme() as any;
 
   return (
     <View>

@@ -21,7 +21,7 @@ export interface ComponentStyles {
 }
 
 // Button component styles
-export function createButtonStyles(theme: OrokiiPayTheme, props: ComponentStyleProps): ComponentStyles {
+export function createButtonStyles(theme: OrokiiPayTheme, props: ComponentStyleProps): any {
   const { variant = 'primary', size = 'md', disabled = false, fullWidth = false } = props;
   
   // Base styles
@@ -162,7 +162,7 @@ export function createButtonStyles(theme: OrokiiPayTheme, props: ComponentStyleP
 }
 
 // Input component styles
-export function createInputStyles(theme: OrokiiPayTheme, props: { size?: 'sm' | 'md' | 'lg'; error?: boolean; focused?: boolean }): ComponentStyles {
+export function createInputStyles(theme: OrokiiPayTheme, props: { size?: 'sm' | 'md' | 'lg'; error?: boolean; focused?: boolean }): any {
   const { size = 'md', error = false, focused = false } = props;
   
   const baseContainer = {
@@ -222,7 +222,7 @@ export function createInputStyles(theme: OrokiiPayTheme, props: { size?: 'sm' | 
 }
 
 // Card component styles
-export function createCardStyles(theme: OrokiiPayTheme, props: { padding?: 'sm' | 'md' | 'lg' | 'xl'; elevated?: boolean }): ComponentStyles {
+export function createCardStyles(theme: OrokiiPayTheme, props: { padding?: 'sm' | 'md' | 'lg' | 'xl'; elevated?: boolean }): any {
   const { padding = 'md', elevated = true } = props;
   
   const paddingStyles = {
@@ -264,7 +264,7 @@ export function createCardStyles(theme: OrokiiPayTheme, props: { padding?: 'sm' 
 }
 
 // Badge/Status component styles
-export function createBadgeStyles(theme: OrokiiPayTheme, props: { variant?: 'success' | 'warning' | 'error' | 'info' | 'neutral'; size?: 'sm' | 'md' }): ComponentStyles {
+export function createBadgeStyles(theme: OrokiiPayTheme, props: { variant?: 'success' | 'warning' | 'error' | 'info' | 'neutral'; size?: 'sm' | 'md' }): any {
   const { variant = 'neutral', size = 'sm' } = props;
   
   const variantStyles = {
@@ -328,7 +328,7 @@ export function createBadgeStyles(theme: OrokiiPayTheme, props: { variant?: 'suc
 }
 
 // Avatar component styles
-export function createAvatarStyles(theme: OrokiiPayTheme, props: { size?: 'sm' | 'md' | 'lg' | 'xl'; variant?: 'circle' | 'square' }): ComponentStyles {
+export function createAvatarStyles(theme: OrokiiPayTheme, props: { size?: 'sm' | 'md' | 'lg' | 'xl'; variant?: 'circle' | 'square' }): any {
   const { size = 'md', variant = 'circle' } = props;
   
   const sizeValues = {
@@ -368,7 +368,7 @@ export function createAvatarStyles(theme: OrokiiPayTheme, props: { size?: 'sm' |
 }
 
 // Transaction item styles (banking-specific)
-export function createTransactionItemStyles(theme: OrokiiPayTheme, props: { type?: 'sent' | 'received' | 'pending' | 'failed' }): ComponentStyles {
+export function createTransactionItemStyles(theme: OrokiiPayTheme, props: { type?: 'sent' | 'received' | 'pending' | 'failed' }): any {
   const { type = 'sent' } = props;
   
   const typeStyles = {

@@ -45,7 +45,7 @@ export const AchievementUnlockModal: React.FC<AchievementUnlockModalProps> = ({
   achievement,
   onClose,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   const [showConfetti, setShowConfetti] = useState(false);
   const scaleAnim = useState(new Animated.Value(0))[0];
   const fadeAnim = useState(new Animated.Value(0))[0];

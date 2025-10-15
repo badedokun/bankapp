@@ -91,7 +91,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   onLogout,
 }) => {
   const { currentTenant } = useTenant();
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   const { showAlert } = useBankingAlert();
   
   // State
@@ -134,7 +134,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     try {
       const limits = await APIService.getTransactionLimits();
       if (limits?.limits) {
-        setTransactionLimits(limits.limits);
+        setTransactionLimits(limits.limits as any);
       }
     } catch (error) {
       console.error('Failed to load transaction limits:', error);
@@ -165,7 +165,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         kycLevel: profile.kycLevel || 2,
         tier: 'Premium Account',
         role: profile.role || 'user',
-        permissions: profile.permissions || [],
+        permissions: (profile as any).permissions || [],
       });
 
       // Mock settings from profile

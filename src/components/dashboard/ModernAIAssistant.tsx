@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     borderWidth: 1,
     padding: 24,
-    backdropFilter: 'blur(20px)',
+    // backdropFilter: 'blur(20px)', // Not supported in React Native
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.1,
@@ -411,6 +411,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFFFFF',
   },
-});
+}) as any;
 
 export default ModernAIAssistant;

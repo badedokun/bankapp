@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 20,
     borderWidth: 1,
-    backdropFilter: 'blur(20px)',
+    // backdropFilter: 'blur(20px)', // Not supported in React Native
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 16,
@@ -212,6 +212,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
   },
-});
+}) as any;
 
 export default ModernStatsPanel;

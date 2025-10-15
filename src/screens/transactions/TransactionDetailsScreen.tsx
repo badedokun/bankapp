@@ -65,7 +65,7 @@ export default function TransactionDetailsScreen({
   onRetry
 }: TransactionDetailsScreenProps) {
   const tenant = useTenant();
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   const { showAlert, showConfirm } = useBankingAlert();
 
   const [transaction, setTransaction] = useState<TransactionDetails | null>(null);

@@ -20,7 +20,6 @@ import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
 import { useTenantTheme } from '../../context/TenantThemeContext';
 import Typography from '../ui/Typography';
 import { TierProgressIndicator } from '../rewards';
-import ReusableHeader from '../ui/ReusableHeader';
 import APIService from '../../services/api';
 import ENV_CONFIG from '../../config/environment';
 
@@ -48,7 +47,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
   onSettings,
   theme,
 }) => {
-  const { theme: tenantTheme } = useTenantTheme();
+  const { theme: tenantTheme, currentTenant } = useTenantTheme() as any;
   const styles = useMemo(() => getStyles(tenantTheme), [tenantTheme]);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [searchText, setSearchText] = useState('');
@@ -343,7 +342,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                 {theme?.brandLogo ? (
                   <Image
                     source={{ uri: theme.brandLogo }}
-                    style={styles.logoImage}
+                    style={styles.logoImage as any}
                     resizeMode="contain"
                   />
                 ) : (
@@ -357,7 +356,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                       },
                     }),
                   }]}>
-                    <Text style={styles.logoText}>{theme?.brandCode || tenantTheme?.branding?.code || '🏦'}</Text>
+                    <Text style={styles.logoText}>{theme?.brandCode || currentTenant?.branding?.code || '🏦'}</Text>
                   </View>
                 )}
                 {screenWidth >= 540 && (
@@ -372,7 +371,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                         color: primaryColor,
                       },
                     }),
-                  }]} numberOfLines={1} ellipsizeMode="tail">{theme?.brandName || tenantTheme?.branding?.appTitle || ''}</Text>
+                  }]} numberOfLines={1} ellipsizeMode="tail">{theme?.brandName || currentTenant?.branding?.appTitle || ''}</Text>
                 )}
               </View>
 
@@ -954,7 +953,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
                       const date = new Date(dateValue);
                       return isNaN(date.getTime())
                         ? 'Date unavailable'
-                        : date.toLocaleString('en-NG' || 'en-US', {
+                        : date.toLocaleString('en-NG', {
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric',
@@ -1531,7 +1530,7 @@ const getStyles = (theme: any) => StyleSheet.create({
     justifyContent: 'space-between',
   },
   quickActionCard: {
-    width: screenWidth > 768 ? 'calc(33.33% - 11px)' : screenWidth > 480 ? 'calc(50% - 8px)' : '100%',
+    width: (screenWidth > 768 ? 'calc(33.33% - 11px)' : screenWidth > 480 ? 'calc(50% - 8px)' : '100%') as any,
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 16,
     padding: screenWidth > 768 ? 24 : 16,

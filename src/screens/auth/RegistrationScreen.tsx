@@ -25,7 +25,7 @@ import {
   KeyboardAvoidingView,
   Dimensions,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import LinearGradient from '../../components/common/LinearGradient';
 import Animated, {
   FadeInDown,
   FadeInUp,
@@ -81,7 +81,7 @@ export const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
   navigation,
   onSuccess,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<RegistrationFormData>({
     firstName: '',
@@ -137,26 +137,26 @@ export const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
     }
 
     setIsValidatingReferral(true);
-    triggerHaptic('impactLight');
+    triggerHaptic('light');
 
     try {
       const response = await APIService.post('/api/referrals/validate-code', { code });
 
-      if (response.data.success && response.data.data.isValid) {
+      if ((response as any).data.success && (response as any).data.data.isValid) {
         setReferralValidation({
           isValid: true,
-          referrerName: response.data.data.referrerName,
-          referrerTier: response.data.data.referrerTier,
-          bonusPoints: response.data.data.bonusPoints || 100,
-          message: `You'll receive ${response.data.data.bonusPoints || 100} points on signup!`,
+          referrerName: (response as any).data.data.referrerName,
+          referrerTier: (response as any).data.data.referrerTier,
+          bonusPoints: (response as any).data.data.bonusPoints || 100,
+          message: `You'll receive ${(response as any).data.data.bonusPoints || 100} points on signup!`,
         });
-        triggerHaptic('notificationSuccess');
+        triggerHaptic('medium');
       } else {
         setReferralValidation({
           isValid: false,
-          message: response.data.data.message || 'Invalid referral code',
+          message: (response as any).data.data.message || 'Invalid referral code',
         });
-        triggerHaptic('notificationError');
+        triggerHaptic('heavy');
       }
     } catch (error) {
       console.error('Referral validation error:', error);
@@ -164,7 +164,7 @@ export const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
         isValid: false,
         message: 'Unable to validate referral code',
       });
-      triggerHaptic('notificationError');
+      triggerHaptic('heavy');
     } finally {
       setIsValidatingReferral(false);
     }
@@ -236,11 +236,11 @@ export const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
   // Handle next step
   const handleNext = useCallback(() => {
     if (!validateStep()) {
-      triggerHaptic('notificationError');
+      triggerHaptic('heavy');
       return;
     }
 
-    triggerHaptic('impactMedium');
+    triggerHaptic('medium');
     stepScale.value = withSpring(0.95, {}, () => {
       stepScale.value = withSpring(1);
     });
@@ -249,19 +249,19 @@ export const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
 
   // Handle previous step
   const handlePrevious = useCallback(() => {
-    triggerHaptic('impactLight');
+    triggerHaptic('light');
     setCurrentStep(prev => Math.max(prev - 1, 1));
   }, []);
 
   // Handle registration submission
   const handleSubmit = useCallback(async () => {
     if (!validateStep()) {
-      triggerHaptic('notificationError');
+      triggerHaptic('heavy');
       return;
     }
 
     setIsSubmitting(true);
-    triggerHaptic('impactHeavy');
+    triggerHaptic('heavy');
 
     try {
       const response = await APIService.post('/api/registration/start', {
@@ -276,8 +276,8 @@ export const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
         referralCode: formData.referralCode || null,
       });
 
-      if (response.data.success) {
-        triggerHaptic('notificationSuccess');
+      if ((response as any).data.success) {
+        triggerHaptic('medium');
         Alert.alert(
           '🎉 Registration Successful!',
           `Welcome aboard${formData.referralCode ? ` with ${referralValidation?.bonusPoints || 100} bonus points` : ''}! Please verify your email and phone number to continue.`,
@@ -286,10 +286,10 @@ export const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
               text: 'OK',
               onPress: () => {
                 if (onSuccess) {
-                  onSuccess(response.data.data.userId);
+                  onSuccess((response as any).data.data.userId);
                 }
                 if (navigation) {
-                  navigation.navigate('VerifyContact', { userId: response.data.data.userId });
+                  navigation.navigate('VerifyContact', { userId: (response as any).data.data.userId });
                 }
               },
             },
@@ -297,10 +297,10 @@ export const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
         );
       }
     } catch (error: any) {
-      triggerHaptic('notificationError');
+      triggerHaptic('heavy');
       Alert.alert(
         'Registration Failed',
-        error.response?.data?.error || 'An error occurred during registration. Please try again.'
+        (error as any).response?.data?.error || 'An error occurred during registration. Please try again.'
       );
     } finally {
       setIsSubmitting(false);
@@ -434,7 +434,7 @@ export const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
                   style={[
                     styles.referralValidationCard,
                     referralValidation.isValid ? styles.validCard : styles.invalidCard,
-                  ]}
+                  ] as any}
                 >
                   <Text style={styles.validationIcon}>
                     {referralValidation.isValid ? '✅' : '❌'}
@@ -481,7 +481,7 @@ export const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
               <TouchableOpacity
                 style={styles.checkboxContainer}
                 onPress={() => {
-                  triggerHaptic('impactLight');
+                  triggerHaptic('light');
                   handleFieldChange('agreeToTerms', !formData.agreeToTerms);
                 }}
                 activeOpacity={0.7}
@@ -501,7 +501,7 @@ export const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
               <TouchableOpacity
                 style={styles.checkboxContainer}
                 onPress={() => {
-                  triggerHaptic('impactLight');
+                  triggerHaptic('light');
                   handleFieldChange('agreeToPrivacy', !formData.agreeToPrivacy);
                 }}
                 activeOpacity={0.7}
@@ -615,7 +615,7 @@ export const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
             <Text style={styles.footerText}>Already have an account?</Text>
             <TouchableOpacity
               onPress={() => {
-                triggerHaptic('impactLight');
+                triggerHaptic('light');
                 navigation?.navigate('Login');
               }}
               activeOpacity={0.7}

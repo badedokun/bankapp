@@ -27,7 +27,7 @@ import {
   Modal,
   Dimensions,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import LinearGradient from '../../components/common/LinearGradient';
 import Animated, {
   FadeInDown,
   FadeInUp,
@@ -110,7 +110,7 @@ interface ReferralAdminDashboardProps {
 export const ReferralAdminDashboard: React.FC<ReferralAdminDashboardProps> = ({
   navigation,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   const [activeTab, setActiveTab] = useState<'overview' | 'referrals' | 'campaigns' | 'partners' | 'payouts' | 'fraud'>('overview');
   const [stats, setStats] = useState<ReferralStats | null>(null);
   const [referrals, setReferrals] = useState<Referral[]>([]);
@@ -136,50 +136,49 @@ export const ReferralAdminDashboard: React.FC<ReferralAdminDashboardProps> = ({
       if (activeTab === 'overview' || refresh) {
         // Load stats
         const statsResponse = await APIService.get('/api/referrals/admin/stats');
-        if (statsResponse.data.success) {
-          setStats(statsResponse.data.data);
+        if ((statsResponse.data as any).success) {
+          setStats((statsResponse.data as any).data);
         }
       }
 
       if (activeTab === 'referrals' || refresh) {
         // Load referrals
-        const referralsResponse = await APIService.get('/api/referrals/admin/all', {
-          params: { status: filterStatus !== 'all' ? filterStatus : undefined }
-        });
-        if (referralsResponse.data.success) {
-          setReferrals(referralsResponse.data.data);
+        const queryParam = filterStatus !== 'all' ? `?status=${filterStatus}` : '';
+        const referralsResponse = await APIService.get(`/api/referrals/admin/all${queryParam}`);
+        if ((referralsResponse.data as any).success) {
+          setReferrals((referralsResponse.data as any).data);
         }
       }
 
       if (activeTab === 'campaigns' || refresh) {
         // Load campaigns
         const campaignsResponse = await APIService.get('/api/promo-codes/campaigns');
-        if (campaignsResponse.data.success) {
-          setCampaigns(campaignsResponse.data.data);
+        if ((campaignsResponse.data as any).success) {
+          setCampaigns((campaignsResponse.data as any).data);
         }
       }
 
       if (activeTab === 'partners' || refresh) {
         // Load partners
         const partnersResponse = await APIService.get('/api/aggregators/partners');
-        if (partnersResponse.data.success) {
-          setPartners(partnersResponse.data.data);
+        if ((partnersResponse.data as any).success) {
+          setPartners((partnersResponse.data as any).data);
         }
       }
 
       if (activeTab === 'payouts' || refresh) {
         // Load payouts
         const payoutsResponse = await APIService.get('/api/aggregators/payouts');
-        if (payoutsResponse.data.success) {
-          setPayouts(payoutsResponse.data.data);
+        if ((payoutsResponse.data as any).success) {
+          setPayouts((payoutsResponse.data as any).data);
         }
       }
 
       if (activeTab === 'fraud' || refresh) {
         // Load suspicious referrals
         const fraudResponse = await APIService.get('/api/fraud/suspicious');
-        if (fraudResponse.data.success) {
-          setSuspiciousReferrals(fraudResponse.data.data);
+        if ((fraudResponse.data as any).success) {
+          setSuspiciousReferrals((fraudResponse.data as any).data);
         }
       }
     } catch (error: any) {
@@ -198,13 +197,13 @@ export const ReferralAdminDashboard: React.FC<ReferralAdminDashboardProps> = ({
 
   // Handle tab change
   const handleTabChange = useCallback((tab: typeof activeTab) => {
-    triggerHaptic('impactLight');
+    triggerHaptic('light');
     setActiveTab(tab);
   }, []);
 
   // Handle payout approval
   const handleApprovePayout = useCallback(async (payoutId: string) => {
-    triggerHaptic('impactMedium');
+    triggerHaptic('medium');
 
     Alert.alert(
       'Approve Payout',
@@ -216,13 +215,13 @@ export const ReferralAdminDashboard: React.FC<ReferralAdminDashboardProps> = ({
           onPress: async () => {
             try {
               const response = await APIService.post(`/api/aggregators/payouts/${payoutId}/approve`);
-              if (response.data.success) {
-                triggerHaptic('notificationSuccess');
+              if ((response.data as any).success) {
+                triggerHaptic('medium');
                 Alert.alert('Success', 'Payout approved successfully');
                 loadData(true);
               }
             } catch (error: any) {
-              triggerHaptic('notificationError');
+              triggerHaptic('heavy');
               Alert.alert('Error', error.response?.data?.error || 'Failed to approve payout');
             }
           },
@@ -233,7 +232,7 @@ export const ReferralAdminDashboard: React.FC<ReferralAdminDashboardProps> = ({
 
   // Handle flag referral as fraud
   const handleFlagFraud = useCallback(async (referralId: string) => {
-    triggerHaptic('impactMedium');
+    triggerHaptic('medium');
 
     Alert.alert(
       'Flag as Fraud',
@@ -246,13 +245,13 @@ export const ReferralAdminDashboard: React.FC<ReferralAdminDashboardProps> = ({
           onPress: async () => {
             try {
               const response = await APIService.post(`/api/fraud/flag/${referralId}`);
-              if (response.data.success) {
-                triggerHaptic('notificationSuccess');
+              if ((response.data as any).success) {
+                triggerHaptic('medium');
                 Alert.alert('Success', 'Referral flagged as fraud');
                 loadData(true);
               }
             } catch (error: any) {
-              triggerHaptic('notificationError');
+              triggerHaptic('heavy');
               Alert.alert('Error', error.response?.data?.error || 'Failed to flag referral');
             }
           },
@@ -283,17 +282,26 @@ export const ReferralAdminDashboard: React.FC<ReferralAdminDashboardProps> = ({
   // Render overview tab
   const renderOverview = () => {
     if (isLoading) {
-      return <SkeletonLoader count={4} height={100} style={{ marginBottom: 16 }} />;
+      return (
+        <>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <View key={i} style={{ height: 100, marginBottom: 16, backgroundColor: '#f0f0f0', borderRadius: 12 }} />
+          ))}
+        </>
+      );
     }
 
     if (!stats) {
       return (
         <EmptyState
-          icon="📊"
           title="No Stats Available"
-          message="Unable to load referral statistics"
-          actionLabel="Retry"
-          onAction={() => loadData(true)}
+          description="Unable to load referral statistics"
+          illustration="custom"
+          customIllustration={<Text style={{ fontSize: 64 }}>📊</Text>}
+          primaryAction={{
+            label: "Retry",
+            onPress: () => loadData(true),
+          }}
         />
       );
     }
@@ -389,7 +397,13 @@ export const ReferralAdminDashboard: React.FC<ReferralAdminDashboardProps> = ({
   // Render referrals tab
   const renderReferrals = () => {
     if (isLoading) {
-      return <SkeletonLoader count={5} height={120} style={{ marginBottom: 16 }} />;
+      return (
+        <>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <View key={i} style={{ height: 120, marginBottom: 16, backgroundColor: '#f0f0f0', borderRadius: 12 }} />
+          ))}
+        </>
+      );
     }
 
     const filteredReferrals = searchQuery
@@ -414,7 +428,7 @@ export const ReferralAdminDashboard: React.FC<ReferralAdminDashboardProps> = ({
               <TouchableOpacity
                 key={status}
                 onPress={() => {
-                  triggerHaptic('impactLight');
+                  triggerHaptic('light');
                   setFilterStatus(status);
                 }}
                 style={[styles.filterTab, filterStatus === status && styles.filterTabActive]}
@@ -436,13 +450,16 @@ export const ReferralAdminDashboard: React.FC<ReferralAdminDashboardProps> = ({
           </ScrollView>
         ) : (
           <EmptyState
-            icon="🔍"
             title="No Referrals Found"
-            message={searchQuery ? 'No referrals match your search' : 'No referrals available'}
-            actionLabel="Clear Filters"
-            onAction={() => {
-              setSearchQuery('');
-              setFilterStatus('all');
+            description={searchQuery ? 'No referrals match your search' : 'No referrals available'}
+            illustration="custom"
+            customIllustration={<Text style={{ fontSize: 64 }}>🔍</Text>}
+            primaryAction={{
+              label: "Clear Filters",
+              onPress: () => {
+                setSearchQuery('');
+                setFilterStatus('all');
+              },
             }}
           />
         )}
@@ -506,7 +523,13 @@ export const ReferralAdminDashboard: React.FC<ReferralAdminDashboardProps> = ({
   // Render payouts tab
   const renderPayouts = () => {
     if (isLoading) {
-      return <SkeletonLoader count={4} height={150} style={{ marginBottom: 16 }} />;
+      return (
+        <>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <View key={i} style={{ height: 150, marginBottom: 16, backgroundColor: '#f0f0f0', borderRadius: 12 }} />
+          ))}
+        </>
+      );
     }
 
     return payouts.length > 0 ? (
@@ -518,11 +541,14 @@ export const ReferralAdminDashboard: React.FC<ReferralAdminDashboardProps> = ({
       </ScrollView>
     ) : (
       <EmptyState
-        icon="💳"
         title="No Payouts"
-        message="No partner payouts available"
-        actionLabel="Refresh"
-        onAction={() => loadData(true)}
+        description="No partner payouts available"
+        illustration="custom"
+        customIllustration={<Text style={{ fontSize: 64 }}>💳</Text>}
+        primaryAction={{
+          label: "Refresh",
+          onPress: () => loadData(true),
+        }}
       />
     );
   };
@@ -541,9 +567,10 @@ export const ReferralAdminDashboard: React.FC<ReferralAdminDashboardProps> = ({
       case 'fraud':
         return (
           <EmptyState
-            icon="🚧"
             title="Coming Soon"
-            message={`${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} management is under development`}
+            description={`${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} management is under development`}
+            illustration="custom"
+            customIllustration={<Text style={{ fontSize: 64 }}>🚧</Text>}
           />
         );
       default:

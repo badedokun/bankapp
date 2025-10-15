@@ -14,7 +14,6 @@ import {
   Platform,
 } from 'react-native';
 import { createCardStyles } from '../../design-system';
-import { useTheme } from '../../hooks/useTheme';
 import { getCurrencySymbol } from '../../utils/currency';
 import { useTenantTheme } from '../../tenants/TenantContext';
 
@@ -55,13 +54,13 @@ export const Card: React.FC<CardProps> = ({
   isTransaction = false,
   status,
 }) => {
-  const theme = useTheme();
-  const cardStyles = createCardStyles(theme, {
+  const { theme } = useTenantTheme() as any;
+  const cardStyles = createCardStyles(theme as any, {
     variant,
     size,
     interactive: !!onPress,
     disabled,
-  });
+  } as any);
 
   const Container = onPress ? TouchableOpacity : View;
 
@@ -160,8 +159,7 @@ export const TransactionCard: React.FC<{
   reference,
   onPress,
 }) => {
-  const theme = useTheme();
-  const { theme: tenantTheme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   const currencySymbol = currency ? getCurrencySymbol(currency) : getCurrencySymbol('NGN');
   
   return (
@@ -211,7 +209,7 @@ export const BalanceCard: React.FC<{
   hideBalance = false,
   onToggleVisibility,
 }) => {
-  const { theme: tenantTheme } = useTenantTheme();
+  const { theme: tenantTheme } = useTenantTheme() as any;
   const currencySymbol = currency ? getCurrencySymbol(currency) : getCurrencySymbol('NGN');
   return (
     <Card

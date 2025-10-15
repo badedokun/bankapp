@@ -18,7 +18,7 @@ import {
   Image,
   KeyboardAvoidingView,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import LinearGradient from '../../components/common/LinearGradient';
 import Animated, { FadeInDown, FadeInUp, useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { useTenant, useTenantBranding } from '../../tenants/TenantContext';
 import { useTenantTheme } from '../../context/TenantThemeContext';
@@ -56,7 +56,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   navigation,
 }) => {
   const { currentTenant, isLoading } = useTenant();
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   const branding = useTenantBranding();
   const deploymentBranding = DeploymentManager.getDeploymentBranding();
   const notify = useNotification();
@@ -127,21 +127,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     if (attemptCheck.blocked) {
       notify.error(
         `Your account has been temporarily locked due to multiple failed login attempts. For your security, please wait 1 hour before trying again, or contact our support team for immediate assistance.`,
-        '🔒 Account Security Lock',
-        [
-          {
-            text: 'Contact Support',
-            onPress: () => {
-              // Log security event for support contact
-              console.log('User requested support for locked account:', formData.email);
-            }
-          },
-          {
-            text: 'OK',
-            onPress: () => {},
-            style: 'default'
-          }
-        ]
+        '🔒 Account Security Lock'
       );
       return;
     }
@@ -154,13 +140,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
       notify.warning(
         'Please ensure all fields are filled correctly before proceeding. Check that your email address is valid and your password meets the security requirements.',
         '⚠️ Form Validation',
-        [
-          {
-            text: 'OK',
-            onPress: () => {},
-            style: 'default'
-          }
-        ]
       );
       return;
     }
@@ -337,11 +316,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     } finally {
       setIsSubmitting(false);
     }
-  }, [formData, formErrors, isSubmitting, onLogin, currentTenant, notify, handleForgotPassword]);
+  }, [formData, formErrors, isSubmitting, onLogin, currentTenant, notify]);
 
   // Handle biometric authentication
   const handleBiometricAuth = useCallback((type: 'fingerprint' | 'faceId' | 'voice') => {
-    triggerHaptic('impactLight');
+    triggerHaptic('light');
     if (onBiometricAuth) {
       onBiometricAuth(type);
     } else {
@@ -353,14 +332,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
       notify.info(
         `${typeMap[type].name} authentication is not yet configured for this device. This feature would securely authenticate using your device's biometric sensors in a production environment.`,
-        `${typeMap[type].emoji} ${typeMap[type].name} Authentication`,
-        [
-          {
-            text: 'Set Up Later',
-            onPress: () => {},
-            style: 'default'
-          }
-        ]
+        `${typeMap[type].emoji} ${typeMap[type].name} Authentication`
       );
     }
   }, [onBiometricAuth, notify]);
@@ -372,26 +344,13 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
   // Handle forgot password
   const handleForgotPassword = useCallback(() => {
-    triggerHaptic('impactLight');
+    triggerHaptic('light');
     if (onForgotPassword) {
       onForgotPassword();
     } else {
       notify.info(
         'Password reset functionality is not yet available in this demo environment. In a production application, you would receive a secure reset link via email to create a new password.',
         '🔑 Password Reset',
-        [
-          {
-            text: 'Contact Support',
-            onPress: () => {
-              console.log('User requested support for password reset');
-            }
-          },
-          {
-            text: 'OK',
-            onPress: () => {},
-            style: 'default'
-          }
-        ]
       );
     }
   }, [onForgotPassword, notify]);
@@ -834,7 +793,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             <TouchableOpacity
               onPress={() => {
                 console.log('🚀 Sign In button pressed');
-                triggerHaptic('impactMedium');
+                triggerHaptic('medium');
                 handleSubmit();
               }}
               style={[styles.signInButton, isSubmitting && styles.signInButtonDisabled]}

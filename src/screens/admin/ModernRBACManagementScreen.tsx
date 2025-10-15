@@ -61,7 +61,7 @@ const ModernRBACManagementScreen: React.FC<ModernRBACManagementScreenProps> = ({
   onGoBack,
   onSelectFeature,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   const notify = useNotification();
   const [isLoading, setIsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);

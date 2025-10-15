@@ -5,12 +5,12 @@
 
 // Main transfer screens
 export { default as ModernTransferMenuScreen } from './ModernTransferMenuScreen';
-export { default as InternalTransferScreen } from './InternalTransferScreen';
+// export { default as InternalTransferScreen } from './InternalTransferScreen'; // File doesn't exist
 export { default as ExternalTransferScreen } from './ExternalTransferScreen';
 export { default as CompleteTransferFlowScreen } from './CompleteTransferFlowScreen';
 
 // Legacy AI transfer screen (keep for backward compatibility)
-export { default as AITransferScreen } from '../transfer/AITransferScreen';
+// export { default as AITransferScreen } from '../transfer/AITransferScreen'; // File doesn't exist
 
 // Re-export transfer components for convenience
 export { default as TransferHeader } from '../../components/transfers/TransferHeader';

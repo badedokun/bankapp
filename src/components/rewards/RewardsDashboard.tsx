@@ -81,7 +81,7 @@ export const RewardsDashboard: React.FC<RewardsDashboardProps> = ({
   onRefresh,
   compact = false,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   const [loading, setLoading] = useState(false);
   const [selectedTab, setSelectedTab] = useState<'achievements' | 'challenges' | 'streaks'>('achievements');
   const [rewardsData, setRewardsData] = useState<UserRewardsData | null>(null);

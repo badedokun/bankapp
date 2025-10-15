@@ -39,6 +39,12 @@ export interface TenantBranding {
   };
   borderRadius: number;
   shadowIntensity: number;
+
+  // Additional branding fields
+  appTitle?: string;
+  name?: string;
+  tagline?: string;
+  code?: string;
 }
 
 export interface TenantAIConfig {
@@ -58,20 +64,57 @@ export interface TenantAIConfig {
   fallbackToOpenAI?: boolean; // Only for general banking questions when provider is 'custom'
 }
 
+// Color scale type for theme colors
+export interface ColorScale {
+  50: string;
+  100: string;
+  200: string;
+  300: string;
+  400: string;
+  500: string;
+  600: string;
+  700: string;
+  800: string;
+  900: string;
+  950: string;
+}
+
+// Helper type to extract string color from ColorScale or string
+export type ColorValue = string;
+
 export interface TenantTheme {
   colors: {
-    primary: string;
-    secondary: string;
-    accent: string;
+    // Primary color scales (for compatibility with design system)
+    primary: ColorValue;
+    secondary: ColorValue;
+    accent: ColorValue;
+    error: ColorValue;
+    warning: ColorValue;
+    success: ColorValue;
+    info: ColorValue;
+    neutral?: ColorValue;
+
+    // Simple color values (backward compatibility)
     background: string;
     surface: string;
     text: string;
     textSecondary: string;
     textInverse: string;
-    error: string;
-    warning: string;
-    success: string;
-    info: string;
+    border?: string;
+
+    // UI element colors
+    card?: string;
+    disabled?: string;
+    primaryLight?: string;
+    primaryDark?: string;
+
+    // Semantic colors for backward compatibility
+    semantic?: {
+      error: ColorValue;
+      warning: ColorValue;
+      success: ColorValue;
+      info: ColorValue;
+    };
   };
   spacing: {
     xs: number;
@@ -110,6 +153,12 @@ export interface TenantTheme {
     md: string;
     lg: string;
     xl: string;
+  };
+
+  // Layout properties
+  layout?: {
+    borderRadius: number;
+    borderRadiusLarge: number;
   };
 }
 

@@ -441,7 +441,7 @@ const TransactionAnalyticsScreen: React.FC<TransactionAnalyticsScreenProps> = ({
       color: tenantTheme.colors.success,
     },
     metricChangeDown: {
-      color: tenantTheme.colors.danger,
+      color: tenantTheme.colors.error,
     },
     chartContainer: {
       marginTop: theme.spacing.md,
@@ -555,7 +555,7 @@ const TransactionAnalyticsScreen: React.FC<TransactionAnalyticsScreenProps> = ({
 
         <View style={dynamicStyles.metricCard}>
           <Text style={dynamicStyles.metricLabel}>Money Sent (This Month)</Text>
-          <Text style={[dynamicStyles.metricValue, { color: tenantTheme.colors.danger }]}>
+          <Text style={[dynamicStyles.metricValue, { color: tenantTheme.colors.error }]}>
             {formatCurrency(analyticsData.moneyFlow.currentMonthSent, 'NGN')}
           </Text>
         </View>
@@ -571,7 +571,7 @@ const TransactionAnalyticsScreen: React.FC<TransactionAnalyticsScreenProps> = ({
           <Text style={dynamicStyles.metricLabel}>Net Flow (This Month)</Text>
           <Text style={[
             dynamicStyles.metricValue,
-            { color: analyticsData.moneyFlow.flowTrend === 'positive' ? tenantTheme.colors.success : tenantTheme.colors.danger }
+            { color: analyticsData.moneyFlow.flowTrend === 'positive' ? tenantTheme.colors.success : tenantTheme.colors.error }
           ]}>
             {analyticsData.moneyFlow.flowTrend === 'positive' ? '+' : ''}{formatCurrency(analyticsData.moneyFlow.netFlow, 'NGN')}
           </Text>
@@ -600,9 +600,9 @@ const TransactionAnalyticsScreen: React.FC<TransactionAnalyticsScreenProps> = ({
 
                 {/* Sent bar */}
                 <View style={dynamicStyles.chartBar}>
-                  <Text style={{ fontSize: 11, width: 60, color: tenantTheme.colors.danger }}>Sent:</Text>
+                  <Text style={{ fontSize: 11, width: 60, color: tenantTheme.colors.error }}>Sent:</Text>
                   <View style={dynamicStyles.chartBarContainer}>
-                    <View style={[dynamicStyles.chartBarFill, { width: `${sentPercentage}%`, backgroundColor: tenantTheme.colors.danger }]}>
+                    <View style={[dynamicStyles.chartBarFill, { width: `${sentPercentage}%`, backgroundColor: tenantTheme.colors.error }]}>
                       <Text style={dynamicStyles.chartBarValue}>
                         ₦{(item.sent / 1000).toFixed(0)}K
                       </Text>
@@ -704,7 +704,7 @@ const TransactionAnalyticsScreen: React.FC<TransactionAnalyticsScreenProps> = ({
 
         <View style={dynamicStyles.metricCard}>
           <Text style={dynamicStyles.metricLabel}>Failed Transactions</Text>
-          <Text style={[dynamicStyles.metricValue, { color: tenantTheme.colors.danger }]}>
+          <Text style={[dynamicStyles.metricValue, { color: tenantTheme.colors.error }]}>
             {analyticsData.performanceMetrics.failedCount}
           </Text>
         </View>

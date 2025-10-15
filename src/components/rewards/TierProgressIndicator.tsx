@@ -41,7 +41,7 @@ export const TierProgressIndicator: React.FC<TierProgressIndicatorProps> = ({
   nextTier,
   compact = false,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
 
   // Calculate progress percentage
   const progressPercentage = nextTier

@@ -18,6 +18,7 @@ import React, { useState } from 'react';
 import {
   TouchableOpacity,
   Text,
+  Text as RNText,
   View,
   ActivityIndicator,
   ViewStyle,
@@ -78,7 +79,7 @@ export const ModernButton: React.FC<ModernButtonProps> = ({
   accessibilityLabel,
   accessibilityHint,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   const [isPressed, setIsPressed] = useState(false);
   const [scaleValue] = useState(new Animated.Value(1));
 

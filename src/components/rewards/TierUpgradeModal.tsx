@@ -53,7 +53,7 @@ export const TierUpgradeModal: React.FC<TierUpgradeModalProps> = ({
   bonusPoints = 0,
   onClose,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   const [showConfetti, setShowConfetti] = useState(false);
   const scaleAnim = useState(new Animated.Value(0))[0];
   const fadeAnim = useState(new Animated.Value(0))[0];

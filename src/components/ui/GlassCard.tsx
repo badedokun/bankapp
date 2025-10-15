@@ -8,6 +8,7 @@ import React from 'react';
 import {
   View,
   Text,
+  Text as RNText,
   StyleSheet,
   ViewStyle,
   TouchableOpacity,
@@ -50,7 +51,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
   headerAction,
   footer,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
 
   const getBackgroundColor = () => {
     switch (blur) {
@@ -126,7 +127,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({
       },
     };
 
-    return Platform.select(shadowMap[shadow]);
+    return Platform.select(shadowMap[shadow] as any) as any;
   };
 
   const getPaddingValue = () => {

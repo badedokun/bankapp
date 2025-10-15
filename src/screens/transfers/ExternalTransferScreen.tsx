@@ -42,7 +42,7 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
   onBack,
   onTransferComplete,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   const { showAlert, showConfirm } = useBankingAlert();
 
   // State management
@@ -806,7 +806,7 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
             <RNText style={styles.modalTitle}>Select Bank</RNText>
 
             <View style={styles.searchContainer}>
-              <TextInput
+              <RNTextInput
                 style={styles.searchInput}
                 placeholder="Search banks..."
                 placeholderTextColor={theme.colors.textSecondary}

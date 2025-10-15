@@ -34,7 +34,7 @@ export const StreakCounter: React.FC<StreakCounterProps> = ({
   compact = false,
   showLongest = true,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
 
   const getStreakInfo = (type: string) => {
     const info: Record<

@@ -65,6 +65,11 @@ export interface TenantTheme {
   brandName: string;
   brandTagline: string;
   brandLogo: string;
+  branding?: {
+    logo?: string;
+    name?: string;
+    tagline?: string;
+  };
   currency: string;
   locale: string;
   timezone: string;
@@ -78,6 +83,8 @@ export interface TenantTheme {
     primary: string;
     primaryGradientStart: string;
     primaryGradientEnd: string;
+    primaryLight?: string;
+    primaryDark?: string;
     secondary: string;
     accent: string;
     success: string;
@@ -93,8 +100,17 @@ export interface TenantTheme {
     backgroundGradientEnd: string;
     surface: string;
     border: string;
+    card?: string;
+    disabled?: string;
     glassBackground: string;
     glassBorder: string;
+    semantic?: {
+      success: { [key: number]: string };
+      warning: { [key: number]: string };
+      error: { [key: number]: string };
+      info: { [key: number]: string };
+    };
+    neutral?: { [key: number]: string };
   };
   typography: {
     fontFamily: string;
@@ -311,7 +327,7 @@ export const TenantThemeProvider: React.FC<TenantThemeProviderProps> = ({ childr
           id: tenantTheme.tenantId,
           code: tenantTheme.tenantCode,
           name: tenantTheme.brandName,
-          subdomain: getTenantFromSubdomain() || undefined,
+          // subdomain: getTenantFromSubdomain() || undefined, // Not in type
         });
       } else {
         // API failed - use generic styling with dynamically detected tenant code

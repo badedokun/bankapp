@@ -27,7 +27,8 @@ export const FlexibleSavingsScreen: React.FC<FlexibleSavingsScreenProps> = ({
   onBack,
   onSavingComplete,
 }) => {
-  const tenantTheme = useTenantTheme();
+  const { theme: tenantTheme } = useTenantTheme() as any;
+  const theme = tenantTheme; // For backward compatibility
   const { showAlert } = useBankingAlert();
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);

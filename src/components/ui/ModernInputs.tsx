@@ -8,6 +8,7 @@ import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
+  Text as RNText,
   TextInput,
   StyleSheet,
   TouchableOpacity,
@@ -78,7 +79,7 @@ export const ModernTextInput: React.FC<ModernTextInputProps> = ({
   onBlur,
   loading = false,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   const [isFocused, setIsFocused] = useState(false);
 
   const styles = StyleSheet.create({
@@ -258,7 +259,7 @@ export const ModernAmountInput: React.FC<ModernAmountInputProps> = ({
   availableBalance,
   remainingToday,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   const currencySymbol = currency ? getCurrencySymbol(currency) : getCurrencySymbol(theme.currency);
 
   const formatCurrency = (amount: number | string) => {
@@ -490,7 +491,7 @@ export const ModernDropdown: React.FC<ModernDropdownProps> = ({
   searchable = false,
   leftIcon,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);

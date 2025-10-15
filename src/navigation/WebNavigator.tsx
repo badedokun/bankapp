@@ -35,7 +35,7 @@ const isReactNative = (): boolean => {
 import PCIDSSComplianceScreen from '../screens/security/PCIDSSComplianceScreen';
 import SecurityMonitoringScreen from '../screens/security/SecurityMonitoringScreen';
 
-type Screen = 'Login' | 'Dashboard' | 'Transfer' | 'History' | 'TransactionDetails' | 'Settings' | 'CBNCompliance' | 'PCICompliance' | 'SecurityMonitoring' | 'AIChat' | 'RBACManagement' | 'Savings' | 'FlexibleSavings' | 'Loans' | 'PersonalLoan';
+type Screen = 'Login' | 'Dashboard' | 'Transfer' | 'History' | 'TransactionDetails' | 'Settings' | 'CBNCompliance' | 'PCICompliance' | 'SecurityMonitoring' | 'AIChat' | 'RBACManagement' | 'Savings' | 'FlexibleSavings' | 'Loans' | 'PersonalLoan' | 'BillPayment' | 'ExternalTransfer';
 
 interface WebNavigatorProps {
   isAuthenticated: boolean;

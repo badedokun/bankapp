@@ -78,7 +78,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const { currentTenant } = useTenant();
-  const { theme: tenantTheme } = useTenantTheme();
+  const { theme: tenantTheme } = useTenantTheme() as any;
 
   useEffect(() => {
     if (isVisible) {
@@ -100,7 +100,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
     scrollToBottom();
   }, [messages]);
 
-  const showNotificationRef = useRef<(message: string, type?: 'info' | 'error' | 'success') => void>();
+  const showNotificationRef = useRef<((message: string, type?: 'info' | 'error' | 'success') => void) | undefined>(undefined);
   
   showNotificationRef.current = (message: string, type: 'info' | 'error' | 'success' = 'info') => {
     setNotification({ message, type });
@@ -1049,11 +1049,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f9fa',
     ...Platform.select({
       web: {
-        maxHeight: '100vh',
+        maxHeight: '100vh' as any,
         width: '100%'
       }
     })
-  },
+  } as any,
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1235,7 +1235,7 @@ const styles = StyleSheet.create({
   },
   voiceButtonRecording: {
     backgroundColor: '#dc3545',
-    animation: 'pulse 1s infinite',
+    // animation: 'pulse 1s infinite', // CSS animation not supported in React Native
   },
   voiceIcon: {
     fontSize: 16,

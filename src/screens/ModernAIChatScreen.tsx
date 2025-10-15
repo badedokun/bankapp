@@ -57,7 +57,7 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
   onBack,
   initialMessage,
 }) => {
-  const { theme } = useTenantTheme();
+  const { theme } = useTenantTheme() as any;
   const notify = useNotification();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
@@ -229,7 +229,7 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
         const isPinStep = response.message.toLowerCase().includes('transaction pin') ||
                          response.message.toLowerCase().includes('enter your pin') ||
                          response.message.toLowerCase().includes('incorrect pin') ||
-                         (response.error && response.message.toLowerCase().includes('try again:'));
+                         ((response as any).error && response.message.toLowerCase().includes('try again:'));
         setIsAwaitingPin(isPinStep);
 
         // Check if we're awaiting account number (step 2 in transfer flow)

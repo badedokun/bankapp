@@ -14,7 +14,7 @@ import {
   Platform,
 } from 'react-native';
 import { createAvatarStyles } from '../../design-system';
-import { useTheme } from '../../hooks/useTheme';
+import { useTenantTheme } from '../../context/TenantThemeContext';
 
 interface AvatarProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
@@ -45,14 +45,14 @@ export const Avatar: React.FC<AvatarProps> = ({
   accountType,
   isVip = false,
 }) => {
-  const theme = useTheme();
-  const avatarStyles = createAvatarStyles(theme, {
-    size,
+  const { theme } = useTenantTheme() as any;
+  const avatarStyles = createAvatarStyles(theme as any, {
+    size: size as any,
     status,
     showStatus,
     kycStatus,
     accountType,
-  });
+  } as any);
 
   // Generate initials from name
   const getInitials = () => {
@@ -165,7 +165,7 @@ export const AvatarGroup: React.FC<{
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   spacing?: number;
 }> = ({ avatars, max = 3, size = 'md', spacing = -8 }) => {
-  const theme = useTheme();
+  const { theme } = useTenantTheme() as any;
   const visibleAvatars = avatars.slice(0, max);
   const remainingCount = Math.max(0, avatars.length - max);
   
@@ -198,7 +198,7 @@ export const AvatarGroup: React.FC<{
           <Avatar
             size={size}
             fallbackText={`+${remainingCount}`}
-            style={[styles.groupAvatarBorder, styles.remainingAvatar]}
+            style={[styles.groupAvatarBorder, styles.remainingAvatar] as any}
           />
         </View>
       )}

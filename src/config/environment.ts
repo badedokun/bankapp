@@ -133,7 +133,7 @@ const createEnvironmentConfig = (): EnvironmentConfig => {
     ENABLE_LOGGER: environment !== 'production',
     
     // Security
-    ENABLE_HTTPS: isCloudDeployment || environment === 'production',
+    ENABLE_HTTPS: isCloudDeployment || (environment as any) === 'production',
     
     // Environment Info
     ENVIRONMENT: environment,
