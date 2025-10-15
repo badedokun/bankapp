@@ -21,7 +21,7 @@ import { useTenantTheme } from '../../context/TenantThemeContext';
 import Typography from '../ui/Typography';
 import { TierProgressIndicator } from '../rewards';
 import APIService from '../../services/api';
-import ENV_CONFIG from '../../config/environment';
+import ENV_CONFIG, { buildApiUrl } from '../../config/environment';
 
 const { width: screenWidth } = Dimensions.get('window');
 const isWeb = Platform.OS === 'web';
@@ -163,7 +163,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
         // Could not fetch transactions
       }
 
-      const response = await fetch(`${ENV_CONFIG.API_BASE_URL}/api/ai/chat`, {
+      const response = await fetch(buildApiUrl('ai/chat'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -209,7 +209,7 @@ export const ModernDashboardWithAI: React.FC<ModernDashboardWithAIProps> = ({
         return;
       }
 
-      const response = await fetch(`${ENV_CONFIG.API_BASE_URL}/api/ai/suggestions/smart`, {
+      const response = await fetch(buildApiUrl('ai/suggestions/smart'), {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,

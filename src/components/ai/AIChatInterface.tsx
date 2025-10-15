@@ -19,6 +19,7 @@ import { Storage } from '../../utils/storage';
 import APIService from '../../services/api';
 import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
 import { useTenantTheme } from '../../context/TenantThemeContext';
+import { buildApiUrl } from '../../config/environment';
 
 interface Message {
   id: string;
@@ -279,7 +280,6 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
   const callEnhancedAIService = async (text: string) => {
     try {
       const token = await getAuthToken();
-      const baseURL = 'http://localhost:3001'; // Use the correct backend URL
 
       // Fetch user's actual transaction data for context
       let recentTransactions = [];
@@ -299,7 +299,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
         }
 
         // Get account balance
-        const balanceResponse = await fetch(`${baseURL}/api/wallets/balance`, {
+        const balanceResponse = await fetch(buildApiUrl('wallets/balance'), {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -318,7 +318,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
         // Continue without transaction data
       }
 
-      const response = await fetch(`${baseURL}/api/ai/chat`, {
+      const response = await fetch(buildApiUrl('ai/chat'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -405,9 +405,8 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
   const fetchBalance = async () => {
     try {
       const token = await getAuthToken();
-      const baseURL = 'http://localhost:3001'; // Use the correct backend URL
 
-      const response = await fetch(`${baseURL}/api/wallets/balance`, {
+      const response = await fetch(buildApiUrl('wallets/balance'), {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -633,9 +632,8 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
 
     try {
       const token = await getAuthToken();
-      const baseURL = 'http://localhost:3001'; // Use the correct backend URL
 
-      const response = await fetch(`${baseURL}/api/transfers/initiate`, {
+      const response = await fetch(buildApiUrl('transfers/initiate'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -24,7 +24,7 @@ import { useTenantTheme } from '../context/TenantThemeContext';
 import { useNotification } from '../services/ModernNotificationService';
 import APIService from '../services/api';
 import { formatCurrency, getCurrencySymbol } from '../utils/currency';
-import { ENV_CONFIG } from '../config/environment';
+import { ENV_CONFIG, buildApiUrl } from '../config/environment';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const isTablet = screenWidth >= 768;
@@ -289,7 +289,7 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
       } catch (error) {
       }
 
-      const response = await fetch(`${ENV_CONFIG.API_BASE_URL}/api/ai/chat`, {
+      const response = await fetch(buildApiUrl('ai/chat'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

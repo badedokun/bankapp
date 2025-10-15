@@ -290,33 +290,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         }
       }
       
-      // Default buttons if none were set
-      if (buttons.length === 0) {
-        buttons = [
-          {
-            text: 'Reset Password',
-            onPress: () => {
-              handleForgotPassword();
-            }
-          },
-          {
-            text: 'Try Again',
-            onPress: () => {},
-            style: 'default'
-          }
-        ];
-      }
-      
-      if (buttons && buttons.length > 0 && buttons[0].onPress) {
-        notify.confirm(
-          errorTitle,
-          errorMessage,
-          buttons[0].onPress,
-          () => {}
-        );
-      } else {
-        notify.error(errorMessage, errorTitle);
-      }
+      // Always show error notification for login failures
+      // This ensures users always get feedback when credentials are wrong
+      notify.error(errorMessage, errorTitle);
     } finally {
       setIsSubmitting(false);
     }

@@ -1828,16 +1828,6 @@ const CompleteTransferFlow: React.FC<CompleteTransferFlowProps> = ({
 
           {/* Additional Options */}
           <View style={styles.inputGroup}>
-            <RNText style={styles.inputLabel}>Payment Reference (Auto-generated)</RNText>
-            <RNTextInput
-              style={[styles.inputField, { backgroundColor: theme.colors.background, color: theme.colors.textSecondary }]}
-              placeholder="Will be generated during transfer"
-              value=""
-              editable={false}
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
             <RNText style={styles.inputLabel}>Narration (Optional)</RNText>
             <RNTextInput
               style={styles.inputField}
