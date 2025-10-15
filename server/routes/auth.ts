@@ -27,7 +27,7 @@ router.post('/login', [
   body('email').isEmail().normalizeEmail().withMessage('Valid email required'),
   body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
   body('tenantId').optional() // Remove UUID validation to accept tenant names
-], asyncHandler(async (req: Request, res: Response): Promise<void> => {
+], asyncHandler(async (req: Request, res: Response) => {
   // Check validation errors
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
@@ -123,11 +123,10 @@ router.post('/login', [
   }
 
   // Check if account is locked due to too many failed attempts
-  // Special handling for development accounts
-  const isDevelopmentAccount = process.env.NODE_ENV === 'development' &&
-    (user.email === 'admin@fmfb.com' || user.email === 'demo@fmfb.com');
-
-  const maxAttempts = isDevelopmentAccount ? 100 : (user.security_settings?.maxLoginAttempts || 5);
+  // In development mode, use higher limits from security settings or default to 100
+  // In production, use tenant-specific security settings or default to 5
+  const defaultMaxAttempts = process.env.NODE_ENV === 'development' ? 100 : 5;
+  const maxAttempts = user.security_settings?.maxLoginAttempts || defaultMaxAttempts;
 
   if (user.failed_login_attempts >= maxAttempts) {
     throw errors.forbidden('Account locked due to too many failed login attempts', 'ACCOUNT_LOCKED');
@@ -548,7 +547,7 @@ router.post('/register', [
   body('acceptTerms').equals('true').withMessage('You must accept the terms and conditions'),
   body('tenantId').optional().isUUID().withMessage('Invalid tenant ID format'),
   body('referralCode').optional().isLength({ min: 6, max: 10 }).withMessage('Invalid referral code')
-], asyncHandler(async (req: Request, res: Response): Promise<void> => {
+], asyncHandler(async (req: Request, res: Response) => {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
     res.status(400).json({
@@ -629,7 +628,7 @@ router.post('/kyc/submit', authenticateToken, validateTenantAccess, [
   body('documentNumber').isLength({ min: 5, max: 20 }).withMessage('Valid document number required'),
   body('documentImage').isLength({ min: 10 }).withMessage('Document image is required'),
   body('selfieImage').isLength({ min: 10 }).withMessage('Selfie image is required')
-], asyncHandler(async (req: Request, res: Response): Promise<void> => {
+], asyncHandler(async (req: Request, res: Response) => {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
     res.status(400).json({
@@ -675,7 +674,7 @@ router.post('/kyc/submit', authenticateToken, validateTenantAccess, [
  * GET /api/auth/profile
  * Get complete user profile
  */
-router.get('/profile', authenticateToken, validateTenantAccess, asyncHandler(async (req: Request, res: Response): Promise<void> => {
+router.get('/profile', authenticateToken, validateTenantAccess, asyncHandler(async (req: Request, res: Response) => {
   try {
     const { userService } = await import('../services/users');
 
@@ -713,7 +712,7 @@ router.put('/profile', authenticateToken, validateTenantAccess, [
   body('address.city').optional().isLength({ min: 2, max: 50 }).withMessage('City must be 2-50 characters'),
   body('address.state').optional().isLength({ min: 2, max: 50 }).withMessage('State must be 2-50 characters'),
   body('address.country').optional().isLength({ min: 2, max: 50 }).withMessage('Country must be 2-50 characters'),
-], asyncHandler(async (req: Request, res: Response): Promise<void> => {
+], asyncHandler(async (req: Request, res: Response) => {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
     res.status(400).json({

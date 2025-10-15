@@ -75,12 +75,13 @@ const detectEnvironment = (): 'local' | 'development' | 'staging' | 'production'
  * Get Base URLs based on environment
  */
 const getBaseUrls = (environment: string, isCloudDeployment: boolean) => {
-  // For React Native (APK) - always use production FMFB URLs
+  // For React Native (APK) - use environment-specific URLs
+  // Set these via environment variables during build: REACT_APP_PRODUCTION_API_URL, etc.
   if (isReactNative()) {
     return {
-      API_BASE_URL: 'https://fmfb-34-59-143-25.nip.io/api',
-      WEB_URL: 'https://fmfb-34-59-143-25.nip.io',
-      WS_URL: 'wss://fmfb-34-59-143-25.nip.io'
+      API_BASE_URL: process.env.REACT_APP_PRODUCTION_API_URL || process.env.REACT_APP_API_URL || '/api',
+      WEB_URL: process.env.REACT_APP_PRODUCTION_WEB_URL || process.env.REACT_APP_WEB_URL || '',
+      WS_URL: process.env.REACT_APP_PRODUCTION_WS_URL || process.env.REACT_APP_WS_URL || ''
     };
   }
 

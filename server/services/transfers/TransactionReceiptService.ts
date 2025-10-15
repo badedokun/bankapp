@@ -131,7 +131,7 @@ class TransactionReceiptService {
         sender: {
           accountNumber: transactionData.sender_account_number,
           accountName: transactionData.sender_account_name,
-          bankName: transactionData.sender_bank_name || 'First Microfinance Bank Limited',
+          bankName: transactionData.sender_bank_name || 'Banking Institution',
         },
         recipient: {
           accountNumber: transactionData.recipient_account_number,
@@ -207,13 +207,14 @@ class TransactionReceiptService {
             it.*,
             sa.account_number as sender_account_number,
             sa.account_name as sender_account_name,
-            'First Microfinance Bank Limited' as sender_bank_name,
+            t.display_name as sender_bank_name,
             ra.account_number as recipient_account_number,
             ra.account_name as recipient_name,
-            'First Microfinance Bank Limited' as recipient_bank_name
+            t.display_name as recipient_bank_name
           FROM internal_transfers it
           JOIN tenant.accounts sa ON it.sender_account_id = sa.id
           JOIN tenant.accounts ra ON it.recipient_account_id = ra.id
+          JOIN platform.tenants t ON it.tenant_id = t.id
           WHERE it.id = $1 AND it.tenant_id = $2
         `;
         break;
@@ -224,13 +225,14 @@ class TransactionReceiptService {
             et.*,
             sa.account_number as sender_account_number,
             sa.account_name as sender_account_name,
-            'First Microfinance Bank Limited' as sender_bank_name,
+            t.display_name as sender_bank_name,
             et.recipient_account_number,
             et.recipient_name,
             et.recipient_bank_name,
             et.recipient_bank_code
           FROM external_transfers et
           JOIN tenant.accounts sa ON et.sender_account_id = sa.id
+          JOIN platform.tenants t ON et.tenant_id = t.id
           WHERE et.id = $1 AND et.tenant_id = $2
         `;
         break;
@@ -241,12 +243,13 @@ class TransactionReceiptService {
             bp.*,
             sa.account_number as sender_account_number,
             sa.account_name as sender_account_name,
-            'First Microfinance Bank Limited' as sender_bank_name,
+            t.display_name as sender_bank_name,
             bp.customer_id as recipient_account_number,
             bp.customer_name as recipient_name,
             bp.biller_name as recipient_bank_name
           FROM bill_payments bp
           JOIN tenant.accounts sa ON bp.sender_account_id = sa.id
+          JOIN platform.tenants t ON bp.tenant_id = t.id
           WHERE bp.id = $1 AND bp.tenant_id = $2
         `;
         break;
@@ -257,12 +260,13 @@ class TransactionReceiptService {
             it.*,
             sa.account_number as sender_account_number,
             sa.account_name as sender_account_name,
-            'First Microfinance Bank Limited' as sender_bank_name,
+            t.display_name as sender_bank_name,
             it.recipient_iban as recipient_account_number,
             it.recipient_name,
             it.recipient_swift_code as recipient_bank_code
           FROM international_transfers it
           JOIN tenant.accounts sa ON it.sender_account_id = sa.id
+          JOIN platform.tenants t ON it.tenant_id = t.id
           WHERE it.id = $1 AND it.tenant_id = $2
         `;
         break;
@@ -273,13 +277,14 @@ class TransactionReceiptService {
             sp.*,
             sa.account_number as sender_account_number,
             sa.account_name as sender_account_name,
-            'First Microfinance Bank Limited' as sender_bank_name,
+            t.display_name as sender_bank_name,
             sp.recipient_account_number,
             sp.recipient_name,
             sp.recipient_bank_name,
             sp.recipient_bank_code
           FROM scheduled_payments sp
           JOIN tenant.accounts sa ON sp.sender_account_id = sa.id
+          JOIN platform.tenants t ON sp.tenant_id = t.id
           WHERE sp.id = $1 AND sp.tenant_id = $2
         `;
         break;
@@ -470,7 +475,7 @@ class TransactionReceiptService {
 
         <div class="footer">
             <p>This is a computer-generated receipt and does not require a signature.</p>
-            <p>For inquiries, contact customer service at support@fmfb.com.ng or +234-1-234-5678</p>
+            <p>For inquiries, please contact customer service</p>
             <p>Generated on ${new Date().toLocaleString()}</p>
         </div>
     </div>

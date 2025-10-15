@@ -159,14 +159,18 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           timestamp: new Date().toISOString(),
         });
         
-        // Determine tenant from email domain
-        let tenantId = currentTenant?.id;
-        if (formData.email.includes('@fmfb.com')) {
-          tenantId = 'fmfb';
-        } else if (formData.email.includes('@default.com')) {
-          tenantId = 'default';
+        // Use current tenant context directly
+        // Tenant should already be set via subdomain, header, or environment
+        const tenantId = currentTenant?.id || currentTenant?.name;
+
+        if (!tenantId) {
+          notify.error(
+            'Tenant context is required for login. Please ensure you are accessing the application from the correct domain.',
+            'Missing Tenant Context'
+          );
+          return;
         }
-        
+
         const loginResponse = await APIService.login({
           email: formData.email,
           password: formData.password,

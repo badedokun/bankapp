@@ -28,19 +28,18 @@ function extractTenantId(req: any): string {
   const host = req.get('host') || '';
   const subdomain = host.split('.')[0];
 
-  // Map common subdomains to tenant names
-  const subdomainToTenant: Record<string, string> = {
-    'fmfb': 'fmfb',
-    'localhost': process.env.DEFAULT_TENANT || 'fmfb', // Use env default
-    'dev': process.env.DEFAULT_TENANT || 'fmfb',
-    'bank-a': 'bank-a',
-    'bank-b': 'bank-b',
-    'bank-c': 'bank-c',
-    'admin': 'system-admin'
-  };
+  // Use subdomain directly as tenant identifier if not localhost/dev
+  // For localhost and dev environments, use DEFAULT_TENANT from environment
+  const localDevSubdomains = ['localhost', 'dev', '127', '0'];
 
-  if (subdomainToTenant[subdomain]) {
-    return subdomainToTenant[subdomain];
+  if (localDevSubdomains.some(local => subdomain.startsWith(local))) {
+    const defaultTenant = process.env.DEFAULT_TENANT;
+    if (defaultTenant) {
+      return defaultTenant;
+    }
+  } else if (subdomain && subdomain !== 'www') {
+    // Use subdomain directly as tenant identifier
+    return subdomain;
   }
 
   // 4. From query parameter
@@ -49,8 +48,9 @@ function extractTenantId(req: any): string {
     return queryTenant as string;
   }
 
-  // 5. Default tenant from environment
-  return process.env.DEFAULT_TENANT || 'fmfb';
+  // 5. Default tenant from environment (no hardcoded fallback)
+  // If DEFAULT_TENANT is not set, return empty string to trigger proper error handling
+  return process.env.DEFAULT_TENANT || '';
 }
 
 /**
