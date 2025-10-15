@@ -9,6 +9,31 @@
 - SSH key configured: `~/.ssh/orokiipay-bankapp`
 - Application already initialized on cloud server at `/opt/bankapp`
 
+### ⚠️ CRITICAL: GCP Environment Configuration
+
+**Database Password Difference:**
+- **Local Database Password**: `orokiipay_secure_banking_2024!@#`
+- **GCP Database Password**: `orokiipay2024` (simpler, no special characters)
+
+**After EVERY deployment that pulls .env changes:**
+```bash
+# SSH to GCP server
+ssh -i ~/.ssh/orokiipay-bankapp bisi.adedokun@34.59.143.25
+
+# Fix the database password in .env
+cd /opt/bankapp
+sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=orokiipay2024/' .env
+
+# Restart the service
+sudo systemctl restart orokiipay
+
+# Verify it works
+curl http://localhost:3001/api/theme/fmfb
+```
+
+**Why This Happens:**
+Git pull overwrites the GCP `.env` file with local configuration. The GCP database was set up with a different password for security reasons. Always verify and fix the password after deployment.
+
 ### 🚀 Single Command Deployment
 
 ```bash
@@ -179,14 +204,30 @@ DBSCRIPT
 - [ ] Verify health check passes
 
 ### After Deployment
+- [ ] **FIX DATABASE PASSWORD** (see Critical section above)
 - [ ] Test login: https://fmfb-34-59-143-25.nip.io
+- [ ] Verify FMFB theme loads: `curl http://34.59.143.25:3001/api/theme/fmfb`
 - [ ] Verify AI features working
-- [ ] Check PM2 status: `ssh ... "pm2 list"`
-- [ ] Monitor logs: `ssh ... "pm2 logs bankapp --lines 50"`
+- [ ] Check service status: `ssh ... "sudo systemctl status orokiipay"`
+- [ ] Monitor logs: `ssh ... "sudo journalctl -u orokiipay -f"`
 
 ---
 
 ## Troubleshooting
+
+### Theme API Returns "Internal server error" (Database Password Issue)
+**Symptom**: `/api/theme/fmfb` returns fallback theme instead of FMFB navy blue theme.
+
+**Cause**: Git pull overwrote .env with local database password.
+
+**Fix**:
+```bash
+ssh -i ~/.ssh/orokiipay-bankapp bisi.adedokun@34.59.143.25
+cd /opt/bankapp
+sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=orokiipay2024/' .env
+sudo systemctl restart orokiipay
+curl http://localhost:3001/api/theme/fmfb  # Should return FMFB theme
+```
 
 ### Build Fails on Server
 ```bash

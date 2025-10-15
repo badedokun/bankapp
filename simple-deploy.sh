@@ -48,6 +48,11 @@ BRANCH="${DEPLOY_BRANCH:-feature/enhanced-ai-assistant}"
 git checkout "$BRANCH"
 git pull origin "$BRANCH"
 
+# CRITICAL: Fix GCP database password (git pull overwrites .env with local config)
+echo "🔧 Fixing GCP database password..."
+sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=orokiipay2024/' .env
+echo "✅ Database password updated to GCP production value"
+
 # Install dependencies and build
 echo "📦 Installing dependencies..."
 npm install --legacy-peer-deps
