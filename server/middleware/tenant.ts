@@ -24,7 +24,7 @@ function extractTenantId(req: any): string {
     return headerTenant;
   }
 
-  // 3. From subdomain (e.g., fmfb.orokii.com)
+  // 3. From subdomain (e.g., fmfb.orokii.com or fmfb-34-59-143-25.nip.io)
   const host = req.get('host') || '';
   const subdomain = host.split('.')[0];
 
@@ -38,7 +38,17 @@ function extractTenantId(req: any): string {
       return defaultTenant;
     }
   } else if (subdomain && subdomain !== 'www') {
-    // Use subdomain directly as tenant identifier
+    // Handle nip.io domain format: tenant-ip-address.nip.io -> tenant
+    // Example: fmfb-34-59-143-25.nip.io -> fmfb
+    if (host.includes('.nip.io')) {
+      const parts = subdomain.split('-');
+      const tenantCandidate = parts[0];
+      if (tenantCandidate) {
+        console.log(`🌐 Detected tenant from nip.io domain: ${tenantCandidate}`);
+        return tenantCandidate;
+      }
+    }
+    // Use subdomain directly as tenant identifier for standard domains
     return subdomain;
   }
 

@@ -154,6 +154,21 @@ class TenantDetector {
 
       // Check subdomain
       const hostname = window.location.hostname;
+
+      // Extract tenant from nip.io domain format: tenant-ip-address.nip.io
+      // Example: fmfb-34-59-143-25.nip.io -> fmfb
+      if (hostname.includes('.nip.io')) {
+        const subdomain = hostname.split('.')[0]; // Get "fmfb-34-59-143-25"
+        const parts = subdomain.split('-');
+        // Extract tenant name before the IP address (first part before first numeric segment)
+        const tenantCandidate = parts[0];
+        if (tenantCandidate && this.isValidTenantId(tenantCandidate)) {
+          console.log(`🌐 Detected tenant from nip.io domain: ${tenantCandidate}`);
+          return tenantCandidate as TenantID;
+        }
+      }
+
+      // Standard subdomain detection for regular domains
       const subdomain = hostname.split('.')[0];
 
       // Use subdomain directly as tenant identifier if valid
