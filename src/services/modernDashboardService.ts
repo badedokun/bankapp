@@ -68,40 +68,17 @@ class ModernDashboardService {
 
   /**
    * Get AI-powered insights based on user behavior and permissions
-   * Backend endpoint: GET /api/ai/analytics/insights
    */
   async getAIInsights(userId: string, userRole: string, permissions: Record<string, string>): Promise<AIInsight[]> {
     try {
-      const response = await this.apiClient.get('/ai/analytics/insights');
+      const response = await this.apiClient.post('/ai/insights', {
+        user_id: userId,
+        user_role: userRole,
+        permissions: permissions,
+        context: 'dashboard'
+      });
 
-      // Transform backend insights format to frontend format
-      const backendInsights = response.insights || {};
-      const insights = backendInsights.insights || [];
-      const recommendations = backendInsights.recommendations || [];
-
-      // Map backend insights to frontend AIInsight format
-      const mappedInsights: AIInsight[] = insights.map((insight: any, index: number) => ({
-        id: `insight-${index}`,
-        type: 'insight' as const,
-        title: insight.category.charAt(0).toUpperCase() + insight.category.slice(1),
-        message: insight.value,
-        priority: insight.trend === 'high' ? 'high' as const : 'medium' as const,
-        actionable: false,
-        createdAt: new Date().toISOString()
-      }));
-
-      // Add recommendations as actionable insights
-      const mappedRecommendations: AIInsight[] = recommendations.map((rec: string, index: number) => ({
-        id: `recommendation-${index}`,
-        type: 'recommendation' as const,
-        title: 'Financial Recommendation',
-        message: rec,
-        priority: 'medium' as const,
-        actionable: true,
-        createdAt: new Date().toISOString()
-      }));
-
-      return [...mappedInsights, ...mappedRecommendations];
+      return response.data.insights || [];
     } catch (error) {
       return [];
     }
@@ -109,39 +86,18 @@ class ModernDashboardService {
 
   /**
    * Get smart suggestions for financial actions
-   * Backend endpoint: GET /api/ai/suggestions (no userId param)
    */
   async getSmartSuggestions(userId: string, permissions: Record<string, string>): Promise<SmartSuggestion[]> {
     try {
-      const response = await this.apiClient.get('/ai/suggestions');
+      const response = await this.apiClient.get(`/ai/suggestions/${userId}`, {
+        permissions: Object.keys(permissions).join(','),
+        limit: 4
+      });
 
-      // Backend returns array of string suggestions
-      const suggestions = response.suggestions || [];
-
-      // Transform string suggestions to SmartSuggestion format
-      return suggestions.map((suggestion: string, index: number) => ({
-        id: `suggestion-${index}`,
-        category: this.categorizeSuggestion(suggestion),
-        title: suggestion,
-        description: `AI-powered suggestion based on your account activity`,
-        confidence: 0.85,
-        estimatedBenefit: undefined,
-        actionRequired: suggestion.toLowerCase().includes('check') || suggestion.toLowerCase().includes('transfer')
-      }));
+      return response.data.suggestions || [];
     } catch (error) {
       return [];
     }
-  }
-
-  /**
-   * Helper to categorize suggestions
-   */
-  private categorizeSuggestion(suggestion: string): 'transfer' | 'savings' | 'spending' | 'investment' {
-    const lower = suggestion.toLowerCase();
-    if (lower.includes('transfer') || lower.includes('send')) return 'transfer';
-    if (lower.includes('save') || lower.includes('savings')) return 'savings';
-    if (lower.includes('spend') || lower.includes('bill')) return 'spending';
-    return 'investment';
   }
 
   /**
