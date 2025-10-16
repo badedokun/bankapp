@@ -92,10 +92,11 @@ router.post('/validate', auth_1.authenticateToken, tenant_1.validateTenantAccess
     // Simulate bill validation
     const isValid = accountNumber.length >= 8 && accountNumber.length <= 15;
     if (!isValid) {
-        return res.status(400).json({
+        res.status(400).json({
             success: false,
             error: 'Invalid account number format'
         });
+        return;
     }
     // Simulate customer info lookup
     const customerInfo = {

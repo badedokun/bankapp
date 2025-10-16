@@ -107,7 +107,7 @@ class TransferSchedulerService {
                          executed_at = CURRENT_TIMESTAMP,
                          transfer_id = $2,
                          updated_at = CURRENT_TIMESTAMP
-                     WHERE id = $1`, [scheduledTransfer.id, result.transferId]);
+                     WHERE id = $1`, [scheduledTransfer.id, result.data?.id || null]);
                 console.log(`✅ Scheduled transfer completed: ${scheduledTransfer.id}`);
             }
             else {

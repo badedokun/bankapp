@@ -83,7 +83,7 @@ router.put('/', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, err
     const { userId, userEmail, dailyLimit, monthlyLimit } = req.body;
     const tenantId = req.user?.tenantId;
     // Admin role check
-    if (req.user?.role !== 'admin' && req.user?.role !== 'super_admin') {
+    if (req.user?.role !== 'super_agent') {
         return res.status(403).json({
             success: false,
             error: 'Admin privileges required',

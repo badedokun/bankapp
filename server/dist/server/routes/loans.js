@@ -122,7 +122,7 @@ router.post('/personal/apply', auth_1.authenticateToken, tenant_1.validateTenant
     (0, express_validator_1.body)('monthlyIncome').isFloat({ min: 30000 })
         .withMessage('Monthly income must be at least ₦30,000'),
 ], (0, errorHandler_1.asyncHandler)(async (req, res) => {
-    const errors = validationResult(req);
+    const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({
             success: false,
@@ -264,7 +264,7 @@ router.post('/business/apply', auth_1.authenticateToken, tenant_1.validateTenant
     (0, express_validator_1.body)('monthlyRevenue').isFloat({ min: 100000 })
         .withMessage('Monthly revenue must be at least ₦100,000'),
 ], (0, errorHandler_1.asyncHandler)(async (req, res) => {
-    const errors = validationResult(req);
+    const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({
             success: false,

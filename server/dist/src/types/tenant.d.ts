@@ -10,6 +10,7 @@ export interface TenantConfig {
     features: TenantFeatures;
     branding: TenantBranding;
     aiConfig: TenantAIConfig;
+    security?: TenantSecurityConfig;
     languages: string[];
     defaultLanguage: string;
 }
@@ -56,6 +57,13 @@ export interface TenantAIConfig {
         accent: string;
     };
     fallbackToOpenAI?: boolean;
+}
+export interface TenantSecurityConfig {
+    pinLength: 4 | 6;
+    minPasswordLength?: number;
+    requireBiometric?: boolean;
+    sessionTimeout?: number;
+    maxLoginAttempts?: number;
 }
 export interface ColorScale {
     50: string;

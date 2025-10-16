@@ -17,6 +17,7 @@ interface TransactionReceipt {
         accountNumber: string;
         accountName: string;
         bankName: string;
+        bankCode?: string;
     };
     recipient: {
         accountNumber: string;

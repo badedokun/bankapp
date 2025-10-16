@@ -20,12 +20,14 @@ router.get('/:tenantId/assets/:assetType/:assetName', async (req, res) => {
         // Validate tenant ID format (basic UUID check)
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
         if (!uuidRegex.test(tenantId)) {
-            return res.status(400).json({ error: 'Invalid tenant ID format' });
+            res.status(400).json({ error: 'Invalid tenant ID format' });
+            return;
         }
         // Validate asset type
         const validAssetTypes = ['logo', 'favicon', 'hero_image', 'background', 'icon', 'stylesheet'];
         if (!validAssetTypes.includes(assetType)) {
-            return res.status(400).json({ error: 'Invalid asset type' });
+            res.status(400).json({ error: 'Invalid asset type' });
+            return;
         }
         // Query asset from database
         const result = await (0, database_1.query)(`
@@ -35,12 +37,13 @@ router.get('/:tenantId/assets/:assetType/:assetName', async (req, res) => {
       WHERE t.id = $1 AND ta.asset_type = $2 AND ta.asset_name = $3
     `, [tenantId, assetType, assetName]);
         if (result.rows.length === 0) {
-            return res.status(404).json({
+            res.status(404).json({
                 error: 'Asset not found',
                 tenant: tenantId,
                 assetType,
                 assetName
             });
+            return;
         }
         const asset = result.rows[0];
         // Convert Base64 back to binary
@@ -74,7 +77,8 @@ router.get('/by-name/:tenantName/assets/:assetType/:assetName', async (req, res)
         // Validate asset type
         const validAssetTypes = ['logo', 'favicon', 'hero_image', 'background', 'icon', 'stylesheet'];
         if (!validAssetTypes.includes(assetType)) {
-            return res.status(400).json({ error: 'Invalid asset type' });
+            res.status(400).json({ error: 'Invalid asset type' });
+            return;
         }
         // Query asset from database using tenant name
         const result = await (0, database_1.query)(`
@@ -84,12 +88,13 @@ router.get('/by-name/:tenantName/assets/:assetType/:assetName', async (req, res)
       WHERE t.name = $1 AND ta.asset_type = $2 AND ta.asset_name = $3 AND t.status = 'active'
     `, [tenantName, assetType, assetName]);
         if (result.rows.length === 0) {
-            return res.status(404).json({
+            res.status(404).json({
                 error: 'Asset not found',
                 tenant: tenantName,
                 assetType,
                 assetName
             });
+            return;
         }
         const asset = result.rows[0];
         // Convert Base64 back to binary
@@ -123,10 +128,11 @@ router.post('/:tenantId/assets', async (req, res) => {
         const { assetType, assetName, assetData, mimeType, dimensions, metadata } = req.body;
         // Validate required fields
         if (!assetType || !assetName || !assetData || !mimeType) {
-            return res.status(400).json({
+            res.status(400).json({
                 error: 'Missing required fields',
                 required: ['assetType', 'assetName', 'assetData', 'mimeType']
             });
+            return;
         }
         // Calculate file size from Base64
         const fileSize = Math.floor(assetData.length * 0.75); // Approximate binary size
