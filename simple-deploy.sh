@@ -39,18 +39,32 @@ cd "$APP_DIR"
 echo "💾 Backing up current version..."
 sudo cp -r "$APP_DIR" "${APP_DIR}-backup-$(date +%Y%m%d-%H%M%S)"
 
+# Configure git identity if not set
+echo "🔧 Configuring git identity..."
+git config user.email "deploy@orokiipay.com" || true
+git config user.name "OrokiiPay Deploy" || true
+
 # Update from git
 echo "🔄 Pulling latest changes..."
 git fetch origin
 
+# Abort any in-progress git operations
+echo "🧹 Cleaning up git state..."
+git cherry-pick --abort 2>/dev/null || true
+git rebase --abort 2>/dev/null || true
+git merge --abort 2>/dev/null || true
+
 # Stash any local changes (like .env modifications)
 echo "💾 Stashing local changes..."
-git stash push -m "Auto-stash before deployment $(date +%Y%m%d-%H%M%S)"
+git stash push -m "Auto-stash before deployment $(date +%Y%m%d-%H%M%S)" || true
 
 # Use the branch from environment or default to feature/enhanced-ai-assistant
 BRANCH="${DEPLOY_BRANCH:-feature/enhanced-ai-assistant}"
 git checkout "$BRANCH"
-git pull --rebase origin "$BRANCH" || git pull --no-rebase origin "$BRANCH"
+
+# Force pull to avoid divergent branch issues
+echo "📥 Pulling latest changes from $BRANCH..."
+git reset --hard "origin/$BRANCH"
 
 # CRITICAL: Fix GCP database password (git pull overwrites .env with local config)
 echo "🔧 Fixing GCP database password..."
