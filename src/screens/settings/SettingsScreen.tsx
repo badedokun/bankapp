@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import { useTenant, useTenantTheme } from '../../tenants/TenantContext';
 import { useBankingAlert } from '../../services/AlertService';
+import { useTenantSecurity } from '../../hooks/useTenantSecurity';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import APIService from '../../services/api';
@@ -93,6 +94,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   const { currentTenant } = useTenant();
   const { theme } = useTenantTheme() as any;
   const { showAlert } = useBankingAlert();
+  const { pinLength } = useTenantSecurity();
   
   // State
   const [activeSection, setActiveSection] = useState<SettingsSection>('profile');
@@ -490,6 +492,17 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       fontSize: 14,
       color: theme.colors.textSecondary,
     },
+    badgeContainer: {
+      backgroundColor: theme.colors.primary + '15',
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 12,
+    },
+    badgeText: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: theme.colors.primary,
+    },
     settingControl: {
       marginLeft: theme.spacing.md,
     },
@@ -695,6 +708,18 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               value={securitySettings.loginNotifications}
               onValueChange={(value) => setSecuritySettings({...securitySettings, loginNotifications: value})}
             />
+          </View>
+
+          <View style={dynamicStyles.settingItem}>
+            <View style={dynamicStyles.settingLabel}>
+              <Text style={dynamicStyles.settingTitle}>Transaction PIN Length</Text>
+              <Text style={dynamicStyles.settingDescription}>
+                Current PIN length: {pinLength} digits (configured by your organization)
+              </Text>
+            </View>
+            <View style={dynamicStyles.badgeContainer}>
+              <Text style={dynamicStyles.badgeText}>{pinLength} Digits</Text>
+            </View>
           </View>
         </View>
 

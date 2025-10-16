@@ -11,6 +11,7 @@ export interface TenantConfig {
   features: TenantFeatures;
   branding: TenantBranding;
   aiConfig: TenantAIConfig;
+  security?: TenantSecurityConfig;
   languages: string[];
   defaultLanguage: string;
 }
@@ -62,6 +63,14 @@ export interface TenantAIConfig {
     accent: string;
   };
   fallbackToOpenAI?: boolean; // Only for general banking questions when provider is 'custom'
+}
+
+export interface TenantSecurityConfig {
+  pinLength: 4 | 6; // Transaction PIN length - supports 4 or 6 digits
+  minPasswordLength?: number;
+  requireBiometric?: boolean;
+  sessionTimeout?: number; // in minutes
+  maxLoginAttempts?: number;
 }
 
 // Color scale type for theme colors

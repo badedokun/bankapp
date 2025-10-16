@@ -19,6 +19,7 @@ import {
 } from 'react-native';
 import { useTenantTheme } from '../../tenants/TenantContext';
 import { useBankingAlert } from '../../services/AlertService';
+import { useTenantSecurity } from '../../hooks/useTenantSecurity';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import TransferHeader from '../../components/transfers/TransferHeader';
@@ -44,6 +45,7 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
 }) => {
   const { theme } = useTenantTheme() as any;
   const { showAlert, showConfirm } = useBankingAlert();
+  const { pinLength } = useTenantSecurity();
 
   // State management
   const [formData, setFormData] = useState({
@@ -769,12 +771,11 @@ export const ExternalTransferScreen: React.FC<ExternalTransferScreenProps> = ({
 
           <Input
             label="Transaction PIN"
-            placeholder="Enter your 4-digit PIN"
+            placeholder={`Enter your ${pinLength}-digit PIN`}
             value={formData.pin}
             onChangeText={(text) => handleFieldChange('pin', text)}
             validationType="numeric"
-            keyboardType="numeric"
-            maxLength={4}
+            maxLength={pinLength}
             secureTextEntry
           />
         </View>

@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { useTenantTheme } from '../../tenants/TenantContext';
 import { useBankingAlert } from '../../services/AlertService';
+import { useTenantSecurity } from '../../hooks/useTenantSecurity';
 import TransferHeader from '../../components/transfers/TransferHeader';
 import TransferTabs from '../../components/transfers/TransferTabs';
 import AccountSelector from '../../components/transfers/AccountSelector';
@@ -47,6 +48,7 @@ export const CompleteTransferFlowScreen: React.FC<CompleteTransferFlowScreenProp
 }) => {
   const { theme } = useTenantTheme() as any;
   const { showAlert } = useBankingAlert();
+  const { pinLength } = useTenantSecurity();
   const { currentTenant } = useTenantContext();
 
   const [progress, setProgress] = useState<TransferProgress>({
@@ -775,14 +777,13 @@ export const CompleteTransferFlowScreen: React.FC<CompleteTransferFlowScreenProp
         <View style={styles.section}>
           <Input
             label="Transaction PIN"
-            placeholder="Enter your 4-digit PIN"
+            placeholder={`Enter your ${pinLength}-digit PIN`}
             value={progress.transferData.pin || ''}
             onChangeText={(text) => updateProgress({
               transferData: { ...progress.transferData, pin: text }
             })}
             validationType="numeric"
-            keyboardType="numeric"
-            maxLength={4}
+            maxLength={pinLength}
             secureTextEntry
           />
         </View>
@@ -1009,14 +1010,13 @@ export const CompleteTransferFlowScreen: React.FC<CompleteTransferFlowScreenProp
         <View style={styles.section}>
           <Input
             label="Transaction PIN"
-            placeholder="Enter your 4-digit PIN"
+            placeholder={`Enter your ${pinLength}-digit PIN`}
             value={progress.transferData.pin || ''}
             onChangeText={(text) => updateProgress({
               transferData: { ...progress.transferData, pin: text }
             })}
             validationType="numeric"
-            keyboardType="numeric"
-            maxLength={4}
+            maxLength={pinLength}
             secureTextEntry
           />
         </View>

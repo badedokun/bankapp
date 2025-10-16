@@ -40,7 +40,7 @@ BEGIN
       NEW.reference,
       'money_transfer',
       NEW.amount,
-      COALESCE((SELECT branding->>'currency' FROM platform.tenants WHERE id = NEW.tenant_id), 'NGN'),
+      (SELECT currency FROM tenant.wallets WHERE user_id = NEW.sender_id LIMIT 1),
       NEW.description,
       NEW.recipient_name,
       CASE NEW.status
@@ -61,44 +61,6 @@ BEGIN
         ELSE NEW.status
       END
       WHERE id = existing_transaction_id;
-    END IF;
-
-    -- Handle reversal
-    IF NEW.reversal_status = 'reversed' AND (OLD.reversal_status IS NULL OR OLD.reversal_status != 'reversed') THEN
-      -- Mark original as reversed
-      UPDATE tenant.transactions
-      SET status = 'reversed'
-      WHERE id = existing_transaction_id;
-
-      -- Create reversal transaction
-      INSERT INTO tenant.transactions (
-        user_id,
-        tenant_id,
-        reference,
-        type,
-        amount,
-        currency,
-        description,
-        recipient_name,
-        status,
-        total_fees,
-        parent_transaction_id,
-        created_at
-      ) VALUES (
-        NEW.sender_id,
-        NEW.tenant_id,
-        'REV-' || NEW.reference,
-        'money_transfer',
-        NEW.amount,
-        COALESCE((SELECT branding->>'currency' FROM platform.tenants WHERE id = NEW.tenant_id), 'NGN'),
-        'REVERSAL: ' || COALESCE(NEW.description, 'Transfer reversed'),
-        NEW.recipient_name,
-        'completed',
-        0,
-        existing_transaction_id,
-        NOW()
-      )
-      ON CONFLICT (reference) DO NOTHING;
     END IF;
   END IF;
 
@@ -148,7 +110,7 @@ BEGIN
         transfer_rec.reference,
         'money_transfer',
         transfer_rec.amount,
-        COALESCE((SELECT branding->>'currency' FROM platform.tenants WHERE id = transfer_rec.tenant_id), 'NGN'),
+        (SELECT currency FROM tenant.wallets WHERE user_id = transfer_rec.sender_id LIMIT 1),
         transfer_rec.description,
         transfer_rec.recipient_name,
         CASE transfer_rec.status

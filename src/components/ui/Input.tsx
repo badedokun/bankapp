@@ -218,9 +218,9 @@ export const Input = React.forwardRef<TextInput, InputProps>(({
       position: 'relative',
     },
     input: {
-      backgroundColor: '#fafbfc',
+      backgroundColor: theme.colors.surface,
       borderWidth: 2,
-      borderColor: isFocused ? theme.colors.primary : '#e1e5e9',
+      borderColor: isFocused ? theme.colors.primary : theme.colors.textSecondary + '40',
       borderRadius: theme.borderRadius.md,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.sm + 2,
@@ -273,7 +273,7 @@ export const Input = React.forwardRef<TextInput, InputProps>(({
             setIsFocused(false);
             props.onBlur?.(e);
           }}
-          placeholderTextColor="#999"
+          placeholderTextColor={theme.colors.textSecondary + '80'}
           maxLength={maxLength || SecurityConfig.maxInputLength[validationType as keyof typeof SecurityConfig.maxInputLength]}
         />
         {rightIcon && (

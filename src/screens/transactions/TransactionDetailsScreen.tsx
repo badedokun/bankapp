@@ -16,6 +16,7 @@ import { useTenant, useTenantTheme } from '../../tenants/TenantContext';
 import { useBankingAlert } from '../../services/AlertService';
 import APIService from '../../services/api';
 import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
+import { defaultThemes, themeToReactNativeStyles } from '../../design-system/theme';
 
 export interface TransactionDetailsScreenProps {
   route?: {
@@ -65,8 +66,12 @@ export default function TransactionDetailsScreen({
   onRetry
 }: TransactionDetailsScreenProps) {
   const tenant = useTenant();
-  const { theme } = useTenantTheme() as any;
+  const tenantTheme = useTenantTheme();
   const { showAlert, showConfirm } = useBankingAlert();
+
+  // Use tenant theme or fallback to default FMFB theme
+  const fallbackTheme = themeToReactNativeStyles(defaultThemes.fmfb);
+  const theme = (tenantTheme as any)?.theme || fallbackTheme;
 
   const [transaction, setTransaction] = useState<TransactionDetails | null>(null);
   const [loading, setLoading] = useState(true);

@@ -24,6 +24,13 @@ const tenantConfigs: Record<TenantID, TenantConfig> = {
       scheduledTransfers: true,
       fraudDetection: true,
     },
+    security: {
+      pinLength: 4,
+      minPasswordLength: 8,
+      requireBiometric: true,
+      sessionTimeout: 15,
+      maxLoginAttempts: 3,
+    },
     branding: {
       primaryColor: '#010080',
       secondaryColor: '#000060',
