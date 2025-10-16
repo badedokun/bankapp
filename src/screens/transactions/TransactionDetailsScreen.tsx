@@ -11,14 +11,13 @@ import {
   ScrollView,
   SafeAreaView,
   TouchableOpacity,
-  Modal,
-  TextInput,
   Platform,
 } from 'react-native';
 import { useTenant, useTenantTheme } from '../../tenants/TenantContext';
 import { useBankingAlert } from '../../services/AlertService';
 import APIService from '../../services/api';
 import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
+import ShareReceiptModal from '../../components/common/ShareReceiptModal';
 
 export interface TransactionDetailsScreenProps {
   route?: {
@@ -74,8 +73,6 @@ export default function TransactionDetailsScreen({
   const [transaction, setTransaction] = useState<TransactionDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [showShareModal, setShowShareModal] = useState(false);
-  const [shareMethod, setShareMethod] = useState<'email' | 'phone'>('email');
-  const [shareRecipient, setShareRecipient] = useState('');
 
   const transactionId = propTransactionId || route?.params?.transactionId;
   const initialTransaction = propTransaction || route?.params?.transaction;
@@ -154,15 +151,10 @@ export default function TransactionDetailsScreen({
     setShowShareModal(true);
   };
 
-  const handleConfirmShare = () => {
-    if (!shareRecipient.trim()) {
-      showAlert('Error', 'Please enter a valid email or phone number');
-      return;
-    }
-
+  const handleShareSubmit = (method: 'email' | 'phone', value: string) => {
     setShowShareModal(false);
-    showAlert('Success', `Transaction details will be shared to ${shareRecipient}`);
-    setShareRecipient('');
+    showAlert('Success', `Transaction receipt will be sent to ${value} via ${method}`);
+    // TODO: Implement actual share functionality via API
   };
 
   const handleDispute = () => {
@@ -305,121 +297,6 @@ export default function TransactionDetailsScreen({
       fontSize: theme.typography.sizes.md,
       color: theme.colors.textSecondary,
     },
-    // Share Modal Styles
-    modalOverlay: {
-      flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.6)',
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: 20,
-    },
-    shareModal: {
-      backgroundColor: theme.colors.surface,
-      borderRadius: 20,
-      padding: 24,
-      width: Platform.OS === 'web' ? 480 : '100%',
-      maxWidth: 480,
-      ...Platform.select({
-        ios: {
-          shadowColor: theme.colors.text,
-          shadowOffset: { width: 0, height: 8 },
-          shadowOpacity: 0.3,
-          shadowRadius: 24,
-        },
-        android: {
-          elevation: 16,
-        },
-        web: {
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-        },
-      }),
-    },
-    shareModalTitle: {
-      fontSize: 24,
-      fontWeight: '700',
-      color: theme.colors.text,
-      marginBottom: 8,
-      textAlign: 'center',
-    },
-    shareModalSubtitle: {
-      fontSize: 15,
-      fontWeight: '400',
-      color: theme.colors.textSecondary,
-      marginBottom: 24,
-      textAlign: 'center',
-      lineHeight: 22,
-    },
-    methodSelector: {
-      flexDirection: 'row',
-      gap: 12,
-      marginBottom: 20,
-    },
-    methodButton: {
-      flex: 1,
-      paddingVertical: 12,
-      paddingHorizontal: 16,
-      borderRadius: 12,
-      backgroundColor: theme.colors.background,
-      borderWidth: 2,
-      borderColor: theme.colors.border,
-      alignItems: 'center',
-    },
-    methodButtonActive: {
-      backgroundColor: theme.colors.primary + '15',
-      borderColor: theme.colors.primary,
-    },
-    methodButtonText: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: theme.colors.textSecondary,
-    },
-    methodButtonTextActive: {
-      color: theme.colors.primary,
-    },
-    shareInput: {
-      borderWidth: 2,
-      borderColor: theme.colors.border,
-      borderRadius: 12,
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.sm,
-      fontSize: 16,
-      fontWeight: '400',
-      color: theme.colors.text,
-      backgroundColor: theme.colors.background,
-      marginBottom: 20,
-    },
-    shareModalActions: {
-      flexDirection: 'row',
-      gap: 12,
-    },
-    shareModalCancel: {
-      flex: 1,
-      backgroundColor: theme.colors.background,
-      paddingVertical: 14,
-      paddingHorizontal: 24,
-      borderRadius: 12,
-      borderWidth: 2,
-      borderColor: theme.colors.border,
-      alignItems: 'center',
-    },
-    shareModalCancelText: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: theme.colors.text,
-    },
-    shareModalConfirm: {
-      flex: 1,
-      backgroundColor: theme.colors.primary,
-      paddingVertical: 14,
-      paddingHorizontal: 24,
-      borderRadius: 12,
-      alignItems: 'center',
-    },
-    shareModalConfirmText: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: 'white',
-    },
   });
 
   if (loading) {
@@ -553,74 +430,13 @@ export default function TransactionDetailsScreen({
       </View>
 
       {/* Share Modal */}
-      <Modal
+      <ShareReceiptModal
         visible={showShareModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowShareModal(false)}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setShowShareModal(false)}
-        >
-          <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
-            <View style={styles.shareModal}>
-              <Text style={styles.shareModalTitle}>Share Transaction Receipt</Text>
-              <Text style={styles.shareModalSubtitle}>
-                Enter the recipient's email or phone number
-              </Text>
-
-              {/* Method Selection */}
-              <View style={styles.methodSelector}>
-                <TouchableOpacity
-                  style={[styles.methodButton, shareMethod === 'email' && styles.methodButtonActive]}
-                  onPress={() => setShareMethod('email')}
-                >
-                  <Text style={[styles.methodButtonText, shareMethod === 'email' && styles.methodButtonTextActive]}>
-                    Email
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.methodButton, shareMethod === 'phone' && styles.methodButtonActive]}
-                  onPress={() => setShareMethod('phone')}
-                >
-                  <Text style={[styles.methodButtonText, shareMethod === 'phone' && styles.methodButtonTextActive]}>
-                    Phone
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-              {/* Input Field */}
-              <TextInput
-                style={styles.shareInput}
-                placeholder={shareMethod === 'email' ? 'Enter email address' : 'Enter phone number'}
-                placeholderTextColor={theme.colors.textSecondary + '80'}
-                value={shareRecipient}
-                onChangeText={setShareRecipient}
-                keyboardType={shareMethod === 'email' ? 'email-address' : 'phone-pad'}
-                autoCapitalize="none"
-              />
-
-              {/* Action Buttons */}
-              <View style={styles.shareModalActions}>
-                <TouchableOpacity
-                  style={styles.shareModalCancel}
-                  onPress={() => {
-                    setShowShareModal(false);
-                    setShareRecipient('');
-                  }}
-                >
-                  <Text style={styles.shareModalCancelText}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.shareModalConfirm} onPress={handleConfirmShare}>
-                  <Text style={styles.shareModalConfirmText}>Share</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </TouchableOpacity>
-        </TouchableOpacity>
-      </Modal>
+        onClose={() => setShowShareModal(false)}
+        onSubmit={handleShareSubmit}
+        title="Share Transaction Receipt"
+        description="Enter the recipient's email or phone number"
+      />
     </SafeAreaView>
   );
 }
