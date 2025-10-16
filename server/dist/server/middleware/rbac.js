@@ -11,7 +11,7 @@ const rbac_1 = require("../services/rbac");
  */
 function loadRBACPermissions(pool) {
     const rbacService = new rbac_1.RBACService(pool);
-    return async (req, res, next) => {
+    return async (req, _res, next) => {
         try {
             if (!req.user || !req.tenant) {
                 return next();
@@ -187,11 +187,11 @@ function requireRole(roleCodes) {
                     userRoles: req.rbac.roles.map(r => r.roleCode)
                 });
             }
-            next();
+            return next();
         }
         catch (error) {
             console.error('Role check error:', error);
-            res.status(500).json({
+            return res.status(500).json({
                 success: false,
                 error: 'Role check failed'
             });
@@ -223,11 +223,11 @@ function requireAdmin() {
                     userRoles: req.rbac.roles.map(r => r.roleCode)
                 });
             }
-            next();
+            return next();
         }
         catch (error) {
             console.error('Admin check error:', error);
-            res.status(500).json({
+            return res.status(500).json({
                 success: false,
                 error: 'Admin check failed'
             });

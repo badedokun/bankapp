@@ -59,7 +59,7 @@ const SAVINGS_CONFIG = {
  */
 router.get('/accounts', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
     const accounts = await (0, database_1.query)(`
       SELECT
         sa.*,
@@ -96,7 +96,7 @@ router.post('/flexible/create', auth_1.authenticateToken, tenant_1.validateTenan
     }
     const { accountName, initialDeposit, targetAmount } = req.body;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
     await (0, database_1.transaction)(async (client) => {
         // Check wallet balance
         const walletResult = await client.query('SELECT balance FROM tenant.wallets WHERE user_id = $1 AND tenant_id = $2', [userId, tenantId]);
@@ -143,7 +143,7 @@ router.post('/flexible/deposit', auth_1.authenticateToken, tenant_1.validateTena
 ], (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const { accountId, amount } = req.body;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
     await (0, database_1.transaction)(async (client) => {
         // Verify account ownership
         const accountResult = await client.query('SELECT * FROM tenant.savings_accounts WHERE id = $1 AND user_id = $2 AND tenant_id = $3', [accountId, userId, tenantId]);
@@ -187,7 +187,7 @@ router.post('/target/create', auth_1.authenticateToken, tenant_1.validateTenantA
 ], (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const { goalName, targetAmount, targetDate, initialDeposit } = req.body;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
     await (0, database_1.transaction)(async (client) => {
         // Create target savings account
         const accountResult = await client.query(`
@@ -227,7 +227,7 @@ router.post('/target/create', auth_1.authenticateToken, tenant_1.validateTenantA
  */
 router.get('/target/goals', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
     const goals = await (0, database_1.query)(`
       SELECT
         *,
@@ -252,7 +252,7 @@ router.post('/target/contribute', auth_1.authenticateToken, tenant_1.validateTen
 ], (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const { goalId, amount } = req.body;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
     await (0, database_1.transaction)(async (client) => {
         // Similar to flexible deposit logic
         const accountResult = await client.query('SELECT * FROM tenant.savings_accounts WHERE id = $1 AND user_id = $2 AND product_type = \'target\'', [goalId, userId]);
@@ -281,7 +281,7 @@ router.post('/locked/create', auth_1.authenticateToken, tenant_1.validateTenantA
 ], (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const { accountName, amount, lockPeriod } = req.body;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
     await (0, database_1.transaction)(async (client) => {
         const maturityDate = new Date();
         maturityDate.setDate(maturityDate.getDate() + lockPeriod);
@@ -310,7 +310,7 @@ router.post('/locked/create', auth_1.authenticateToken, tenant_1.validateTenantA
  * GET /api/savings/locked/terms
  * Get locked savings terms and rates
  */
-router.get('/locked/terms', auth_1.authenticateToken, (0, errorHandler_1.asyncHandler)(async (req, res) => {
+router.get('/locked/terms', auth_1.authenticateToken, (0, errorHandler_1.asyncHandler)(async (_req, res) => {
     const terms = SAVINGS_CONFIG.locked.lockPeriods.map(days => ({
         days,
         months: days / 30,
@@ -330,7 +330,7 @@ router.get('/locked/terms', auth_1.authenticateToken, (0, errorHandler_1.asyncHa
  */
 router.get('/locked/maturity', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
     const accounts = await (0, database_1.query)(`
       SELECT
         *,
@@ -364,7 +364,7 @@ router.post('/group/create', auth_1.authenticateToken, tenant_1.validateTenantAc
 ], (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const { groupName, description, targetAmount, contributionAmount, frequency } = req.body;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
     await (0, database_1.transaction)(async (client) => {
         // Create group savings account
         const groupResult = await client.query(`
@@ -461,7 +461,7 @@ router.post('/auto/enable', auth_1.authenticateToken, tenant_1.validateTenantAcc
 ], (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const { percentage, savingsAccountId } = req.body;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
     await (0, database_1.transaction)(async (client) => {
         // Create or update SAYT settings
         const result = await client.query(`
@@ -500,7 +500,7 @@ router.put('/auto/settings', auth_1.authenticateToken, tenant_1.validateTenantAc
 ], (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const { percentage, isActive } = req.body;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
     const updates = [];
     const values = [];
     let paramCount = 1;
@@ -532,7 +532,7 @@ router.put('/auto/settings', auth_1.authenticateToken, tenant_1.validateTenantAc
  */
 router.get('/auto/history', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
     const { limit = 50, offset = 0 } = req.query;
     const history = await (0, database_1.query)(`
       SELECT

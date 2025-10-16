@@ -14,8 +14,8 @@ const router = express_1.default.Router();
  * Get user's transaction limits and current spending
  */
 router.get('/', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
-    const userId = req.user.id;
-    const tenantId = req.user.tenantId;
+    const userId = req.user?.id;
+    const tenantId = req.user?.tenantId;
     // Get user's wallet with limits
     const walletResult = await (0, database_1.query)(`
     SELECT 
@@ -81,9 +81,9 @@ router.get('/', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, err
  */
 router.put('/', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const { userId, userEmail, dailyLimit, monthlyLimit } = req.body;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
     // Admin role check
-    if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
+    if (req.user?.role !== 'admin' && req.user?.role !== 'super_admin') {
         return res.status(403).json({
             success: false,
             error: 'Admin privileges required',
@@ -116,7 +116,7 @@ router.put('/', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, err
     }
     // Use current user if no target specified (self-update)
     if (!targetUserId) {
-        targetUserId = req.user.id;
+        targetUserId = req.user?.id;
     }
     // Update user limits in users table
     const updateResult = await (0, database_1.query)(`

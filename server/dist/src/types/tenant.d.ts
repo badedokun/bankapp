@@ -36,6 +36,10 @@ export interface TenantBranding {
     };
     borderRadius: number;
     shadowIntensity: number;
+    appTitle?: string;
+    name?: string;
+    tagline?: string;
+    code?: string;
 }
 export interface TenantAIConfig {
     provider: 'openai' | 'azure' | 'custom';
@@ -53,20 +57,46 @@ export interface TenantAIConfig {
     };
     fallbackToOpenAI?: boolean;
 }
+export interface ColorScale {
+    50: string;
+    100: string;
+    200: string;
+    300: string;
+    400: string;
+    500: string;
+    600: string;
+    700: string;
+    800: string;
+    900: string;
+    950: string;
+}
+export type ColorValue = string;
 export interface TenantTheme {
     colors: {
-        primary: string;
-        secondary: string;
-        accent: string;
+        primary: ColorValue;
+        secondary: ColorValue;
+        accent: ColorValue;
+        error: ColorValue;
+        warning: ColorValue;
+        success: ColorValue;
+        info: ColorValue;
+        neutral?: ColorValue;
         background: string;
         surface: string;
         text: string;
         textSecondary: string;
         textInverse: string;
-        error: string;
-        warning: string;
-        success: string;
-        info: string;
+        border?: string;
+        card?: string;
+        disabled?: string;
+        primaryLight?: string;
+        primaryDark?: string;
+        semantic?: {
+            error: ColorValue;
+            warning: ColorValue;
+            success: ColorValue;
+            info: ColorValue;
+        };
     };
     spacing: {
         xs: number;
@@ -105,6 +135,10 @@ export interface TenantTheme {
         md: string;
         lg: string;
         xl: string;
+    };
+    layout?: {
+        borderRadius: number;
+        borderRadiusLarge: number;
     };
 }
 export type TenantID = 'fmfb' | 'bank-a' | 'bank-b' | 'bank-c' | 'default';

@@ -286,8 +286,8 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
       let accountBalance = 0;
 
       try {
-        // Get recent transactions
-        const transactionsData = await APIService.getTransferHistory({ page: 1, limit: 10 });
+        // Get recent transactions with cache-busting timestamp
+        const transactionsData = await APIService.getTransferHistory({ page: 1, limit: 5 });
         if (transactionsData.transactions) {
           recentTransactions = transactionsData.transactions.map((tx: any) => ({
             amount: Math.abs(tx.amount || 0),

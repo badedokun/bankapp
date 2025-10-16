@@ -19,7 +19,7 @@ const tenant_1 = require("../middleware/tenant");
 const router = (0, express_1.Router)();
 // Configure multer for file uploads
 const storage = multer_1.default.diskStorage({
-    destination: async (req, file, cb) => {
+    destination: async (req, _file, cb) => {
         const user = req.user;
         const tenant = req.tenant;
         // Create tenant-specific upload directory
@@ -41,7 +41,7 @@ const storage = multer_1.default.diskStorage({
         cb(null, filename);
     }
 });
-const fileFilter = (req, file, cb) => {
+const fileFilter = (_req, file, cb) => {
     // Accept images and PDFs only
     const allowedTypes = /jpeg|jpg|png|pdf/;
     const extname = allowedTypes.test(path_1.default.extname(file.originalname).toLowerCase());
@@ -74,7 +74,7 @@ router.post('/documents/:documentType/upload', (0, express_validator_1.param)('d
     .optional()
     .isLength({ min: 1, max: 50 })
     .withMessage('Document number must be between 1 and 50 characters'), validation_1.validateRequest, upload.single('document'), async (req, res) => {
-    const client = await (0, database_1.query)('BEGIN');
+    await (0, database_1.query)('BEGIN');
     try {
         const { documentType } = req.params;
         const { document_number } = req.body;

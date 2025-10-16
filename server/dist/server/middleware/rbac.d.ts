@@ -16,7 +16,7 @@ export interface RBACRequest extends Request {
 /**
  * Middleware to load user's RBAC permissions
  */
-export declare function loadRBACPermissions(pool: Pool): (req: RBACRequest, res: Response, next: NextFunction) => Promise<void>;
+export declare function loadRBACPermissions(pool: Pool): (req: RBACRequest, _res: Response, next: NextFunction) => Promise<void>;
 /**
  * Middleware to require specific permission
  */
@@ -28,9 +28,9 @@ export declare function requireAnyPermission(permissions: string[], level?: 'rea
 /**
  * Middleware to require specific role
  */
-export declare function requireRole(roleCodes: string | string[]): (req: RBACRequest, res: Response, next: NextFunction) => Promise<Response<any, Record<string, any>>>;
+export declare function requireRole(roleCodes: string | string[]): (req: RBACRequest, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
 /**
  * Middleware for admin-only endpoints
  */
-export declare function requireAdmin(): (req: RBACRequest, res: Response, next: NextFunction) => Promise<Response<any, Record<string, any>>>;
+export declare function requireAdmin(): (req: RBACRequest, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
 //# sourceMappingURL=rbac.d.ts.map

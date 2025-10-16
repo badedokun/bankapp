@@ -57,7 +57,7 @@ router.get('/:tenantId/assets/:assetType/:assetName', async (req, res) => {
         res.send(binaryData);
     }
     catch (error) {
-        console.error('Error serving tenant asset:', error);
+        console.error('Error serving tenant asset:', error.message || error);
         res.status(500).json({
             error: 'Failed to serve asset',
             message: error.message
@@ -106,7 +106,7 @@ router.get('/by-name/:tenantName/assets/:assetType/:assetName', async (req, res)
         res.send(binaryData);
     }
     catch (error) {
-        console.error('Error serving tenant asset by name:', error);
+        console.error('Error serving tenant asset by name:', error.message || error);
         res.status(500).json({
             error: 'Failed to serve asset',
             message: error.message
@@ -151,7 +151,7 @@ router.post('/:tenantId/assets', async (req, res) => {
         });
     }
     catch (error) {
-        console.error('Error uploading tenant asset:', error);
+        console.error('Error uploading tenant asset:', error.message || error);
         res.status(500).json({
             error: 'Failed to upload asset',
             message: error.message

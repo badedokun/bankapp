@@ -96,7 +96,7 @@ router.post('/create', auth_1.authenticateToken, async (req, res) => {
             });
         }
         // Validate referral creation (fraud checks)
-        const validation = await services.fraudService.validateReferralCreation(req.user.id, refereeId, deviceFingerprint, ipAddress);
+        const validation = await services.fraudService.validateReferralCreation(req.user?.id, refereeId, deviceFingerprint, ipAddress);
         if (!validation.isValid) {
             return res.status(400).json({
                 error: 'Validation Failed',
@@ -167,7 +167,7 @@ router.post('/share', auth_1.authenticateToken, async (req, res) => {
     }
     try {
         const result = await services.referralService.shareReferral({
-            userId: req.user.id,
+            userId: req.user?.id,
             shareMethod,
             shareDestination,
             deviceType,
@@ -286,7 +286,7 @@ router.post('/promo-codes/validate', auth_1.authenticateToken, async (req, res) 
         });
     }
     try {
-        const result = await services.promoCodeService.validatePromoCode(code, req.user.id);
+        const result = await services.promoCodeService.validatePromoCode(code, req.user?.id);
         return res.json(result);
     }
     catch (error) {
@@ -313,7 +313,7 @@ router.post('/promo-codes/redeem', auth_1.authenticateToken, async (req, res) =>
         });
     }
     try {
-        const result = await services.promoCodeService.redeemPromoCode(req.user.id, code, depositAmount);
+        const result = await services.promoCodeService.redeemPromoCode(req.user?.id, code, depositAmount);
         return res.json(result);
     }
     catch (error) {
@@ -539,7 +539,7 @@ router.post('/aggregators/payouts/:payoutId/approve', auth_1.authenticateToken, 
         });
     }
     try {
-        const success = await services.aggregatorService.approvePayout(payoutId, req.user.id, paymentReference);
+        const success = await services.aggregatorService.approvePayout(payoutId, req.user?.id, paymentReference);
         return res.json({
             success,
             message: success ? 'Payout approved successfully' : 'Failed to approve payout',

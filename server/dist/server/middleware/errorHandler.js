@@ -8,7 +8,7 @@ exports.asyncHandler = asyncHandler;
  * Not Found middleware
  * Handles 404 errors for undefined routes
  */
-function notFound(req, res, next) {
+function notFound(req, _res, next) {
     const error = new Error(`Route not found: ${req.originalUrl}`);
     error.status = 404;
     error.code = 'ROUTE_NOT_FOUND';
@@ -18,7 +18,7 @@ function notFound(req, res, next) {
  * Global error handler middleware
  * Handles all errors and returns standardized error responses
  */
-function errorHandler(err, req, res, next) {
+function errorHandler(err, req, res, _next) {
     let error = { ...err };
     error.message = err.message;
     // Log error details

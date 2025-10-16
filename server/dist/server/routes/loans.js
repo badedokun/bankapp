@@ -122,7 +122,7 @@ router.post('/personal/apply', auth_1.authenticateToken, tenant_1.validateTenant
     (0, express_validator_1.body)('monthlyIncome').isFloat({ min: 30000 })
         .withMessage('Monthly income must be at least ₦30,000'),
 ], (0, errorHandler_1.asyncHandler)(async (req, res) => {
-    const errors = (0, express_validator_1.validationResult)(req);
+    const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({
             success: false,
@@ -131,7 +131,7 @@ router.post('/personal/apply', auth_1.authenticateToken, tenant_1.validateTenant
     }
     const { amount, tenure, purpose, employmentStatus, monthlyIncome } = req.body;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
     // Check eligibility
     const eligibility = await calculateEligibility(userId, tenantId, 'personal');
     if (!eligibility.eligible) {
@@ -188,7 +188,7 @@ router.post('/personal/apply', auth_1.authenticateToken, tenant_1.validateTenant
  */
 router.get('/personal/eligibility', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
     const eligibility = await calculateEligibility(userId, tenantId, 'personal');
     res.json({
         success: true,
@@ -210,7 +210,7 @@ router.get('/personal/eligibility', auth_1.authenticateToken, tenant_1.validateT
  */
 router.get('/personal/offers', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
     const eligibility = await calculateEligibility(userId, tenantId, 'personal');
     if (!eligibility.eligible) {
         return res.json({
@@ -264,7 +264,7 @@ router.post('/business/apply', auth_1.authenticateToken, tenant_1.validateTenant
     (0, express_validator_1.body)('monthlyRevenue').isFloat({ min: 100000 })
         .withMessage('Monthly revenue must be at least ₦100,000'),
 ], (0, errorHandler_1.asyncHandler)(async (req, res) => {
-    const errors = (0, express_validator_1.validationResult)(req);
+    const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({
             success: false,
@@ -273,7 +273,7 @@ router.post('/business/apply', auth_1.authenticateToken, tenant_1.validateTenant
     }
     const { amount, tenure, businessName, businessType, yearsInBusiness, monthlyRevenue } = req.body;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
     // Check eligibility
     const eligibility = await calculateEligibility(userId, tenantId, 'business');
     if (!eligibility.eligible) {
@@ -331,7 +331,7 @@ router.post('/business/documents', auth_1.authenticateToken, tenant_1.validateTe
 ], (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const { loanId, documentType, documentData } = req.body;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
     // Verify loan ownership
     const loanCheck = await (0, database_1.query)('SELECT id FROM tenant.loans WHERE id = $1 AND user_id = $2 AND tenant_id = $3', [loanId, userId, tenantId]);
     if (!loanCheck.rows[0]) {
@@ -360,7 +360,7 @@ router.post('/business/documents', auth_1.authenticateToken, tenant_1.validateTe
 router.get('/business/status/:loanId', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const { loanId } = req.params;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
     const loan = await (0, database_1.query)(`
       SELECT
         l.*,
@@ -399,7 +399,7 @@ router.post('/quick/instant', auth_1.authenticateToken, tenant_1.validateTenantA
 ], (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const { amount, pin } = req.body;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
     // Verify PIN (simplified - should check against hashed PIN)
     const userPin = await (0, database_1.query)('SELECT transaction_pin FROM tenant.users WHERE id = $1', [userId]);
     if (!userPin.rows[0] || userPin.rows[0].transaction_pin !== pin) {
@@ -486,7 +486,7 @@ router.post('/quick/instant', auth_1.authenticateToken, tenant_1.validateTenantA
  */
 router.get('/quick/limit', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
     const eligibility = await calculateEligibility(userId, tenantId, 'quick');
     // Get loan history
     const loanHistory = await (0, database_1.query)(`
@@ -521,7 +521,7 @@ router.post('/quick/repay', auth_1.authenticateToken, tenant_1.validateTenantAcc
 ], (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const { loanId, amount } = req.body;
     const userId = req.user.userId;
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
     await (0, database_1.transaction)(async (client) => {
         // Get loan details
         const loan = await client.query(`

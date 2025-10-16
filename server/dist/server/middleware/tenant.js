@@ -14,9 +14,9 @@ exports.getTenantConfig = getTenantConfig;
 const database_1 = require("../config/database");
 /**
  * Extract tenant information from various sources
- * Priority order: JWT token > custom domain > subdomain > header > query param > default
+ * Priority order: JWT token > subdomain > header > query param > default
  * @param {Object} req - Express request object
- * @returns {string|null|Promise<string>} Tenant identifier or 'CUSTOM_DOMAIN' for custom domain lookup
+ * @returns {string|null} Tenant identifier
  */
 function extractTenantId(req) {
     // 1. From JWT token (highest priority)
@@ -28,70 +28,48 @@ function extractTenantId(req) {
     if (headerTenant) {
         return headerTenant;
     }
-    // 3. Check if hostname matches a custom domain pattern
+    // 3. From subdomain (e.g., fmfb.orokii.com or fmfb-34-59-143-25.nip.io)
     const host = req.get('host') || '';
-    // Special case: Check for custom domains (e.g., fmfb-34-59-143-25.nip.io)
-    // Return special marker to trigger custom domain lookup
-    if (host && !host.includes('localhost') && (host.includes('.nip.io') || host.includes('.orokii.com'))) {
-        return 'CUSTOM_DOMAIN:' + host;
-    }
-    // 4. From subdomain (e.g., fmfb.orokii.com)
     const subdomain = host.split('.')[0];
-    // Map common subdomains to tenant names
-    const subdomainToTenant = {
-        'fmfb': 'fmfb',
-        'localhost': process.env.DEFAULT_TENANT || 'fmfb', // Use env default
-        'dev': process.env.DEFAULT_TENANT || 'fmfb',
-        'bank-a': 'bank-a',
-        'bank-b': 'bank-b',
-        'bank-c': 'bank-c',
-        'admin': 'system-admin'
-    };
-    if (subdomainToTenant[subdomain]) {
-        return subdomainToTenant[subdomain];
+    // Use subdomain directly as tenant identifier if not localhost/dev
+    // For localhost and dev environments, use DEFAULT_TENANT from environment
+    const localDevSubdomains = ['localhost', 'dev', '127', '0'];
+    if (localDevSubdomains.some(local => subdomain.startsWith(local))) {
+        const defaultTenant = process.env.DEFAULT_TENANT;
+        if (defaultTenant) {
+            return defaultTenant;
+        }
     }
-    // 5. From query parameter
+    else if (subdomain && subdomain !== 'www') {
+        // Handle nip.io domain format: tenant-ip-address.nip.io -> tenant
+        // Example: fmfb-34-59-143-25.nip.io -> fmfb
+        if (host.includes('.nip.io')) {
+            const parts = subdomain.split('-');
+            const tenantCandidate = parts[0];
+            if (tenantCandidate) {
+                console.log(`🌐 Detected tenant from nip.io domain: ${tenantCandidate}`);
+                return tenantCandidate;
+            }
+        }
+        // Use subdomain directly as tenant identifier for standard domains
+        return subdomain;
+    }
+    // 4. From query parameter
     const queryTenant = req.query.tenant;
     if (queryTenant) {
         return queryTenant;
     }
-    // 6. Default tenant from environment
-    return process.env.DEFAULT_TENANT || 'fmfb';
+    // 5. Default tenant from environment (no hardcoded fallback)
+    // If DEFAULT_TENANT is not set, return empty string to trigger proper error handling
+    return process.env.DEFAULT_TENANT || '';
 }
 /**
  * Resolve tenant name to tenant UUID
- * @param {string} tenantIdentifier - Tenant name, UUID, or CUSTOM_DOMAIN:hostname
+ * @param {string} tenantIdentifier - Tenant name or UUID
  * @returns {Promise<Object|null>} Tenant information
  */
 async function resolveTenant(tenantIdentifier) {
     try {
-        // Check if this is a custom domain lookup
-        if (tenantIdentifier.startsWith('CUSTOM_DOMAIN:')) {
-            const hostname = tenantIdentifier.replace('CUSTOM_DOMAIN:', '');
-            console.log(`🔍 Looking up tenant by custom domain: ${hostname}`);
-            // Try to find by custom_domain
-            let result = await (0, database_1.query)(`
-        SELECT id, name, display_name, status, tier, subdomain, custom_domain,
-               configuration, branding, ai_configuration, security_settings
-        FROM platform.tenants
-        WHERE custom_domain = $1 AND status = 'active'
-      `, [hostname]);
-            if (result.rows.length > 0) {
-                console.log(`✅ Found tenant by custom domain: ${result.rows[0].name}`);
-                return result.rows[0];
-            }
-            // If not found by custom_domain, try to extract tenant from subdomain
-            // For nip.io format like fmfb-34-59-143-25.nip.io, check if subdomain starts with known tenant
-            const subdomain = hostname.split('.')[0];
-            if (subdomain.startsWith('fmfb')) {
-                console.log(`🔍 Custom domain not found, trying tenant name: fmfb`);
-                tenantIdentifier = 'fmfb';
-            }
-            else {
-                console.log(`❌ No tenant found for custom domain: ${hostname}`);
-                return null;
-            }
-        }
         // First try to find by name
         let result = await (0, database_1.query)(`
       SELECT id, name, display_name, status, tier, subdomain, custom_domain,
@@ -107,9 +85,6 @@ async function resolveTenant(tenantIdentifier) {
         FROM platform.tenants
         WHERE id = $1 AND status = 'active'
       `, [tenantIdentifier]);
-        }
-        if (result.rows.length > 0) {
-            console.log(`✅ Resolved tenant: ${result.rows[0].name} (${result.rows[0].id})`);
         }
         return result.rows.length > 0 ? result.rows[0] : null;
     }
@@ -211,7 +186,7 @@ function requireTenantTier(requiredTiers) {
                 current: req.tenant.tier
             });
         }
-        next();
+        return next();
     };
 }
 /**
@@ -236,7 +211,7 @@ function requireFeature(featureName) {
                 tenant: req.tenant.name
             });
         }
-        next();
+        return next();
     };
 }
 /**

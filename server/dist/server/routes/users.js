@@ -23,7 +23,7 @@ router.get('/', (0, auth_1.requireRole)(['admin']), (0, errorHandler_1.asyncHand
     FROM tenant.users
     WHERE tenant_id = $1
     ORDER BY created_at DESC
-  `, [req.user.tenantId]);
+  `, [req.user?.tenantId]);
     res.json({
         success: true,
         data: { users: result.rows }
@@ -40,7 +40,7 @@ router.get('/profile', (0, errorHandler_1.asyncHandler)(async (req, res) => {
            last_login_at, updated_at
     FROM tenant.users
     WHERE id = $1 AND tenant_id = $2
-  `, [req.user.id, req.user.tenantId]);
+  `, [req.user?.id, req.user?.tenantId]);
     if (result.rows.length === 0) {
         throw errorHandler_1.errors.notFound('User not found', 'USER_NOT_FOUND');
     }
@@ -61,7 +61,7 @@ router.get('/:id', (0, auth_1.requireRole)(['admin']), (0, errorHandler_1.asyncH
            last_login_at, updated_at
     FROM tenant.users
     WHERE id = $1 AND tenant_id = $2
-  `, [id, req.user.tenantId]);
+  `, [id, req.user?.tenantId]);
     if (result.rows.length === 0) {
         throw errorHandler_1.errors.notFound('User not found', 'USER_NOT_FOUND');
     }

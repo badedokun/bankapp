@@ -590,8 +590,16 @@ class APIService {
     if (options?.limit) params.append('limit', options.limit.toString());
     if (options?.status) params.append('status', options.status);
     if (options?.type) params.append('type', options.type);
+    // Add cache-busting timestamp
+    params.append('_t', Date.now().toString());
 
-    const response = await this.makeRequest<any>(`transfers/history?${params.toString()}`);
+    const response = await this.makeRequest<any>(`transfers/history?${params.toString()}`, {
+      cache: 'no-cache',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    });
 
     if (response.success && response.data) {
       // Transform server response structure to match expected API service format

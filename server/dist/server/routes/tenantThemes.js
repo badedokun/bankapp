@@ -178,7 +178,7 @@ router.get('/:tenantCode', async (req, res) => {
  * GET /api/tenants
  * List all active tenants (for development/admin purposes)
  */
-router.get('/', async (req, res) => {
+router.get('/', async (_req, res) => {
     try {
         const tenantsQuery = `
       SELECT

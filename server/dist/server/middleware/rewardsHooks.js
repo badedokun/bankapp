@@ -23,7 +23,7 @@ function getTenantId(req) {
 /**
  * Award points and check achievements after transfer
  */
-async function afterTransferHook(req, res, transferData) {
+async function afterTransferHook(req, _res, transferData) {
     try {
         const userId = req.user?.id;
         const tenantId = getTenantId(req);
@@ -52,7 +52,7 @@ async function afterTransferHook(req, res, transferData) {
 /**
  * Award points and check achievements after savings deposit
  */
-async function afterSavingsDepositHook(req, res, savingsData) {
+async function afterSavingsDepositHook(req, _res, savingsData) {
     try {
         const userId = req.user?.id;
         const tenantId = getTenantId(req);
@@ -108,7 +108,7 @@ async function afterLoginHook(userId, tenantId) {
 /**
  * Award points and check achievements after bill payment
  */
-async function afterBillPaymentHook(req, res, billData) {
+async function afterBillPaymentHook(req, _res, billData) {
     try {
         const userId = req.user?.id;
         const tenantId = getTenantId(req);
@@ -162,14 +162,14 @@ async function updateChallengeProgress(userId, challengeCode, tenantId, incremen
     try {
         const rewardService = new RewardService_1.default(tenantId);
         const challenges = await rewardService.getUserChallenges(userId);
-        const challenge = challenges.find(c => c.code === challengeCode && c.status === 'active');
+        const challenge = challenges.find((c) => c.code === challengeCode && c.status === 'active');
         if (challenge) {
             const newProgress = (challenge.progress || 0) + increment;
             await rewardService.updateChallengeProgress(userId, challengeCode, newProgress);
             return {
                 challengeCode,
                 progress: newProgress,
-                isCompleted: newProgress >= challenge.maxProgress,
+                isCompleted: newProgress >= (challenge.progress || 100),
             };
         }
         return null;

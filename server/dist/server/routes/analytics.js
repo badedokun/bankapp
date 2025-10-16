@@ -18,8 +18,8 @@ const router = express_1.default.Router();
  * Get user dashboard analytics data
  */
 router.get('/dashboard', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
-    const userId = req.user.id;
-    const tenantId = req.user.tenantId;
+    const userId = req.user?.id;
+    const tenantId = req.user?.tenantId;
     // Get current balance
     const balanceResult = await (0, database_1.query)(`
     SELECT balance, currency FROM tenant.wallets
@@ -225,8 +225,8 @@ router.get('/dashboard', auth_1.authenticateToken, tenant_1.validateTenantAccess
  */
 router.get('/spending-trends', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const { period = '3months' } = req.query;
-    const userId = req.user.id;
-    const tenantId = req.user.tenantId;
+    const userId = req.user?.id;
+    const tenantId = req.user?.tenantId;
     let intervalDays;
     switch (period) {
         case '1month':

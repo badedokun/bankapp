@@ -23,7 +23,7 @@ router.get('/preferences', auth_1.authenticateToken, tenant_1.validateTenantAcce
     const preferencesResult = await (0, database_1.query)(`
     SELECT notification_preferences FROM tenant.users
     WHERE id = $1 AND tenant_id = $2
-  `, [req.user.id, req.user.tenantId]);
+  `, [req.user?.id, req.user?.tenantId]);
     let preferences = {
         email: {
             transactionAlerts: true,
@@ -77,11 +77,12 @@ router.put('/preferences', auth_1.authenticateToken, tenant_1.validateTenantAcce
 ], (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({
+        res.status(400).json({
             success: false,
             error: 'Validation failed',
             details: errors.array()
         });
+        return;
     }
     const { preferences } = req.body;
     // Update user preferences in database
@@ -89,7 +90,7 @@ router.put('/preferences', auth_1.authenticateToken, tenant_1.validateTenantAcce
     UPDATE tenant.users
     SET notification_preferences = $1, updated_at = NOW()
     WHERE id = $2 AND tenant_id = $3
-  `, [JSON.stringify(preferences), req.user.id, req.user.tenantId]);
+  `, [JSON.stringify(preferences), req.user?.id, req.user?.tenantId]);
     res.json({
         success: true,
         message: 'Notification preferences updated successfully',
@@ -174,6 +175,8 @@ router.get('/', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, err
  */
 router.put('/:id/read', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const { id } = req.params;
+    // Note: id is available but not used in sample implementation
+    console.log('Marking notification as read:', id);
     // For now, just return success since we're using sample data
     res.json({
         success: true,
@@ -184,7 +187,7 @@ router.put('/:id/read', auth_1.authenticateToken, tenant_1.validateTenantAccess,
  * PUT /api/notifications/read-all
  * Mark all notifications as read
  */
-router.put('/read-all', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
+router.put('/read-all', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (_req, res) => {
     // For now, just return success since we're using sample data
     res.json({
         success: true,
@@ -197,6 +200,8 @@ router.put('/read-all', auth_1.authenticateToken, tenant_1.validateTenantAccess,
  */
 router.delete('/:id', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const { id } = req.params;
+    // Note: id is available but not used in sample implementation
+    console.log('Deleting notification:', id);
     // For now, just return success since we're using sample data
     res.json({
         success: true,
@@ -212,7 +217,7 @@ router.get('/settings', auth_1.authenticateToken, tenant_1.validateTenantAccess,
         channels: {
             email: {
                 enabled: true,
-                address: req.user.email || 'user@example.com',
+                address: req.user?.email || 'user@example.com',
                 verified: true
             },
             sms: {

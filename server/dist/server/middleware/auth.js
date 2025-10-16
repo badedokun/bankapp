@@ -214,7 +214,7 @@ function requireRole(allowedRoles) {
                 current: req.user.role
             });
         }
-        next();
+        return next();
     };
 }
 /**
@@ -232,7 +232,7 @@ function requirePermission(requiredPermissions) {
             });
         }
         const userPermissions = req.user.permissions || [];
-        const hasPermission = permissions.every(permission => userPermissions.includes(permission) || req.user.role === 'admin');
+        const hasPermission = permissions.every(permission => userPermissions.includes(permission) || req.user?.role === 'admin');
         if (!hasPermission) {
             return res.status(403).json({
                 error: 'Insufficient permissions',
@@ -241,7 +241,7 @@ function requirePermission(requiredPermissions) {
                 current: userPermissions
             });
         }
-        next();
+        return next();
     };
 }
 exports.default = {

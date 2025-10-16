@@ -53,7 +53,7 @@ const BILL_PROVIDERS = [
  * GET /api/bills/providers
  * Get available bill payment providers
  */
-router.get('/providers', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
+router.get('/providers', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (_req, res) => {
     res.json({
         success: true,
         data: { providers: BILL_PROVIDERS }
@@ -81,11 +81,12 @@ router.post('/validate', auth_1.authenticateToken, tenant_1.validateTenantAccess
 ], (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({
+        res.status(400).json({
             success: false,
             error: 'Validation failed',
             details: errors.array()
         });
+        return;
     }
     const { provider, accountNumber } = req.body;
     // Simulate bill validation
@@ -125,18 +126,19 @@ router.post('/pay', auth_1.authenticateToken, tenant_1.validateTenantAccess, [
 ], (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({
+        res.status(400).json({
             success: false,
             error: 'Validation failed',
             details: errors.array()
         });
+        return;
     }
-    const { provider, accountNumber, amount, pin, customerName } = req.body;
+    const { provider, accountNumber, amount, customerName } = req.body;
     // Verify user has sufficient balance
     const balanceResult = await (0, database_1.query)(`
     SELECT balance FROM tenant.wallets
     WHERE user_id = $1 AND tenant_id = $2 AND is_primary = true
-  `, [req.user.id, req.user.tenantId]);
+  `, [req.user?.id, req.user?.tenantId]);
     if (balanceResult.rows.length === 0) {
         throw errorHandler_1.errors.notFound('Wallet not found', 'WALLET_NOT_FOUND');
     }
@@ -145,10 +147,11 @@ router.post('/pay', auth_1.authenticateToken, tenant_1.validateTenantAccess, [
     const fees = paymentAmount * 0.01; // 1% fee
     const totalAmount = paymentAmount + fees;
     if (currentBalance < totalAmount) {
-        return res.status(400).json({
+        res.status(400).json({
             success: false,
             error: 'Insufficient balance'
         });
+        return;
     }
     // Generate payment reference
     const reference = `BILL${Date.now()}${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
@@ -160,7 +163,7 @@ router.post('/pay', auth_1.authenticateToken, tenant_1.validateTenantAccess, [
       UPDATE tenant.wallets
       SET balance = balance - $1, updated_at = NOW()
       WHERE user_id = $2 AND tenant_id = $3 AND is_primary = true
-    `, [totalAmount, req.user.id, req.user.tenantId]);
+    `, [totalAmount, req.user?.id, req.user?.tenantId]);
         // Record transaction
         await (0, database_1.query)(`
       INSERT INTO tenant.transactions (
@@ -168,8 +171,8 @@ router.post('/pay', auth_1.authenticateToken, tenant_1.validateTenantAccess, [
         reference, status, metadata, created_at
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
     `, [
-            req.user.id,
-            req.user.tenantId,
+            req.user?.id,
+            req.user?.tenantId,
             'bill_payment',
             paymentAmount,
             fees,
@@ -225,7 +228,7 @@ router.get('/history', auth_1.authenticateToken, tenant_1.validateTenantAccess, 
     WHERE user_id = $1 AND tenant_id = $2 AND type = 'bill_payment'
     ORDER BY created_at DESC
     LIMIT $3 OFFSET $4
-  `, [req.user.id, req.user.tenantId, limit, offset]);
+  `, [req.user?.id, req.user?.tenantId, limit, offset]);
     const payments = historyResult.rows.map(row => ({
         reference: row.reference,
         amount: parseFloat(row.amount),

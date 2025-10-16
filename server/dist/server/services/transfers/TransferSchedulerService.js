@@ -3,12 +3,9 @@
  * Transfer Scheduler Service
  * Processes scheduled and recurring transfers
  */
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TransferSchedulerService = void 0;
-const database_1 = __importDefault(require("../../config/database"));
+const database_1 = require("../../config/database");
 const InternalTransferService_1 = require("./InternalTransferService");
 class TransferSchedulerService {
     constructor() {
@@ -65,7 +62,7 @@ class TransferSchedulerService {
                 AND scheduled_date <= $1
                 ORDER BY scheduled_date ASC
             `;
-            const result = await database_1.default.query(query, [now]);
+            const result = await database_1.pool.query(query, [now]);
             if (result.rows.length > 0) {
                 console.log(`📅 Found ${result.rows.length} scheduled transfer(s) to process`);
                 for (const scheduledTransfer of result.rows) {
@@ -83,7 +80,7 @@ class TransferSchedulerService {
      * Execute a single scheduled transfer
      */
     async executeScheduledTransfer(scheduledTransfer) {
-        const client = await database_1.default.connect();
+        const client = await database_1.pool.connect();
         try {
             await client.query('BEGIN');
             console.log(`💸 Executing scheduled transfer: ${scheduledTransfer.id}`);
@@ -92,7 +89,7 @@ class TransferSchedulerService {
                  SET status = 'processing', updated_at = CURRENT_TIMESTAMP
                  WHERE id = $1`, [scheduledTransfer.id]);
             // Execute the transfer
-            const transferService = new InternalTransferService_1.InternalTransferService(database_1.default);
+            const transferService = new InternalTransferService_1.InternalTransferService(database_1.pool);
             const transferRequest = {
                 walletId: scheduledTransfer.from_wallet_id,
                 recipientWalletNumber: scheduledTransfer.to_wallet_number,
@@ -102,7 +99,7 @@ class TransferSchedulerService {
                 reference: scheduledTransfer.reference,
                 pin: '' // PIN was already validated when scheduling
             };
-            const result = await transferService.processTransfer(transferRequest, scheduledTransfer.user_id);
+            const result = await transferService.processTransfer(transferRequest);
             // Update scheduled transfer status
             if (result.success) {
                 await client.query(`UPDATE tenant.scheduled_transfers
@@ -157,7 +154,7 @@ class TransferSchedulerService {
                 AND (end_date IS NULL OR end_date >= $1)
                 ORDER BY next_execution_date ASC
             `;
-            const result = await database_1.default.query(query, [now]);
+            const result = await database_1.pool.query(query, [now]);
             if (result.rows.length > 0) {
                 console.log(`🔄 Found ${result.rows.length} recurring transfer(s) to process`);
                 for (const recurringTransfer of result.rows) {
@@ -173,12 +170,12 @@ class TransferSchedulerService {
      * Execute a recurring transfer and schedule the next one
      */
     async executeRecurringTransfer(recurringTransfer) {
-        const client = await database_1.default.connect();
+        const client = await database_1.pool.connect();
         try {
             await client.query('BEGIN');
             console.log(`🔄 Executing recurring transfer: ${recurringTransfer.id}`);
             // Execute the transfer
-            const transferService = new InternalTransferService_1.InternalTransferService(database_1.default);
+            const transferService = new InternalTransferService_1.InternalTransferService(database_1.pool);
             const transferRequest = {
                 walletId: recurringTransfer.from_wallet_id,
                 recipientWalletNumber: recurringTransfer.to_wallet_number,
@@ -188,7 +185,7 @@ class TransferSchedulerService {
                 reference: `${recurringTransfer.reference}-${Date.now()}`,
                 pin: '' // PIN was already validated when setting up recurring
             };
-            const result = await transferService.processTransfer(transferRequest, recurringTransfer.user_id);
+            const result = await transferService.processTransfer(transferRequest);
             if (result.success) {
                 // Calculate next execution date
                 const nextDate = this.calculateNextExecutionDate(new Date(recurringTransfer.next_execution_date), recurringTransfer.frequency);

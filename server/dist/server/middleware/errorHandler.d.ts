@@ -23,12 +23,12 @@ interface CustomError extends Error {
  * Not Found middleware
  * Handles 404 errors for undefined routes
  */
-declare function notFound(req: Request, res: Response, next: NextFunction): void;
+declare function notFound(req: Request, _res: Response, next: NextFunction): void;
 /**
  * Global error handler middleware
  * Handles all errors and returns standardized error responses
  */
-declare function errorHandler(err: CustomError, req: CustomRequest, res: Response, next: NextFunction): void;
+declare function errorHandler(err: CustomError, req: CustomRequest, res: Response, _next: NextFunction): void;
 /**
  * Async error wrapper
  * Wraps async route handlers to catch errors automatically

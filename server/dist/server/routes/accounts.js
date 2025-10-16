@@ -36,7 +36,7 @@ router.get('/', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, err
     JOIN tenant.users u ON w.user_id = u.id
     WHERE w.user_id = $1 AND w.tenant_id = $2
     ORDER BY w.is_primary DESC, w.created_at DESC
-  `, [req.user.id, req.user.tenantId]);
+  `, [req.user?.id, req.user?.tenantId]);
     const accounts = walletsResult.rows.map(row => ({
         id: row.id,
         accountNumber: row.account_number,
@@ -80,7 +80,7 @@ router.get('/:id', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, 
     FROM tenant.wallets w
     JOIN tenant.users u ON w.user_id = u.id
     WHERE w.id = $1 AND w.user_id = $2 AND w.tenant_id = $3
-  `, [id, req.user.id, req.user.tenantId]);
+  `, [id, req.user?.id, req.user?.tenantId]);
     if (accountResult.rows.length === 0) {
         throw errorHandler_1.errors.notFound('Account not found', 'ACCOUNT_NOT_FOUND');
     }

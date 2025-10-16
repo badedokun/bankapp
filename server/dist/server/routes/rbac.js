@@ -25,8 +25,8 @@ function createRBACRouter(pool) {
                     error: 'Authentication required'
                 });
             }
-            const permissions = await rbacService.getUserPermissions(req.tenant.id, req.user.id);
-            const roles = await rbacService.getUserRoles(req.tenant.id, req.user.id);
+            const permissions = await rbacService.getUserPermissions(req.tenant.id, req.user?.id);
+            const roles = await rbacService.getUserRoles(req.tenant.id, req.user?.id);
             res.json({
                 success: true,
                 data: {
@@ -55,7 +55,7 @@ function createRBACRouter(pool) {
                     error: 'Authentication required'
                 });
             }
-            const availableFeatures = await rbacService.getUserAvailableFeatures(req.tenant.id, req.user.id);
+            const availableFeatures = await rbacService.getUserAvailableFeatures(req.tenant.id, req.user?.id);
             res.json({
                 success: true,
                 data: availableFeatures
@@ -80,7 +80,7 @@ function createRBACRouter(pool) {
                     error: 'Authentication required'
                 });
             }
-            const metrics = await rbacService.getRoleBasedMetrics(req.tenant.id, req.user.id);
+            const metrics = await rbacService.getRoleBasedMetrics(req.tenant.id, req.user?.id);
             res.json({
                 success: true,
                 data: metrics
@@ -112,8 +112,8 @@ function createRBACRouter(pool) {
                     error: 'Permission code is required'
                 });
             }
-            const hasPermission = await rbacService.checkUserPermission(req.tenant.id, req.user.id, permissionCode, resourceId);
-            const permissionLevel = await rbacService.getUserPermissionLevel(req.tenant.id, req.user.id, permissionCode);
+            const hasPermission = await rbacService.checkUserPermission(req.tenant.id, req.user?.id, permissionCode, resourceId);
+            const permissionLevel = await rbacService.getUserPermissionLevel(req.tenant.id, req.user?.id, permissionCode);
             res.json({
                 success: true,
                 data: {
@@ -180,7 +180,7 @@ function createRBACRouter(pool) {
                     error: 'User ID and role code are required'
                 });
             }
-            await rbacService.assignUserRole(req.tenant.id, userId, roleCode, req.user.id, reason, effectiveFrom ? new Date(effectiveFrom) : undefined, effectiveTo ? new Date(effectiveTo) : undefined);
+            await rbacService.assignUserRole(req.tenant.id, userId, roleCode, req.user?.id, reason, effectiveFrom ? new Date(effectiveFrom) : undefined, effectiveTo ? new Date(effectiveTo) : undefined);
             res.json({
                 success: true,
                 message: 'Role assigned successfully'
@@ -298,7 +298,7 @@ function createRBACRouter(pool) {
     /**
      * GET /api/rbac/admin/platform-roles - Get all platform roles (platform admin only)
      */
-    router.get('/admin/platform-roles', (0, rbac_2.requirePermission)('platform_administration', 'read'), async (req, res) => {
+    router.get('/admin/platform-roles', (0, rbac_2.requirePermission)('platform_administration', 'read'), async (_req, res) => {
         try {
             const query = `
         SELECT
@@ -324,7 +324,7 @@ function createRBACRouter(pool) {
     /**
      * GET /api/rbac/admin/platform-permissions - Get all platform permissions (platform admin only)
      */
-    router.get('/admin/platform-permissions', (0, rbac_2.requirePermission)('platform_administration', 'read'), async (req, res) => {
+    router.get('/admin/platform-permissions', (0, rbac_2.requirePermission)('platform_administration', 'read'), async (_req, res) => {
         try {
             const query = `
         SELECT
@@ -580,7 +580,7 @@ function createRBACRouter(pool) {
           RETURNING id, code, name
         `;
                 const roleResult = await client.query(roleQuery, [
-                    req.tenant.id, code, name, description || '', level || 3, req.user.id
+                    req.tenant.id, code, name, description || '', level || 3, req.user?.id
                 ]);
                 const roleId = roleResult.rows[0].id;
                 // Assign permissions if provided
@@ -700,10 +700,10 @@ function createRBACRouter(pool) {
             }
             // Get all necessary data in parallel for better performance
             const [userPermissions, userRoles, availableFeatures, roleBasedMetrics] = await Promise.all([
-                rbacService.getUserPermissions(req.tenant.id, req.user.id),
-                rbacService.getUserRoles(req.tenant.id, req.user.id),
-                rbacService.getUserAvailableFeatures(req.tenant.id, req.user.id),
-                rbacService.getRoleBasedMetrics(req.tenant.id, req.user.id)
+                rbacService.getUserPermissions(req.tenant.id, req.user?.id),
+                rbacService.getUserRoles(req.tenant.id, req.user?.id),
+                rbacService.getUserAvailableFeatures(req.tenant.id, req.user?.id),
+                rbacService.getRoleBasedMetrics(req.tenant.id, req.user?.id)
             ]);
             // Get enhanced user profile
             const userQuery = `
@@ -717,7 +717,7 @@ function createRBACRouter(pool) {
         FROM tenant.users
         WHERE id = $1 AND tenant_id = $2
       `;
-            const userResult = await pool.query(userQuery, [req.user.id, req.tenant.id]);
+            const userResult = await pool.query(userQuery, [req.user?.id, req.tenant.id]);
             if (userResult.rows.length === 0) {
                 return res.status(404).json({
                     success: false,
@@ -728,7 +728,7 @@ function createRBACRouter(pool) {
             // Generate role-specific AI suggestions
             const aiSuggestions = generateRoleBasedAISuggestions(user.role, userPermissions);
             // Get pending approvals for this user's role
-            const pendingApprovals = await getPendingApprovalsForUser(pool, req.tenant.id, req.user.id, user.role);
+            const pendingApprovals = await getPendingApprovalsForUser(pool, req.tenant.id, req.user?.id, user.role);
             // Combine all data for enhanced dashboard
             const enhancedDashboardData = {
                 userContext: {
@@ -844,7 +844,7 @@ function generateRoleBasedAISuggestions(role, permissions) {
     return suggestions;
 }
 // Helper function to get pending approvals for user's role
-async function getPendingApprovalsForUser(pool, tenantId, userId, role) {
+async function getPendingApprovalsForUser(pool, tenantId, _userId, role) {
     // Only certain roles should see approval workflows
     const approvalRoles = ['admin', 'ceo', 'deputy_md', 'branch_manager', 'operations_manager', 'credit_manager'];
     if (!approvalRoles.includes(role)) {

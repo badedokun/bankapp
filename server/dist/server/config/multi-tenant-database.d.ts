@@ -55,7 +55,11 @@ declare class MultiTenantDatabaseManager {
             idleCount: number;
             waitingCount: number;
         };
-        tenants: {};
+        tenants: Record<string, {
+            totalCount: number;
+            idleCount: number;
+            waitingCount: number;
+        }>;
     };
     /**
      * Clean up idle tenant pools

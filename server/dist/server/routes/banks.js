@@ -45,7 +45,7 @@ const NIGERIAN_BANKS = [
  * GET /api/banks
  * Get list of available banks for transfers
  */
-router.get('/', async (req, res) => {
+router.get('/', async (_req, res) => {
     try {
         res.json({
             success: true,

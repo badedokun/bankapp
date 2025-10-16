@@ -28,6 +28,7 @@ export interface UserReward {
 export interface Achievement {
     id: number;
     achievementCode: string;
+    code: string;
     achievementName: string;
     description: string;
     category: 'savings' | 'spending' | 'loyalty' | 'transactions' | 'referral' | 'special';

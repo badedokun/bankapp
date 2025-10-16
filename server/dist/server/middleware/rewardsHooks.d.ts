@@ -6,7 +6,7 @@ import { Request, Response, NextFunction } from 'express';
 /**
  * Award points and check achievements after transfer
  */
-export declare function afterTransferHook(req: Request, res: Response, transferData: any): Promise<{
+export declare function afterTransferHook(req: Request, _res: Response, transferData: any): Promise<{
     pointsAwarded: number;
     unlockedAchievements: string[];
     tierUpgrade: import("../services/RewardService").RewardTier;
@@ -14,7 +14,7 @@ export declare function afterTransferHook(req: Request, res: Response, transferD
 /**
  * Award points and check achievements after savings deposit
  */
-export declare function afterSavingsDepositHook(req: Request, res: Response, savingsData: any): Promise<{
+export declare function afterSavingsDepositHook(req: Request, _res: Response, savingsData: any): Promise<{
     pointsAwarded: number;
     unlockedAchievements: string[];
     tierUpgrade: import("../services/RewardService").RewardTier;
@@ -30,7 +30,7 @@ export declare function afterLoginHook(userId: string, tenantId: string): Promis
 /**
  * Award points and check achievements after bill payment
  */
-export declare function afterBillPaymentHook(req: Request, res: Response, billData: any): Promise<{
+export declare function afterBillPaymentHook(req: Request, _res: Response, billData: any): Promise<{
     pointsAwarded: number;
     tierUpgrade: import("../services/RewardService").RewardTier;
 }>;

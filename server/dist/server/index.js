@@ -65,8 +65,7 @@ const pci_dss_compliance_1 = __importDefault(require("./routes/pci-dss-complianc
 const security_monitoring_1 = __importDefault(require("./routes/security-monitoring"));
 const transaction_limits_1 = __importDefault(require("./routes/transaction-limits"));
 const ai_chat_1 = __importDefault(require("./routes/ai-chat"));
-// TEMP: Disabled due to TypeScript errors
-// import { createRBACRouter } from './routes/rbac';
+const rbac_1 = require("./routes/rbac");
 const accounts_1 = __importDefault(require("./routes/accounts"));
 const bills_1 = __importDefault(require("./routes/bills"));
 const analytics_1 = __importDefault(require("./routes/analytics"));
@@ -116,7 +115,7 @@ app.use((0, cors_1.default)({
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Tenant-ID', 'X-Requested-With'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Tenant-ID', 'X-Requested-With', 'Cache-Control', 'Pragma'],
 }));
 // Compression and parsing
 app.use((0, compression_1.default)());
@@ -125,7 +124,7 @@ app.use(express_1.default.urlencoded({ extended: true }));
 // Logging
 app.use((0, morgan_1.default)('combined'));
 // Environment-based rate limiting configuration
-const isProduction = process.env.NODE_ENV === 'production';
+// const _isProduction = process.env.NODE_ENV === 'production'; // Not used
 const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
 // Rate limiting - Relaxed for development, strict for production
 const limiter = (0, express_rate_limit_1.rateLimit)({
@@ -143,11 +142,11 @@ app.use(limiter);
 // Auth rate limiting - Relaxed for development/QA, strict for production
 const authLimiter = (0, express_rate_limit_1.rateLimit)({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: isDevelopment ? 100 : 5, // Dev: 100 logins, Prod: 5 logins per 15min
+    max: isDevelopment ? 500 : 5, // Dev: 500 logins, Prod: 5 logins per 15min
     skipSuccessfulRequests: true,
     message: {
         error: isDevelopment
-            ? 'Rate limit reached. For QA/testing: 100 attempts per 15min allowed.'
+            ? 'Rate limit reached. For QA/testing: 500 attempts per 15min allowed.'
             : 'Too many authentication attempts, please try again later.',
         code: 'AUTH_RATE_LIMIT_EXCEEDED'
     }
@@ -155,13 +154,13 @@ const authLimiter = (0, express_rate_limit_1.rateLimit)({
 // Log rate limit configuration on startup
 console.log(`🔒 Rate Limiting: ${isDevelopment ? 'RELAXED (Development/QA)' : 'STRICT (Production)'}`);
 console.log(`   - General: ${isDevelopment ? '1000' : '100'} requests per 15min`);
-console.log(`   - Auth: ${isDevelopment ? '100' : '5'} attempts per 15min`);
+console.log(`   - Auth: ${isDevelopment ? '500' : '5'} attempts per 15min`);
 // Serve static files (HTML mockups)
 app.use('/mockups', express_1.default.static(path_1.default.join(__dirname, '../public/mockups')));
 // Serve design system files
 app.use('/design-system', express_1.default.static(path_1.default.join(__dirname, '../public/design-system')));
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
     res.json({
         status: 'ok',
         timestamp: new Date().toISOString(),
@@ -187,8 +186,7 @@ app.use('/api/pci-dss-compliance', auth_2.authenticateToken, tenant_1.tenantMidd
 app.use('/api/security-monitoring', auth_2.authenticateToken, tenant_1.tenantMiddleware, security_monitoring_1.default);
 app.use('/api/transaction-limits', auth_2.authenticateToken, tenant_1.tenantMiddleware, transaction_limits_1.default);
 app.use('/api/ai', auth_2.authenticateToken, tenant_1.tenantMiddleware, ai_chat_1.default);
-// TEMP: Disabled due to TypeScript errors
-// app.use('/api/rbac', tenantMiddleware, createRBACRouter(pool));
+app.use('/api/rbac', tenant_1.tenantMiddleware, (0, rbac_1.createRBACRouter)(database_1.pool));
 app.use('/api/accounts', auth_2.authenticateToken, tenant_1.tenantMiddleware, accounts_1.default);
 app.use('/api/bills', auth_2.authenticateToken, tenant_1.tenantMiddleware, bills_1.default);
 app.use('/api/analytics', auth_2.authenticateToken, tenant_1.tenantMiddleware, analytics_1.default);

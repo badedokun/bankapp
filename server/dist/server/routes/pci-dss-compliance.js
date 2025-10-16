@@ -158,7 +158,7 @@ router.get('/assessments', auth_1.authenticateToken, (0, auth_1.requireRole)(['a
     validation_1.validateRequest
 ], async (req, res) => {
     try {
-        const { tenantId } = req.user;
+        const { _tenantId } = req.user;
         const { status, assessmentType } = req.query;
         // Mock response for assessments list
         const assessments = [];
@@ -186,7 +186,7 @@ router.get('/assessments', auth_1.authenticateToken, (0, auth_1.requireRole)(['a
  */
 router.post('/vulnerability-scans', auth_1.authenticateToken, (0, auth_1.requireRole)(['admin', 'compliance_officer', 'security_officer']), validateVulnerabilityReport, async (req, res) => {
     try {
-        const { tenantId } = req.user;
+        const { _tenantId } = req.user;
         const { scanType, findings } = req.body;
         // Mock response for vulnerability scan submission
         const scan = {
@@ -236,7 +236,7 @@ router.get('/vulnerability-scans', auth_1.authenticateToken, (0, auth_1.requireR
     validation_1.validateRequest
 ], async (req, res) => {
     try {
-        const { tenantId } = req.user;
+        const { _tenantId } = req.user;
         const { scanType, severity } = req.query;
         // Mock response for vulnerability scans list
         const scans = [];

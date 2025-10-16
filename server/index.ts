@@ -86,7 +86,7 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Tenant-ID', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Tenant-ID', 'X-Requested-With', 'Cache-Control', 'Pragma'],
 }));
 
 // Compression and parsing
@@ -119,11 +119,11 @@ app.use(limiter);
 // Auth rate limiting - Relaxed for development/QA, strict for production
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: isDevelopment ? 100 : 5, // Dev: 100 logins, Prod: 5 logins per 15min
+  max: isDevelopment ? 500 : 5, // Dev: 500 logins, Prod: 5 logins per 15min
   skipSuccessfulRequests: true,
   message: {
     error: isDevelopment
-      ? 'Rate limit reached. For QA/testing: 100 attempts per 15min allowed.'
+      ? 'Rate limit reached. For QA/testing: 500 attempts per 15min allowed.'
       : 'Too many authentication attempts, please try again later.',
     code: 'AUTH_RATE_LIMIT_EXCEEDED'
   }
@@ -132,7 +132,7 @@ const authLimiter = rateLimit({
 // Log rate limit configuration on startup
 console.log(`🔒 Rate Limiting: ${isDevelopment ? 'RELAXED (Development/QA)' : 'STRICT (Production)'}`);
 console.log(`   - General: ${isDevelopment ? '1000' : '100'} requests per 15min`);
-console.log(`   - Auth: ${isDevelopment ? '100' : '5'} attempts per 15min`);
+console.log(`   - Auth: ${isDevelopment ? '500' : '5'} attempts per 15min`);
 
 // Serve static files (HTML mockups)
 app.use('/mockups', express.static(path.join(__dirname, '../public/mockups')));

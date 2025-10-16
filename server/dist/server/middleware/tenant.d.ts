@@ -2,19 +2,20 @@
  * Multi-Tenant Middleware
  * Handles tenant detection and context setting
  */
+import { Request, Response, NextFunction } from 'express';
 /**
  * Extract tenant information from various sources
- * Priority order: JWT token > custom domain > subdomain > header > query param > default
+ * Priority order: JWT token > subdomain > header > query param > default
  * @param {Object} req - Express request object
- * @returns {string|null|Promise<string>} Tenant identifier or 'CUSTOM_DOMAIN' for custom domain lookup
+ * @returns {string|null} Tenant identifier
  */
-declare function extractTenantId(req: any): any;
+declare function extractTenantId(req: any): string;
 /**
  * Resolve tenant name to tenant UUID
- * @param {string} tenantIdentifier - Tenant name, UUID, or CUSTOM_DOMAIN:hostname
+ * @param {string} tenantIdentifier - Tenant name or UUID
  * @returns {Promise<Object|null>} Tenant information
  */
-declare function resolveTenant(tenantIdentifier: any): Promise<any>;
+declare function resolveTenant(tenantIdentifier: string): Promise<any>;
 /**
  * Multi-tenant middleware
  * Detects tenant context and adds tenant information to request
@@ -30,13 +31,13 @@ declare function validateTenantAccess(req: any, res: any, next: any): any;
  * @param {Array|string} requiredTiers - Required tenant tiers
  * @returns {Function} Middleware function
  */
-declare function requireTenantTier(requiredTiers: any): (req: any, res: any, next: any) => any;
+declare function requireTenantTier(requiredTiers: string | string[]): (req: Request, res: Response, next: NextFunction) => void | Response<any, Record<string, any>>;
 /**
  * Feature flag middleware
  * @param {string} featureName - Feature flag name to check
  * @returns {Function} Middleware function
  */
-declare function requireFeature(featureName: any): (req: any, res: any, next: any) => any;
+declare function requireFeature(featureName: string): (req: Request, res: Response, next: NextFunction) => void | Response<any, Record<string, any>>;
 /**
  * Get tenant-specific configuration
  * @param {Object} req - Express request object
@@ -44,7 +45,7 @@ declare function requireFeature(featureName: any): (req: any, res: any, next: an
  * @param {any} defaultValue - Default value if not found
  * @returns {any} Configuration value
  */
-declare function getTenantConfig(req: any, configPath: any, defaultValue?: any): any;
+declare function getTenantConfig(req: any, configPath: string, defaultValue?: any): any;
 export { extractTenantId, resolveTenant, tenantMiddleware, validateTenantAccess, requireTenantTier, requireFeature, getTenantConfig };
 declare const _default: {
     extractTenantId: typeof extractTenantId;

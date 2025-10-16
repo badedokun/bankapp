@@ -173,8 +173,9 @@ class RewardService {
         unlocked DESC,
         a.category,
         a.points_reward DESC`, [userId]);
-        return result.rows.map(row => ({
+        return result.rows.map((row) => ({
             id: row.id,
+            code: row.achievement_code, // Required by Achievement interface
             achievementCode: row.achievement_code,
             achievementName: row.achievement_name,
             description: row.description,

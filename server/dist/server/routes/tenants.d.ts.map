@@ -1,1 +1,1 @@
-{"version":3,"file":"tenants.d.ts","sourceRoot":"","sources":["../../../routes/tenants.ts"],"names":[],"mappings":"AAAA;;;GAGG;AAOH,QAAA,MAAM,MAAM,4CAAmB,CAAC;AA6ChC,eAAe,MAAM,CAAC"}
+{"version":3,"file":"tenants.d.ts","sourceRoot":"","sources":["../../../routes/tenants.ts"],"names":[],"mappings":"AAAA;;;GAGG;AAQH,QAAA,MAAM,MAAM,4CAAmB,CAAC;AAChC,QAAA,MAAM,YAAY,4CAAmB,CAAC;AAkHtC,eAAe,MAAM,CAAC;AACtB,OAAO,EAAE,YAAY,EAAE,CAAC"}

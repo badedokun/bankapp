@@ -42,9 +42,12 @@ const ConversationalAIService_1 = require("../services/ai-intelligence-service/c
 const IntentClassificationService_1 = __importDefault(require("../services/ai-intelligence-service/nlp/IntentClassificationService"));
 const EntityExtractionService_1 = __importDefault(require("../services/ai-intelligence-service/nlp/EntityExtractionService"));
 const AIIntelligenceManager_1 = require("../services/ai-intelligence-service/AIIntelligenceManager");
-const database_1 = require("../config/database");
+const multi_tenant_database_1 = __importDefault(require("../config/multi-tenant-database"));
 const DevelopmentControls_1 = require("../services/ai-intelligence-service/utils/DevelopmentControls");
-const MockResponses_1 = require("../services/ai-intelligence-service/utils/MockResponses");
+const CustomerDataService_1 = require("../services/ai-intelligence-service/CustomerDataService");
+const AIActionsService_1 = __importDefault(require("../services/ai-intelligence-service/AIActionsService"));
+const ConversationalTransferService_1 = __importDefault(require("../services/ai-intelligence-service/ConversationalTransferService"));
+const ConversationStateManager_1 = __importDefault(require("../services/ai-intelligence-service/ConversationStateManager"));
 const router = express.Router();
 // Initialize services
 const aiService = new ConversationalAIService_1.ConversationalAIService();
@@ -59,42 +62,42 @@ const aiManager = new AIIntelligenceManager_1.AIIntelligenceManager({
 // Initialize development controls
 const devControls = DevelopmentControls_1.DevelopmentControls.getInstance();
 // Helper function to enrich context with comprehensive real user banking data
-async function enrichContextWithUserData(context, userId) {
+async function enrichContextWithUserData(context, userId, tenantId) {
     try {
-        // Get user profile data
-        const userResult = await (0, database_1.query)('SELECT id, email, first_name, last_name, role, kyc_level, created_at FROM tenant.users WHERE id = $1', [userId]);
-        // Get account balance data
-        const balanceResult = await (0, database_1.query)('SELECT balance, currency, updated_at, created_at FROM tenant.wallets WHERE user_id = $1', [userId]);
-        // Get recent transactions (last 20 for better analysis)
-        const transactionsResult = await (0, database_1.query)(`SELECT
+        // Get user profile data from tenant database
+        const userResult = await multi_tenant_database_1.default.queryTenant(tenantId, 'SELECT id, email, first_name, last_name, role, kyc_level, created_at FROM tenant.users WHERE id = $1', [userId]);
+        // Get account balance data from tenant database
+        const balanceResult = await multi_tenant_database_1.default.queryTenant(tenantId, 'SELECT balance, currency, updated_at, created_at FROM tenant.wallets WHERE user_id = $1', [userId]);
+        // Get recent transactions (last 30 for comprehensive analysis) from tenant database
+        const transactionsResult = await multi_tenant_database_1.default.queryTenant(tenantId, `SELECT
         amount,
         type,
         description,
         created_at,
         status,
         reference
-      FROM transactions
+      FROM tenant.transactions
       WHERE user_id = $1
       ORDER BY created_at DESC
-      LIMIT 20`, [userId]);
-        // Get spending analytics (last 30 days)
-        const spendingAnalyticsResult = await (0, database_1.query)(`SELECT
+      LIMIT 30`, [userId]);
+        // Get spending analytics (last 30 days) from tenant database
+        const spendingAnalyticsResult = await multi_tenant_database_1.default.queryTenant(tenantId, `SELECT
         SUM(amount) as total_spent,
         COUNT(*) as transaction_count,
         AVG(amount) as avg_transaction,
         type
-      FROM transactions
+      FROM tenant.transactions
       WHERE user_id = $1
         AND created_at >= NOW() - INTERVAL '30 days'
-        AND type IN ('debit', 'withdrawal', 'transfer')
+        AND type IN ('money_transfer', 'bill_payment', 'cash_withdrawal', 'airtime_purchase')
         AND status = 'completed'
       GROUP BY type`, [userId]);
-        // Get monthly spending by category/description
-        const categorySpendingResult = await (0, database_1.query)(`SELECT
+        // Get monthly spending by category/description from tenant database
+        const categorySpendingResult = await multi_tenant_database_1.default.queryTenant(tenantId, `SELECT
         LOWER(description) as category,
         SUM(amount) as total_amount,
         COUNT(*) as transaction_count
-      FROM transactions
+      FROM tenant.transactions
       WHERE user_id = $1
         AND created_at >= NOW() - INTERVAL '30 days'
         AND amount > 0
@@ -107,7 +110,6 @@ async function enrichContextWithUserData(context, userId) {
             Math.floor((Date.now() - new Date(userResult.rows[0].created_at).getTime()) / (1000 * 60 * 60 * 24)) : 0;
         const currentBalance = balanceResult.rows[0]?.balance || 0;
         const totalSpent = spendingAnalyticsResult.rows.reduce((sum, row) => sum + parseFloat(row.total_spent || 0), 0);
-        const avgMonthlySpend = totalSpent;
         // Enrich the context with comprehensive real data
         const enrichedContext = {
             ...context,
@@ -145,14 +147,6 @@ async function enrichContextWithUserData(context, userId) {
                 }
             }
         };
-        console.log('📊 Context enriched with comprehensive banking data:', {
-            userId,
-            accountBalance: currentBalance,
-            transactionCount: transactionsResult.rows.length,
-            monthlySpend: totalSpent,
-            topCategory: categorySpendingResult.rows[0]?.category || 'none',
-            dataQuality: 'comprehensive'
-        });
         return enrichedContext;
     }
     catch (error) {
@@ -164,122 +158,128 @@ async function enrichContextWithUserData(context, userId) {
 // Enhanced chat endpoint with full AI Intelligence features
 router.post('/chat', auth_1.authenticateToken, async (req, res) => {
     try {
-        const { message, context, options = {} } = req.body;
+        const { message, context, options: _options = {} } = req.body;
         const userId = req.user?.id || 'anonymous';
+        const tenantId = req.user?.tenantId || 'default';
         if (!message || !context) {
             return res.status(400).json({
                 error: 'Message and context are required'
             });
         }
-        // Ensure smart suggestions are enabled by default for enhanced experience
-        const enhancedOptions = {
-            includeSuggestions: true,
-            includeAnalytics: false, // Keep analytics optional for performance
-            ...options
-        };
-        // Identify data analysis queries that should use Smart Suggestions Engine directly
-        const isDataAnalysisQuery = ((message.toLowerCase().includes('spending') && message.toLowerCase().includes('pattern')) ||
-            message.toLowerCase().includes('analyze') ||
-            (message.toLowerCase().includes('boost') && message.toLowerCase().includes('fund')) ||
-            message.toLowerCase().includes('save money') ||
-            message.toLowerCase().includes('investment') ||
-            message.toLowerCase().includes('budget') ||
-            message.toLowerCase().includes('insight') ||
-            message.toLowerCase().includes('finance') ||
-            (message.toLowerCase().includes('what') && (message.toLowerCase().includes('spend') || message.toLowerCase().includes('save'))) ||
-            message.toLowerCase().includes('emergency fund') ||
-            message.toLowerCase().includes('money management'));
-        // Debug logging
-        console.log(`🔍 Query: "${message}"`);
-        console.log(`🔍 Data Analysis Query Detected: ${isDataAnalysisQuery}`);
+        // Generate conversation ID (use session ID or generate one)
+        const conversationId = context.conversationId || context.sessionId || `conv_${Date.now()}`;
+        // Check if user is in an active conversational flow
+        const conversationState = ConversationStateManager_1.default.getState(userId, conversationId);
+        if (conversationState.currentFlow === 'transfer') {
+            // User is in middle of transfer flow - continue it
+            const transferResponse = await ConversationalTransferService_1.default.processTransferConversation(message, userId, conversationId, tenantId);
+            return res.json({
+                response: transferResponse.message,
+                confidence: 0.95,
+                intent: 'transfer_money',
+                suggestions: transferResponse.suggestions || [],
+                data: transferResponse.data,
+                inConversation: !transferResponse.completed,
+                completed: transferResponse.completed,
+                error: transferResponse.error,
+                metadata: {
+                    source: 'conversational_transfer',
+                    conversationId,
+                    step: conversationState.step
+                }
+            });
+        }
+        // Check if message is starting a new transfer
+        const isTransferIntent = message.toLowerCase().includes('transfer') ||
+            message.toLowerCase().includes('send money') ||
+            (message.toLowerCase().includes('send') && message.toLowerCase().includes('₦'));
+        if (isTransferIntent && userId !== 'anonymous') {
+            // Start new conversational transfer flow
+            const transferResponse = await ConversationalTransferService_1.default.processTransferConversation(message, userId, conversationId, tenantId);
+            return res.json({
+                response: transferResponse.message,
+                confidence: 0.95,
+                intent: 'transfer_money',
+                suggestions: transferResponse.suggestions || [],
+                data: transferResponse.data,
+                inConversation: true,
+                metadata: {
+                    source: 'conversational_transfer',
+                    conversationId,
+                    step: 1
+                }
+            });
+        }
         // Enrich context with real user banking data
         const enrichedContext = userId !== 'anonymous'
-            ? await enrichContextWithUserData(context, userId)
+            ? await enrichContextWithUserData(context, userId, tenantId)
             : context;
-        // For data analysis queries, use Smart Suggestions Engine directly (bypass rate limits and OpenAI)
-        if (isDataAnalysisQuery) {
-            console.log('🧠 Data Analysis Query detected - using Smart Suggestions Engine directly');
-            try {
-                const smartSuggestions = await aiManager.getPersonalizedSuggestions(enrichedContext);
-                const analyticsInsights = await aiManager.getAnalyticsInsights(enrichedContext);
-                // Generate contextual response based on the specific query type
-                let contextualResponse = "I've analyzed your transaction data and financial patterns. Here are personalized insights based on your banking activity:";
-                if (message.toLowerCase().includes('spending') && message.toLowerCase().includes('pattern')) {
-                    contextualResponse = "Based on your transaction history, I've identified your spending patterns. Here's what the data shows:";
-                }
-                else if (message.toLowerCase().includes('boost') && message.toLowerCase().includes('fund')) {
-                    contextualResponse = "I've analyzed your financial situation for emergency fund optimization. Here are tailored recommendations:";
-                }
-                else if (message.toLowerCase().includes('save money')) {
-                    contextualResponse = "After analyzing your spending patterns, here are specific areas where you can save money:";
-                }
-                else if (message.toLowerCase().includes('investment')) {
-                    contextualResponse = "Based on your account balance and spending patterns, here are investment options suitable for your profile:";
-                }
-                else if (message.toLowerCase().includes('analyze')) {
-                    contextualResponse = "Here's a comprehensive analysis of your financial data with actionable insights:";
-                }
-                const response = {
-                    response: contextualResponse,
-                    suggestions: smartSuggestions,
-                    insights: analyticsInsights,
+        let response;
+        // First, try to answer using real customer data (no mock mode)
+        const customerDataResponse = await CustomerDataService_1.CustomerDataService.processQuery(message, userId, tenantId);
+        if (!customerDataResponse.requiresOpenAI) {
+            // Check if this is an actionable intent (transfer, bill payment, etc.)
+            const queryType = CustomerDataService_1.CustomerDataService.classifyQuery(message);
+            if (queryType === 'transfers' || queryType === 'bills') {
+                // Handle actionable intents with AIActionsService
+                const intentMap = {
+                    'transfers': 'transfer_money',
+                    'bills': 'bill_payment'
+                };
+                const actionResponse = await AIActionsService_1.default.processActionIntent(intentMap[queryType], userId, message, {});
+                response = {
+                    response: actionResponse.message,
                     confidence: 0.95,
+                    intent: actionResponse.action,
+                    suggestions: actionResponse.suggestions || [],
+                    data: actionResponse.data,
+                    action: {
+                        type: actionResponse.action,
+                        status: actionResponse.status,
+                        nextStep: actionResponse.nextStep,
+                        requiredFields: actionResponse.requiredFields
+                    },
                     metadata: {
-                        source: 'smart-suggestions-engine',
-                        reason: 'data_analysis_query',
+                        source: 'ai_actions',
+                        reason: 'actionable_intent',
                         realData: true,
-                        enrichedContext: !!enrichedContext?.bankingContext?.user,
-                        accountBalance: enrichedContext?.bankingContext?.accountBalance,
-                        transactionCount: enrichedContext?.bankingContext?.recentTransactions?.length || 0,
-                        processingTime: Date.now()
+                        enrichedContext: true
                     }
                 };
-                // Record usage for analytics (placeholder for future implementation)
-                return res.json(response);
             }
-            catch (error) {
-                console.error('Smart Suggestions Engine error:', error);
-                return res.status(500).json({
-                    error: 'Unable to analyze your data at the moment',
-                    message: 'Please try again later'
-                });
+            else {
+                // Query answered with real customer data - no OpenAI needed
+                response = {
+                    response: customerDataResponse.answer,
+                    confidence: 0.95,
+                    intent: 'customer_data',
+                    suggestions: customerDataResponse.suggestions || [],
+                    data: customerDataResponse.data,
+                    metadata: {
+                        source: 'customer_data',
+                        reason: 'customer_specific_query',
+                        realData: true,
+                        enrichedContext: true
+                    }
+                };
             }
-        }
-        // For non-data-analysis queries, check rate limits before using OpenAI
-        if (!isDataAnalysisQuery) {
-            const rateCheck = devControls.checkRateLimit(userId);
-            if (!rateCheck.allowed) {
-                return res.status(429).json({
-                    error: 'Rate limit exceeded',
-                    message: rateCheck.reason,
-                    resetTime: rateCheck.resetTime,
-                    usageStats: devControls.getUsageStats(userId)
-                });
-            }
-        }
-        let response;
-        // Always use real OpenAI with real data (unless API key is placeholder)
-        if (process.env.OPENAI_API_KEY?.includes('placeholder')) {
-            console.log('⚠️ OpenAI API key is placeholder - using mock responses');
-            const mockResponse = MockResponses_1.MockAIResponseGenerator.generateConversationalResponse(message, enrichedContext);
-            response = {
-                response: mockResponse.response,
-                confidence: mockResponse.confidence,
-                intent: mockResponse.intent,
-                entities: mockResponse.entities,
-                suggestions: mockResponse.suggestions,
-                metadata: {
-                    source: 'mock',
-                    reason: 'placeholder_api_key',
-                    enrichedContext: !!enrichedContext?.bankingContext?.user
-                }
-            };
         }
         else {
+            // General banking question - use OpenAI
+            if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'placeholder') {
+                // No OpenAI configured
+                return res.status(503).json({
+                    error: 'AI service not available',
+                    message: 'General banking questions require OpenAI configuration. Please contact support.',
+                    suggestion: 'I can help you with account-specific questions like balance, transactions, and spending analysis.'
+                });
+            }
             try {
                 // Use real OpenAI with real database data
-                console.log('🤖 Using real OpenAI with enriched banking data and Smart Suggestions');
-                response = await aiManager.processEnhancedMessage(message, enrichedContext, enhancedOptions);
+                response = await aiManager.processEnhancedMessage(message, enrichedContext, {
+                    includeSuggestions: true,
+                    includeAnalytics: false
+                });
                 // Add metadata to show real data usage
                 response.metadata = {
                     ...response.metadata,
@@ -291,7 +291,6 @@ router.post('/chat', auth_1.authenticateToken, async (req, res) => {
                 };
             }
             catch (error) {
-                console.log('❌ OpenAI failed, using Smart Suggestions Engine only:', error.message);
                 // Fallback: Use Smart Suggestions Engine directly without OpenAI
                 const smartSuggestions = await aiManager.getPersonalizedSuggestions(enrichedContext);
                 const analyticsInsights = await aiManager.getAnalyticsInsights(enrichedContext);
@@ -336,11 +335,11 @@ router.post('/chat', auth_1.authenticateToken, async (req, res) => {
         // Record the request for usage tracking
         devControls.recordRequest(userId);
         devControls.logUsageInfo(userId, 'chat', message.length + (response.response?.length || 0));
-        res.json(response);
+        return res.json(response);
     }
     catch (error) {
         console.error('AI Chat Error:', error);
-        res.status(500).json({
+        return res.status(500).json({
             error: 'Failed to process AI chat request',
             message: "I'm sorry, I'm having trouble understanding your request right now. Please try again."
         });
@@ -356,11 +355,11 @@ router.post('/chat/basic', auth_1.authenticateToken, async (req, res) => {
             });
         }
         const response = await aiService.processMessage(message, context);
-        res.json(response);
+        return res.json(response);
     }
     catch (error) {
         console.error('AI Chat Error:', error);
-        res.status(500).json({
+        return res.status(500).json({
             error: 'Failed to process AI chat request',
             message: "I'm sorry, I'm having trouble understanding your request right now. Please try again."
         });
@@ -376,11 +375,11 @@ router.post('/voice', auth_1.authenticateToken, async (req, res) => {
         }
         const audioBuffer = Buffer.from(audioData, 'base64');
         const response = await aiService.processVoiceCommand(audioBuffer, context);
-        res.json(response);
+        return res.json(response);
     }
     catch (error) {
         console.error('AI Voice Error:', error);
-        res.status(500).json({
+        return res.status(500).json({
             error: 'Failed to process voice command',
             message: "I couldn't understand the voice command. Please try speaking again."
         });
@@ -395,11 +394,11 @@ router.post('/intent', auth_1.authenticateToken, async (req, res) => {
             });
         }
         const intent = await intentService.classifyIntent(text, context);
-        res.json(intent);
+        return res.json(intent);
     }
     catch (error) {
         console.error('Intent Classification Error:', error);
-        res.status(500).json({
+        return res.status(500).json({
             error: 'Failed to classify intent'
         });
     }
@@ -413,11 +412,11 @@ router.post('/entities', auth_1.authenticateToken, async (req, res) => {
             });
         }
         const result = await entityService.extractEntities(text, context);
-        res.json(result);
+        return res.json(result);
     }
     catch (error) {
         console.error('Entity Extraction Error:', error);
-        res.status(500).json({
+        return res.status(500).json({
             error: 'Failed to extract entities'
         });
     }
@@ -433,11 +432,11 @@ router.get('/suggestions', auth_1.authenticateToken, async (req, res) => {
             bankingContext: {}
         };
         const suggestions = await aiService.generateSuggestions(contextObj);
-        res.json({ suggestions });
+        return res.json({ suggestions });
     }
     catch (error) {
         console.error('AI Suggestions Error:', error);
-        res.status(500).json({
+        return res.status(500).json({
             error: 'Failed to generate suggestions',
             suggestions: [
                 "Check my account balance",
@@ -471,7 +470,7 @@ router.post('/suggestions/personalized', auth_1.authenticateToken, async (req, r
         };
         const { SmartSuggestionsEngine } = await Promise.resolve().then(() => __importStar(require('../services/ai-intelligence-service/engines/SmartSuggestionsEngine')));
         const suggestions = await SmartSuggestionsEngine.getPersonalizedSuggestions(suggestionRequest);
-        res.json({
+        return res.json({
             suggestions,
             metadata: {
                 personalized: true,
@@ -484,7 +483,7 @@ router.post('/suggestions/personalized', auth_1.authenticateToken, async (req, r
     }
     catch (error) {
         console.error('Personalized Suggestions Error:', error);
-        res.status(500).json({
+        return res.status(500).json({
             error: 'Failed to generate personalized suggestions',
             suggestions: [
                 { text: "Check your account balance", confidence: 0.8, relevanceScore: 0.7 },
@@ -509,24 +508,24 @@ router.get('/intent-suggestions', auth_1.authenticateToken, async (req, res) => 
             });
         }
         const suggestions = await intentService.getIntentSuggestions(partialText);
-        res.json({ suggestions });
+        return res.json({ suggestions });
     }
     catch (error) {
         console.error('Intent Suggestions Error:', error);
-        res.status(500).json({
+        return res.status(500).json({
             error: 'Failed to get intent suggestions',
             suggestions: []
         });
     }
 });
-router.get('/entity-types', auth_1.authenticateToken, async (req, res) => {
+router.get('/entity-types', auth_1.authenticateToken, async (_req, res) => {
     try {
         const entityTypes = entityService.getEntityTypes();
-        res.json({ entityTypes });
+        return res.json({ entityTypes });
     }
     catch (error) {
         console.error('Entity Types Error:', error);
-        res.status(500).json({
+        return res.status(500).json({
             error: 'Failed to get entity types',
             entityTypes: []
         });
@@ -541,11 +540,11 @@ router.post('/validate-entities', auth_1.authenticateToken, async (req, res) => 
             });
         }
         const validatedEntities = await entityService.validateExtractedEntities(entities, context);
-        res.json({ entities: validatedEntities });
+        return res.json({ entities: validatedEntities });
     }
     catch (error) {
         console.error('Entity Validation Error:', error);
-        res.status(500).json({
+        return res.status(500).json({
             error: 'Failed to validate entities'
         });
     }
@@ -555,6 +554,7 @@ router.get('/suggestions/smart', auth_1.authenticateToken, async (req, res) => {
     try {
         const { context, category, limit = 5 } = req.query;
         const userId = req.user?.id || 'anonymous';
+        const tenantId = req.user?.tenantId || 'default';
         // Smart Suggestions Engine works locally without OpenAI - no rate limiting needed
         let contextObj = context ? JSON.parse(context) : {
             userId: userId,
@@ -565,26 +565,18 @@ router.get('/suggestions/smart', auth_1.authenticateToken, async (req, res) => {
         };
         // Enrich context with real user banking data
         if (userId !== 'anonymous') {
-            contextObj = await enrichContextWithUserData(contextObj, userId);
+            contextObj = await enrichContextWithUserData(contextObj, userId, tenantId);
         }
-        let suggestions;
-        // Always use real data unless API key is placeholder
-        if (process.env.OPENAI_API_KEY?.includes('placeholder')) {
-            console.log('⚠️ OpenAI API key is placeholder - using mock smart suggestions');
-            suggestions = MockResponses_1.MockAIResponseGenerator.generateSmartSuggestions(category || 'financial', parseInt(limit));
-        }
-        else {
-            console.log('🤖 Generating smart suggestions with real banking data');
-            suggestions = await aiManager.getPersonalizedSuggestions(contextObj, category, parseInt(limit));
-        }
+        // Always use real customer data from AIIntelligenceManager
+        const suggestions = await aiManager.getPersonalizedSuggestions(contextObj, category, parseInt(limit));
         // Record the request
         devControls.recordRequest(userId);
         devControls.logUsageInfo(userId, 'smart-suggestions', JSON.stringify(suggestions).length);
-        res.json({ suggestions });
+        return res.json({ suggestions });
     }
     catch (error) {
         console.error('Smart Suggestions Error:', error);
-        res.status(500).json({
+        return res.status(500).json({
             error: 'Failed to generate smart suggestions',
             suggestions: []
         });
@@ -594,6 +586,7 @@ router.get('/analytics/insights', auth_1.authenticateToken, async (req, res) => 
     try {
         const { context, type, timeframe = 'month' } = req.query;
         const userId = req.user?.id;
+        const tenantId = req.user?.tenantId || 'default';
         let contextObj = context ? JSON.parse(context) : {
             userId: userId || 'anonymous',
             tenantId: 'default',
@@ -603,23 +596,15 @@ router.get('/analytics/insights', auth_1.authenticateToken, async (req, res) => 
         };
         // Enrich context with real user banking data
         if (userId) {
-            contextObj = await enrichContextWithUserData(contextObj, userId);
+            contextObj = await enrichContextWithUserData(contextObj, userId, tenantId);
         }
-        let insights;
-        // Always use real data unless API key is placeholder
-        if (process.env.OPENAI_API_KEY?.includes('placeholder')) {
-            console.log('⚠️ OpenAI API key is placeholder - using mock analytics insights');
-            insights = MockResponses_1.MockAIResponseGenerator.generateAnalyticsInsights(type || 'spending', timeframe || 'month');
-        }
-        else {
-            console.log('🤖 Generating analytics insights with real banking data');
-            insights = await aiManager.getAnalyticsInsights(contextObj, type, timeframe);
-        }
-        res.json({ insights });
+        // Always use real customer data from AIIntelligenceManager
+        const insights = await aiManager.getAnalyticsInsights(contextObj, type, timeframe);
+        return res.json({ insights });
     }
     catch (error) {
         console.error('Analytics Insights Error:', error);
-        res.status(500).json({
+        return res.status(500).json({
             error: 'Failed to generate analytics insights',
             insights: []
         });
@@ -634,11 +619,11 @@ router.post('/translate', auth_1.authenticateToken, async (req, res) => {
             });
         }
         const result = await aiManager.translateMessage(text, sourceLanguage, targetLanguage, context);
-        res.json(result);
+        return res.json(result);
     }
     catch (error) {
         console.error('Translation Error:', error);
-        res.status(500).json({
+        return res.status(500).json({
             error: 'Failed to translate text',
             translatedText: req.body.text,
             confidence: 0.1
@@ -649,24 +634,24 @@ router.get('/suggestions/localized', auth_1.authenticateToken, async (req, res) 
     try {
         const { language = 'en', type = 'banking' } = req.query;
         const suggestions = await aiManager.getLocalizedSuggestions(language, type);
-        res.json({ suggestions });
+        return res.json({ suggestions });
     }
     catch (error) {
         console.error('Localized Suggestions Error:', error);
-        res.status(500).json({
+        return res.status(500).json({
             error: 'Failed to get localized suggestions',
             suggestions: []
         });
     }
 });
-router.get('/languages', (req, res) => {
+router.get('/languages', (_req, res) => {
     try {
         const languages = aiManager.getSupportedLanguages();
-        res.json({ languages });
+        return res.json({ languages });
     }
     catch (error) {
         console.error('Languages Error:', error);
-        res.status(500).json({
+        return res.status(500).json({
             error: 'Failed to get supported languages',
             languages: []
         });
@@ -682,11 +667,11 @@ router.post('/suggestions/mark-used', auth_1.authenticateToken, async (req, res)
             });
         }
         await aiManager.markSuggestionAsUsed(suggestionId, userId);
-        res.json({ success: true });
+        return res.json({ success: true });
     }
     catch (error) {
         console.error('Mark Suggestion Used Error:', error);
-        res.status(500).json({
+        return res.status(500).json({
             error: 'Failed to mark suggestion as used'
         });
     }
@@ -701,11 +686,11 @@ router.post('/suggestions/mark-dismissed', auth_1.authenticateToken, async (req,
             });
         }
         await aiManager.markSuggestionAsDismissed(suggestionId, userId);
-        res.json({ success: true });
+        return res.json({ success: true });
     }
     catch (error) {
         console.error('Mark Suggestion Dismissed Error:', error);
-        res.status(500).json({
+        return res.status(500).json({
             error: 'Failed to mark suggestion as dismissed'
         });
     }
@@ -721,20 +706,20 @@ router.get('/analytics/export', auth_1.authenticateToken, async (req, res) => {
         }
         const report = await aiManager.exportAnalyticsReport(userId, format);
         res.setHeader('Content-Disposition', `attachment; filename="${report.filename}"`);
-        res.json(report.data);
+        return res.json(report.data);
     }
     catch (error) {
         console.error('Analytics Export Error:', error);
-        res.status(500).json({
+        return res.status(500).json({
             error: 'Failed to export analytics report'
         });
     }
 });
-router.get('/health', async (req, res) => {
+router.get('/health', async (_req, res) => {
     try {
         const serviceHealth = await aiManager.performHealthCheck();
         const performanceMetrics = aiManager.getPerformanceMetrics();
-        res.json({
+        return res.json({
             status: serviceHealth.overall,
             services: serviceHealth.services,
             performance: performanceMetrics,
@@ -744,21 +729,21 @@ router.get('/health', async (req, res) => {
     }
     catch (error) {
         console.error('Health Check Error:', error);
-        res.status(500).json({
+        return res.status(500).json({
             status: 'down',
             error: 'Health check failed',
             timestamp: new Date().toISOString()
         });
     }
 });
-router.get('/config', auth_1.authenticateToken, async (req, res) => {
+router.get('/config', auth_1.authenticateToken, async (_req, res) => {
     try {
         const configuration = aiManager.getConfiguration();
-        res.json({ configuration });
+        return res.json({ configuration });
     }
     catch (error) {
         console.error('Configuration Error:', error);
-        res.status(500).json({
+        return res.status(500).json({
             error: 'Failed to get AI configuration'
         });
     }
@@ -768,7 +753,7 @@ router.get('/dev/usage', auth_1.authenticateToken, async (req, res) => {
     try {
         const userId = req.user?.id || 'anonymous';
         const usageStats = devControls.getUsageStats(userId);
-        res.json({
+        return res.json({
             developmentMode: devControls.isDevelopmentMode(),
             useMockResponses: devControls.shouldUseMockResponses(),
             usageStats,
@@ -781,7 +766,7 @@ router.get('/dev/usage', auth_1.authenticateToken, async (req, res) => {
     }
     catch (error) {
         console.error('Development Usage Stats Error:', error);
-        res.status(500).json({
+        return res.status(500).json({
             error: 'Failed to get development usage stats'
         });
     }
@@ -793,16 +778,16 @@ router.post('/dev/reset-usage', auth_1.authenticateToken, async (req, res) => {
         const { resetAll = false } = req.body;
         if (resetAll && devControls.isDevelopmentMode()) {
             devControls.resetUsageStats();
-            res.json({ message: 'All usage stats reset', resetAll: true });
+            return res.json({ message: 'All usage stats reset', resetAll: true });
         }
         else {
             devControls.resetUsageStats(userId);
-            res.json({ message: `Usage stats reset for user ${userId}`, userId });
+            return res.json({ message: `Usage stats reset for user ${userId}`, userId });
         }
     }
     catch (error) {
         console.error('Reset Usage Stats Error:', error);
-        res.status(500).json({
+        return res.status(500).json({
             error: 'Failed to reset usage stats'
         });
     }

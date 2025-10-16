@@ -3,6 +3,7 @@
  * JWT token verification and user authentication
  */
 import jwt, { SignOptions } from 'jsonwebtoken';
+import { Request, Response, NextFunction } from 'express';
 /**
  * Generate JWT access token
  * @param {Object} payload - Token payload
@@ -49,13 +50,13 @@ declare function optionalAuth(req: any, res: any, next: any): Promise<any>;
  * @param {Array|string} allowedRoles - Required roles
  * @returns {Function} Middleware function
  */
-declare function requireRole(allowedRoles: string | string[]): (req: any, res: any, next: any) => any;
+declare function requireRole(allowedRoles: string | string[]): (req: Request, res: Response, next: NextFunction) => void | Response<any, Record<string, any>>;
 /**
  * Permission-based authorization middleware
  * @param {Array|string} requiredPermissions - Required permissions
  * @returns {Function} Middleware function
  */
-declare function requirePermission(requiredPermissions: string | string[]): (req: any, res: any, next: any) => any;
+declare function requirePermission(requiredPermissions: string | string[]): (req: Request, res: Response, next: NextFunction) => void | Response<any, Record<string, any>>;
 export { generateToken, generateRefreshToken, verifyToken, verifyRefreshToken, extractToken, authenticateToken, optionalAuth, requireRole, requirePermission };
 declare const _default: {
     generateToken: typeof generateToken;

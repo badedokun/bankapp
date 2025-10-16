@@ -109,8 +109,8 @@ router.post('/fraud-check', auth_1.authenticateToken, tenant_1.validateTenantAcc
         });
     }
     const { amount, recipientAccountNumber, recipientBankCode, description = 'Fraud check analysis' } = req.body;
-    const userId = req.user.id;
-    const tenantId = req.user.tenantId;
+    const userId = req.user?.id;
+    const tenantId = req.user?.tenantId;
     try {
         const fraudRequest = {
             userId,
@@ -302,8 +302,8 @@ router.post('/initiate', auth_1.authenticateToken, tenant_1.validateTenantAccess
         });
     }
     const { recipientAccountNumber, recipientBankCode, recipientName, amount, description = 'Money transfer', pin, saveRecipient = false } = req.body;
-    const userId = req.user.id;
-    const tenantId = req.user.tenantId;
+    const userId = req.user?.id;
+    const tenantId = req.user?.tenantId;
     try {
         // 0. AI Fraud Detection Analysis (< 500ms target)
         const fraudAnalysisStartTime = Date.now();
@@ -636,8 +636,8 @@ router.post('/initiate', auth_1.authenticateToken, tenant_1.validateTenantAccess
  */
 router.get('/status/:reference', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const { reference } = req.params;
-    const userId = req.user.id;
-    const tenantId = req.user.tenantId;
+    const userId = req.user?.id;
+    const tenantId = req.user?.tenantId;
     const transferResult = await multi_tenant_database_1.default.queryTenant(tenantId, `
     SELECT t.*,
            CASE WHEN t.sender_id = $1 THEN 'sent' ELSE 'received' END as direction
@@ -700,8 +700,8 @@ router.get('/status/:reference', auth_1.authenticateToken, tenant_1.validateTena
  * Get user's transfer history with pagination
  */
 router.get('/history', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
-    const userId = req.user.id;
-    const tenantId = req.user.tenantId;
+    const userId = req.user?.id;
+    const tenantId = req.user?.tenantId;
     const page = parseInt(req.query.page) || 1;
     const limit = Math.min(parseInt(req.query.limit) || 20, 100);
     const offset = (page - 1) * limit;
@@ -765,7 +765,7 @@ router.get('/history', auth_1.authenticateToken, tenant_1.validateTenantAccess, 
  * GET /api/transfers/banks
  * Get list of supported banks
  */
-router.get('/banks', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
+router.get('/banks', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (_req, res) => {
     try {
         const banksResponse = await nibss_1.nibssService.getBankList();
         if (!banksResponse.success) {
@@ -791,7 +791,7 @@ router.get('/banks', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0
  * Get user's saved recipients
  */
 router.get('/recipients', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
-    const userId = req.user.id;
+    const _userId = req.user?.id;
     // TODO: Implement recipients table - for now return empty list
     const recipients = { rows: [] };
     res.json({
@@ -831,14 +831,14 @@ router.post('/internal', auth_1.authenticateToken, tenant_1.validateTenantAccess
         });
     }
     try {
-        const tenantId = req.user.tenantId;
+        const tenantId = req.user?.tenantId;
         // Get user's primary wallet ID
         const walletQuery = await multi_tenant_database_1.default.queryTenant(tenantId, `
       SELECT id FROM tenant.wallets
       WHERE user_id = $1 AND tenant_id = $2 AND status = 'active'
       ORDER BY CASE WHEN wallet_type = 'main' THEN 0 ELSE 1 END, created_at ASC
       LIMIT 1
-    `, [req.user.id, tenantId]);
+    `, [req.user?.id, tenantId]);
         if (walletQuery.rows.length === 0) {
             return res.status(404).json({
                 success: false,
@@ -891,14 +891,14 @@ router.post('/external', auth_1.authenticateToken, tenant_1.validateTenantAccess
     (0, express_validator_1.body)('pin').isLength({ min: 4, max: 4 }).withMessage('Transaction PIN required'),
 ], (0, errorHandler_1.asyncHandler)(async (req, res) => {
     try {
-        const tenantId = req.user.tenantId;
+        const tenantId = req.user?.tenantId;
         // Get user's primary wallet ID for external transfer
         const walletQuery = await multi_tenant_database_1.default.queryTenant(tenantId, `
       SELECT id FROM tenant.wallets
       WHERE user_id = $1 AND tenant_id = $2 AND status = 'active'
       ORDER BY CASE WHEN wallet_type = 'main' THEN 0 ELSE 1 END, created_at ASC
       LIMIT 1
-    `, [req.user.id, tenantId]);
+    `, [req.user?.id, tenantId]);
         if (walletQuery.rows.length === 0) {
             return res.status(404).json({
                 success: false,
@@ -917,7 +917,7 @@ router.post('/external', auth_1.authenticateToken, tenant_1.validateTenantAccess
             saveBeneficiary: req.body.saveBeneficiary,
             beneficiaryNickname: req.body.beneficiaryNickname,
         };
-        const result = await transferServices.external.processTransfer(request, req.user.id);
+        const result = await transferServices.external.processTransfer(request, req.user?.id);
         res.status(200).json({
             success: true,
             message: 'External transfer initiated successfully',
@@ -936,14 +936,14 @@ router.post('/bills', auth_1.authenticateToken, tenant_1.validateTenantAccess, [
     (0, express_validator_1.body)('pin').isLength({ min: 4, max: 4 }).withMessage('Transaction PIN required'),
 ], (0, errorHandler_1.asyncHandler)(async (req, res) => {
     try {
-        const tenantId = req.user.tenantId;
+        const tenantId = req.user?.tenantId;
         // Get user's primary wallet ID for bill payment
         const walletQuery = await multi_tenant_database_1.default.queryTenant(tenantId, `
       SELECT id FROM tenant.wallets
       WHERE user_id = $1 AND tenant_id = $2 AND status = 'active'
       ORDER BY CASE WHEN wallet_type = 'main' THEN 0 ELSE 1 END, created_at ASC
       LIMIT 1
-    `, [req.user.id, tenantId]);
+    `, [req.user?.id, tenantId]);
         if (walletQuery.rows.length === 0) {
             return res.status(404).json({
                 success: false,
@@ -959,7 +959,7 @@ router.post('/bills', auth_1.authenticateToken, tenant_1.validateTenantAccess, [
             walletId: walletId,
             validateCustomer: req.body.validateCustomer
         };
-        const result = await transferServices.billPayment.processBillPayment(request, req.user.id);
+        const result = await transferServices.billPayment.processBillPayment(request, req.user?.id);
         res.status(200).json({
             success: true,
             message: 'Bill payment processed successfully',
@@ -982,16 +982,16 @@ router.post('/international', authenticateToken, validateTenantAccess, [
   body('purpose').notEmpty().withMessage('Transfer purpose is required'),
   body('sourceOfFunds').notEmpty().withMessage('Source of funds is required'),
   body('pin').isLength({ min: 4, max: 4 }).withMessage('Transaction PIN required'),
-], asyncHandler(async (req, res) => {
+], asyncHandler(async (req: Request, res: Response)=> {
   try {
-    const tenantId = req.user.tenantId;
+    const tenantId = req.user?.tenantId;
 
     const walletQuery = await dbManager.queryTenant(tenantId, `
       SELECT id FROM tenant.wallets
       WHERE user_id = $1 AND tenant_id = $2 AND status = 'active'
       ORDER BY CASE WHEN wallet_type = 'main' THEN 0 ELSE 1 END, created_at ASC
       LIMIT 1
-    `, [req.user.id, tenantId]);
+    `, [req.user?.id, tenantId]);
 
     if (walletQuery.rows.length === 0) {
       return res.status(404).json({
@@ -1018,7 +1018,7 @@ router.post('/international', authenticateToken, validateTenantAccess, [
       transferPurpose: req.body.purpose || 'Personal remittance'
     };
 
-    const result = await transferServices.international!.processTransfer(request, req.user.id);
+    const result = await transferServices.international!.processTransfer(request, req.user?.id);
 
     res.status(200).json({
       success: true,
@@ -1036,7 +1036,7 @@ router.post('/international', authenticateToken, validateTenantAccess, [
 router.post('/scheduled', authenticateToken, validateTenantAccess, [
   body('scheduledDate').isISO8601().withMessage('Valid scheduled date required'),
   body('frequency').isIn(['once', 'daily', 'weekly', 'monthly', 'quarterly', 'yearly']).withMessage('Valid frequency required'),
-], asyncHandler(async (req, res) => {
+], asyncHandler(async (req: Request, res: Response)=> {
   try {
     const request = {
       ...req.body,
@@ -1044,7 +1044,7 @@ router.post('/scheduled', authenticateToken, validateTenantAccess, [
       endDate: req.body.endDate ? new Date(req.body.endDate) : undefined,
     };
 
-    const result = await transferServices.scheduled!.createScheduledPayment(request, req.user.id);
+    const result = await transferServices.scheduled!.createScheduledPayment(request, req.user?.id);
 
     res.status(200).json({
       success: true,
@@ -1071,10 +1071,10 @@ router.get('/billers', auth_1.authenticateToken, tenant_1.validateTenantAccess, 
     }
 }));
 /*
-router.get('/scheduled', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
+router.get('/scheduled', authenticateToken, validateTenantAccess, asyncHandler(async (req: Request, res: Response)=> {
   try {
     const isActive = req.query.isActive !== undefined ? req.query.isActive === 'true' : undefined;
-    const scheduledPayments = await transferServices.scheduled!.getUserScheduledPayments(req.user.id, isActive);
+    const scheduledPayments = await transferServices.scheduled!.getUserScheduledPayments(req.user?.id, isActive);
 
     res.status(200).json({
       success: true,
@@ -1085,11 +1085,11 @@ router.get('/scheduled', authenticateToken, validateTenantAccess, asyncHandler(a
   }
 }));
 
-router.put('/scheduled/:id', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
+router.put('/scheduled/:id', authenticateToken, validateTenantAccess, asyncHandler(async (req: Request, res: Response)=> {
   try {
     const { id } = req.params;
     const updates = req.body;
-    const result = await transferServices.scheduled!.updateScheduledPayment(id, updates, req.user.id);
+    const result = await transferServices.scheduled!.updateScheduledPayment(id, updates, req.user?.id);
 
     res.status(200).json({
       success: result,
@@ -1100,10 +1100,10 @@ router.put('/scheduled/:id', authenticateToken, validateTenantAccess, asyncHandl
   }
 }));
 
-router.delete('/scheduled/:id', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
+router.delete('/scheduled/:id', authenticateToken, validateTenantAccess, asyncHandler(async (req: Request, res: Response)=> {
   try {
     const { id } = req.params;
-    const result = await transferServices.scheduled!.cancelScheduledPayment(id, req.user.id);
+    const result = await transferServices.scheduled!.cancelScheduledPayment(id, req.user?.id);
 
     res.status(200).json({
       success: result,
@@ -1114,7 +1114,7 @@ router.delete('/scheduled/:id', authenticateToken, validateTenantAccess, asyncHa
   }
 }));
 
-router.post('/scheduled/:id/execute', authenticateToken, validateTenantAccess, asyncHandler(async (req, res) => {
+router.post('/scheduled/:id/execute', authenticateToken, validateTenantAccess, asyncHandler(async (req: Request, res: Response)=> {
   try {
     const { id } = req.params;
     const result = await transferServices.scheduled!.executeScheduledPayment(id);
@@ -1149,7 +1149,7 @@ router.post('/receipts/generate', auth_1.authenticateToken, tenant_1.validateTen
     }
     try {
         const { transactionId, transactionType } = req.body;
-        const tenantId = req.user.tenantId;
+        const tenantId = req.user?.tenantId;
         const receipt = await transferServices.receipt.generateReceipt(transactionId, transactionType, tenantId);
         res.status(200).json({
             success: true,
@@ -1168,7 +1168,7 @@ router.post('/receipts/generate', auth_1.authenticateToken, tenant_1.validateTen
 router.get('/receipts/:receiptId', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
     try {
         const { receiptId } = req.params;
-        const tenantId = req.user.tenantId;
+        const tenantId = req.user?.tenantId;
         const receipt = await transferServices.receipt.getReceipt(receiptId, tenantId);
         if (!receipt) {
             return res.status(404).json({
@@ -1192,7 +1192,7 @@ router.get('/receipts/:receiptId', auth_1.authenticateToken, tenant_1.validateTe
  */
 router.get('/transaction-records', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
     try {
-        const tenantId = req.user.tenantId;
+        const tenantId = req.user?.tenantId;
         const { accountId, transactionType, status, dateFrom, dateTo, amountMin, amountMax, reference, recipientName, limit, offset } = req.query;
         const filters = {
             accountId: accountId,
@@ -1224,7 +1224,7 @@ router.get('/transaction-records', auth_1.authenticateToken, tenant_1.validateTe
 router.get('/transaction-summary/:accountId', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
     try {
         const { accountId } = req.params;
-        const tenantId = req.user.tenantId;
+        const tenantId = req.user?.tenantId;
         const { period } = req.query;
         const summary = await transferServices.receipt.getTransactionSummary(accountId, tenantId, period);
         res.status(200).json({
@@ -1243,8 +1243,8 @@ router.get('/transaction-summary/:accountId', auth_1.authenticateToken, tenant_1
  */
 router.get('/notifications/unread', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
     try {
-        const userId = req.user.id;
-        const tenantId = req.user.tenantId;
+        const userId = req.user?.id;
+        const tenantId = req.user?.tenantId;
         const notifications = await transferServices.notification.getUnreadNotifications(userId, tenantId);
         res.status(200).json({
             success: true,
@@ -1262,7 +1262,7 @@ router.get('/notifications/unread', auth_1.authenticateToken, tenant_1.validateT
 router.put('/notifications/:notificationId/read', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
     try {
         const { notificationId } = req.params;
-        const userId = req.user.id;
+        const userId = req.user?.id;
         await transferServices.notification.markNotificationAsRead(notificationId, userId);
         res.status(200).json({
             success: true,
@@ -1292,8 +1292,8 @@ router.post('/notifications/test', auth_1.authenticateToken, tenant_1.validateTe
     }
     try {
         const { type, transferData, priority } = req.body;
-        const userId = req.user.id;
-        const tenantId = req.user.tenantId;
+        const userId = req.user?.id;
+        const tenantId = req.user?.tenantId;
         await transferServices.notification.sendTransferNotification({
             type,
             tenantId,
@@ -1317,7 +1317,7 @@ router.post('/notifications/test', auth_1.authenticateToken, tenant_1.validateTe
  */
 router.get('/analytics/summary', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
     try {
-        const tenantId = req.user.tenantId;
+        const _tenantId = req.user?.tenantId;
         const { startDate, endDate, groupBy } = req.query;
         // Mock analytics data - in production, implement proper analytics service
         const mockAnalytics = {
@@ -1356,8 +1356,8 @@ router.get('/analytics/summary', auth_1.authenticateToken, tenant_1.validateTena
  */
 router.get('/limits/:accountId', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
     try {
-        const { accountId } = req.params;
-        const tenantId = req.user.tenantId;
+        const { _accountId } = req.params;
+        const _tenantId = req.user?.tenantId;
         // Mock limits data - in production, implement proper limits service
         const mockLimits = {
             daily: {
@@ -1394,7 +1394,7 @@ router.get('/limits/:accountId', auth_1.authenticateToken, tenant_1.validateTena
  */
 router.get('/fees/calculate', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
     try {
-        const { amount, transferType, recipientCountry } = req.query;
+        const { amount, transferType, _recipientCountry } = req.query;
         if (!amount || !transferType) {
             return res.status(400).json({
                 success: false,
@@ -1447,8 +1447,8 @@ router.get('/fees/calculate', auth_1.authenticateToken, tenant_1.validateTenantA
  */
 router.get('/:idOrReference', auth_1.authenticateToken, tenant_1.validateTenantAccess, (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const { idOrReference } = req.params;
-    const userId = req.user.id;
-    const tenantId = req.user.tenantId;
+    const userId = req.user?.id;
+    const tenantId = req.user?.tenantId;
     // Query transfer by ID or reference
     const transferResult = await multi_tenant_database_1.default.queryTenant(tenantId, `
     SELECT t.*,
