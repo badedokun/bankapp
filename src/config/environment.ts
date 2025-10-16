@@ -159,7 +159,12 @@ export const isCloudDeployment = () => ENV_CONFIG.IS_CLOUD_DEPLOYMENT;
 // Export URL builders
 export const buildApiUrl = (endpoint: string): string => {
   // Remove leading slash from endpoint
-  const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+  let cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+
+  // Remove /api/ prefix from endpoint if it exists (prevent double /api)
+  if (cleanEndpoint.startsWith('api/')) {
+    cleanEndpoint = cleanEndpoint.slice(4);
+  }
 
   // Always use API_BASE_URL if it exists (even if it's a relative URL)
   if (!ENV_CONFIG.API_BASE_URL || ENV_CONFIG.API_BASE_URL === 'relative') {
@@ -167,11 +172,16 @@ export const buildApiUrl = (endpoint: string): string => {
     return `/api/${cleanEndpoint}`;
   }
 
+  // Normalize API_BASE_URL - remove trailing slash if present
+  const baseUrl = ENV_CONFIG.API_BASE_URL.endsWith('/')
+    ? ENV_CONFIG.API_BASE_URL.slice(0, -1)
+    : ENV_CONFIG.API_BASE_URL;
+
   // Check if API_BASE_URL already includes /api
-  if (ENV_CONFIG.API_BASE_URL.endsWith('/api')) {
-    return `${ENV_CONFIG.API_BASE_URL}/${cleanEndpoint}`;
+  if (baseUrl.endsWith('/api')) {
+    return `${baseUrl}/${cleanEndpoint}`;
   } else {
-    return `${ENV_CONFIG.API_BASE_URL}/api/${cleanEndpoint}`;
+    return `${baseUrl}/api/${cleanEndpoint}`;
   }
 };
 
