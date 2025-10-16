@@ -166,7 +166,8 @@ export default function TransactionDetailsScreen({
     );
   };
 
-  const styles = StyleSheet.create({
+  // Create dynamic styles based on theme
+  const dynamicStyles = StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
@@ -294,9 +295,9 @@ export default function TransactionDetailsScreen({
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading transaction details...</Text>
+      <SafeAreaView style={dynamicStyles.container}>
+        <View style={dynamicStyles.loadingContainer}>
+          <Text style={dynamicStyles.loadingText}>Loading transaction details...</Text>
         </View>
       </SafeAreaView>
     );
@@ -304,121 +305,121 @@ export default function TransactionDetailsScreen({
 
   if (!transaction) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Transaction not found</Text>
+      <SafeAreaView style={dynamicStyles.container}>
+        <View style={dynamicStyles.loadingContainer}>
+          <Text style={dynamicStyles.loadingText}>Transaction not found</Text>
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={dynamicStyles.container}>
       {/* Header */}
-      <View style={styles.pageHeader}>
-        <View style={styles.pageHeaderContent}>
-          <TouchableOpacity style={styles.backButton} onPress={propOnBack}>
-            <Text style={styles.backButtonText}>← Back</Text>
+      <View style={dynamicStyles.pageHeader}>
+        <View style={dynamicStyles.pageHeaderContent}>
+          <TouchableOpacity style={dynamicStyles.backButton} onPress={propOnBack}>
+            <Text style={dynamicStyles.backButtonText}>← Back</Text>
           </TouchableOpacity>
 
-          <View style={styles.pageHeaderTitle}>
-            <Text style={styles.pageHeaderTitleText}>Transaction Details</Text>
+          <View style={dynamicStyles.pageHeaderTitle}>
+            <Text style={dynamicStyles.pageHeaderTitleText}>Transaction Details</Text>
           </View>
         </View>
       </View>
 
-      <ScrollView style={styles.content}>
-        <View style={styles.card}>
-          <View style={styles.header}>
-            <Text style={[styles.amount, { color: transaction.type === 'credit' ? theme.colors.success : theme.colors.error }]}>
+      <ScrollView style={dynamicStyles.content}>
+        <View style={dynamicStyles.card}>
+          <View style={dynamicStyles.header}>
+            <Text style={[dynamicStyles.amount, { color: transaction.type === 'credit' ? theme.colors.success : theme.colors.error }]}>
               {transaction.type === 'credit' ? '+' : '-'}{formatCurrency(transaction.amount)}
             </Text>
-            <Text style={styles.description}>{transaction.description}</Text>
+            <Text style={dynamicStyles.description}>{transaction.description}</Text>
           </View>
 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Transaction Details</Text>
-            <View style={styles.row}>
-              <Text style={styles.label}>Reference</Text>
-              <Text style={styles.value}>{transaction.reference}</Text>
+          <View style={dynamicStyles.section}>
+            <Text style={dynamicStyles.sectionTitle}>Transaction Details</Text>
+            <View style={dynamicStyles.row}>
+              <Text style={dynamicStyles.label}>Reference</Text>
+              <Text style={dynamicStyles.value}>{transaction.reference}</Text>
             </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Date</Text>
-              <Text style={styles.value}>{new Date(transaction.date).toLocaleDateString()}</Text>
+            <View style={dynamicStyles.row}>
+              <Text style={dynamicStyles.label}>Date</Text>
+              <Text style={dynamicStyles.value}>{new Date(transaction.date).toLocaleDateString()}</Text>
             </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Time</Text>
-              <Text style={styles.value}>{new Date(transaction.date).toLocaleTimeString()}</Text>
+            <View style={dynamicStyles.row}>
+              <Text style={dynamicStyles.label}>Time</Text>
+              <Text style={dynamicStyles.value}>{new Date(transaction.date).toLocaleTimeString()}</Text>
             </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Status</Text>
-              <Text style={[styles.value, {
+            <View style={dynamicStyles.row}>
+              <Text style={dynamicStyles.label}>Status</Text>
+              <Text style={[dynamicStyles.value, {
                 color: transaction.status === 'completed' ? theme.colors.success :
                        transaction.status === 'pending' ? theme.colors.warning : theme.colors.error
               }]}>
                 {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
               </Text>
             </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Transaction Type</Text>
-              <Text style={styles.value}>{transaction.type === 'credit' ? 'Money Received' : 'Money Sent'}</Text>
+            <View style={dynamicStyles.row}>
+              <Text style={dynamicStyles.label}>Transaction Type</Text>
+              <Text style={dynamicStyles.value}>{transaction.type === 'credit' ? 'Money Received' : 'Money Sent'}</Text>
             </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Transaction ID</Text>
-              <Text style={styles.value}>{transaction.id}</Text>
+            <View style={dynamicStyles.row}>
+              <Text style={dynamicStyles.label}>Transaction ID</Text>
+              <Text style={dynamicStyles.value}>{transaction.id}</Text>
             </View>
             {transaction.fee !== undefined && transaction.fee > 0 && (
-              <View style={styles.row}>
-                <Text style={styles.label}>Transaction Fee</Text>
-                <Text style={styles.value}>{formatCurrency(transaction.fee)}</Text>
+              <View style={dynamicStyles.row}>
+                <Text style={dynamicStyles.label}>Transaction Fee</Text>
+                <Text style={dynamicStyles.value}>{formatCurrency(transaction.fee)}</Text>
               </View>
             )}
           </View>
 
           {transaction.recipient && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Recipient</Text>
-              <View style={styles.row}>
-                <Text style={styles.label}>Name</Text>
-                <Text style={styles.value}>{transaction.recipient.name}</Text>
+            <View style={dynamicStyles.section}>
+              <Text style={dynamicStyles.sectionTitle}>Recipient</Text>
+              <View style={dynamicStyles.row}>
+                <Text style={dynamicStyles.label}>Name</Text>
+                <Text style={dynamicStyles.value}>{transaction.recipient.name}</Text>
               </View>
-              <View style={styles.row}>
-                <Text style={styles.label}>Account</Text>
-                <Text style={styles.value}>{transaction.recipient.account}</Text>
+              <View style={dynamicStyles.row}>
+                <Text style={dynamicStyles.label}>Account</Text>
+                <Text style={dynamicStyles.value}>{transaction.recipient.account}</Text>
               </View>
-              <View style={styles.row}>
-                <Text style={styles.label}>Bank</Text>
-                <Text style={styles.value}>{transaction.recipient.bank}</Text>
+              <View style={dynamicStyles.row}>
+                <Text style={dynamicStyles.label}>Bank</Text>
+                <Text style={dynamicStyles.value}>{transaction.recipient.bank}</Text>
               </View>
             </View>
           )}
 
           {transaction.sender && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Sender</Text>
-              <View style={styles.row}>
-                <Text style={styles.label}>Name</Text>
-                <Text style={styles.value}>{transaction.sender.name}</Text>
+            <View style={dynamicStyles.section}>
+              <Text style={dynamicStyles.sectionTitle}>Sender</Text>
+              <View style={dynamicStyles.row}>
+                <Text style={dynamicStyles.label}>Name</Text>
+                <Text style={dynamicStyles.value}>{transaction.sender.name}</Text>
               </View>
-              <View style={styles.row}>
-                <Text style={styles.label}>Account</Text>
-                <Text style={styles.value}>{transaction.sender.account}</Text>
+              <View style={dynamicStyles.row}>
+                <Text style={dynamicStyles.label}>Account</Text>
+                <Text style={dynamicStyles.value}>{transaction.sender.account}</Text>
               </View>
-              <View style={styles.row}>
-                <Text style={styles.label}>Bank</Text>
-                <Text style={styles.value}>{transaction.sender.bank}</Text>
+              <View style={dynamicStyles.row}>
+                <Text style={dynamicStyles.label}>Bank</Text>
+                <Text style={dynamicStyles.value}>{transaction.sender.bank}</Text>
               </View>
             </View>
           )}
         </View>
       </ScrollView>
 
-      <View style={styles.actions}>
-        <TouchableOpacity style={styles.actionButton} onPress={handleShare}>
-          <Text style={styles.actionButtonText}>Share</Text>
+      <View style={dynamicStyles.actions}>
+        <TouchableOpacity style={dynamicStyles.actionButton} onPress={handleShare}>
+          <Text style={dynamicStyles.actionButtonText}>Share</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton} onPress={handleDispute}>
-          <Text style={styles.actionButtonText}>Dispute</Text>
+        <TouchableOpacity style={dynamicStyles.actionButton} onPress={handleDispute}>
+          <Text style={dynamicStyles.actionButtonText}>Dispute</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
