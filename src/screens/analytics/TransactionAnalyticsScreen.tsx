@@ -556,7 +556,7 @@ const TransactionAnalyticsScreen: React.FC<TransactionAnalyticsScreenProps> = ({
 
         <View style={dynamicStyles.metricCard}>
           <Text style={dynamicStyles.metricLabel}>Money Sent (This Month)</Text>
-          <Text style={[dynamicStyles.metricValue, { color: tenantTheme.colors.error }]}>
+          <Text style={[dynamicStyles.metricValue, { color: tenantTheme.colors.primary }]}>
             {formatCurrency(analyticsData.moneyFlow.currentMonthSent, 'NGN')}
           </Text>
         </View>
@@ -601,9 +601,9 @@ const TransactionAnalyticsScreen: React.FC<TransactionAnalyticsScreenProps> = ({
 
                 {/* Sent bar */}
                 <View style={dynamicStyles.chartBar}>
-                  <Text style={{ fontSize: 11, width: 60, color: tenantTheme.colors.error }}>Sent:</Text>
+                  <Text style={{ fontSize: 11, width: 60, color: tenantTheme.colors.primary }}>Sent:</Text>
                   <View style={dynamicStyles.chartBarContainer}>
-                    <View style={[dynamicStyles.chartBarFill, { width: `${sentPercentage}%`, backgroundColor: tenantTheme.colors.error }]}>
+                    <View style={[dynamicStyles.chartBarFill, { width: `${sentPercentage}%`, backgroundColor: tenantTheme.colors.primary }]}>
                       <Text style={dynamicStyles.chartBarValue}>
                         ₦{(item.sent / 1000).toFixed(0)}K
                       </Text>
