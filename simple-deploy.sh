@@ -17,11 +17,16 @@ git add -A
 git commit -m "fix: Update deployment - $(date +%Y-%m-%d)" || true
 git push origin "$CURRENT_BRANCH" || true
 
+# Get the branch to deploy (use environment variable or default)
+DEPLOY_BRANCH="${DEPLOY_BRANCH:-feature/enhanced-ai-assistant}"
+echo "🎯 Deploying branch: $DEPLOY_BRANCH"
+
 # Deploy using git pull on the server
-ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" << 'REMOTE_SCRIPT'
+ssh -i "$SSH_KEY" "$SSH_USER@$SERVER_IP" bash -s "$DEPLOY_BRANCH" << 'REMOTE_SCRIPT'
 set -e
 
-echo "📦 Updating application from GitHub..."
+BRANCH="$1"
+echo "📦 Updating application from GitHub (branch: $BRANCH)..."
 
 # Check if bankapp directory exists, if not use orokiipay
 if [ -d "/opt/bankapp" ]; then
@@ -58,8 +63,7 @@ git merge --abort 2>/dev/null || true
 echo "💾 Stashing local changes..."
 git stash push -m "Auto-stash before deployment $(date +%Y%m%d-%H%M%S)" || true
 
-# Use the branch from environment or default to feature/enhanced-ai-assistant
-BRANCH="${DEPLOY_BRANCH:-feature/enhanced-ai-assistant}"
+# Checkout the specified branch
 git checkout "$BRANCH"
 
 # Force pull to avoid divergent branch issues
