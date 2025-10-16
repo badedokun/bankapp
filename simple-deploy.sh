@@ -50,7 +50,7 @@ git stash push -m "Auto-stash before deployment $(date +%Y%m%d-%H%M%S)"
 # Use the branch from environment or default to feature/enhanced-ai-assistant
 BRANCH="${DEPLOY_BRANCH:-feature/enhanced-ai-assistant}"
 git checkout "$BRANCH"
-git pull origin "$BRANCH"
+git pull --rebase origin "$BRANCH" || git pull --no-rebase origin "$BRANCH"
 
 # CRITICAL: Fix GCP database password (git pull overwrites .env with local config)
 echo "🔧 Fixing GCP database password..."
