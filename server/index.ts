@@ -140,6 +140,13 @@ app.use('/mockups', express.static(path.join(__dirname, '../public/mockups')));
 // Serve design system files
 app.use('/design-system', express.static(path.join(__dirname, '../public/design-system')));
 
+// Serve frontend build in production
+if (process.env.NODE_ENV === 'production') {
+  const distPath = path.join(__dirname, '../dist');
+  app.use(express.static(distPath));
+  console.log(`📦 Serving frontend from: ${distPath}`);
+}
+
 // Health check endpoint
 app.get('/health', (_req, res) => {
   res.json({
@@ -180,6 +187,13 @@ app.use('/api/banks', authenticateToken, tenantMiddleware, banksRoutes);
 app.use('/api/rewards', authenticateToken, tenantMiddleware, rewardsRoutes);
 app.use('/api/referrals', tenantMiddleware, referralRoutes); // Mixed auth (some endpoints public)
 app.use('/api/disputes', authenticateToken, tenantMiddleware, disputesRoutes);
+
+// Serve index.html for all non-API routes (client-side routing) in production
+if (process.env.NODE_ENV === 'production') {
+  app.get('*', (_req, res) => {
+    res.sendFile(path.join(__dirname, '../dist/index.html'));
+  });
+}
 
 // Error handling
 app.use(notFound);

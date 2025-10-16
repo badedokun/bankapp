@@ -60,6 +60,9 @@ npm install --legacy-peer-deps
 echo "🔨 Building server..."
 npm run server:build
 
+echo "🌐 Building frontend with FMFB configuration..."
+DEFAULT_TENANT=fmfb WHITELISTED_TENANTS=fmfb DEPLOYMENT_TYPE=fmfb_production NODE_ENV=production npm run web:build
+
 # Update database if backup exists
 if [ -f "/tmp/bank_app_platform_backup_20250119.sql.gz" ]; then
     echo "🗄️ Restoring database backup..."
@@ -76,7 +79,9 @@ elif systemctl is-active --quiet bankapp; then
     SERVICE_NAME="bankapp"
 else
     echo "⚠️ No active service found, starting with PM2..."
-    pm2 restart bankapp || pm2 start npm --name bankapp -- run server
+    # Set NODE_ENV=production for PM2
+    pm2 delete bankapp 2>/dev/null || true
+    NODE_ENV=production pm2 start npm --name bankapp -- run start:prod
     SERVICE_NAME="pm2"
 fi
 
