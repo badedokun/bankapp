@@ -43,6 +43,10 @@ sudo cp -r "$APP_DIR" "${APP_DIR}-backup-$(date +%Y%m%d-%H%M%S)"
 echo "🔄 Pulling latest changes..."
 git fetch origin
 
+# Stash any local changes (like .env modifications)
+echo "💾 Stashing local changes..."
+git stash push -m "Auto-stash before deployment $(date +%Y%m%d-%H%M%S)"
+
 # Use the branch from environment or default to feature/enhanced-ai-assistant
 BRANCH="${DEPLOY_BRANCH:-feature/enhanced-ai-assistant}"
 git checkout "$BRANCH"
