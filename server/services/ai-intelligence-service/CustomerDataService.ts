@@ -129,8 +129,9 @@ export class CustomerDataService {
   /**
    * Get recent transactions with natural language response
    */
-  static async getRecentTransactions(userId: string, tenantId: string, limit: number = 5): Promise<CustomerDataResponse> {
+  static async getRecentTransactions(userId: string, tenantId: string, limit: number = 20): Promise<CustomerDataResponse> {
     try {
+      // Query unified transactions table (auto-synced from transfers via trigger)
       const result = await dbManager.queryTenant(tenantId,
         `SELECT
           id,
@@ -180,7 +181,8 @@ export class CustomerDataService {
 
         const date = new Date(tx.created_at).toLocaleDateString('en-NG', {
           month: 'short',
-          day: 'numeric'
+          day: 'numeric',
+          year: 'numeric'
         });
 
         answer += `${index + 1}. ${tx.description} - ${amount} (${date})\n`;
@@ -440,7 +442,7 @@ export class CustomerDataService {
   /**
    * Process customer query and return appropriate response
    */
-  static async processQuery(message: string, userId: string, tenantId: string): Promise<CustomerDataResponse> {
+  static async processQuery(message: string, userId: string, tenantId: string, options?: { limit?: number }): Promise<CustomerDataResponse> {
     const queryType = this.classifyQuery(message);
 
     switch (queryType) {
@@ -448,7 +450,7 @@ export class CustomerDataService {
         return await this.getBalance(userId, tenantId);
 
       case 'transactions':
-        return await this.getRecentTransactions(userId, tenantId);
+        return await this.getRecentTransactions(userId, tenantId, options?.limit || 20);
 
       case 'spending':
         return await this.analyzeSpending(userId, tenantId);

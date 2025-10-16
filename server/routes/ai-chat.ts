@@ -43,7 +43,7 @@ async function enrichContextWithUserData(context: any, userId: string, tenantId:
       [userId]
     );
 
-    // Get recent transactions (last 20 for better analysis) from tenant database
+    // Get recent transactions (last 30 for comprehensive analysis) from tenant database
     const transactionsResult = await dbManager.queryTenant(tenantId,
       `SELECT
         amount,
@@ -55,7 +55,7 @@ async function enrichContextWithUserData(context: any, userId: string, tenantId:
       FROM tenant.transactions
       WHERE user_id = $1
       ORDER BY created_at DESC
-      LIMIT 20`,
+      LIMIT 30`,
       [userId]
     );
 

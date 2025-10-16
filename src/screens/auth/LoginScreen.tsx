@@ -12,13 +12,12 @@ import {
   SafeAreaView,
   StatusBar,
   TouchableOpacity,
-  Alert,
   Platform,
   Dimensions,
   Image,
   KeyboardAvoidingView,
 } from 'react-native';
-import LinearGradient from '../../components/common/LinearGradient';
+import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, FadeInUp, useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { useTenant, useTenantBranding } from '../../tenants/TenantContext';
 import { useTenantTheme } from '../../context/TenantThemeContext';
@@ -30,6 +29,7 @@ import { SecurityMonitor, SecurityConfig } from '../../utils/security';
 import APIService from '../../services/api';
 import DeploymentManager from '../../config/deployment';
 import { useNotification } from '../../services/ModernNotificationService';
+import { useBankingAlert } from '../../services/AlertService';
 import { ENV_CONFIG, buildApiUrl } from '../../config/environment';
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
@@ -56,10 +56,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   navigation,
 }) => {
   const { currentTenant, isLoading } = useTenant();
-  const { theme } = useTenantTheme() as any;
+  const { theme } = useTenantTheme();
   const branding = useTenantBranding();
   const deploymentBranding = DeploymentManager.getDeploymentBranding();
   const notify = useNotification();
+  const { showAlert } = useBankingAlert();
 
   // Form state with security validation
   const [formData, setFormData] = useState<LoginFormData>({
@@ -116,10 +117,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
   // Handle form submission with security checks
   const handleSubmit = useCallback(async () => {
-    console.log('🎯 handleSubmit called - formData:', formData);
-    console.log('🎯 formErrors:', formErrors);
-    console.log('🎯 isSubmitting:', isSubmitting);
-
     if (isSubmitting) return;
 
     // Check if user is blocked due to too many attempts
@@ -127,19 +124,37 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     if (attemptCheck.blocked) {
       notify.error(
         `Your account has been temporarily locked due to multiple failed login attempts. For your security, please wait 1 hour before trying again, or contact our support team for immediate assistance.`,
-        '🔒 Account Security Lock'
+        '🔒 Account Security Lock',
+        [
+          {
+            text: 'Contact Support',
+            onPress: () => {
+              // Log security event for support contact
+            }
+          },
+          {
+            text: 'OK',
+            onPress: () => {},
+            style: 'default'
+          }
+        ]
       );
       return;
     }
 
     // Validate form data
     const hasErrors = Object.values(formErrors).some(error => error !== undefined);
-    console.log('🔍 Validation check - hasErrors:', hasErrors, 'email:', formData.email, 'password:', formData.password);
     if (hasErrors || !formData.email || !formData.password) {
-      console.log('❌ Validation failed - showing alert');
       notify.warning(
         'Please ensure all fields are filled correctly before proceeding. Check that your email address is valid and your password meets the security requirements.',
         '⚠️ Form Validation',
+        [
+          {
+            text: 'OK',
+            onPress: () => {},
+            style: 'default'
+          }
+        ]
       );
       return;
     }
@@ -153,22 +168,12 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         SecurityMonitor.resetLoginAttempts(formData.email);
       } else {
         // Use API service for authentication
-        console.log('Attempting API login with:', {
-          tenant: currentTenant?.id,
-          email: formData.email,
-          timestamp: new Date().toISOString(),
-        });
-        
-        // Use current tenant context directly
-        // Tenant should already be set via subdomain, header, or environment
-        const tenantId = currentTenant?.id || currentTenant?.name;
-
-        if (!tenantId) {
-          notify.error(
-            'Tenant context is required for login. Please ensure you are accessing the application from the correct domain.',
-            'Missing Tenant Context'
-          );
-          return;
+        // Determine tenant from email domain
+        let tenantId = currentTenant?.id;
+        if (formData.email.includes('@fmfb.com')) {
+          tenantId = 'fmfb';
+        } else if (formData.email.includes('@default.com')) {
+          tenantId = 'default';
         }
 
         const loginResponse = await APIService.login({
@@ -181,22 +186,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             screenSize: `${screenWidth}x${Dimensions.get('window').height}`,
           }
         });
-        
-        console.log('🎉 Login API call successful! Response:', loginResponse);
-        console.log('👤 User object:', loginResponse.user);
-        console.log('💰 Wallet object:', loginResponse.user?.wallet);
-        
+
         // Reset attempts on successful login
         SecurityMonitor.resetLoginAttempts(formData.email);
-        
-        console.log('📱 About to navigate to dashboard...');
-        console.log('Login successful, user data:', {
-          id: loginResponse.user.id,
-          name: `${loginResponse.user.firstName} ${loginResponse.user.lastName}`,
-          tenant: loginResponse.user.tenant.displayName,
-          balance: loginResponse.user.wallet?.availableBalance
-        });
-        
+
         // Dispatch auth state changed event
         window.dispatchEvent(new CustomEvent('authStateChanged', {
           detail: { isAuthenticated: true, user: loginResponse.user }
@@ -204,7 +197,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
         // Navigate to main app immediately (Alert doesn't work well in web)
         if (navigation) {
-          console.log('🚀 Calling navigation.replace(\'MainApp\')');
           navigation.replace('MainApp');
         } else {
           console.error('❌ Navigation object not available');
@@ -214,93 +206,61 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
       }
       
     } catch (error: any) {
-      console.error('Login error:', error);
+      console.error('❌ Login error:', error);
       setLoginAttempts(prev => prev + 1);
-      
+
+      // Ensure form is always re-enabled
+      setIsSubmitting(false);
+
+      // Clear password field for security
+      setFormData(prev => ({ ...prev, password: '' }));
+
       // Handle different error types with professional security messaging
       let errorMessage = 'The credentials you entered are not valid. Please verify your email address and password, then try again.';
-      let errorTitle = '🔐 Authentication Failed';
-      let buttons: Array<{ text: string; onPress: () => void; style?: 'default' | 'cancel' | 'destructive' }> = [];
-      
+      let errorTitle = 'Authentication Failed';
+
       if (error?.message) {
         if (error.message.includes('Account locked') || error.message.includes('too many')) {
-          errorTitle = '🔒 Account Security Lock';
-          errorMessage = 'Your account has been temporarily locked for security purposes due to multiple unsuccessful login attempts.\n\nTo protect your account, please wait 1 hour before attempting to sign in again, or contact our support team for immediate assistance.';
-          buttons = [
-            {
-              text: 'Contact Support',
-              onPress: () => {
-                console.log('User requested support for locked account:', formData.email);
-              }
-            },
-            {
-              text: 'OK',
-              onPress: () => {},
-              style: 'default'
-            }
-          ];
+          errorTitle = 'Account Security Lock';
+          errorMessage = 'Your account has been temporarily locked for security purposes due to multiple unsuccessful login attempts. Please wait 1 hour before trying again, or contact our support team for immediate assistance.';
         } else if (error.message.includes('Account is inactive') || error.message.includes('suspended')) {
-          errorTitle = '⚠️ Account Status';
-          errorMessage = 'Your account is currently inactive or suspended.\n\nThis may be due to pending verification or security measures. Please contact our support team to restore account access.';
-          buttons = [
-            {
-              text: 'Contact Support',
-              onPress: () => {
-                console.log('User requested support for inactive account:', formData.email);
-              }
-            },
-            {
-              text: 'OK',
-              onPress: () => {},
-              style: 'default'
-            }
-          ];
+          errorTitle = 'Account Status';
+          errorMessage = 'Your account is currently inactive or suspended. This may be due to pending verification or security measures. Please contact our support team to restore account access.';
         } else if (error.message.includes('Server is not accessible')) {
-          errorTitle = '🌐 Connection Issue';
-          errorMessage = 'We\'re unable to connect to our secure servers at the moment.\n\nPlease check your internet connection and try again. If the issue persists, our servers may be temporarily unavailable.';
-          buttons = [
-            {
-              text: 'Retry',
-              onPress: () => {
-                setTimeout(() => handleSubmit(), 1000);
-              }
-            },
-            {
-              text: 'OK',
-              onPress: () => {},
-              style: 'default'
-            }
-          ];
+          errorTitle = 'Connection Issue';
+          errorMessage = 'We\'re unable to connect to our secure servers at the moment. Please check your internet connection and try again.';
         } else if (error.message.includes('Invalid credentials')) {
-          errorTitle = '🔐 Authentication Failed';
-          errorMessage = 'The email address or password you entered is incorrect.\n\nPlease double-check your credentials and try again. If you\'ve forgotten your password, you can reset it using the "Forgot Password" link.';
-          buttons = [
-            {
-              text: 'Reset Password',
-              onPress: () => {
-                handleForgotPassword();
-              }
-            },
-            {
-              text: 'Try Again',
-              onPress: () => {},
-              style: 'default'
-            }
-          ];
+          errorTitle = 'Incorrect Credentials';
+          errorMessage = 'The email address or password you entered is incorrect. Please double-check your credentials and try again. If you\'ve forgotten your password, click "Forgot Password" below.';
         }
       }
-      
-      // Always show error notification for login failures
-      // This ensures users always get feedback when credentials are wrong
-      notify.error(errorMessage, errorTitle);
+
+      // Show error with haptic feedback
+      triggerHaptic('notificationError');
+
+      // Use World-Class UI alert system
+      showAlert(errorTitle, errorMessage, [
+        {
+          text: 'OK',
+          onPress: () => {
+            // Focus password field for retry
+            if (passwordInputRef.current) {
+              setTimeout(() => {
+                passwordInputRef.current?.focus();
+              }, 100);
+            }
+          }
+        }
+      ]);
     } finally {
+      // Ensure form is always re-enabled (redundant but safe)
       setIsSubmitting(false);
     }
-  }, [formData, formErrors, isSubmitting, onLogin, currentTenant, notify]);
+  }, [formData, formErrors, isSubmitting, onLogin, currentTenant, notify, handleForgotPassword, showAlert]);
 
   // Handle biometric authentication
   const handleBiometricAuth = useCallback((type: 'fingerprint' | 'faceId' | 'voice') => {
-    triggerHaptic('light');
+    triggerHaptic('impactLight');
     if (onBiometricAuth) {
       onBiometricAuth(type);
     } else {
@@ -312,7 +272,14 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
       notify.info(
         `${typeMap[type].name} authentication is not yet configured for this device. This feature would securely authenticate using your device's biometric sensors in a production environment.`,
-        `${typeMap[type].emoji} ${typeMap[type].name} Authentication`
+        `${typeMap[type].emoji} ${typeMap[type].name} Authentication`,
+        [
+          {
+            text: 'Set Up Later',
+            onPress: () => {},
+            style: 'default'
+          }
+        ]
       );
     }
   }, [onBiometricAuth, notify]);
@@ -324,13 +291,25 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
   // Handle forgot password
   const handleForgotPassword = useCallback(() => {
-    triggerHaptic('light');
+    triggerHaptic('impactLight');
     if (onForgotPassword) {
       onForgotPassword();
     } else {
       notify.info(
         'Password reset functionality is not yet available in this demo environment. In a production application, you would receive a secure reset link via email to create a new password.',
         '🔑 Password Reset',
+        [
+          {
+            text: 'Contact Support',
+            onPress: () => {
+            }
+          },
+          {
+            text: 'OK',
+            onPress: () => {},
+            style: 'default'
+          }
+        ]
       );
     }
   }, [onForgotPassword, notify]);
@@ -642,7 +621,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           <View style={styles.tenantHeader}>
             <View style={[
               styles.tenantLogo,
-              theme.brandLogo && { backgroundColor: '#FFFFFF' }
+              theme.brandLogo && { backgroundColor: theme.colors.surface }
             ]}>
               {theme.brandLogo ? (
                 !fmfbLogoError ? (
@@ -651,15 +630,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                     style={styles.tenantLogoImage}
                     resizeMode="contain"
                     onLoad={() => {
-                      console.log('✅ Tenant logo loaded successfully');
                       setFmfbLogoLoading(false);
                     }}
                     onError={(error) => {
-                      console.log('❌ Tenant logo failed to load:', {
-                        logoUrl: theme.brandLogo,
-                        error: error.nativeEvent.error,
-                        isReactNative: typeof navigator !== 'undefined' && navigator.product === 'ReactNative'
-                      });
                       setFmfbLogoError(true);
                       setFmfbLogoLoading(false);
                     }}
@@ -676,10 +649,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
               )}
             </View>
             <Text style={styles.tenantName}>
-              {theme.brandName || currentTenant?.displayName || deploymentBranding.loginPageTitle}
+              {currentTenant?.displayName || theme.brandName || deploymentBranding.loginPageTitle}
             </Text>
             <Text style={styles.tenantSubtitle}>
-              {theme.brandTagline || 'Secure Banking Platform'}
+              {currentTenant ? 'Secure Banking App' : theme.brandTagline || 'AI-Enhanced Banking Platform'}
             </Text>
           </View>
 
@@ -772,8 +745,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
             <TouchableOpacity
               onPress={() => {
-                console.log('🚀 Sign In button pressed');
-                triggerHaptic('medium');
+                triggerHaptic('impactMedium');
                 handleSubmit();
               }}
               style={[styles.signInButton, isSubmitting && styles.signInButtonDisabled]}

@@ -71,8 +71,11 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
   onTransactionDetails,
 }) => {
   const { currentTenant } = useTenant();
-  const { theme: tenantTheme } = useTenantTheme() as any;
+  const theme = useTenantTheme();
   const { showAlert } = useBankingAlert();
+
+  // Use tenant theme directly - it already has proper fallbacks from TenantContext
+  const tenantTheme = theme;
 
   // State
   const [historyData, setHistoryData] = useState<TransactionHistoryData | null>(null);
@@ -278,6 +281,14 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
     }
   }, [filteredTransactions, showAlert]);
 
+  // Helper function to convert hex to RGB array
+  const hexToRgbArray = (hex: string): [number, number, number] => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+      ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)]
+      : [0, 0, 0];
+  };
+
   // Export transactions to PDF
   const exportToPDF = useCallback(() => {
     try {
@@ -327,9 +338,9 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
           transaction.type || 'N/A',
           safeTruncate(transaction.description, 25),
           safeTruncate(transaction.recipient, 20),
-          formatCurrency(transaction.amount || 0, transaction.currency || 'NGN'),
+          formatCurrency(transaction.amount || 0, transaction.currency || currentTenant?.branding?.currency || 'NGN'),
           transaction.status || 'N/A',
-          formatCurrency(transaction.balance || 0, transaction.currency || 'NGN')
+          formatCurrency(transaction.balance || 0, transaction.currency || currentTenant?.branding?.currency || 'NGN')
         ];
       });
 
@@ -343,12 +354,12 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
           cellPadding: 2,
         },
         headStyles: {
-          fillColor: [30, 58, 138], // FMFB primary color
+          fillColor: hexToRgbArray(tenantTheme.colors.primary),
           textColor: [255, 255, 255],
           fontStyle: 'bold',
         },
         alternateRowStyles: {
-          fillColor: [248, 250, 252],
+          fillColor: hexToRgbArray(tenantTheme.colors.surface || '#F8FAFC'),
         },
         columnStyles: {
           0: { cellWidth: 20 },  // Date
