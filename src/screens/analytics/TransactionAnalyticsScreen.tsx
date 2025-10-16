@@ -251,6 +251,7 @@ const TransactionAnalyticsScreen: React.FC<TransactionAnalyticsScreenProps> = ({
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
+      paddingHorizontal: theme.spacing.md,
     },
     backButton: {
       marginRight: theme.spacing.sm,
