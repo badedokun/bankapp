@@ -12,6 +12,7 @@ interface AchievementCriteria {
   count?: number;
   amount?: number;
   days?: number;
+  months?: number;
   maxRank?: number;
 }
 

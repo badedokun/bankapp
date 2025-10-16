@@ -68,7 +68,7 @@ router.get('/', async (_req, res) => {
  * GET /api/banks/:code
  * Get specific bank by code
  */
-router.get('/:code', async (req, res): Promise<void> => {
+router.get('/:code', async (req, res) => {
   try {
     const { code } = req.params;
     const bank = NIGERIAN_BANKS.find(b => b.code === code.toUpperCase());

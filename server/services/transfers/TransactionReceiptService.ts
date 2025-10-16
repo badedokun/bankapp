@@ -22,6 +22,7 @@ interface TransactionReceipt {
     accountNumber: string;
     accountName: string;
     bankName: string;
+    bankCode?: string;
   };
   recipient: {
     accountNumber: string;
@@ -132,6 +133,7 @@ class TransactionReceiptService {
           accountNumber: transactionData.sender_account_number,
           accountName: transactionData.sender_account_name,
           bankName: transactionData.sender_bank_name || 'Banking Institution',
+          bankCode: transactionData.sender_bank_code,
         },
         recipient: {
           accountNumber: transactionData.recipient_account_number,
@@ -208,9 +210,11 @@ class TransactionReceiptService {
             sa.account_number as sender_account_number,
             sa.account_name as sender_account_name,
             t.display_name as sender_bank_name,
+            t.bank_code as sender_bank_code,
             ra.account_number as recipient_account_number,
             ra.account_name as recipient_name,
-            t.display_name as recipient_bank_name
+            t.display_name as recipient_bank_name,
+            t.bank_code as recipient_bank_code
           FROM internal_transfers it
           JOIN tenant.accounts sa ON it.sender_account_id = sa.id
           JOIN tenant.accounts ra ON it.recipient_account_id = ra.id
@@ -226,6 +230,7 @@ class TransactionReceiptService {
             sa.account_number as sender_account_number,
             sa.account_name as sender_account_name,
             t.display_name as sender_bank_name,
+            t.bank_code as sender_bank_code,
             et.recipient_account_number,
             et.recipient_name,
             et.recipient_bank_name,
@@ -244,6 +249,7 @@ class TransactionReceiptService {
             sa.account_number as sender_account_number,
             sa.account_name as sender_account_name,
             t.display_name as sender_bank_name,
+            t.bank_code as sender_bank_code,
             bp.customer_id as recipient_account_number,
             bp.customer_name as recipient_name,
             bp.biller_name as recipient_bank_name
@@ -261,6 +267,7 @@ class TransactionReceiptService {
             sa.account_number as sender_account_number,
             sa.account_name as sender_account_name,
             t.display_name as sender_bank_name,
+            t.bank_code as sender_bank_code,
             it.recipient_iban as recipient_account_number,
             it.recipient_name,
             it.recipient_swift_code as recipient_bank_code
@@ -278,6 +285,7 @@ class TransactionReceiptService {
             sa.account_number as sender_account_number,
             sa.account_name as sender_account_name,
             t.display_name as sender_bank_name,
+            t.bank_code as sender_bank_code,
             sp.recipient_account_number,
             sp.recipient_name,
             sp.recipient_bank_name,
@@ -417,6 +425,12 @@ class TransactionReceiptService {
                 <span class="detail-label">Bank:</span>
                 <span class="detail-value">${receipt.sender.bankName}</span>
             </div>
+            ${receipt.sender.bankCode ? `
+            <div class="detail-row">
+                <span class="detail-label">Bank Code:</span>
+                <span class="detail-value">${receipt.sender.bankCode}</span>
+            </div>
+            ` : ''}
         </div>
 
         <div class="section">

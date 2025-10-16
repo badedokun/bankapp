@@ -99,10 +99,11 @@ router.post('/validate', authenticateToken, validateTenantAccess, [
   const isValid = accountNumber.length >= 8 && accountNumber.length <= 15;
 
   if (!isValid) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       error: 'Invalid account number format'
     });
+    return;
   }
 
   // Simulate customer info lookup

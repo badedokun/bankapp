@@ -4,7 +4,7 @@
  */
 
 import express from 'express';
-import { body } from 'express-validator';
+import { body, validationResult } from 'express-validator';
 import { query as dbQuery, transaction } from '../config/database';
 import { authenticateToken } from '../middleware/auth';
 import { validateTenantAccess } from '../middleware/tenant';

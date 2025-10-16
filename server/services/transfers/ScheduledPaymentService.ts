@@ -13,8 +13,8 @@ import {
 import { TransferRequest, TransferResponse } from '../../types';
 import { ValidationError } from '../../types/validation-error';
 import { InternalTransferService } from './InternalTransferService';
-import { ExternalTransferService } from './ExternalTransferService';
-import { BillPaymentService } from './BillPaymentService';
+import ExternalTransferService from './ExternalTransferService';
+import BillPaymentService from './BillPaymentService';
 
 interface ScheduledPayment {
   id: string;

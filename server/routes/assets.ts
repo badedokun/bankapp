@@ -11,20 +11,22 @@ const router = express.Router();
  * GET /api/tenants/:tenantId/assets/:assetType/:assetName
  * Serve tenant asset by converting Base64 back to binary
  */
-router.get('/:tenantId/assets/:assetType/:assetName', async (req, res): Promise<void> => {
+router.get('/:tenantId/assets/:assetType/:assetName', async (req, res) => {
   try {
     const { tenantId, assetType, assetName = 'default' } = req.params;
-    
+
     // Validate tenant ID format (basic UUID check)
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(tenantId)) {
-      return res.status(400).json({ error: 'Invalid tenant ID format' });
+      res.status(400).json({ error: 'Invalid tenant ID format' });
+      return;
     }
 
     // Validate asset type
     const validAssetTypes = ['logo', 'favicon', 'hero_image', 'background', 'icon', 'stylesheet'];
     if (!validAssetTypes.includes(assetType)) {
-      return res.status(400).json({ error: 'Invalid asset type' });
+      res.status(400).json({ error: 'Invalid asset type' });
+      return;
     }
 
     // Query asset from database
@@ -36,12 +38,13 @@ router.get('/:tenantId/assets/:assetType/:assetName', async (req, res): Promise<
     `, [tenantId, assetType, assetName]);
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ 
+      res.status(404).json({
         error: 'Asset not found',
         tenant: tenantId,
         assetType,
         assetName
       });
+      return;
     }
 
     const asset = result.rows[0];
@@ -74,14 +77,15 @@ router.get('/:tenantId/assets/:assetType/:assetName', async (req, res): Promise<
  * GET /api/tenants/:tenantName/assets/:assetType/:assetName
  * Serve tenant asset by tenant name instead of ID
  */
-router.get('/by-name/:tenantName/assets/:assetType/:assetName', async (req, res): Promise<void> => {
+router.get('/by-name/:tenantName/assets/:assetType/:assetName', async (req, res) => {
   try {
     const { tenantName, assetType, assetName = 'default' } = req.params;
-    
+
     // Validate asset type
     const validAssetTypes = ['logo', 'favicon', 'hero_image', 'background', 'icon', 'stylesheet'];
     if (!validAssetTypes.includes(assetType)) {
-      return res.status(400).json({ error: 'Invalid asset type' });
+      res.status(400).json({ error: 'Invalid asset type' });
+      return;
     }
 
     // Query asset from database using tenant name
@@ -93,12 +97,13 @@ router.get('/by-name/:tenantName/assets/:assetType/:assetName', async (req, res)
     `, [tenantName, assetType, assetName]);
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ 
+      res.status(404).json({
         error: 'Asset not found',
         tenant: tenantName,
         assetType,
         assetName
       });
+      return;
     }
 
     const asset = result.rows[0];
@@ -131,17 +136,18 @@ router.get('/by-name/:tenantName/assets/:assetType/:assetName', async (req, res)
  * POST /api/tenants/:tenantId/assets
  * Upload new asset (admin only)
  */
-router.post('/:tenantId/assets', async (req, res): Promise<void> => {
+router.post('/:tenantId/assets', async (req, res) => {
   try {
     const { tenantId } = req.params;
     const { assetType, assetName, assetData, mimeType, dimensions, metadata } = req.body;
 
     // Validate required fields
     if (!assetType || !assetName || !assetData || !mimeType) {
-      return res.status(400).json({ 
+      res.status(400).json({
         error: 'Missing required fields',
         required: ['assetType', 'assetName', 'assetData', 'mimeType']
       });
+      return;
     }
 
     // Calculate file size from Base64
