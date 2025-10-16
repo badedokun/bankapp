@@ -461,6 +461,7 @@ export const TransactionHistoryScreen: React.FC<TransactionHistoryScreenProps> =
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
+      paddingHorizontal: tenantTheme.spacing.md,
     },
     backButton: {
       width: 40,
