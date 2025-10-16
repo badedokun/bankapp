@@ -107,6 +107,7 @@ class CustomerDataService {
      */
     static async getRecentTransactions(userId, tenantId, limit = 20) {
         try {
+            // Query unified transactions table (auto-synced from transfers via trigger)
             const result = await multi_tenant_database_1.default.queryTenant(tenantId, `SELECT
           id,
           reference,
