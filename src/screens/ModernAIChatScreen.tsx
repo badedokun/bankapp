@@ -82,6 +82,11 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const typingDotsAnim = useRef(new Animated.Value(0)).current;
 
+  // Refs to store latest values for voice recognition callbacks (fixes stale closure)
+  const lastTransferReferenceRef = useRef<string | null>(null);
+  const messagesRef = useRef<Message[]>([]);
+  const handleSuggestionPressRef = useRef<(suggestion: string) => void>();
+
   useEffect(() => {
     // Fade in animation
     Animated.timing(fadeAnim, {
@@ -122,6 +127,15 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
     scrollToBottom();
   }, [messages]);
 
+  // Keep refs in sync with state (for voice recognition callbacks)
+  useEffect(() => {
+    lastTransferReferenceRef.current = lastTransferReference;
+  }, [lastTransferReference]);
+
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+
   // Initialize Web Speech API
   useEffect(() => {
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
@@ -141,7 +155,10 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
               // Check if this is a special command like "view receipt"
               if (transcript.toLowerCase().includes('view receipt') ||
                   transcript.toLowerCase().includes('show receipt')) {
-                handleSuggestionPress('View receipt');
+                // Use ref to call latest version of handleSuggestionPress
+                if (handleSuggestionPressRef.current) {
+                  handleSuggestionPressRef.current('View receipt');
+                }
               } else {
                 handleSendMessage(transcript);
               }
@@ -359,13 +376,14 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
   const handleSuggestionPress = async (suggestion: string) => {
     // Check if this is a "View receipt" action
     if (suggestion.toLowerCase().includes('view receipt')) {
-      // Try to extract reference from the last message if lastTransferReference is not set
-      let referenceToUse = lastTransferReference;
+      // Use refs to get latest values (fixes stale closure issue with voice recognition)
+      let referenceToUse = lastTransferReferenceRef.current;
+      const currentMessages = messagesRef.current;
 
-      if (!referenceToUse && messages.length > 0) {
+      if (!referenceToUse && currentMessages.length > 0) {
         // Look for reference in recent messages
-        for (let i = messages.length - 1; i >= Math.max(0, messages.length - 5); i--) {
-          const msg = messages[i];
+        for (let i = currentMessages.length - 1; i >= Math.max(0, currentMessages.length - 5); i--) {
+          const msg = currentMessages[i];
           if (msg.sender === 'ai' && msg.text) {
             // Match reference pattern: 25 characters alphanumeric (bank code + ULID + HMAC + check digits)
             const refMatch = msg.text.match(/Reference:\s*([A-Z0-9]{25})/i);

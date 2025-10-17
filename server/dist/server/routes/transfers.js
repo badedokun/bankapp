@@ -373,7 +373,7 @@ router.post('/initiate', auth_1.authenticateToken, tenant_1.validateTenantAccess
             const sourceBankCode = platformResult.rows[0]?.bank_code || 'EXT';
             if (walletResult.rowCount === 0) {
                 await client.query('ROLLBACK');
-                client.release();
+                // Don't release here - finally block will handle it
                 return res.status(404).json({
                     success: false,
                     error: 'Wallet not found',
@@ -385,7 +385,7 @@ router.post('/initiate', auth_1.authenticateToken, tenant_1.validateTenantAccess
             const isPinValid = await bcrypt_1.default.compare(pin, wallet.transaction_pin_hash);
             if (!isPinValid) {
                 await client.query('ROLLBACK');
-                client.release();
+                // Don't release here - finally block will handle it
                 return res.status(401).json({
                     success: false,
                     error: 'Invalid transaction PIN',
@@ -397,7 +397,7 @@ router.post('/initiate', auth_1.authenticateToken, tenant_1.validateTenantAccess
             const currentBalance = parseFloat(wallet.balance);
             if (currentBalance < transferAmount) {
                 await client.query('ROLLBACK');
-                client.release();
+                // Don't release here - finally block will handle it
                 return res.status(400).json({
                     success: false,
                     error: 'Insufficient balance',
@@ -425,7 +425,7 @@ router.post('/initiate', auth_1.authenticateToken, tenant_1.validateTenantAccess
             const isDemoUser = wallet.first_name === 'Demo' && wallet.last_name === 'User';
             if (!isDemoUser && (limits.daily_spent + transferAmount) > dailyLimit) {
                 await client.query('ROLLBACK');
-                client.release();
+                // Don't release here - finally block will handle it
                 return res.status(400).json({
                     success: false,
                     error: 'Daily transfer limit exceeded',
@@ -440,7 +440,7 @@ router.post('/initiate', auth_1.authenticateToken, tenant_1.validateTenantAccess
             // Skip monthly limit check for Demo User (testing purposes)
             if (!isDemoUser && (limits.monthly_spent + transferAmount) > monthlyLimit) {
                 await client.query('ROLLBACK');
-                client.release();
+                // Don't release here - finally block will handle it
                 return res.status(400).json({
                     success: false,
                     error: 'Monthly transfer limit exceeded',
@@ -515,7 +515,7 @@ router.post('/initiate', auth_1.authenticateToken, tenant_1.validateTenantAccess
         `, [recipientUserId, tenantId]);
                 if (recipientWalletResult.rowCount === 0) {
                     await client.query('ROLLBACK');
-                    client.release();
+                    // Don't release here - finally block will handle it
                     return res.status(500).json({
                         success: false,
                         error: 'Recipient wallet not found',
@@ -531,7 +531,7 @@ router.post('/initiate', auth_1.authenticateToken, tenant_1.validateTenantAccess
         `, [transferAmount, recipientWallet.id]);
                 // For internal transfers, commit immediately and return success
                 await client.query('COMMIT');
-                client.release();
+                // Don't release here - finally block will handle it
                 return res.json({
                     success: true,
                     message: 'Internal transfer completed successfully',

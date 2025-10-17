@@ -342,7 +342,7 @@ router.get('/profile', authenticateToken, validateTenantAccess, asyncHandler(asy
   // Get detailed user information
   const userResult = await query(`
     SELECT u.*, w.wallet_number, w.balance, w.available_balance,
-           tm.tenant_name, t.display_name as tenant_display_name, t.branding
+           tm.tenant_name, t.display_name as tenant_display_name, t.branding, t.bank_code
     FROM tenant.users u
     LEFT JOIN tenant.wallets w ON u.id = w.user_id AND w.wallet_type = 'main'
     JOIN tenant.tenant_metadata tm ON u.tenant_id = tm.tenant_id
@@ -386,6 +386,7 @@ router.get('/profile', authenticateToken, validateTenantAccess, asyncHandler(asy
       id: user.tenant_id,
       name: user.tenant_name,
       displayName: user.tenant_display_name,
+      bankCode: user.bank_code,
       branding: user.branding
     }
   };

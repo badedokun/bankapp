@@ -159,6 +159,12 @@ console.log(`   - Auth: ${isDevelopment ? '500' : '5'} attempts per 15min`);
 app.use('/mockups', express_1.default.static(path_1.default.join(__dirname, '../public/mockups')));
 // Serve design system files
 app.use('/design-system', express_1.default.static(path_1.default.join(__dirname, '../public/design-system')));
+// Serve frontend build in production
+if (process.env.NODE_ENV === 'production') {
+    const distPath = path_1.default.join(__dirname, '../dist');
+    app.use(express_1.default.static(distPath));
+    console.log(`📦 Serving frontend from: ${distPath}`);
+}
 // Health check endpoint
 app.get('/health', (_req, res) => {
     res.json({
@@ -197,6 +203,12 @@ app.use('/api/banks', auth_2.authenticateToken, tenant_1.tenantMiddleware, banks
 app.use('/api/rewards', auth_2.authenticateToken, tenant_1.tenantMiddleware, rewards_1.default);
 app.use('/api/referrals', tenant_1.tenantMiddleware, referrals_1.default); // Mixed auth (some endpoints public)
 app.use('/api/disputes', auth_2.authenticateToken, tenant_1.tenantMiddleware, disputes_1.default);
+// Serve index.html for all non-API routes (client-side routing) in production
+if (process.env.NODE_ENV === 'production') {
+    app.get('*', (_req, res) => {
+        res.sendFile(path_1.default.join(__dirname, '../dist/index.html'));
+    });
+}
 // Error handling
 app.use(errorHandler_1.notFound);
 app.use(errorHandler_1.errorHandler);

@@ -258,15 +258,21 @@ export class UserService {
    */
   async getUserProfile(tenantId: string, userId: string): Promise<UserProfile | null> {
     try {
+      // Query user data with tenant information including bank_code
       const result = await dbManager.queryTenant(tenantId, `
         SELECT u.*, w.balance as wallet_balance,
                CASE
                  WHEN u.profile_address IS NOT NULL
                  THEN u.profile_address::json
                  ELSE NULL
-               END as address
+               END as address,
+               t.display_name as tenant_display_name,
+               t.bank_code as tenant_bank_code,
+               t.branding as tenant_branding,
+               t.slug as tenant_slug
         FROM tenant.users u
         LEFT JOIN tenant.wallets w ON u.id = w.user_id AND w.wallet_type = 'main'
+        JOIN platform.tenants t ON u.tenant_id = t.id
         WHERE u.id = $1
       `, [userId]);
 
@@ -292,6 +298,13 @@ export class UserService {
         limits: {
           dailyLimit: parseFloat(user.daily_limit || '100000'),
           monthlyLimit: parseFloat(user.monthly_limit || '500000')
+        },
+        tenant: {
+          id: tenantId,
+          displayName: user.tenant_display_name,
+          bankCode: user.tenant_bank_code,
+          slug: user.tenant_slug,
+          branding: user.tenant_branding
         },
         createdAt: user.created_at,
         updatedAt: user.updated_at
