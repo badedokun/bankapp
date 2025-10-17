@@ -58,6 +58,13 @@ export interface UserProfile {
     dailyLimit: number;
     monthlyLimit: number;
   };
+  tenant?: {
+    id: string;
+    displayName: string;
+    bankCode: string;
+    slug: string;
+    branding: any;
+  };
   createdAt: string;
   updatedAt: string;
 }
