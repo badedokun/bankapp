@@ -408,6 +408,11 @@ const ModernAIChatScreen: React.FC<ModernAIChatScreenProps> = ({
     handleSendMessage(suggestion);
   };
 
+  // Keep ref in sync with handleSuggestionPress (must be after function definition)
+  useEffect(() => {
+    handleSuggestionPressRef.current = handleSuggestionPress;
+  }, [handleSuggestionPress]);
+
   const handleViewReceipt = async (reference: string) => {
     try {
       const token = APIService.getAccessToken();
