@@ -8,7 +8,7 @@ import { query } from '../../config/database';
 import dbManager from '../../config/multi-tenant-database';
 
 export interface CustomerQuery {
-  type: 'balance' | 'transactions' | 'spending' | 'savings' | 'transfers' | 'bills' | 'general';
+  type: 'balance' | 'transactions' | 'spending' | 'savings' | 'transfers' | 'bills' | 'conversational' | 'general';
   userId: string;
   parameters?: Record<string, any>;
 }
@@ -25,7 +25,22 @@ export class CustomerDataService {
    * Classify the customer's query intent
    */
   static classifyQuery(message: string): CustomerQuery['type'] {
-    const msg = message.toLowerCase();
+    const msg = message.toLowerCase().trim();
+
+    // Conversational phrases (greetings, thanks, etc.) - handle without OpenAI
+    const conversationalPatterns = [
+      /^(thank you|thanks|thx|thank u|thanku)[\s!.]*$/i,
+      /^(you\'?re welcome|welcome|no problem|np|no worries)[\s!.]*$/i,
+      /^(hello|hi|hey|greetings|good morning|good afternoon|good evening)[\s!.]*$/i,
+      /^(goodbye|bye|see you|catch you later|later|cya)[\s!.]*$/i,
+      /^(ok|okay|sure|alright|sounds good|cool)[\s!.]*$/i,
+      /^(yes|yeah|yep|yup|correct|right)[\s!.]*$/i,
+      /^(no|nope|nah|not really)[\s!.]*$/i,
+    ];
+
+    if (conversationalPatterns.some(pattern => pattern.test(msg))) {
+      return 'conversational';
+    }
 
     // Balance queries
     if (msg.includes('balance') || msg.includes('how much') && (msg.includes('have') || msg.includes('account'))) {
@@ -444,8 +459,49 @@ export class CustomerDataService {
    */
   static async processQuery(message: string, userId: string, tenantId: string, options?: { limit?: number }): Promise<CustomerDataResponse> {
     const queryType = this.classifyQuery(message);
+    const msg = message.toLowerCase().trim();
 
     switch (queryType) {
+      case 'conversational':
+        // Handle conversational phrases without OpenAI
+        let response = '';
+        const suggestions = ['Check Balance', 'Transfer Money', 'View Transactions', 'Get Help'];
+
+        // Thank you responses
+        if (msg.match(/^(thank you|thanks|thx|thank u|thanku)[\s!.]*$/i)) {
+          response = "You're welcome! I'm always here to help with your banking needs. Is there anything else you'd like to know?";
+        }
+        // Greeting responses
+        else if (msg.match(/^(hello|hi|hey|greetings|good morning|good afternoon|good evening)[\s!.]*$/i)) {
+          response = "Hello! How can I assist you with your banking today?";
+        }
+        // Goodbye responses
+        else if (msg.match(/^(goodbye|bye|see you|catch you later|later|cya)[\s!.]*$/i)) {
+          response = "Goodbye! Have a great day, and feel free to reach out anytime you need assistance.";
+        }
+        // Affirmative responses
+        else if (msg.match(/^(ok|okay|sure|alright|sounds good|cool)[\s!.]*$/i)) {
+          response = "Great! Is there anything else I can help you with?";
+        }
+        // Yes/No responses
+        else if (msg.match(/^(yes|yeah|yep|yup|correct|right)[\s!.]*$/i)) {
+          response = "Perfect! What would you like to do next?";
+        }
+        else if (msg.match(/^(no|nope|nah|not really)[\s!.]*$/i)) {
+          response = "No problem! Let me know if you need anything else.";
+        }
+        // Generic conversational response
+        else {
+          response = "I'm here to help! How can I assist you with your banking today?";
+        }
+
+        return {
+          answer: response,
+          data: null,
+          suggestions,
+          requiresOpenAI: false
+        };
+
       case 'balance':
         return await this.getBalance(userId, tenantId);
 
